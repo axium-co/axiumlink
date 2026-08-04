@@ -1,0 +1,13 @@
+BEGIN:VCARD
+VERSION:3.0
+N:;Nome da Marca;;;
+FN:Nome da Marca
+ORG:Nome da Marca
+TITLE:Cargo / Especialidade
+TEL;TYPE=CELL:+55 00 00000-0000
+TEL;TYPE=VOICE:+55 00 00000-0000
+EMAIL:contato@seudominio.com.br
+URL:https://seusite.com.br
+ADR;TYPE=WORK:;;Rua Exemplo, 123;Cidade;UF;00000-000;Brasil
+NOTE:Salvo via Link Bio
+END:VCARD

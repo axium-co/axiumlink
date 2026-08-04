@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#ffffff" />
+
+  <title>Nome do Cliente | Link Bio</title>
+
+  <!-- ================================================================
+       SEO / Compartilhamento
+       ================================================================ -->
+  <meta name="description" content="Links e contatos de Nome do Cliente. Agende pelo WhatsApp, siga no Instagram e veja nossa localização." />
+  <meta name="robots" content="index, follow" />
+  <meta property="og:type" content="profile" />
+  <meta property="og:title" content="Nome do Cliente | Link Bio" />
+  <meta property="og:description" content="Links e contatos de Nome do Cliente." />
+  <meta property="og:image" content="icon-512.png" />
+  <meta name="twitter:card" content="summary" />
+
+  <!-- ================================================================
+       PWA — substitua pelos ícones reais depois
+       ================================================================ -->
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Nome do Cliente" />
+
+  <!-- Fonte Inter (fallback para system-ui se offline) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+
+  <!-- ================================================================
+       DESIGN SYSTEM INJETÁVEL
+       ----------------------------------------------------------------
+       Estes valores são injetados dinamicamente (banco de dados ou
+       painel de controle do cliente). Altere apenas as variáveis —
+       todo o resto do CSS consome estes tokens.
+       ================================================================ -->
+  <style>
+    :root {
+      /* == Cores da Página == */
+      --bg-page: #ffffff;            /* Fundo (cor sólida ou gradiente) */
+      --text-main: #000000;          /* Títulos principais */
+      --text-sub: #555555;           /* Subtítulos / endereço */
+
+      /* == Botões / Cards == */
+      --btn-bg: #111111;             /* Fundo dos botões e cards */
+      --btn-text: #ffffff;           /* Texto dos botões e cards */
+      --btn-radius: 8px;             /* 0px = quadrado | 30px = pill */
+      --btn-border: 1px solid transparent; /* Borda dos botões */
+
+      /* == Tipografia Dinâmica == */
+      --font-family: 'Inter', sans-serif;
+
+      /* == Tokens de apoio (avançado) == */
+      --max-width: 560px;
+      --spacing: 1.0625rem;
+      --shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+      --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ================================================================
+       RESET / BASE
+       ================================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-family);
+      font-size: 0.9375rem;
+      line-height: 1.5;
+      color: var(--text-main);
+      background: var(--bg-page);
+      min-height: 100dvh;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      display: flex;
+      flex-direction: column;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    ul { list-style: none; }
+    img { max-width: 100%; display: block; }
+
+    button {
+      font-family: inherit;
+      font-size: inherit;
+      border: none;
+      cursor: pointer;
+      background: none;
+      color: inherit;
+    }
+
+    /* ================================================================
+       ANIMAÇÃO PADRÃO (adaptativa — independe da cor do botão)
+       ================================================================ */
+    .btn, .quick__item, .featured__card {
+      transition: transform var(--transition), box-shadow var(--transition),
+                  filter var(--transition);
+    }
+
+    .btn:hover, .quick__item:hover, .featured__card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+      filter: brightness(1.08);
+    }
+
+    .btn:active, .quick__item:active, .featured__card:active {
+      transform: scale(0.98);
+      filter: brightness(0.92);
+      box-shadow: none;
+    }
+
+    /* ================================================================
+       LAYOUT GERAL
+       ================================================================ */
+    .page {
+      width: 100%;
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 3rem var(--spacing) 2rem;
+      flex: 1 0 auto;
+    }
+
+    /* ================================================================
+       HEADER — PERFIL DO CLIENTE
+       ================================================================ */
+    .profile {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+    }
+
+    /* Avatar/logo obedece --btn-radius para consistência visual */
+    .profile__avatar {
+      width: 96px;
+      height: 96px;
+      border-radius: var(--btn-radius);
+      background: var(--btn-bg);
+      color: var(--btn-text);
+      border: var(--btn-border);
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      font-size: 2.5rem;
+      font-weight: 700;
+    }
+
+    .profile__avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+    .profile__title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--text-main);
+    }
+
+    .profile__subtitle {
+      font-size: 0.875rem;
+      color: var(--text-sub);
+      max-width: 34ch;
+    }
+
+    /* Exibido apenas se o cliente preencheu o endereço no banco.
+       Remova toda a tag <a class="profile__address"> se estiver vazio. */
+    .profile__address {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-size: 0.8125rem;
+      color: var(--text-sub);
+      border: var(--btn-border);
+      border-color: rgba(0, 0, 0, 0.1);
+      padding: 0.375rem 0.875rem;
+      border-radius: 999px;
+      transition: box-shadow var(--transition);
+    }
+
+    .profile__address:hover { box-shadow: var(--shadow); }
+
+    .profile__address svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+    /* ================================================================
+       AÇÕES RÁPIDAS (4 botões compactos)
+       Mobile: linha horizontal rolável | Desktop: grid de 4
+       ================================================================ */
+    .quick {
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: 9.5rem;
+      grid-template-rows: 1fr 1fr;
+      gap: 0.75rem;
+      margin: 0 calc(var(--spacing) * -1) 2rem;
+      padding: 0 var(--spacing) 0.5rem;
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      scroll-snap-type: x proximity;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .quick::-webkit-scrollbar { display: none; }
+
+    .quick__item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.375rem;
+      min-height: 5rem;
+      background: var(--btn-bg);
+      color: var(--btn-text);
+      border: var(--btn-border);
+      border-radius: var(--btn-radius);
+      padding: 0.875rem 1rem;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      text-align: center;
+      scroll-snap-align: center;
+      will-change: transform;
+    }
+
+    .quick__item svg { width: 20px; height: 20px; flex-shrink: 0; }
+
+    .quick__item--primary { box-shadow: var(--shadow); }
+
+    /* ================================================================
+       CARDS DE DESTAQUE (ícone à esquerda, texto à direita)
+       Mobile: lista vertical | Desktop: 3 colunas
+       ================================================================ */
+    .featured {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.875rem;
+      margin-bottom: 2rem;
+    }
+
+    .featured__card {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: var(--btn-bg);
+      color: var(--btn-text);
+      border: var(--btn-border);
+      border-radius: var(--btn-radius);
+      padding: 1.125rem 1rem;
+      text-align: left;
+      will-change: transform;
+    }
+
+    .featured__icon {
+      flex-shrink: 0;
+      width: 52px;
+      height: 52px;
+      display: grid;
+      place-items: center;
+      border-radius: calc(var(--btn-radius) * 0.6);
+      background: rgba(255, 255, 255, 0.14);
+    }
+
+    .featured__icon svg { width: 28px; height: 28px; }
+
+    .featured__body {
+      display: flex;
+      flex-direction: column;
+      gap: 0.125rem;
+      min-width: 0;
+    }
+
+    .featured__body strong {
+      font-size: 0.9375rem;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+
+    .featured__body span {
+      font-size: 0.8125rem;
+      opacity: 0.78;
+    }
+
+    .featured__arrow {
+      flex-shrink: 0;
+      margin-left: auto;
+      width: 18px;
+      height: 18px;
+      opacity: 0.7;
+      transition: transform var(--transition);
+    }
+
+    .featured__card:hover .featured__arrow { transform: translateX(3px); }
+
+    /* ================================================================
+       FOOTER DA PLATAFORMA
+       ================================================================ */
+    .site-footer {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.875rem;
+      padding: 1.5rem var(--spacing) 2rem;
+      border-top: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .site-footer__pwa {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--text-main);
+      background: var(--bg-page);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 999px;
+      padding: 0.625rem 1.125rem;
+      transition: box-shadow var(--transition), transform var(--transition);
+    }
+
+    .site-footer__pwa:hover { box-shadow: var(--shadow); }
+    .site-footer__pwa:active { transform: scale(0.98); }
+    .site-footer__pwa svg { width: 16px; height: 16px; }
+
+    .site-footer__brand {
+      font-size: 0.75rem;
+      color: var(--text-sub);
+    }
+
+    .site-footer__brand a {
+      font-weight: 600;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    /* ================================================================
+       MODAL PIX (elemento nativo <dialog>)
+       ================================================================ */
+    .pix-modal {
+      width: calc(100% - 2.5rem);
+      max-width: 360px;
+      border: none;
+      border-radius: var(--btn-radius);
+      background: var(--bg-page);
+      color: var(--text-main);
+      padding: 1.75rem 1.5rem;
+      margin: auto;
+    }
+
+    .pix-modal::backdrop {
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(2px);
+    }
+
+    .pix-modal[open] { animation: modal-in 0.2s ease; }
+
+    @keyframes modal-in {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .pix-modal__title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .pix-modal__text {
+      font-size: 0.8125rem;
+      color: var(--text-sub);
+      margin-bottom: 1rem;
+    }
+
+    .pix-modal__key {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      background: var(--btn-bg);
+      color: var(--btn-text);
+      border-radius: calc(var(--btn-radius) * 0.6);
+      padding: 0.75rem 0.875rem;
+      font-size: 0.8125rem;
+      word-break: break-all;
+      margin-bottom: 0.875rem;
+    }
+
+    .pix-modal__copy {
+      flex-shrink: 0;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--btn-bg);
+      background: var(--btn-text);
+      border-radius: calc(var(--btn-radius) * 0.5);
+      padding: 0.375rem 0.625rem;
+      transition: filter var(--transition);
+    }
+
+    .pix-modal__copy:hover { filter: brightness(0.9); }
+
+    .pix-modal__qr {
+      background: rgba(0, 0, 0, 0.05);
+      border: 1px dashed rgba(0, 0, 0, 0.15);
+      border-radius: calc(var(--btn-radius) * 0.6);
+      height: 140px;
+      display: grid;
+      place-items: center;
+      font-size: 0.8125rem;
+      color: var(--text-sub);
+      margin-bottom: 0.875rem;
+    }
+
+    .pix-modal__cta {
+      display: block;
+      width: 100%;
+      text-align: center;
+      font-weight: 600;
+      background: var(--btn-bg);
+      color: var(--btn-text);
+      border-radius: var(--btn-radius);
+      padding: 0.875rem;
+      transition: transform var(--transition), filter var(--transition);
+    }
+
+    .pix-modal__cta:hover { filter: brightness(1.08); transform: translateY(-1px); }
+    .pix-modal__cta:active { transform: scale(0.98); }
+
+    .pix-modal__close {
+      position: absolute;
+      top: 0.625rem;
+      right: 0.625rem;
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.06);
+      display: grid;
+      place-items: center;
+      font-size: 1rem;
+      line-height: 1;
+    }
+
+    .pix-modal { position: relative; }
+
+    /* ================================================================
+       DESKTOP
+       ================================================================ */
+    @media (min-width: 640px) {
+      .quick {
+        display: grid;
+        grid-auto-flow: row;
+        grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: none;
+        overflow: visible;
+        margin: 0 0 2rem;
+        padding: 0;
+        scroll-snap-type: none;
+      }
+
+      .featured { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    @media (min-width: 768px) {
+      .profile__avatar { width: 112px; height: 112px; }
+
+      /* Cards de destaque centralizados no desktop */
+      .featured__card {
+        flex-direction: column;
+        text-align: center;
+        padding: 1.5rem 1.125rem;
+        gap: 0.75rem;
+      }
+
+      .featured__arrow { display: none; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+
+    <!-- ================================================================
+         HEADER — PERFIL DO CLIENTE
+         ================================================================ -->
+    <header class="profile">
+
+      <!-- TODO: SEU LOGO — troque o <span> por <img src="sua-logo.png" alt="Nome do Cliente"> -->
+      <div class="profile__avatar" aria-hidden="true">
+        <span>C</span>
+      </div>
+
+      <!-- TODO: NOME DO CLIENTE (dinâmico) -->
+      <h1 class="profile__title">Nome do Cliente</h1>
+
+      <!-- TODO: BIOGRAFIA / SERVIÇOS (dinâmico) -->
+      <p class="profile__subtitle">Biografia curta, serviços ou tags separadas por • vírgulas.</p>
+
+      <!-- TODO: ENDEREÇO — troque o href pelo link do Google Maps.
+           Remova esta tag inteira se o cliente não tiver endereço. -->
+      <a class="profile__address" href="https://www.google.com/maps" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+          <circle cx="12" cy="10" r="3" />
+        </svg>
+        <span>Rua Exemplo, 123 – Cidade/UF</span>
+      </a>
+
+    </header>
+
+    <!-- ================================================================
+         AÇÕES RÁPIDAS (4 botões compactos)
+         ================================================================ -->
+    <nav class="quick" aria-label="Ações rápidas">
+
+      <!-- TODO: SEU WHATSAPP -->
+      <a class="quick__item quick__item--primary" href="https://wa.me/5500000000000" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5Z" />
+          <path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1" />
+        </svg>
+        <span>Contato</span>
+      </a>
+
+      <!-- TODO: SEU ARQUIVO .vcf — caminho em href -->
+      <a class="quick__item" href="contato.vcf" download>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="7 10 12 15 17 10" />
+          <line x1="12" x2="12" y1="15" y2="3" />
+        </svg>
+        <span>Salvar Contato</span>
+      </a>
+
+      <!-- TODO: SEU TELEFONE — troque o número em href="tel:" -->
+      <a class="quick__item" href="tel:+5500000000000">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92Z" />
+        </svg>
+        <span>Ligar</span>
+      </a>
+
+      <!-- TODO: SUA CHAVE PIX — abrir o modal nativo -->
+      <button class="quick__item" type="button" data-dialog-open>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="2" y="6" width="20" height="12" rx="2" />
+          <circle cx="12" cy="12" r="2" />
+          <path d="M6 12h.01M18 12h.01" />
+        </svg>
+        <span>PIX</span>
+      </button>
+
+    </nav>
+
+    <!-- ================================================================
+         CARDS DE DESTAQUE (3 cards)
+         ================================================================ -->
+    <section class="featured" aria-label="Destaques">
+
+      <!-- TODO: SEU WHATSAPP -->
+      <a class="featured__card" href="https://wa.me/5500000000000" target="_blank" rel="noopener">
+        <span class="featured__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5Z" />
+            <path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1" />
+          </svg>
+        </span>
+        <span class="featured__body">
+          <strong>Agende via WhatsApp</strong>
+          <span>Fale conosco e agende seu horário.</span>
+        </span>
+        <svg class="featured__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="m9 18 6-6-6-6" />
+        </svg>
+      </a>
+
+      <!-- TODO: SEU INSTAGRAM -->
+      <a class="featured__card" href="https://instagram.com/seu_usuario" target="_blank" rel="noopener">
+        <span class="featured__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="5" />
+            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37Z" />
+            <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+          </svg>
+        </span>
+        <span class="featured__body">
+          <strong>Conheça nosso Instagram</strong>
+          <span>Acompanhe novidades e bastidores.</span>
+        </span>
+        <svg class="featured__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="m9 18 6-6-6-6" />
+        </svg>
+      </a>
+
+      <!-- TODO: SEU GOOGLE MAPS -->
+      <a class="featured__card" href="https://www.google.com/maps" target="_blank" rel="noopener">
+        <span class="featured__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+            <circle cx="12" cy="10" r="3" />
+          </svg>
+        </span>
+        <span class="featured__body">
+          <strong>Confira nossa Localização</strong>
+          <span>Abra no Google Maps e venha nos visitar.</span>
+        </span>
+        <svg class="featured__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="m9 18 6-6-6-6" />
+        </svg>
+      </a>
+
+    </section>
+
+  </main>
+
+  <!-- ================================================================
+       FOOTER DA PLATAFORMA
+       ================================================================ -->
+  <footer class="site-footer">
+    <button class="site-footer__pwa" type="button" data-pwa>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+        <polyline points="7 10 12 15 17 10" />
+        <line x1="12" x2="12" y1="15" y2="3" />
+      </svg>
+      Adicionar à tela inicial
+    </button>
+
+    <!-- TODO: BRANDING DA PLATAFORMA -->
+    <p class="site-footer__brand">
+      Criado por <a href="https://axium.company" target="_blank" rel="noopener">Axium Company</a> — <a href="https://axium.company" target="_blank" rel="noopener">crie sua página</a>
+    </p>
+  </footer>
+
+  <!-- ================================================================
+       MODAL PIX (elemento nativo <dialog>)
+       ================================================================ -->
+  <dialog class="pix-modal" data-dialog aria-labelledby="pix-title">
+
+    <button class="pix-modal__close" type="button" data-dialog-close aria-label="Fechar">&times;</button>
+
+    <h2 class="pix-modal__title" id="pix-title">Pague com PIX</h2>
+    <p class="pix-modal__text">Escaneie o QR Code ou copie a chave abaixo.</p>
+
+    <!-- TODO: SUA CHAVE PIX -->
+    <div class="pix-modal__key">
+      <span id="pix-key">sua.chave@pix.com.br</span>
+      <button class="pix-modal__copy" type="button" data-copy>Copiar</button>
+    </div>
+
+    <!-- TODO: SEU QR CODE — substitua por <img src="qrcode.png"> -->
+    <div class="pix-modal__qr" id="pix-qr">Seu QR Code aqui</div>
+
+    <!-- TODO: SEU LINK DE PAGAMENTO EXTERNO (opcional) -->
+    <a class="pix-modal__cta" href="#" target="_blank" rel="noopener">Pagar agora</a>
+
+  </dialog>
+
+  <script>
+    /* ================================================================
+       MODAL PIX (nativo <dialog>)
+       ================================================================ */
+    const dialog = document.querySelector('[data-dialog]');
+    const openBtn = document.querySelector('[data-dialog-open]');
+
+    if (dialog && openBtn) {
+      openBtn.addEventListener('click', () => {
+        if (!dialog.open) dialog.showModal();
+      });
+
+      document.querySelectorAll('[data-dialog-close]').forEach((btn) => {
+        btn.addEventListener('click', () => dialog.close());
+      });
+
+      dialog.addEventListener('click', (e) => {
+        const rect = dialog.getBoundingClientRect();
+        const inBox =
+          e.clientX >= rect.left && e.clientX <= rect.right &&
+          e.clientY >= rect.top && e.clientY <= rect.bottom;
+        if (!inBox) dialog.close();
+      });
+
+      dialog.addEventListener('cancel', () => dialog.close());
+    }
+
+    /* ================================================================
+       COPIAR CHAVE PIX (clipboard com fallback)
+       ================================================================ */
+    const copyBtn = document.querySelector('[data-copy]');
+
+    if (copyBtn) {
+      copyBtn.addEventListener('click', async () => {
+        const key = document.getElementById('pix-key');
+        try {
+          await navigator.clipboard.writeText(key.textContent.trim());
+        } catch {
+          const range = document.createRange();
+          range.selectNodeContents(key);
+          const sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+          document.execCommand('copy');
+          sel.removeAllRanges();
+        }
+        copyBtn.textContent = 'Copiado!';
+        setTimeout(() => { copyBtn.textContent = 'Copiar'; }, 2000);
+      });
+    }
+
+    /* ================================================================
+       PWA — "ADICIONAR À TELA INICIAL"
+       ================================================================ */
+    const pwaBtn = document.querySelector('[data-pwa]');
+
+    if (pwaBtn) {
+      let deferredPrompt = null;
+
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        pwaBtn.style.display = 'inline-flex';
+      });
+
+      window.addEventListener('appinstalled', () => {
+        deferredPrompt = null;
+        pwaBtn.style.display = 'none';
+      });
+
+      pwaBtn.addEventListener('click', async () => {
+        if (deferredPrompt) {
+          deferredPrompt.prompt();
+          await deferredPrompt.userChoice;
+          deferredPrompt = null;
+          pwaBtn.style.display = 'none';
+        } else {
+          alert('Instalação disponível no Chrome/Edge (Android e desktop).');
+        }
+      });
+    }
+  </script>
+</body>
+</html>
