@@ -147,24 +147,26 @@
     .btn--block { width: 100%; height: 42px; }
 
     /* ================================================================
-       LAYOUT SPLIT-SCREEN — coluna esquerda rola, direita fixa
+       LAYOUT SPLIT-SCREEN — esquerda rola, direita sticky/travada
        ================================================================ */
     .admin-layout {
       display: grid;
       grid-template-columns: minmax(360px, 460px) 1fr;
-      height: calc(100dvh - 64px);
-      overflow: hidden;
+      align-items: start;
       flex: 1;
+      min-height: 0;
     }
 
-    /* ---- Painel de Edição (esquerda) — rolagem vertical independente ---- */
+    /* ---- Painel de Edição (esquerda) — sticky e rolagem independente ---- */
     .panel {
       background: var(--ds-bg);
       border-right: 1px solid var(--ds-border);
       padding: 1.5rem 1.375rem 2.5rem;
       overflow-y: auto;
       overscroll-behavior: contain;
-      min-height: 0;
+      position: sticky;
+      top: 64px;
+      height: calc(100vh - 64px);
     }
 
     .panel::-webkit-scrollbar { width: 8px; }
@@ -425,72 +427,55 @@
     }
 
     /* ================================================================
-       ZONA DE PREVIEW — fundo escuro, celular centralizado e fixo
+       COLUNA DIREITA — preview sticky/travado com mockup de smartphone
        ================================================================ */
     .preview-zone {
       display: flex;
-      align-items: center;
       justify-content: center;
-      padding: 2rem 1.5rem;
-      min-height: 0;
+      align-items: center;
+      position: sticky;
+      top: 64px;
+      height: calc(100vh - 64px);
       overflow: hidden;
-      background:
-        radial-gradient(1100px 700px at 50% -20%, rgba(99, 102, 241, 0.16) 0%, transparent 55%),
-        radial-gradient(900px 600px at 100% 110%, rgba(59, 130, 246, 0.12) 0%, transparent 50%),
-        linear-gradient(180deg, #111827 0%, #0b1220 100%);
+      background: #0F172A;
+      min-height: 0;
     }
 
-    /* ---- Moldura do celular (frame premium) ---- */
-    .phone {
-      width: 318px;
-      height: 656px;
-      border-radius: 52px;
-      background: linear-gradient(145deg, #303440 0%, #1a1d24 45%, #0d0f14 100%);
-      padding: 10px;
+    /* ---- Casca do smartphone (realista) ---- */
+    .phone-mockup {
+      width: 360px;
+      height: 720px;
       position: relative;
       flex-shrink: 0;
-      box-shadow:
-        0 25px 50px -12px rgba(0, 0, 0, 0.6),
-        0 6px 18px rgba(0, 0, 0, 0.35),
-        0 0 0 1px rgba(255, 255, 255, 0.06),
-        inset 0 1px 1px rgba(255, 255, 255, 0.12);
+      border: 12px solid #1E293B;
+      border-radius: 40px;
+      background: #1E293B;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     }
 
-    .phone::before {
-      content: "";
+    .phone-notch {
       position: absolute;
-      top: 16px;
+      top: 14px;
       left: 50%;
       transform: translateX(-50%);
-      width: 96px;
-      height: 26px;
+      width: 110px;
+      height: 28px;
       background: #000;
       border-radius: 999px;
       z-index: 3;
-      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.07);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
     }
 
-    .phone__btn {
-      position: absolute;
-      z-index: 1;
-      background: linear-gradient(180deg, #3a3f4a 0%, #181b20 100%);
-      border-radius: 3px;
-    }
-
-    .phone__btn--left { left: -3px; top: 148px; width: 3px; height: 56px; }
-    .phone__btn--right { right: -3px; top: 196px; width: 3px; height: 92px; }
-
-    .phone__screen {
+    .phone-screen {
       width: 100%;
       height: 100%;
-      border-radius: 42px;
-      overflow: hidden;
+      border-radius: 28px;
       overflow-y: auto;
-      background: #fff;
       scrollbar-width: none;
+      background-color: var(--page-bg, #ffffff);
     }
 
-    .phone__screen::-webkit-scrollbar { display: none; }
+    .phone-screen::-webkit-scrollbar { display: none; }
 
     /* ================================================================
        PREVIEW — réplica do index.html (mesmas variáveis CSS)
@@ -705,19 +690,33 @@
       .admin-layout {
         grid-template-columns: 1fr;
         height: auto;
-        overflow: visible;
       }
 
       .panel {
+        position: static;
+        height: auto;
         border-right: none;
         border-bottom: 1px solid var(--ds-border);
         max-height: none;
         overflow-y: visible;
       }
 
-      .preview-zone { padding: 2rem 1rem; }
-      .phone { width: 296px; height: 610px; }
+      .preview-zone {
+        position: relative;
+        top: auto;
+        height: auto;
+        min-height: 640px;
+        overflow: visible;
+        padding: 2rem 1rem;
+      }
+
+      .phone-mockup { width: 316px; height: 640px; }
       .topbar { padding: 0 1rem; }
+    }
+
+    /* Telas de pouca altura — reduz o mockup para não cortar o aparelho */
+    @media (max-height: 800px) and (min-width: 981px) {
+      .phone-mockup { width: 320px; height: 640px; }
     }
 
     @media (max-width: 480px) {
@@ -1187,10 +1186,9 @@
          COLUNA DIREITA — PREVIEW EM TEMPO REAL
          ================================================================ -->
     <section class="preview-zone">
-      <div class="phone" aria-label="Pré-visualização em dispositivo móvel">
-        <span class="phone__btn phone__btn--left" aria-hidden="true"></span>
-        <span class="phone__btn phone__btn--right" aria-hidden="true"></span>
-        <div class="phone__screen">
+      <div class="phone-mockup" aria-label="Pré-visualização em dispositivo móvel">
+        <span class="phone-notch" aria-hidden="true"></span>
+        <div class="phone-screen" id="preview-mobile-container">
           <div class="preview" id="preview">
             <div class="pv-flow" id="pvFlow">
 
