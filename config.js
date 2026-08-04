@@ -24,17 +24,20 @@ window.AXIUMLINK_CONFIG = {
     whatsapp: {
       link: "https://wa.me/5500000000000",
       title: "Agende via WhatsApp",
-      description: "Fale conosco e agende seu horário."
+      description: "Fale conosco e agende seu horário.",
+      icon: null
     },
     instagram: {
       link: "https://instagram.com/seu_usuario",
       title: "Conheça nosso Instagram",
-      description: "Acompanhe novidades e bastidores."
+      description: "Acompanhe novidades e bastidores.",
+      icon: null
     },
     maps: {
       link: "https://www.google.com/maps",
       title: "Confira nossa Localização",
-      description: "Abra no Google Maps e venha nos visitar."
+      description: "Abra no Google Maps e venha nos visitar.",
+      icon: null
     }
   },
   visual: {
@@ -44,8 +47,23 @@ window.AXIUMLINK_CONFIG = {
     quickText: "#ffffff",
     cardBg: "#000000",
     cardText: "#ffffff",
-    radius: "12px",
+    radius: "arredondado",
     radiusLabel: "Arredondado",
-    font: "Inter"
+    font: "Inter",
+    bgImage: null
+  },
+  layout: {
+    quickMode: "grid2x2",
+    cardsMode: "list",
+    info: { order: 1, hidden: false },
+    items: {
+      quickContact:  { order: 2, width: "half" },
+      quickVcf:      { order: 3, width: "half" },
+      quickPhone:    { order: 4, width: "half" },
+      pixKey:        { order: 5, width: "half" },
+      cardWhatsapp:  { order: 6, width: "full" },
+      cardInstagram: { order: 7, width: "full" },
+      cardMaps:      { order: 8, width: "full" }
+    }
   }
 };

@@ -33,7 +33,7 @@
   <!-- Fonte Inter (fallback para system-ui se offline) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Roboto:wght@400;500;700&family=Open+Sans:wght@400;600;700&family=Poppins:wght@400;500;700&family=Montserrat:wght@400;600;700&family=Lato:wght@400;700&family=Merriweather:wght@400;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet" />
 
   <!-- ================================================================
        DESIGN SYSTEM INJETÁVEL
@@ -144,7 +144,7 @@
       align-items: center;
       text-align: center;
       gap: 0.75rem;
-      margin-bottom: 2rem;
+      width: 100%;
     }
 
     /* Avatar/logo obedece --global-radius para consistência visual */
@@ -197,25 +197,35 @@
     .profile__address svg { width: 14px; height: 14px; flex-shrink: 0; }
 
     /* ================================================================
-       AÇÕES RÁPIDAS (4 botões compactos)
-       Mobile: linha horizontal rolável | Desktop: grid de 4
+       FLUXO LIVRE — botões e cards num único container flex
+       (order/largura definidos pelo Painel Axiumlink)
        ================================================================ */
-    .quick {
-      display: grid;
-      grid-auto-flow: column;
-      grid-auto-columns: 9.5rem;
-      grid-template-rows: 1fr 1fr;
+    .page-flow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: stretch;
+    }
+
+    .pg-item--full { flex: 1 1 100%; }
+    .pg-item--half { flex: 1 1 calc(50% - 0.5rem); }
+    .pg-item--auto { flex: 0 1 auto; }
+
+    .pg-strip {
+      display: flex;
+      flex-wrap: nowrap;
       gap: 0.75rem;
-      margin: 0 calc(var(--spacing) * -1) 2rem;
-      padding: 0 var(--spacing) 0.5rem;
       overflow-x: auto;
       overscroll-behavior-x: contain;
       scroll-snap-type: x proximity;
       scrollbar-width: none;
-      -webkit-overflow-scrolling: touch;
+      padding-bottom: 4px;
     }
 
-    .quick::-webkit-scrollbar { display: none; }
+    .pg-strip::-webkit-scrollbar { display: none; }
+
+    .pg-strip--quick .quick__item { flex: 0 0 auto; width: auto; min-width: 9.5rem; }
+    .pg-strip--cards .featured__card { flex: 0 0 auto; width: auto; min-width: 15rem; }
 
     .quick__item {
       display: flex;
@@ -242,15 +252,7 @@
 
     /* ================================================================
        CARDS DE DESTAQUE (ícone à esquerda, texto à direita)
-       Mobile: lista vertical | Desktop: 3 colunas
        ================================================================ */
-    .featured {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 0.875rem;
-      margin-bottom: 2rem;
-    }
-
     .featured__card {
       display: flex;
       align-items: center;
@@ -272,9 +274,11 @@
       place-items: center;
       border-radius: calc(var(--global-radius) * 0.6);
       background: color-mix(in srgb, var(--card-destaque-text) 16%, transparent);
+      overflow: hidden;
     }
 
     .featured__icon svg { width: 28px; height: 28px; }
+    .featured__icon-img { width: 100%; height: 100%; object-fit: cover; }
 
     .featured__body {
       display: flex;
@@ -460,18 +464,7 @@
        DESKTOP
        ================================================================ */
     @media (min-width: 640px) {
-      .quick {
-        display: grid;
-        grid-auto-flow: row;
-        grid-template-columns: repeat(4, 1fr);
-        grid-template-rows: none;
-        overflow: visible;
-        margin: 0 0 2rem;
-        padding: 0;
-        scroll-snap-type: none;
-      }
-
-      .featured { grid-template-columns: repeat(3, 1fr); }
+      .page-flow { gap: 1.25rem; }
     }
 
     @media (min-width: 768px) {
@@ -495,11 +488,12 @@
 
 <body>
   <main class="page">
+    <div class="page-flow" id="pageFlow">
 
     <!-- ================================================================
          HEADER — PERFIL DO CLIENTE
          ================================================================ -->
-    <header class="profile">
+    <header class="profile" id="pageProfile">
 
       <!-- TODO: SEU LOGO — troque o <span> por <img src="sua-logo.png" alt="Nome do Cliente"> -->
       <div class="profile__avatar" aria-hidden="true">
@@ -527,10 +521,9 @@
     <!-- ================================================================
          AÇÕES RÁPIDAS (4 botões compactos)
          ================================================================ -->
-    <nav class="quick" aria-label="Ações rápidas">
 
       <!-- TODO: SEU WHATSAPP -->
-      <a class="quick__item quick__item--primary" data-link="quickContact" href="https://wa.me/5500000000000" target="_blank" rel="noopener">
+      <a class="quick__item quick__item--primary" id="pgQuickContact" data-link="quickContact" href="https://wa.me/5500000000000" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5Z" />
           <path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1" />
@@ -539,7 +532,7 @@
       </a>
 
       <!-- TODO: SEU ARQUIVO .vcf — caminho em href -->
-      <a class="quick__item" data-link="quickVcf" href="contato.vcf" download>
+      <a class="quick__item" id="pgQuickVcf" data-link="quickVcf" href="contato.vcf" download>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
           <polyline points="7 10 12 15 17 10" />
@@ -549,7 +542,7 @@
       </a>
 
       <!-- TODO: SEU TELEFONE — troque o número em href="tel:" -->
-      <a class="quick__item" data-link="quickPhone" href="tel:+5500000000000">
+      <a class="quick__item" id="pgQuickPhone" data-link="quickPhone" href="tel:+5500000000000">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92Z" />
         </svg>
@@ -557,7 +550,7 @@
       </a>
 
       <!-- TODO: SUA CHAVE PIX — abrir o modal nativo -->
-      <button class="quick__item" type="button" data-dialog-open>
+      <button class="quick__item" id="pgQuickPix" type="button" data-dialog-open>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <rect x="2" y="6" width="20" height="12" rx="2" />
           <circle cx="12" cy="12" r="2" />
@@ -566,20 +559,18 @@
         <span>PIX</span>
       </button>
 
-    </nav>
-
     <!-- ================================================================
          CARDS DE DESTAQUE (3 cards)
          ================================================================ -->
-    <section class="featured" aria-label="Destaques">
 
       <!-- TODO: SEU WHATSAPP -->
-      <a class="featured__card" data-link="cardWhatsappLink" href="https://wa.me/5500000000000" target="_blank" rel="noopener">
+      <a class="featured__card" id="pgCard1" data-link="cardWhatsappLink" href="https://wa.me/5500000000000" target="_blank" rel="noopener">
         <span class="featured__icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="currentColor">
             <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5Z" />
             <path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1" />
           </svg>
+          <img class="featured__icon-img" id="featIcon1" alt="" hidden />
         </span>
         <span class="featured__body">
           <strong data-bind="cardWhatsappTitle">Agende via WhatsApp</strong>
@@ -591,13 +582,14 @@
       </a>
 
       <!-- TODO: SEU INSTAGRAM -->
-      <a class="featured__card" data-link="cardInstagramLink" href="https://instagram.com/seu_usuario" target="_blank" rel="noopener">
+      <a class="featured__card" id="pgCard2" data-link="cardInstagramLink" href="https://instagram.com/seu_usuario" target="_blank" rel="noopener">
         <span class="featured__icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="2" y="2" width="20" height="20" rx="5" />
             <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37Z" />
             <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
           </svg>
+          <img class="featured__icon-img" id="featIcon2" alt="" hidden />
         </span>
         <span class="featured__body">
           <strong data-bind="cardInstagramTitle">Conheça nosso Instagram</strong>
@@ -609,12 +601,13 @@
       </a>
 
       <!-- TODO: SEU GOOGLE MAPS -->
-      <a class="featured__card" data-link="cardMapsLink" href="https://www.google.com/maps" target="_blank" rel="noopener">
+      <a class="featured__card" id="pgCard3" data-link="cardMapsLink" href="https://www.google.com/maps" target="_blank" rel="noopener">
         <span class="featured__icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
             <circle cx="12" cy="10" r="3" />
           </svg>
+          <img class="featured__icon-img" id="featIcon3" alt="" hidden />
         </span>
         <span class="featured__body">
           <strong data-bind="cardMapsTitle">Confira nossa Localização</strong>
@@ -625,7 +618,7 @@
         </svg>
       </a>
 
-    </section>
+    </div>
 
   </main>
 
@@ -837,8 +830,126 @@
       set('--btn-quick-text', v.quickText);
       set('--card-destaque-bg', v.cardBg);
       set('--card-destaque-text', v.cardText);
-      set('--global-radius', v.radius);
+
+      /* ---- Formato dos botões/cards (enum -> CSS; legado 0px/12px/30px) ---- */
+      const radiusMap = {
+        'quadrado':           { css: '0px',               extras: {} },
+        'leve-arredondado':   { css: '8px',               extras: {} },
+        'arredondado':        { css: '14px',              extras: {} },
+        'totalmente-oval':    { css: '999px',             extras: {} },
+        'assimetrico':        { css: '14px 4px 14px 4px', extras: {} },
+        'outline':            { css: '10px',              extras: { border: '2px solid currentColor', boxShadow: 'none' } },
+        'sombra-bloco':       { css: '10px',              extras: { boxShadow: '6px 6px 0 0 rgba(0,0,0,0.25)' } },
+        'suave-sombra':       { css: '12px',              extras: { boxShadow: '0 10px 24px rgba(0,0,0,0.18)' } }
+      };
+      const radiusValue = (v.radius === '0px') ? 'quadrado'
+                        : (v.radius === '30px') ? 'totalmente-oval'
+                        : v.radius;
+      const radiusOpt = radiusMap[radiusValue] || radiusMap.arredondado;
+      set('--global-radius', radiusOpt.css);
+      document.querySelectorAll('.quick__item, .featured__card').forEach((t) => {
+        t.style.border = radiusOpt.extras.border || '';
+        t.style.boxShadow = radiusOpt.extras.boxShadow || '';
+      });
+
       set('--font-main', "'" + (v.font || 'Inter') + "', sans-serif");
+
+      /* ---- Imagem de fundo da página ---- */
+      if (v.bgImage) {
+        document.body.style.backgroundImage = 'url(' + v.bgImage + ')';
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center';
+      }
+
+      /* ---- Ícones customizados dos cards ---- */
+      [
+        { icon: w.icon, imgId: 'featIcon1' },
+        { icon: ig.icon, imgId: 'featIcon2' },
+        { icon: m.icon, imgId: 'featIcon3' }
+      ].forEach(({ icon, imgId }) => {
+        if (!icon) return;
+        const img = document.getElementById(imgId);
+        if (!img) return;
+        img.src = icon;
+        img.hidden = false;
+        const svg = img.parentElement.querySelector('svg');
+        if (svg) svg.hidden = true;
+      });
+
+      /* ---- Layout livre (ordem, largura e modos por seção) ---- */
+      const lay = cfg.layout || {};
+      const layItems = lay.items || {};
+      const quickMode = lay.quickMode || 'grid2x2';
+      const cardsMode = lay.cardsMode || 'list';
+
+      const PAGE_ITEMS = [
+        { key: 'quickContact',  group: 'quick', elId: 'pgQuickContact' },
+        { key: 'quickVcf',      group: 'quick', elId: 'pgQuickVcf' },
+        { key: 'quickPhone',    group: 'quick', elId: 'pgQuickPhone' },
+        { key: 'pixKey',        group: 'quick', elId: 'pgQuickPix' },
+        { key: 'cardWhatsapp',  group: 'cards', elId: 'pgCard1' },
+        { key: 'cardInstagram', group: 'cards', elId: 'pgCard2' },
+        { key: 'cardMaps',      group: 'cards', elId: 'pgCard3' }
+      ];
+
+      function clampOrder(value, fallback) {
+        const n = parseInt(value, 10);
+        if (Number.isNaN(n)) return fallback;
+        return Math.min(10, Math.max(1, n));
+      }
+
+      function applyItemStyle(entry, inStrip) {
+        const node = entry.node;
+        node.style.order = entry.order;
+        node.style.display = '';
+        node.classList.remove('pg-item--full', 'pg-item--half', 'pg-item--auto');
+        const width = inStrip ? 'auto' : entry.width;
+        if (width === 'half') node.classList.add('pg-item--half');
+        else if (width === 'auto') node.classList.add('pg-item--auto');
+        else node.classList.add('pg-item--full');
+      }
+
+      const flow = document.getElementById('pageFlow');
+      const profile = document.getElementById('pageProfile');
+      if (flow && profile) {
+        profile.style.order = clampOrder(lay.info && lay.info.order, 1);
+        profile.style.display = (lay.info && lay.info.hidden) ? 'none' : '';
+
+        const pgItems = PAGE_ITEMS
+          .map((item) => {
+            const conf = layItems[item.key] || {};
+            const mode = (item.group === 'quick') ? quickMode : cardsMode;
+            return {
+              key: item.key,
+              group: item.group,
+              node: document.getElementById(item.elId),
+              order: clampOrder(conf.order, 10),
+              width: conf.width || 'full',
+              visible: mode !== 'hidden'
+            };
+          })
+          .filter((item) => item.node && item.visible)
+          .sort((a, b) => a.order - b.order);
+
+        flow.replaceChildren(profile);
+        const done = new Set();
+        pgItems.forEach((entry) => {
+          const mode = (entry.group === 'quick') ? quickMode : cardsMode;
+          if (mode !== 'scroll' && mode !== 'carousel') {
+            applyItemStyle(entry, false);
+            flow.appendChild(entry.node);
+            return;
+          }
+          if (done.has(entry.group)) return;
+          done.add(entry.group);
+          const groupItems = pgItems.filter((e) => e.group === entry.group);
+          const strip = document.createElement('div');
+          strip.className = 'pg-strip pg-strip--' + (entry.group === 'quick' ? 'quick' : 'cards');
+          groupItems.forEach((e) => { applyItemStyle(e, true); strip.appendChild(e.node); });
+          strip.style.order = Math.min(...groupItems.map((e) => e.order));
+          flow.appendChild(strip);
+        });
+      }
 
       /* ---- título do documento ---- */
       if (p.name) document.title = p.name + ' | Link Bio';
