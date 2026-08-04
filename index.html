@@ -360,6 +360,23 @@
     .site-footer__pwa:active { transform: scale(0.98); }
     .site-footer__pwa svg { width: 16px; height: 16px; }
 
+    /* Link discreto de acesso ao painel (engrenagem) */
+    .site-footer__admin {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      color: color-mix(in srgb, var(--text-body) 62%, transparent);
+      opacity: 0.75;
+      transition: opacity var(--transition), color var(--transition);
+    }
+
+    .site-footer__admin:hover { opacity: 1; }
+    .site-footer__admin svg { width: 15px; height: 15px; }
+
     /* Cor neutra e discreta — deriva de --text-body, adaptando-se a
        fundos claros e escuros conforme a escolha do cliente */
     .site-footer__brand {
@@ -601,6 +618,15 @@
       </svg>
       Adicionar à tela inicial
     </button>
+
+    <!-- Acesso ao painel — link discreto para o administrador -->
+    <a class="site-footer__admin" href="/admin" title="Acessar painel de gerenciamento" aria-label="Acessar painel de gerenciamento">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="3" />
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z" />
+      </svg>
+      <span>Painel</span>
+    </a>
 
     <!-- TODO: BRANDING DA PLATAFORMA -->
     <p class="site-footer__brand">
