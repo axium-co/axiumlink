@@ -44,19 +44,25 @@
        ================================================================ -->
   <style>
     :root {
-      /* == Cores da Página == */
-      --bg-page: #ffffff;            /* Fundo (cor sólida ou gradiente) */
-      --text-main: #000000;          /* Títulos principais */
-      --text-sub: #555555;           /* Subtítulos / endereço */
+      /* == Configurações Globais da Página == */
+      --page-bg: #ffffff;            /* Cor ou Gradiente de fundo do site do cliente */
+      --font-main: 'Inter', sans-serif; /* Fonte escolhida pelo cliente */
 
-      /* == Botões / Cards == */
-      --btn-bg: #111111;             /* Fundo dos botões e cards */
-      --btn-text: #ffffff;           /* Texto dos botões e cards */
-      --btn-radius: 8px;             /* 0px = quadrado | 30px = pill */
-      --btn-border: 1px solid transparent; /* Borda dos botões */
+      /* == Cores de Textos == */
+      --text-title: #000000;         /* Cor do nome do cliente */
+      --text-body: #555555;          /* Cor da biografia, endereço e descrições */
 
-      /* == Tipografia Dinâmica == */
-      --font-family: 'Inter', sans-serif;
+      /* == Botões Superiores (Ações Rápidas) == */
+      --btn-quick-bg: #000000;       /* Fundo dos 4 botões menores */
+      --btn-quick-text: #ffffff;     /* Texto/Ícone dos 4 botões menores */
+
+      /* == Cards Inferiores (Destaques) == */
+      --card-destaque-bg: #000000;   /* Fundo dos 3 cards maiores */
+      --card-destaque-text: #ffffff; /* Texto/Ícone dos 3 cards maiores */
+
+      /* == Modificadores de Formato (Bordas) == */
+      --global-radius: 12px;         /* 0px = quadrado | 12px = arredondado | 30px = oval */
+      --global-border: 1px solid transparent; /* Borda opcional p/ estilo "Outline" */
 
       /* == Tokens de apoio (avançado) == */
       --max-width: 560px;
@@ -73,11 +79,11 @@
     html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
 
     body {
-      font-family: var(--font-family);
+      font-family: var(--font-main);
       font-size: 0.9375rem;
       line-height: 1.5;
-      color: var(--text-main);
-      background: var(--bg-page);
+      color: var(--text-title);
+      background: var(--page-bg);
       min-height: 100dvh;
       -webkit-font-smoothing: antialiased;
       text-rendering: optimizeLegibility;
@@ -107,9 +113,9 @@
     }
 
     .btn:hover, .quick__item:hover, .featured__card:hover {
-      transform: translateY(-2px);
+      transform: scale(1.02);
       box-shadow: var(--shadow);
-      filter: brightness(1.08);
+      filter: brightness(1.06);
     }
 
     .btn:active, .quick__item:active, .featured__card:active {
@@ -141,14 +147,14 @@
       margin-bottom: 2rem;
     }
 
-    /* Avatar/logo obedece --btn-radius para consistência visual */
+    /* Avatar/logo obedece --global-radius para consistência visual */
     .profile__avatar {
       width: 96px;
       height: 96px;
-      border-radius: var(--btn-radius);
-      background: var(--btn-bg);
-      color: var(--btn-text);
-      border: var(--btn-border);
+      border-radius: var(--global-radius);
+      background: var(--btn-quick-bg);
+      color: var(--btn-quick-text);
+      border: var(--global-border);
       display: grid;
       place-items: center;
       overflow: hidden;
@@ -162,12 +168,12 @@
       font-size: 1.25rem;
       font-weight: 700;
       letter-spacing: -0.01em;
-      color: var(--text-main);
+      color: var(--text-title);
     }
 
     .profile__subtitle {
       font-size: 0.875rem;
-      color: var(--text-sub);
+      color: var(--text-body);
       max-width: 34ch;
     }
 
@@ -178,9 +184,9 @@
       align-items: center;
       gap: 0.375rem;
       font-size: 0.8125rem;
-      color: var(--text-sub);
-      border: var(--btn-border);
-      border-color: rgba(0, 0, 0, 0.1);
+      color: var(--text-body);
+      border: var(--global-border);
+      border-color: color-mix(in srgb, var(--text-body) 22%, transparent);
       padding: 0.375rem 0.875rem;
       border-radius: 999px;
       transition: box-shadow var(--transition);
@@ -218,10 +224,10 @@
       justify-content: center;
       gap: 0.375rem;
       min-height: 5rem;
-      background: var(--btn-bg);
-      color: var(--btn-text);
-      border: var(--btn-border);
-      border-radius: var(--btn-radius);
+      background: var(--btn-quick-bg);
+      color: var(--btn-quick-text);
+      border: var(--global-border);
+      border-radius: var(--global-radius);
       padding: 0.875rem 1rem;
       font-size: 0.8125rem;
       font-weight: 600;
@@ -249,10 +255,10 @@
       display: flex;
       align-items: center;
       gap: 1rem;
-      background: var(--btn-bg);
-      color: var(--btn-text);
-      border: var(--btn-border);
-      border-radius: var(--btn-radius);
+      background: var(--card-destaque-bg);
+      color: var(--card-destaque-text);
+      border: var(--global-border);
+      border-radius: var(--global-radius);
       padding: 1.125rem 1rem;
       text-align: left;
       will-change: transform;
@@ -264,8 +270,8 @@
       height: 52px;
       display: grid;
       place-items: center;
-      border-radius: calc(var(--btn-radius) * 0.6);
-      background: rgba(255, 255, 255, 0.14);
+      border-radius: calc(var(--global-radius) * 0.6);
+      background: color-mix(in srgb, var(--card-destaque-text) 16%, transparent);
     }
 
     .featured__icon svg { width: 28px; height: 28px; }
@@ -309,7 +315,7 @@
       align-items: center;
       gap: 0.875rem;
       padding: 1.5rem var(--spacing) 2rem;
-      border-top: 1px solid rgba(0, 0, 0, 0.08);
+      border-top: 1px solid color-mix(in srgb, var(--text-body) 24%, transparent);
     }
 
     .site-footer__pwa {
@@ -318,9 +324,9 @@
       gap: 0.5rem;
       font-size: 0.8125rem;
       font-weight: 600;
-      color: var(--text-main);
-      background: var(--bg-page);
-      border: 1px solid rgba(0, 0, 0, 0.1);
+      color: var(--text-title);
+      background: var(--page-bg);
+      border: 1px solid color-mix(in srgb, var(--text-body) 24%, transparent);
       border-radius: 999px;
       padding: 0.625rem 1.125rem;
       transition: box-shadow var(--transition), transform var(--transition);
@@ -330,9 +336,11 @@
     .site-footer__pwa:active { transform: scale(0.98); }
     .site-footer__pwa svg { width: 16px; height: 16px; }
 
+    /* Cor neutra e discreta — deriva de --text-body, adaptando-se a
+       fundos claros e escuros conforme a escolha do cliente */
     .site-footer__brand {
       font-size: 0.75rem;
-      color: var(--text-sub);
+      color: color-mix(in srgb, var(--text-body) 78%, transparent);
     }
 
     .site-footer__brand a {
@@ -345,12 +353,13 @@
        MODAL PIX (elemento nativo <dialog>)
        ================================================================ */
     .pix-modal {
+      position: relative;
       width: calc(100% - 2.5rem);
       max-width: 360px;
       border: none;
-      border-radius: var(--btn-radius);
-      background: var(--bg-page);
-      color: var(--text-main);
+      border-radius: var(--global-radius);
+      background: var(--page-bg);
+      color: var(--text-title);
       padding: 1.75rem 1.5rem;
       margin: auto;
     }
@@ -375,7 +384,7 @@
 
     .pix-modal__text {
       font-size: 0.8125rem;
-      color: var(--text-sub);
+      color: var(--text-body);
       margin-bottom: 1rem;
     }
 
@@ -384,9 +393,9 @@
       align-items: center;
       justify-content: space-between;
       gap: 0.5rem;
-      background: var(--btn-bg);
-      color: var(--btn-text);
-      border-radius: calc(var(--btn-radius) * 0.6);
+      background: var(--btn-quick-bg);
+      color: var(--btn-quick-text);
+      border-radius: calc(var(--global-radius) * 0.6);
       padding: 0.75rem 0.875rem;
       font-size: 0.8125rem;
       word-break: break-all;
@@ -397,9 +406,9 @@
       flex-shrink: 0;
       font-size: 0.75rem;
       font-weight: 700;
-      color: var(--btn-bg);
-      background: var(--btn-text);
-      border-radius: calc(var(--btn-radius) * 0.5);
+      color: var(--btn-quick-bg);
+      background: var(--btn-quick-text);
+      border-radius: calc(var(--global-radius) * 0.5);
       padding: 0.375rem 0.625rem;
       transition: filter var(--transition);
     }
@@ -407,14 +416,14 @@
     .pix-modal__copy:hover { filter: brightness(0.9); }
 
     .pix-modal__qr {
-      background: rgba(0, 0, 0, 0.05);
-      border: 1px dashed rgba(0, 0, 0, 0.15);
-      border-radius: calc(var(--btn-radius) * 0.6);
+      background: color-mix(in srgb, var(--text-title) 6%, transparent);
+      border: 1px dashed color-mix(in srgb, var(--text-title) 18%, transparent);
+      border-radius: calc(var(--global-radius) * 0.6);
       height: 140px;
       display: grid;
       place-items: center;
       font-size: 0.8125rem;
-      color: var(--text-sub);
+      color: var(--text-body);
       margin-bottom: 0.875rem;
     }
 
@@ -423,9 +432,9 @@
       width: 100%;
       text-align: center;
       font-weight: 600;
-      background: var(--btn-bg);
-      color: var(--btn-text);
-      border-radius: var(--btn-radius);
+      background: var(--btn-quick-bg);
+      color: var(--btn-quick-text);
+      border-radius: var(--global-radius);
       padding: 0.875rem;
       transition: transform var(--transition), filter var(--transition);
     }
@@ -440,14 +449,12 @@
       width: 32px;
       height: 32px;
       border-radius: 999px;
-      background: rgba(0, 0, 0, 0.06);
+      background: color-mix(in srgb, var(--text-title) 8%, transparent);
       display: grid;
       place-items: center;
       font-size: 1rem;
       line-height: 1;
     }
-
-    .pix-modal { position: relative; }
 
     /* ================================================================
        DESKTOP
