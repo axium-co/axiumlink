@@ -91,16 +91,17 @@
     .admin-layout {
       display: grid;
       grid-template-columns: minmax(340px, 460px) 1fr;
-      flex: 1 0 auto;
+      height: calc(100dvh - 57px);
+      overflow: hidden;
     }
 
-    /* ---- Painel de Edição (esquerda) ---- */
+    /* ---- Painel de Edição (esquerda) — rolagem vertical independente ---- */
     .panel {
       background: var(--admin-surface);
       border-right: 1px solid var(--admin-border);
       padding: 1.5rem;
       overflow-y: auto;
-      max-height: calc(100dvh - 57px);
+      min-height: 0;
     }
 
     .section { margin-bottom: 2rem; }
@@ -152,6 +153,25 @@
     }
 
     .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+
+    /* ---- Grade de color pickers (2 colunas) ---- */
+    .color-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-bottom: 0.875rem;
+    }
+
+    .color-grid .color-field {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.375rem;
+    }
+
+    .color-grid .color-field label { flex: none; }
+
+    .color-field__control { justify-content: space-between; }
 
     /* ---- Upload de foto ---- */
     .upload {
@@ -385,7 +405,9 @@
     .pv-quick {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 0.5rem;
+      grid-template-rows: repeat(2, 1fr);
+      gap: 8px;
+      width: 100%;
       margin-bottom: 1.25rem;
     }
 
@@ -395,6 +417,7 @@
       align-items: center;
       justify-content: center;
       gap: 0.25rem;
+      width: 100%;
       min-height: 4rem;
       background: var(--btn-quick-bg);
       color: var(--btn-quick-text);
@@ -404,6 +427,7 @@
       font-size: 0.68rem;
       font-weight: 600;
       text-align: center;
+      line-height: 1.2;
       transition: transform var(--transition), filter var(--transition);
     }
 
@@ -476,12 +500,17 @@
        RESPONSIVO — empilha colunas em telas menores
        ================================================================ */
     @media (max-width: 900px) {
-      .admin-layout { grid-template-columns: 1fr; }
+      .admin-layout {
+        grid-template-columns: 1fr;
+        height: auto;
+        overflow: visible;
+      }
 
       .panel {
         border-right: none;
         border-bottom: 1px solid var(--admin-border);
         max-height: none;
+        overflow-y: visible;
       }
 
       .preview-zone { padding: 2.5rem 1rem; }
@@ -611,45 +640,49 @@
         <section class="section">
           <h2 class="section__title">Personalização Visual</h2>
 
-          <div class="field color-field">
-            <label for="colorPageBg">Fundo da página</label>
-            <div class="color-field__control">
-              <input type="color" id="colorPageBg" data-key="colorPageBg" value="#ffffff" />
-              <span id="colorPageBgHex">#ffffff</span>
-            </div>
-          </div>
+          <div class="color-grid">
 
-          <div class="field color-field">
-            <label for="colorText">Cor do texto</label>
-            <div class="color-field__control">
-              <input type="color" id="colorText" data-key="colorText" value="#000000" />
-              <span id="colorTextHex">#000000</span>
+            <div class="field color-field">
+              <label for="input-bg-page">Fundo da Página</label>
+              <div class="color-field__control">
+                <input type="color" id="input-bg-page" data-key="colorPageBg" value="#ffffff" />
+                <span id="input-bg-pageHex">#ffffff</span>
+              </div>
             </div>
-          </div>
 
-          <div class="field color-field">
-            <label for="colorQuickBg">Botões de ação rápida</label>
-            <div class="color-field__control">
-              <input type="color" id="colorQuickBg" data-key="colorQuickBg" value="#000000" />
-              <span id="colorQuickBgHex">#000000</span>
+            <div class="field color-field">
+              <label for="input-text-color">Cor dos Textos</label>
+              <div class="color-field__control">
+                <input type="color" id="input-text-color" data-key="colorText" value="#000000" />
+                <span id="input-text-colorHex">#000000</span>
+              </div>
             </div>
-          </div>
 
-          <div class="field color-field">
-            <label for="colorCardBg">Cards de destaque</label>
-            <div class="color-field__control">
-              <input type="color" id="colorCardBg" data-key="colorCardBg" value="#000000" />
-              <span id="colorCardBgHex">#000000</span>
+            <div class="field color-field">
+              <label for="input-btn-quick">Botões Rápidos</label>
+              <div class="color-field__control">
+                <input type="color" id="input-btn-quick" data-key="colorQuickBg" value="#000000" />
+                <span id="input-btn-quickHex">#000000</span>
+              </div>
             </div>
+
+            <div class="field color-field">
+              <label for="input-card-destaque">Cards de Destaque</label>
+              <div class="color-field__control">
+                <input type="color" id="input-card-destaque" data-key="colorCardBg" value="#000000" />
+                <span id="input-card-destaqueHex">#000000</span>
+              </div>
+            </div>
+
           </div>
 
           <div class="row-2">
             <div class="field">
-              <label for="selectRadius">Formato dos botões</label>
-              <select id="selectRadius" data-key="selectRadius">
+              <label for="input-radius">Formato dos Botões</label>
+              <select id="input-radius" data-key="selectRadius">
                 <option value="0px">Quadrado</option>
                 <option value="12px" selected>Arredondado</option>
-                <option value="999px">Oval (Pill)</option>
+                <option value="30px">Totalmente Oval</option>
               </select>
             </div>
             <div class="field">
@@ -873,13 +906,13 @@
     const setVar = (name, value) => preview.style.setProperty(name, value);
 
     const colorFields = {
-      colorPageBg:  (v) => { setVar('--page-bg', v); refreshBodyText(); },
-      colorText:    (v) => { setVar('--text-title', v); refreshBodyText(); },
-      colorQuickBg: (v) => {
+      'input-bg-page':       (v) => { setVar('--page-bg', v); refreshBodyText(); },
+      'input-text-color':    (v) => { setVar('--text-title', v); refreshBodyText(); },
+      'input-btn-quick':     (v) => {
         setVar('--btn-quick-bg', v);
         setVar('--btn-quick-text', contrastText(v));
       },
-      colorCardBg:  (v) => {
+      'input-card-destaque': (v) => {
         setVar('--card-destaque-bg', v);
         setVar('--card-destaque-text', contrastText(v));
       }
@@ -887,8 +920,8 @@
 
     /* Cor de subtítulo/descrições = texto misturado com o fundo (tom suave) */
     function refreshBodyText() {
-      const title = el('colorText').value;
-      const pageBg = el('colorPageBg').value;
+      const title = el('input-text-color').value;
+      const pageBg = el('input-bg-page').value;
       setVar('--text-body', mixHex(title, pageBg, 0.72));
     }
 
@@ -903,9 +936,10 @@
 
     /* ================================================================
        FORMATO DOS BOTÕES (--global-radius)
+       0px = Quadrado | 12px = Arredondado | 30px = Totalmente Oval
        ================================================================ */
-    el('selectRadius').addEventListener('change', () => {
-      setVar('--global-radius', el('selectRadius').value);
+    el('input-radius').addEventListener('change', () => {
+      setVar('--global-radius', el('input-radius').value);
     });
 
     /* ================================================================
@@ -969,14 +1003,14 @@
           }
         },
         visual: {
-          pageBg: el('colorPageBg').value,
-          textColor: el('colorText').value,
-          quickBg: el('colorQuickBg').value,
+          pageBg: el('input-bg-page').value,
+          textColor: el('input-text-color').value,
+          quickBg: el('input-btn-quick').value,
           quickText: preview.style.getPropertyValue('--btn-quick-text').trim() || '#ffffff',
-          cardBg: el('colorCardBg').value,
+          cardBg: el('input-card-destaque').value,
           cardText: preview.style.getPropertyValue('--card-destaque-text').trim() || '#ffffff',
-          radius: el('selectRadius').value,
-          radiusLabel: el('selectRadius').selectedOptions[0].text,
+          radius: el('input-radius').value,
+          radiusLabel: el('input-radius').selectedOptions[0].text,
           font: el('selectFont').value
         }
       };
@@ -1035,9 +1069,9 @@
         cardWhatsappTitle: w.title, cardWhatsappDesc: w.description, cardWhatsappLink: w.link,
         cardInstagramTitle: ig.title, cardInstagramDesc: ig.description, cardInstagramLink: ig.link,
         cardMapsTitle: m.title, cardMapsDesc: m.description, cardMapsLink: m.link,
-        colorPageBg: v.pageBg, colorText: v.textColor,
-        colorQuickBg: v.quickBg, colorCardBg: v.cardBg,
-        selectRadius: v.radius, selectFont: v.font
+        'input-bg-page': v.pageBg, 'input-text-color': v.textColor,
+        'input-btn-quick': v.quickBg, 'input-card-destaque': v.cardBg,
+        'input-radius': v.radius, selectFont: v.font
       };
 
       Object.entries(values).forEach(([id, value]) => {
@@ -1047,7 +1081,7 @@
         input.dispatchEvent(new Event('input'));
       });
 
-      el('selectRadius').dispatchEvent(new Event('change'));
+      el('input-radius').dispatchEvent(new Event('change'));
       el('selectFont').dispatchEvent(new Event('change'));
     })();
 
@@ -1068,9 +1102,9 @@
         'cardInstagramLink': 'cards.instagram.link', 'cardInstagramTitle': 'cards.instagram.title',
         'cardInstagramDesc': 'cards.instagram.description', 'cardMapsLink': 'cards.maps.link',
         'cardMapsTitle': 'cards.maps.title', 'cardMapsDesc': 'cards.maps.description',
-        'colorPageBg': 'visual.pageBg', 'colorText': 'visual.textColor',
-        'colorQuickBg': 'visual.quickBg', 'colorCardBg': 'visual.cardBg',
-        'selectRadius': 'visual.radius', 'selectFont': 'visual.font'
+        'input-bg-page': 'visual.pageBg', 'input-text-color': 'visual.textColor',
+        'input-btn-quick': 'visual.quickBg', 'input-card-destaque': 'visual.cardBg',
+        'input-radius': 'visual.radius', 'selectFont': 'visual.font'
       };
 
       const getPath = (obj, path) => path.split('.').reduce((o, k) => (o == null ? null : o[k]), obj);
@@ -1084,7 +1118,7 @@
       });
 
       if (saved.visual) {
-        const radius = el('selectRadius');
+        const radius = el('input-radius');
         radius.dispatchEvent(new Event('change'));
       }
     })();
