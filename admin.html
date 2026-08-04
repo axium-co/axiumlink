@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#ffffff" />
+
+  <title>Painel | Axiumlink</title>
+
+  <!-- Fontes disponíveis para o cliente -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Roboto:wght@400;500;700&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Configuração atual do cliente (fonte de verdade compartilhada) -->
+  <script src="config.js"></script>
+
+  <style>
+    /* ================================================================
+       ADMIN — LAYOUT GERAL
+       ================================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --admin-bg: #f3f4f6;
+      --admin-surface: #ffffff;
+      --admin-border: #e5e7eb;
+      --admin-text: #111827;
+      --admin-muted: #6b7280;
+      --admin-accent: #4f46e5;
+      --admin-radius: 10px;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--admin-bg);
+      color: var(--admin-text);
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; cursor: pointer; }
+
+    .admin-header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      background: var(--admin-surface);
+      border-bottom: 1px solid var(--admin-border);
+      padding: 0.875rem 1.5rem;
+    }
+
+    .admin-header__brand {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 800;
+      font-size: 1.05rem;
+    }
+
+    .admin-header__brand svg { width: 24px; height: 24px; color: var(--admin-accent); }
+
+    .admin-header__links {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-size: 0.8125rem;
+    }
+
+    .admin-header__link {
+      color: var(--admin-muted);
+      font-weight: 600;
+      padding: 0.5rem 0.875rem;
+      border-radius: 999px;
+      border: 1px solid var(--admin-border);
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .admin-header__link:hover { color: var(--admin-accent); border-color: var(--admin-accent); }
+
+    /* ================================================================
+       LAYOUT SPLIT-SCREEN
+       ================================================================ */
+    .admin-layout {
+      display: grid;
+      grid-template-columns: minmax(340px, 460px) 1fr;
+      flex: 1 0 auto;
+    }
+
+    /* ---- Painel de Edição (esquerda) ---- */
+    .panel {
+      background: var(--admin-surface);
+      border-right: 1px solid var(--admin-border);
+      padding: 1.5rem;
+      overflow-y: auto;
+      max-height: calc(100dvh - 57px);
+    }
+
+    .section { margin-bottom: 2rem; }
+
+    .section__title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--admin-muted);
+      border-bottom: 1px solid var(--admin-border);
+      padding-bottom: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .field { margin-bottom: 0.875rem; }
+
+    .field label {
+      display: block;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      margin-bottom: 0.375rem;
+    }
+
+    .field input[type="text"],
+    .field input[type="url"],
+    .field input[type="tel"],
+    .field textarea,
+    .field select {
+      width: 100%;
+      padding: 0.625rem 0.75rem;
+      font-family: inherit;
+      font-size: 0.875rem;
+      color: var(--admin-text);
+      background: #fff;
+      border: 1px solid var(--admin-border);
+      border-radius: var(--admin-radius);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .field textarea { resize: vertical; min-height: 72px; }
+
+    .field input:focus,
+    .field textarea:focus,
+    .field select:focus {
+      outline: none;
+      border-color: var(--admin-accent);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+    }
+
+    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+
+    /* ---- Upload de foto ---- */
+    .upload {
+      display: flex;
+      align-items: center;
+      gap: 0.875rem;
+    }
+
+    .upload__thumb {
+      width: 56px;
+      height: 56px;
+      border-radius: var(--admin-radius);
+      border: 1px dashed var(--admin-border);
+      background: var(--admin-bg);
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      flex-shrink: 0;
+      font-weight: 700;
+      color: var(--admin-muted);
+    }
+
+    .upload__thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+    .upload__input {
+      flex: 1;
+      font-size: 0.8125rem;
+    }
+
+    .upload__input input[type="file"] { font-size: 0.75rem; }
+
+    /* ---- Color pickers ---- */
+    .color-field { display: flex; align-items: center; gap: 0.75rem; }
+
+    .color-field label { flex: 1; margin: 0; }
+
+    .color-field__control {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: #fff;
+      border: 1px solid var(--admin-border);
+      border-radius: var(--admin-radius);
+      padding: 0.3125rem;
+    }
+
+    .color-field__control input[type="color"] {
+      width: 34px;
+      height: 30px;
+      border: none;
+      border-radius: 6px;
+      padding: 0;
+      background: none;
+      cursor: pointer;
+    }
+
+    .color-field__control span {
+      font-size: 0.75rem;
+      font-family: ui-monospace, monospace;
+      color: var(--admin-muted);
+      min-width: 56px;
+    }
+
+    .panel__save {
+      width: 100%;
+      padding: 0.875rem;
+      background: var(--admin-accent);
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.9375rem;
+      border: none;
+      border-radius: var(--admin-radius);
+      transition: filter 0.2s, transform 0.1s;
+    }
+
+    .panel__save:hover { filter: brightness(1.08); }
+    .panel__save:active { transform: scale(0.99); }
+
+    .panel__export {
+      width: 100%;
+      margin-top: 0.5rem;
+      padding: 0.75rem;
+      background: #fff;
+      color: var(--admin-text);
+      font-weight: 600;
+      font-size: 0.875rem;
+      border: 1px solid var(--admin-border);
+      border-radius: var(--admin-radius);
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .panel__export:hover { border-color: var(--admin-accent); color: var(--admin-accent); }
+
+    .panel__hint {
+      margin-top: 0.875rem;
+      font-size: 0.75rem;
+      color: var(--admin-muted);
+      line-height: 1.5;
+    }
+
+    /* ---- Zona de Preview (direita) ---- */
+    .preview-zone {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2.5rem 1.5rem;
+      background: linear-gradient(180deg, #eef0f3 0%, #e2e5ea 100%);
+    }
+
+    /* ---- Moldura do celular ---- */
+    .phone {
+      width: 300px;
+      height: 620px;
+      background: #17181c;
+      border-radius: 44px;
+      padding: 12px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35), 0 2px 8px rgba(0, 0, 0, 0.12);
+      position: relative;
+    }
+
+    .phone::before {
+      content: "";
+      position: absolute;
+      top: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90px;
+      height: 22px;
+      background: #17181c;
+      border-radius: 999px;
+      z-index: 2;
+    }
+
+    .phone__screen {
+      width: 100%;
+      height: 100%;
+      border-radius: 32px;
+      overflow: hidden;
+      overflow-y: auto;
+      background: #fff;
+      scrollbar-width: none;
+    }
+
+    .phone__screen::-webkit-scrollbar { display: none; }
+
+    /* ================================================================
+       PREVIEW — réplica do index.html (mesmas variáveis CSS)
+       ================================================================ */
+    .preview {
+      --page-bg: #ffffff;
+      --font-main: 'Inter', sans-serif;
+      --text-title: #000000;
+      --text-body: #555555;
+      --btn-quick-bg: #000000;
+      --btn-quick-text: #ffffff;
+      --card-destaque-bg: #000000;
+      --card-destaque-text: #ffffff;
+      --global-radius: 12px;
+      --global-border: 1px solid transparent;
+      --shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+      --transition: 0.2s ease;
+
+      font-family: var(--font-main);
+      background: var(--page-bg);
+      color: var(--text-title);
+      min-height: 100%;
+      padding: 2.75rem 1rem 1.5rem;
+      font-size: 0.8rem;
+      line-height: 1.45;
+    }
+
+    .preview a { color: inherit; text-decoration: none; }
+    .preview button { font-family: inherit; background: none; border: none; cursor: pointer; color: inherit; }
+
+    .pv-profile {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .pv-avatar {
+      width: 72px;
+      height: 72px;
+      border-radius: var(--global-radius);
+      background: var(--btn-quick-bg);
+      color: var(--btn-quick-text);
+      border: var(--global-border);
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      font-size: 1.75rem;
+      font-weight: 700;
+    }
+
+    .pv-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+    .pv-title {
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--text-title);
+      max-width: 100%;
+      overflow-wrap: break-word;
+    }
+
+    .pv-subtitle {
+      font-size: 0.7rem;
+      color: var(--text-body);
+      max-width: 30ch;
+      overflow-wrap: break-word;
+    }
+
+    .pv-address {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-size: 0.68rem;
+      color: var(--text-body);
+      border: 1px solid color-mix(in srgb, var(--text-body) 22%, transparent);
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      max-width: 100%;
+    }
+
+    .pv-address svg { width: 12px; height: 12px; flex-shrink: 0; }
+    .pv-address span { overflow-wrap: break-word; }
+
+    .pv-quick {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .pv-quick__item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.25rem;
+      min-height: 4rem;
+      background: var(--btn-quick-bg);
+      color: var(--btn-quick-text);
+      border: var(--global-border);
+      border-radius: var(--global-radius);
+      padding: 0.625rem 0.5rem;
+      font-size: 0.68rem;
+      font-weight: 600;
+      text-align: center;
+      transition: transform var(--transition), filter var(--transition);
+    }
+
+    .pv-quick__item:hover { transform: scale(1.02); filter: brightness(1.06); }
+    .pv-quick__item:active { transform: scale(0.98); }
+
+    .pv-quick__item svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+    .pv-featured { display: grid; grid-template-columns: 1fr; gap: 0.625rem; }
+
+    .pv-card {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: var(--card-destaque-bg);
+      color: var(--card-destaque-text);
+      border: var(--global-border);
+      border-radius: var(--global-radius);
+      padding: 0.875rem 0.75rem;
+      text-align: left;
+      transition: transform var(--transition), filter var(--transition);
+    }
+
+    .pv-card:hover { transform: scale(1.02); filter: brightness(1.06); }
+    .pv-card:active { transform: scale(0.98); }
+
+    .pv-card__icon {
+      flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+      display: grid;
+      place-items: center;
+      border-radius: calc(var(--global-radius) * 0.6);
+      background: color-mix(in srgb, var(--card-destaque-text) 16%, transparent);
+    }
+
+    .pv-card__icon svg { width: 22px; height: 22px; }
+
+    .pv-card__body {
+      display: flex;
+      flex-direction: column;
+      gap: 0.125rem;
+      min-width: 0;
+    }
+
+    .pv-card__body strong { font-size: 0.8rem; font-weight: 700; line-height: 1.3; }
+    .pv-card__body span { font-size: 0.68rem; opacity: 0.8; }
+
+    /* ---- Toast de salvamento ---- */
+    .toast {
+      position: fixed;
+      bottom: 1.25rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(120%);
+      background: var(--admin-text);
+      color: #fff;
+      padding: 0.625rem 1.125rem;
+      border-radius: 999px;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      opacity: 0;
+      transition: transform 0.3s, opacity 0.3s;
+      z-index: 1000;
+      pointer-events: none;
+    }
+
+    .toast--show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+    /* ================================================================
+       RESPONSIVO — empilha colunas em telas menores
+       ================================================================ */
+    @media (max-width: 900px) {
+      .admin-layout { grid-template-columns: 1fr; }
+
+      .panel {
+        border-right: none;
+        border-bottom: 1px solid var(--admin-border);
+        max-height: none;
+      }
+
+      .preview-zone { padding: 2.5rem 1rem; }
+      .phone { width: 280px; height: 560px; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="admin-header">
+    <a class="admin-header__brand" href="admin.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 2v20M17 7a5 5 0 0 0-10 0c0 4 10 5 10 10a5 5 0 0 1-10 0" />
+      </svg>
+      Axiumlink
+    </a>
+    <nav class="admin-header__links">
+      <a class="admin-header__link" href="index.html" target="_blank">Ver página</a>
+    </nav>
+  </header>
+
+  <main class="admin-layout">
+
+    <!-- ================================================================
+         COLUNA ESQUERDA — PAINEL DE EDIÇÃO
+         ================================================================ -->
+    <aside class="panel">
+      <form id="admin-form" autocomplete="off">
+
+        <!-- ================= Informações do Perfil ================= -->
+        <section class="section">
+          <h2 class="section__title">Informações do Perfil</h2>
+
+          <div class="field">
+            <label for="profilePhoto">Foto / Logo</label>
+            <div class="upload">
+              <div class="upload__thumb" id="uploadThumb">Logo</div>
+              <div class="upload__input">
+                <input type="file" id="profilePhoto" accept="image/*" />
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="profileName">Nome do Cliente</label>
+            <input type="text" id="profileName" data-key="profileName" value="Nome do Cliente" />
+          </div>
+
+          <div class="field">
+            <label for="profileBio">Biografia / Tags</label>
+            <textarea id="profileBio" data-key="profileBio">Biografia curta, serviços ou tags separadas por • vírgulas.</textarea>
+          </div>
+
+          <div class="field">
+            <label for="profileAddress">Endereço</label>
+            <input type="text" id="profileAddress" data-key="profileAddress" value="Rua Exemplo, 123 – Cidade/UF" />
+          </div>
+        </section>
+
+        <!-- ================= Links e Botões ================= -->
+        <section class="section">
+          <h2 class="section__title">Links e Botões</h2>
+
+          <div class="field">
+            <label for="quickContact">Botão 1 — Link de Contato (WhatsApp)</label>
+            <input type="url" id="quickContact" data-key="quickContact" value="https://wa.me/5500000000000" placeholder="https://wa.me/55..." />
+          </div>
+
+          <div class="row-2">
+            <div class="field">
+              <label for="quickVcf">Botão 2 — Arquivo VCF</label>
+              <input type="text" id="quickVcf" data-key="quickVcf" value="contato.vcf" placeholder="contato.vcf" />
+            </div>
+            <div class="field">
+              <label for="quickPhone">Botão 3 — Telefone</label>
+              <input type="tel" id="quickPhone" data-key="quickPhone" value="+5500000000000" placeholder="+55..." />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="pixKey">Botão 4 — Chave PIX</label>
+            <input type="text" id="pixKey" data-key="pixKey" value="sua.chave@pix.com.br" placeholder="sua.chave@pix.com.br" />
+          </div>
+
+          <div class="field">
+            <label for="cardWhatsappTitle">Destaque 1 — Título</label>
+            <input type="text" id="cardWhatsappTitle" data-key="cardWhatsappTitle" value="Agende via WhatsApp" />
+          </div>
+          <div class="field">
+            <label for="cardWhatsappDesc">Destaque 1 — Descrição</label>
+            <input type="text" id="cardWhatsappDesc" data-key="cardWhatsappDesc" value="Fale conosco e agende seu horário." />
+          </div>
+          <div class="field">
+            <label for="cardWhatsappLink">Destaque 1 — Link</label>
+            <input type="url" id="cardWhatsappLink" data-key="cardWhatsappLink" value="https://wa.me/5500000000000" placeholder="https://wa.me/55..." />
+          </div>
+
+          <div class="field">
+            <label for="cardInstagramTitle">Destaque 2 — Título</label>
+            <input type="text" id="cardInstagramTitle" data-key="cardInstagramTitle" value="Conheça nosso Instagram" />
+          </div>
+          <div class="field">
+            <label for="cardInstagramDesc">Destaque 2 — Descrição</label>
+            <input type="text" id="cardInstagramDesc" data-key="cardInstagramDesc" value="Acompanhe novidades e bastidores." />
+          </div>
+          <div class="field">
+            <label for="cardInstagramLink">Destaque 2 — Link</label>
+            <input type="url" id="cardInstagramLink" data-key="cardInstagramLink" value="https://instagram.com/seu_usuario" placeholder="https://instagram.com/..." />
+          </div>
+
+          <div class="field">
+            <label for="cardMapsTitle">Destaque 3 — Título</label>
+            <input type="text" id="cardMapsTitle" data-key="cardMapsTitle" value="Confira nossa Localização" />
+          </div>
+          <div class="field">
+            <label for="cardMapsDesc">Destaque 3 — Descrição</label>
+            <input type="text" id="cardMapsDesc" data-key="cardMapsDesc" value="Abra no Google Maps e venha nos visitar." />
+          </div>
+          <div class="field">
+            <label for="cardMapsLink">Destaque 3 — Link</label>
+            <input type="url" id="cardMapsLink" data-key="cardMapsLink" value="https://www.google.com/maps" placeholder="https://maps.google.com/..." />
+          </div>
+        </section>
+
+        <!-- ================= Personalização Visual ================= -->
+        <section class="section">
+          <h2 class="section__title">Personalização Visual</h2>
+
+          <div class="field color-field">
+            <label for="colorPageBg">Fundo da página</label>
+            <div class="color-field__control">
+              <input type="color" id="colorPageBg" data-key="colorPageBg" value="#ffffff" />
+              <span id="colorPageBgHex">#ffffff</span>
+            </div>
+          </div>
+
+          <div class="field color-field">
+            <label for="colorText">Cor do texto</label>
+            <div class="color-field__control">
+              <input type="color" id="colorText" data-key="colorText" value="#000000" />
+              <span id="colorTextHex">#000000</span>
+            </div>
+          </div>
+
+          <div class="field color-field">
+            <label for="colorQuickBg">Botões de ação rápida</label>
+            <div class="color-field__control">
+              <input type="color" id="colorQuickBg" data-key="colorQuickBg" value="#000000" />
+              <span id="colorQuickBgHex">#000000</span>
+            </div>
+          </div>
+
+          <div class="field color-field">
+            <label for="colorCardBg">Cards de destaque</label>
+            <div class="color-field__control">
+              <input type="color" id="colorCardBg" data-key="colorCardBg" value="#000000" />
+              <span id="colorCardBgHex">#000000</span>
+            </div>
+          </div>
+
+          <div class="row-2">
+            <div class="field">
+              <label for="selectRadius">Formato dos botões</label>
+              <select id="selectRadius" data-key="selectRadius">
+                <option value="0px">Quadrado</option>
+                <option value="12px" selected>Arredondado</option>
+                <option value="999px">Oval (Pill)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="selectFont">Fonte</label>
+              <select id="selectFont" data-key="selectFont">
+                <option value="Inter" selected>Inter</option>
+                <option value="Roboto">Roboto</option>
+                <option value="Open Sans">Open Sans</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <button class="panel__save" type="submit">Salvar Alterações</button>
+        <button class="panel__export" type="button" id="exportBtn">Baixar config.js</button>
+        <p class="panel__hint">
+          Salvar aplica na página pública (mesmo navegador) e registra no <code>console.log</code>.
+          "Baixar config.js" gera o arquivo de configuração para deploy/permanência.
+        </p>
+      </form>
+    </aside>
+
+    <!-- ================================================================
+         COLUNA DIREITA — PREVIEW EM TEMPO REAL
+         ================================================================ -->
+    <section class="preview-zone">
+      <div class="phone" aria-label="Pré-visualização em dispositivo móvel">
+        <div class="phone__screen">
+          <div class="preview" id="preview">
+
+            <header class="pv-profile">
+              <div class="pv-avatar">
+                <span class="pv-avatar__letter" id="pvAvatarLetter">N</span>
+                <img class="pv-avatar__img" id="pvAvatarImg" alt="" hidden />
+              </div>
+              <h1 class="pv-title" data-bind="profileName" data-default="Nome do Cliente">Nome do Cliente</h1>
+              <p class="pv-subtitle" data-bind="profileBio" data-default="Biografia curta, serviços ou tags.">Biografia curta, serviços ou tags.</p>
+              <a class="pv-address" href="https://www.google.com/maps" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                  <circle cx="12" cy="10" r="3" />
+                </svg>
+                <span data-bind="profileAddress" data-default="Rua Exemplo, 123">Rua Exemplo, 123</span>
+              </a>
+            </header>
+
+            <nav class="pv-quick" aria-label="Ações rápidas">
+              <a class="pv-quick__item" data-link="quickContact" href="https://wa.me/5500000000000" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5Z" />
+                  <path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1" />
+                </svg>
+                <span>Contato</span>
+              </a>
+
+              <a class="pv-quick__item" data-link="quickVcf" href="contato.vcf" download>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" x2="12" y1="15" y2="3" />
+                </svg>
+                <span>Salvar Contato</span>
+              </a>
+
+              <a class="pv-quick__item" data-link="quickPhone" href="tel:+5500000000000">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92Z" />
+                </svg>
+                <span>Ligar</span>
+              </a>
+
+              <button class="pv-quick__item" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="2" y="6" width="20" height="12" rx="2" />
+                  <circle cx="12" cy="12" r="2" />
+                  <path d="M6 12h.01M18 12h.01" />
+                </svg>
+                <span>PIX</span>
+              </button>
+            </nav>
+
+            <section class="pv-featured" aria-label="Destaques">
+
+              <a class="pv-card" data-link="cardWhatsappLink" href="https://wa.me/5500000000000" target="_blank" rel="noopener">
+                <span class="pv-card__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5Z" />
+                    <path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1" />
+                  </svg>
+                </span>
+                <span class="pv-card__body">
+                  <strong data-bind="cardWhatsappTitle" data-default="Agende via WhatsApp">Agende via WhatsApp</strong>
+                  <span data-bind="cardWhatsappDesc" data-default="Fale conosco e agende seu horário.">Fale conosco e agende seu horário.</span>
+                </span>
+              </a>
+
+              <a class="pv-card" data-link="cardInstagramLink" href="https://instagram.com/seu_usuario" target="_blank" rel="noopener">
+                <span class="pv-card__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="2" width="20" height="20" rx="5" />
+                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37Z" />
+                    <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+                  </svg>
+                </span>
+                <span class="pv-card__body">
+                  <strong data-bind="cardInstagramTitle" data-default="Conheça nosso Instagram">Conheça nosso Instagram</strong>
+                  <span data-bind="cardInstagramDesc" data-default="Acompanhe novidades e bastidores.">Acompanhe novidades e bastidores.</span>
+                </span>
+              </a>
+
+              <a class="pv-card" data-link="cardMapsLink" href="https://www.google.com/maps" target="_blank" rel="noopener">
+                <span class="pv-card__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                    <circle cx="12" cy="10" r="3" />
+                  </svg>
+                </span>
+                <span class="pv-card__body">
+                  <strong data-bind="cardMapsTitle" data-default="Confira nossa Localização">Confira nossa Localização</strong>
+                  <span data-bind="cardMapsDesc" data-default="Abra no Google Maps e venha nos visitar.">Abra no Google Maps e venha nos visitar.</span>
+                </span>
+              </a>
+
+            </section>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <div class="toast" id="toast">Alterações salvas!</div>
+
+  <script>
+    /* ================================================================
+       HELPERS DE COR
+       ================================================================ */
+    function hexToRgb(hex) {
+      const n = parseInt(hex.slice(1), 16);
+      return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+    }
+
+    function rgbToHex(r, g, b) {
+      return '#' + [r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('');
+    }
+
+    /* Mistura a: c1 (peso t) com c2 */
+    function mixHex(c1, c2, t) {
+      const a = hexToRgb(c1);
+      const b = hexToRgb(c2);
+      return rgbToHex(...a.map((v, i) => Math.round(v + (b[i] - v) * t)));
+    }
+
+    /* Texto legível sobre um fundo: escuro -> branco | claro -> preto */
+    function contrastText(bgHex) {
+      const [r, g, b] = hexToRgb(bgHex);
+      const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+      return lum > 0.55 ? '#111111' : '#ffffff';
+    }
+
+    /* ================================================================
+       REFERÊNCIAS
+       ================================================================ */
+    const form     = document.getElementById('admin-form');
+    const preview  = document.getElementById('preview');
+    const toast    = document.getElementById('toast');
+
+    const el = (id) => document.getElementById(id);
+
+    const avLetter = el('pvAvatarLetter');
+    const avImg    = el('pvAvatarImg');
+    const upThumb  = el('uploadThumb');
+
+    const STORAGE_KEY = 'axiumlink-preview-v1';
+
+    /* ================================================================
+       TEXTO (nome, biografia, endereço, títulos e descrições)
+       ================================================================ */
+    document.querySelectorAll('[data-bind]').forEach((target) => {
+      const field = el(target.dataset.bind);
+      if (!field) return;
+
+      const apply = () => {
+        target.textContent = field.value.trim() || target.dataset.default;
+      };
+
+      field.addEventListener('input', apply);
+
+      /* Se não há foto, o avatar usa a inicial do nome */
+      if (field.id === 'profileName') {
+        field.addEventListener('input', () => {
+          if (!avImg.src || avImg.hidden) {
+            avLetter.textContent = (field.value.trim().charAt(0) || 'N').toUpperCase();
+          }
+        });
+      }
+    });
+
+    /* ================================================================
+       LINKS (hrefs dos botões e cards)
+       ================================================================ */
+    document.querySelectorAll('[data-link]').forEach((link) => {
+      const field = el(link.dataset.link);
+      if (!field) return;
+
+      field.addEventListener('input', () => {
+        const v = field.value.trim();
+
+        if (link.dataset.link === 'quickPhone') {
+          link.setAttribute('href', 'tel:' + v);
+        } else {
+          link.setAttribute('href', v || '#');
+        }
+      });
+    });
+
+    /* ================================================================
+       CORES — atualiza as CSS Variables do preview em tempo real
+       ================================================================ */
+    const setVar = (name, value) => preview.style.setProperty(name, value);
+
+    const colorFields = {
+      colorPageBg:  (v) => { setVar('--page-bg', v); refreshBodyText(); },
+      colorText:    (v) => { setVar('--text-title', v); refreshBodyText(); },
+      colorQuickBg: (v) => {
+        setVar('--btn-quick-bg', v);
+        setVar('--btn-quick-text', contrastText(v));
+      },
+      colorCardBg:  (v) => {
+        setVar('--card-destaque-bg', v);
+        setVar('--card-destaque-text', contrastText(v));
+      }
+    };
+
+    /* Cor de subtítulo/descrições = texto misturado com o fundo (tom suave) */
+    function refreshBodyText() {
+      const title = el('colorText').value;
+      const pageBg = el('colorPageBg').value;
+      setVar('--text-body', mixHex(title, pageBg, 0.72));
+    }
+
+    Object.entries(colorFields).forEach(([id, handler]) => {
+      const input = el(id);
+      input.addEventListener('input', () => {
+        handler(input.value);
+        const hexLabel = el(id + 'Hex');
+        if (hexLabel) hexLabel.textContent = input.value;
+      });
+    });
+
+    /* ================================================================
+       FORMATO DOS BOTÕES (--global-radius)
+       ================================================================ */
+    el('selectRadius').addEventListener('change', () => {
+      setVar('--global-radius', el('selectRadius').value);
+    });
+
+    /* ================================================================
+       FONTE (--font-main)
+       ================================================================ */
+    el('selectFont').addEventListener('change', () => {
+      setVar('--font-main', "'" + el('selectFont').value + "', sans-serif");
+    });
+
+    /* ================================================================
+       UPLOAD DE FOTO / LOGO
+       ================================================================ */
+    el('profilePhoto').addEventListener('change', () => {
+      const file = el('profilePhoto').files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        avImg.src = e.target.result;
+        avImg.hidden = false;
+        avLetter.hidden = true;
+        const clone = avImg.cloneNode();
+        clone.removeAttribute('hidden');
+        upThumb.replaceChildren(clone);
+      };
+      reader.readAsDataURL(file);
+    });
+
+    /* ================================================================
+       SALVAR ALTERAÇÕES (simulação + integração futura com banco)
+       ================================================================ */
+    function buildPayload() {
+      return {
+        profile: {
+          photo: (el('profilePhoto').files[0] || {}).name || null,
+          name: el('profileName').value,
+          bio: el('profileBio').value,
+          address: el('profileAddress').value
+        },
+        quickActions: {
+          contactLink: el('quickContact').value,
+          vcf: el('quickVcf').value,
+          phone: el('quickPhone').value,
+          pixKey: el('pixKey').value
+        },
+        cards: {
+          whatsapp: {
+            link: el('cardWhatsappLink').value,
+            title: el('cardWhatsappTitle').value,
+            description: el('cardWhatsappDesc').value
+          },
+          instagram: {
+            link: el('cardInstagramLink').value,
+            title: el('cardInstagramTitle').value,
+            description: el('cardInstagramDesc').value
+          },
+          maps: {
+            link: el('cardMapsLink').value,
+            title: el('cardMapsTitle').value,
+            description: el('cardMapsDesc').value
+          }
+        },
+        visual: {
+          pageBg: el('colorPageBg').value,
+          textColor: el('colorText').value,
+          quickBg: el('colorQuickBg').value,
+          quickText: preview.style.getPropertyValue('--btn-quick-text').trim() || '#ffffff',
+          cardBg: el('colorCardBg').value,
+          cardText: preview.style.getPropertyValue('--card-destaque-text').trim() || '#ffffff',
+          radius: el('selectRadius').value,
+          radiusLabel: el('selectRadius').selectedOptions[0].text,
+          font: el('selectFont').value
+        }
+      };
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const payload = buildPayload();
+
+      /* Conexão futura com o banco de dados */
+      console.log('===== Axiumlink | Dados do cliente =====');
+      console.log(JSON.stringify(payload, null, 2));
+
+      /* Persistência local — lida pela página pública (index.html) */
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+
+      toast.classList.add('toast--show');
+      setTimeout(() => toast.classList.remove('toast--show'), 2200);
+    });
+
+    /* ================================================================
+       EXPORTAR config.js (deploy / permanência)
+       ================================================================ */
+    el('exportBtn').addEventListener('click', () => {
+      const payload = buildPayload();
+      const content = 'window.AXIUMLINK_CONFIG = ' + JSON.stringify(payload, null, 2) + ';\n';
+      const blob = new Blob([content], { type: 'text/javascript' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'config.js';
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    /* ================================================================
+       DEFAULTS DO config.js — preenche o formulário antes do restore
+       ================================================================ */
+    (function fillDefaults() {
+      const cfg = (typeof window.AXIUMLINK_CONFIG !== 'undefined' && window.AXIUMLINK_CONFIG)
+        ? window.AXIUMLINK_CONFIG
+        : null;
+      if (!cfg) return;
+
+      const p = cfg.profile || {};
+      const q = cfg.quickActions || {};
+      const w = (cfg.cards && cfg.cards.whatsapp) || {};
+      const ig = (cfg.cards && cfg.cards.instagram) || {};
+      const m = (cfg.cards && cfg.cards.maps) || {};
+      const v = cfg.visual || {};
+
+      const values = {
+        profileName: p.name, profileBio: p.bio, profileAddress: p.address,
+        quickContact: q.contactLink, quickVcf: q.vcf, quickPhone: q.phone, pixKey: q.pixKey,
+        cardWhatsappTitle: w.title, cardWhatsappDesc: w.description, cardWhatsappLink: w.link,
+        cardInstagramTitle: ig.title, cardInstagramDesc: ig.description, cardInstagramLink: ig.link,
+        cardMapsTitle: m.title, cardMapsDesc: m.description, cardMapsLink: m.link,
+        colorPageBg: v.pageBg, colorText: v.textColor,
+        colorQuickBg: v.quickBg, colorCardBg: v.cardBg,
+        selectRadius: v.radius, selectFont: v.font
+      };
+
+      Object.entries(values).forEach(([id, value]) => {
+        const input = el(id);
+        if (input == null || value == null) return;
+        input.value = value;
+        input.dispatchEvent(new Event('input'));
+      });
+
+      el('selectRadius').dispatchEvent(new Event('change'));
+      el('selectFont').dispatchEvent(new Event('change'));
+    })();
+
+    /* ================================================================
+       RESTAURAR ÚLTIMA EDIÇÃO SALVA
+       ================================================================ */
+    (function restore() {
+      let saved;
+      try { saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); } catch { return; }
+      if (!saved) return;
+
+      const map = {
+        'profileName': 'profile.name', 'profileBio': 'profile.bio',
+        'profileAddress': 'profile.address', 'quickContact': 'quickActions.contactLink',
+        'quickVcf': 'quickActions.vcf', 'quickPhone': 'quickActions.phone',
+        'pixKey': 'quickActions.pixKey', 'cardWhatsappLink': 'cards.whatsapp.link',
+        'cardWhatsappTitle': 'cards.whatsapp.title', 'cardWhatsappDesc': 'cards.whatsapp.description',
+        'cardInstagramLink': 'cards.instagram.link', 'cardInstagramTitle': 'cards.instagram.title',
+        'cardInstagramDesc': 'cards.instagram.description', 'cardMapsLink': 'cards.maps.link',
+        'cardMapsTitle': 'cards.maps.title', 'cardMapsDesc': 'cards.maps.description',
+        'colorPageBg': 'visual.pageBg', 'colorText': 'visual.textColor',
+        'colorQuickBg': 'visual.quickBg', 'colorCardBg': 'visual.cardBg',
+        'selectRadius': 'visual.radius', 'selectFont': 'visual.font'
+      };
+
+      const getPath = (obj, path) => path.split('.').reduce((o, k) => (o == null ? null : o[k]), obj);
+
+      Object.entries(map).forEach(([fieldId, path]) => {
+        const value = getPath(saved, path);
+        const input = el(fieldId);
+        if (input == null || value == null) return;
+        input.value = value;
+        input.dispatchEvent(new Event('input'));
+      });
+
+      if (saved.visual) {
+        const radius = el('selectRadius');
+        radius.dispatchEvent(new Event('change'));
+      }
+    })();
+
+    /* ================================================================
+       INIT — aplica contraste/texto padrão no carregamento
+       ================================================================ */
+    refreshBodyText();
+    el('selectFont').dispatchEvent(new Event('change'));
+  </script>
+</body>
+</html>

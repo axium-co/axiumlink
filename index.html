@@ -488,6 +488,9 @@
       .featured__arrow { display: none; }
     }
   </style>
+
+  <!-- Configuração dinâmica do cliente (gerada pelo Painel Axiumlink) -->
+  <script src="config.js"></script>
 </head>
 
 <body>
@@ -504,10 +507,10 @@
       </div>
 
       <!-- TODO: NOME DO CLIENTE (dinâmico) -->
-      <h1 class="profile__title">Nome do Cliente</h1>
+      <h1 class="profile__title" data-bind="profileName">Nome do Cliente</h1>
 
       <!-- TODO: BIOGRAFIA / SERVIÇOS (dinâmico) -->
-      <p class="profile__subtitle">Biografia curta, serviços ou tags separadas por • vírgulas.</p>
+      <p class="profile__subtitle" data-bind="profileBio">Biografia curta, serviços ou tags separadas por • vírgulas.</p>
 
       <!-- TODO: ENDEREÇO — troque o href pelo link do Google Maps.
            Remova esta tag inteira se o cliente não tiver endereço. -->
@@ -516,7 +519,7 @@
           <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
           <circle cx="12" cy="10" r="3" />
         </svg>
-        <span>Rua Exemplo, 123 – Cidade/UF</span>
+        <span data-bind="profileAddress">Rua Exemplo, 123 – Cidade/UF</span>
       </a>
 
     </header>
@@ -527,7 +530,7 @@
     <nav class="quick" aria-label="Ações rápidas">
 
       <!-- TODO: SEU WHATSAPP -->
-      <a class="quick__item quick__item--primary" href="https://wa.me/5500000000000" target="_blank" rel="noopener">
+      <a class="quick__item quick__item--primary" data-link="quickContact" href="https://wa.me/5500000000000" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5Z" />
           <path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1" />
@@ -536,7 +539,7 @@
       </a>
 
       <!-- TODO: SEU ARQUIVO .vcf — caminho em href -->
-      <a class="quick__item" href="contato.vcf" download>
+      <a class="quick__item" data-link="quickVcf" href="contato.vcf" download>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
           <polyline points="7 10 12 15 17 10" />
@@ -546,7 +549,7 @@
       </a>
 
       <!-- TODO: SEU TELEFONE — troque o número em href="tel:" -->
-      <a class="quick__item" href="tel:+5500000000000">
+      <a class="quick__item" data-link="quickPhone" href="tel:+5500000000000">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92Z" />
         </svg>
@@ -571,7 +574,7 @@
     <section class="featured" aria-label="Destaques">
 
       <!-- TODO: SEU WHATSAPP -->
-      <a class="featured__card" href="https://wa.me/5500000000000" target="_blank" rel="noopener">
+      <a class="featured__card" data-link="cardWhatsappLink" href="https://wa.me/5500000000000" target="_blank" rel="noopener">
         <span class="featured__icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="currentColor">
             <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5Z" />
@@ -579,8 +582,8 @@
           </svg>
         </span>
         <span class="featured__body">
-          <strong>Agende via WhatsApp</strong>
-          <span>Fale conosco e agende seu horário.</span>
+          <strong data-bind="cardWhatsappTitle">Agende via WhatsApp</strong>
+          <span data-bind="cardWhatsappDesc">Fale conosco e agende seu horário.</span>
         </span>
         <svg class="featured__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="m9 18 6-6-6-6" />
@@ -588,7 +591,7 @@
       </a>
 
       <!-- TODO: SEU INSTAGRAM -->
-      <a class="featured__card" href="https://instagram.com/seu_usuario" target="_blank" rel="noopener">
+      <a class="featured__card" data-link="cardInstagramLink" href="https://instagram.com/seu_usuario" target="_blank" rel="noopener">
         <span class="featured__icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="2" y="2" width="20" height="20" rx="5" />
@@ -597,8 +600,8 @@
           </svg>
         </span>
         <span class="featured__body">
-          <strong>Conheça nosso Instagram</strong>
-          <span>Acompanhe novidades e bastidores.</span>
+          <strong data-bind="cardInstagramTitle">Conheça nosso Instagram</strong>
+          <span data-bind="cardInstagramDesc">Acompanhe novidades e bastidores.</span>
         </span>
         <svg class="featured__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="m9 18 6-6-6-6" />
@@ -606,7 +609,7 @@
       </a>
 
       <!-- TODO: SEU GOOGLE MAPS -->
-      <a class="featured__card" href="https://www.google.com/maps" target="_blank" rel="noopener">
+      <a class="featured__card" data-link="cardMapsLink" href="https://www.google.com/maps" target="_blank" rel="noopener">
         <span class="featured__icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
@@ -614,8 +617,8 @@
           </svg>
         </span>
         <span class="featured__body">
-          <strong>Confira nossa Localização</strong>
-          <span>Abra no Google Maps e venha nos visitar.</span>
+          <strong data-bind="cardMapsTitle">Confira nossa Localização</strong>
+          <span data-bind="cardMapsDesc">Abra no Google Maps e venha nos visitar.</span>
         </span>
         <svg class="featured__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="m9 18 6-6-6-6" />
@@ -750,6 +753,111 @@
         }
       });
     }
+  </script>
+
+  <script>
+    /* ================================================================
+       APLICAR CONFIGURAÇÃO DO CLIENTE (Painel Axiumlink)
+       ----------------------------------------------------------------
+       Prioridade: 1) localStorage salvo pelo admin.html
+                   2) config.js (defaults/deploy)
+       Atualiza as CSS Variables (:root) e os textos/links da página.
+       ================================================================ */
+    (function applyClientConfig() {
+      const STORAGE_KEY = 'axiumlink-preview-v1';
+
+      let saved = null;
+      try { saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); } catch (e) {}
+
+      const defaults = (typeof window.AXIUMLINK_CONFIG !== 'undefined' && window.AXIUMLINK_CONFIG)
+        ? window.AXIUMLINK_CONFIG
+        : null;
+
+      const cfg = saved || defaults;
+      if (!cfg) return;
+
+      /* ---- achatando a config para mapear diretamente nos elementos ---- */
+      const p = cfg.profile || {};
+      const q = cfg.quickActions || {};
+      const w = (cfg.cards && cfg.cards.whatsapp) || {};
+      const ig = (cfg.cards && cfg.cards.instagram) || {};
+      const m = (cfg.cards && cfg.cards.maps) || {};
+      const v = cfg.visual || {};
+
+      const flat = {
+        profileName: p.name,
+        profileBio: p.bio,
+        profileAddress: p.address,
+        quickContact: q.contactLink,
+        quickVcf: q.vcf,
+        quickPhone: q.phone,
+        pixKey: q.pixKey,
+        cardWhatsappTitle: w.title,
+        cardWhatsappDesc: w.description,
+        cardWhatsappLink: w.link,
+        cardInstagramTitle: ig.title,
+        cardInstagramDesc: ig.description,
+        cardInstagramLink: ig.link,
+        cardMapsTitle: m.title,
+        cardMapsDesc: m.description,
+        cardMapsLink: m.link
+      };
+
+      /* ---- textos ---- */
+      document.querySelectorAll('[data-bind]').forEach((el) => {
+        const val = flat[el.dataset.bind];
+        if (val != null) el.textContent = val;
+      });
+
+      /* ---- links ---- */
+      document.querySelectorAll('[data-link]').forEach((el) => {
+        const val = flat[el.dataset.link];
+        if (val == null) return;
+        if (el.dataset.link === 'quickPhone') el.setAttribute('href', 'tel:' + val);
+        else el.setAttribute('href', val || '#');
+      });
+
+      /* ---- chave PIX no modal ---- */
+      const pixKey = document.getElementById('pix-key');
+      if (pixKey && flat.pixKey != null) pixKey.textContent = flat.pixKey;
+
+      /* ---- CSS Variables ---- */
+      const root = document.documentElement.style;
+      const set = (name, value) => { if (value != null) root.setProperty(name, value); };
+
+      set('--page-bg', v.pageBg);
+      set('--text-title', v.textColor);
+
+      /* Subtítulo/descrições = texto misturado com o fundo (tom suave) */
+      if (v.textColor && v.pageBg) {
+        set('--text-body', mixHex(v.textColor, v.pageBg, 0.72));
+      }
+
+      set('--btn-quick-bg', v.quickBg);
+      set('--btn-quick-text', v.quickText);
+      set('--card-destaque-bg', v.cardBg);
+      set('--card-destaque-text', v.cardText);
+      set('--global-radius', v.radius);
+      set('--font-main', "'" + (v.font || 'Inter') + "', sans-serif");
+
+      /* ---- título do documento ---- */
+      if (p.name) document.title = p.name + ' | Link Bio';
+
+      /* ============================================================
+         HELPERS DE COR (mistura de hex)
+         ============================================================ */
+      function hexToRgb(hex) {
+        const n = parseInt(hex.slice(1), 16);
+        return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+      }
+
+      function mixHex(c1, c2, t) {
+        const a = hexToRgb(c1);
+        const b = hexToRgb(c2);
+        const rgb = a.map((x, i) => Math.round(x + (b[i] - x) * t));
+        return '#' + rgb.map((x) => x.toString(16).padStart(2, '0')).join('');
+      }
+    })();
   </script>
 </body>
 </html>
