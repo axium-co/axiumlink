@@ -225,7 +225,27 @@
     .pg-strip::-webkit-scrollbar { display: none; }
 
     .pg-strip--quick .quick__item { flex: 0 0 auto; width: auto; min-width: 9.5rem; }
-    .pg-strip--cards .featured__card { flex: 0 0 auto; width: auto; min-width: 15rem; }
+    .pg-strip--links .pg-links {
+      flex: 0 0 auto;
+      flex-direction: row;
+      width: max-content;
+    }
+
+    .pg-strip--links .featured__card { flex: 0 0 auto; width: auto; min-width: 15rem; }
+
+    .pg-links {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      scroll-snap-align: start;
+    }
+
+    .pg-links .featured__card { width: 100%; }
+
+    .pg-links--grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+    }
 
     .quick__item {
       display: flex;
@@ -560,63 +580,10 @@
       </button>
 
     <!-- ================================================================
-         CARDS DE DESTAQUE (3 cards)
+         LISTA DE LINKS (gerada dinamicamente a partir de cfg.links)
          ================================================================ -->
 
-      <!-- TODO: SEU WHATSAPP -->
-      <a class="featured__card" id="pgCard1" data-link="cardWhatsappLink" href="https://wa.me/5500000000000" target="_blank" rel="noopener">
-        <span class="featured__icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="currentColor">
-            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5Z" />
-            <path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1" />
-          </svg>
-          <img class="featured__icon-img" id="featIcon1" alt="" hidden />
-        </span>
-        <span class="featured__body">
-          <strong data-bind="cardWhatsappTitle">Agende via WhatsApp</strong>
-          <span data-bind="cardWhatsappDesc">Fale conosco e agende seu horário.</span>
-        </span>
-        <svg class="featured__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="m9 18 6-6-6-6" />
-        </svg>
-      </a>
-
-      <!-- TODO: SEU INSTAGRAM -->
-      <a class="featured__card" id="pgCard2" data-link="cardInstagramLink" href="https://instagram.com/seu_usuario" target="_blank" rel="noopener">
-        <span class="featured__icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="2" y="2" width="20" height="20" rx="5" />
-            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37Z" />
-            <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
-          </svg>
-          <img class="featured__icon-img" id="featIcon2" alt="" hidden />
-        </span>
-        <span class="featured__body">
-          <strong data-bind="cardInstagramTitle">Conheça nosso Instagram</strong>
-          <span data-bind="cardInstagramDesc">Acompanhe novidades e bastidores.</span>
-        </span>
-        <svg class="featured__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="m9 18 6-6-6-6" />
-        </svg>
-      </a>
-
-      <!-- TODO: SEU GOOGLE MAPS -->
-      <a class="featured__card" id="pgCard3" data-link="cardMapsLink" href="https://www.google.com/maps" target="_blank" rel="noopener">
-        <span class="featured__icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
-            <circle cx="12" cy="10" r="3" />
-          </svg>
-          <img class="featured__icon-img" id="featIcon3" alt="" hidden />
-        </span>
-        <span class="featured__body">
-          <strong data-bind="cardMapsTitle">Confira nossa Localização</strong>
-          <span data-bind="cardMapsDesc">Abra no Google Maps e venha nos visitar.</span>
-        </span>
-        <svg class="featured__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="m9 18 6-6-6-6" />
-        </svg>
-      </a>
+      <div id="pgLinks" class="pg-links"></div>
 
     </div>
 
@@ -772,9 +739,6 @@
       /* ---- achatando a config para mapear diretamente nos elementos ---- */
       const p = cfg.profile || {};
       const q = cfg.quickActions || {};
-      const w = (cfg.cards && cfg.cards.whatsapp) || {};
-      const ig = (cfg.cards && cfg.cards.instagram) || {};
-      const m = (cfg.cards && cfg.cards.maps) || {};
       const v = cfg.visual || {};
 
       const flat = {
@@ -784,16 +748,7 @@
         quickContact: q.contactLink,
         quickVcf: q.vcf,
         quickPhone: q.phone,
-        pixKey: q.pixKey,
-        cardWhatsappTitle: w.title,
-        cardWhatsappDesc: w.description,
-        cardWhatsappLink: w.link,
-        cardInstagramTitle: ig.title,
-        cardInstagramDesc: ig.description,
-        cardInstagramLink: ig.link,
-        cardMapsTitle: m.title,
-        cardMapsDesc: m.description,
-        cardMapsLink: m.link
+        pixKey: q.pixKey
       };
 
       /* ---- textos ---- */
@@ -861,35 +816,101 @@
         document.body.style.backgroundPosition = 'center';
       }
 
-      /* ---- Ícones customizados dos cards ---- */
-      [
-        { icon: w.icon, imgId: 'featIcon1' },
-        { icon: ig.icon, imgId: 'featIcon2' },
-        { icon: m.icon, imgId: 'featIcon3' }
-      ].forEach(({ icon, imgId }) => {
-        if (!icon) return;
-        const img = document.getElementById(imgId);
-        if (!img) return;
-        img.src = icon;
-        img.hidden = false;
-        const svg = img.parentElement.querySelector('svg');
-        if (svg) svg.hidden = true;
-      });
-
       /* ---- Layout livre (ordem, largura e modos por seção) ---- */
       const lay = cfg.layout || {};
       const layItems = lay.items || {};
       const quickMode = lay.quickMode || 'grid2x2';
       const cardsMode = lay.cardsMode || 'list';
 
+      /* ---- Lista de links dinâmicos (cfg.links ou migra cards antigos) ---- */
+      const linkIcons = {
+        whatsapp: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5Z"/><path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1"/></svg>',
+        instagram: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37Z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>',
+        site: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>',
+        telefone: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92Z"/></svg>',
+        localizacao: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>',
+        outro: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>'
+      };
+
+      function linkHref(url, icon) {
+        const value = String(url || '').trim();
+        if (!value) return '#';
+        if (/^(https?:|mailto:|tel:|sms:)/i.test(value)) return value;
+        if (icon === 'telefone') return 'tel:' + value.replace(/[^+\d]/g, '');
+        return 'https://' + value;
+      }
+
+      function linksFromCards(cards) {
+        const map = { whatsapp: 'whatsapp', instagram: 'instagram', maps: 'localizacao' };
+        return ['whatsapp', 'instagram', 'maps']
+          .map((k) => {
+            const c = (cards || {})[k];
+            return (c && c.link)
+              ? { title: c.title || '', url: c.link, icon: map[k], image: c.icon || null }
+              : null;
+          })
+          .filter(Boolean);
+      }
+
+      const linksContainer = document.getElementById('pgLinks');
+      const linkList = Array.isArray(cfg.links) ? cfg.links : linksFromCards(cfg.cards);
+      if (linksContainer && linkList.length) {
+        linksContainer.classList.toggle('pg-links--grid', cardsMode === 'grid2');
+        linkList.forEach((link) => {
+          const a = document.createElement('a');
+          a.className = 'featured__card';
+          a.href = linkHref(link.url, link.icon);
+          a.target = '_blank';
+          a.rel = 'noopener';
+
+          const icon = document.createElement('span');
+          icon.className = 'featured__icon';
+          icon.setAttribute('aria-hidden', 'true');
+          if (link.image) {
+            const img = document.createElement('img');
+            img.className = 'featured__icon-img';
+            img.src = link.image;
+            img.alt = '';
+            icon.appendChild(img);
+          } else {
+            icon.innerHTML = linkIcons[link.icon] || linkIcons.outro;
+          }
+          a.appendChild(icon);
+
+          const body = document.createElement('span');
+          body.className = 'featured__body';
+          const strong = document.createElement('strong');
+          strong.textContent = link.title || 'Novo Link';
+          const desc = document.createElement('span');
+          desc.textContent = link.url || '';
+          body.appendChild(strong);
+          body.appendChild(desc);
+          a.appendChild(body);
+
+          const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+          arrow.setAttribute('class', 'featured__arrow');
+          arrow.setAttribute('viewBox', '0 0 24 24');
+          arrow.setAttribute('fill', 'none');
+          arrow.setAttribute('stroke', 'currentColor');
+          arrow.setAttribute('stroke-width', '2');
+          arrow.setAttribute('stroke-linecap', 'round');
+          arrow.setAttribute('stroke-linejoin', 'round');
+          arrow.setAttribute('aria-hidden', 'true');
+          const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+          path.setAttribute('d', 'm9 18 6-6-6-6');
+          arrow.appendChild(path);
+          a.appendChild(arrow);
+
+          linksContainer.appendChild(a);
+        });
+      }
+
       const PAGE_ITEMS = [
         { key: 'quickContact',  group: 'quick', elId: 'pgQuickContact' },
         { key: 'quickVcf',      group: 'quick', elId: 'pgQuickVcf' },
         { key: 'quickPhone',    group: 'quick', elId: 'pgQuickPhone' },
         { key: 'pixKey',        group: 'quick', elId: 'pgQuickPix' },
-        { key: 'cardWhatsapp',  group: 'cards', elId: 'pgCard1' },
-        { key: 'cardInstagram', group: 'cards', elId: 'pgCard2' },
-        { key: 'cardMaps',      group: 'cards', elId: 'pgCard3' }
+        { key: 'links',         group: 'links', elId: 'pgLinks' }
       ];
 
       function clampOrder(value, fallback) {
@@ -944,7 +965,7 @@
           done.add(entry.group);
           const groupItems = pgItems.filter((e) => e.group === entry.group);
           const strip = document.createElement('div');
-          strip.className = 'pg-strip pg-strip--' + (entry.group === 'quick' ? 'quick' : 'cards');
+          strip.className = 'pg-strip pg-strip--' + (entry.group === 'quick' ? 'quick' : 'links');
           groupItems.forEach((e) => { applyItemStyle(e, true); strip.appendChild(e.node); });
           strip.style.order = Math.min(...groupItems.map((e) => e.order));
           flow.appendChild(strip);

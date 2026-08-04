@@ -20,26 +20,29 @@ window.AXIUMLINK_CONFIG = {
     phone: "+5500000000000",
     pixKey: "sua.chave@pix.com.br"
   },
-  cards: {
-    whatsapp: {
-      link: "https://wa.me/5500000000000",
+  links: [
+    {
+      id: "link-1",
       title: "Agende via WhatsApp",
-      description: "Fale conosco e agende seu horário.",
-      icon: null
+      url: "https://wa.me/5500000000000",
+      icon: "whatsapp",
+      image: null
     },
-    instagram: {
-      link: "https://instagram.com/seu_usuario",
+    {
+      id: "link-2",
       title: "Conheça nosso Instagram",
-      description: "Acompanhe novidades e bastidores.",
-      icon: null
+      url: "https://instagram.com/seu_usuario",
+      icon: "instagram",
+      image: null
     },
-    maps: {
-      link: "https://www.google.com/maps",
+    {
+      id: "link-3",
       title: "Confira nossa Localização",
-      description: "Abra no Google Maps e venha nos visitar.",
-      icon: null
+      url: "https://www.google.com/maps",
+      icon: "localizacao",
+      image: null
     }
-  },
+  ],
   visual: {
     pageBg: "#ffffff",
     textColor: "#000000",
@@ -60,10 +63,7 @@ window.AXIUMLINK_CONFIG = {
       quickContact:  { order: 2, width: "half" },
       quickVcf:      { order: 3, width: "half" },
       quickPhone:    { order: 4, width: "half" },
-      pixKey:        { order: 5, width: "half" },
-      cardWhatsapp:  { order: 6, width: "full" },
-      cardInstagram: { order: 7, width: "full" },
-      cardMaps:      { order: 8, width: "full" }
+      pixKey:        { order: 5, width: "half" }
     }
   }
 };
