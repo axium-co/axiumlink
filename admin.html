@@ -513,6 +513,51 @@
 
     .crop-modal__actions .crop-apply:hover { background: #4338ca; }
 
+    /* ---- Ordem de exibição das seções ---- */
+    .order-list { display: flex; flex-direction: column; gap: 0.5rem; }
+
+    .order-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      background: var(--ds-bg);
+      border: 1px solid var(--ds-border-soft);
+      border-radius: 10px;
+    }
+
+    .order-row__name { flex: 1; font-size: 0.8125rem; font-weight: 600; color: var(--ds-title); }
+
+    .order-row__badge {
+      min-width: 22px;
+      height: 22px;
+      display: grid;
+      place-items: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #ffffff;
+      border-radius: 6px;
+      background: #64748b;
+    }
+
+    .order-btn {
+      width: 30px;
+      height: 30px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--ds-border-soft);
+      background: #ffffff;
+      color: #475569;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      line-height: 1;
+      transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    }
+
+    .order-btn:hover { border-color: #c7d2fe; color: var(--ds-accent); background: #f5f6ff; }
+    .order-btn:disabled { opacity: 0.35; cursor: default; background: #ffffff; color: #94a3b8; border-color: var(--ds-border-soft); }
+
     /* ---- Gerenciador de links dinâmico ---- */
     #links-management-container {
       display: flex;
@@ -1415,10 +1460,31 @@
                 <option value="ocultar">Ocultar</option>
               </select>
             </div>
-            <div class="field">
-              <label for="order-info">Ordem do Perfil</label>
-              <input type="number" id="order-info" min="1" max="10" value="1" />
+          </div>
+
+          <div class="field">
+            <label>Ordem de Exibição</label>
+            <div class="order-list" id="order-list">
+              <div class="order-row" data-section="info">
+                <span class="order-row__name">Perfil</span>
+                <span class="order-row__badge">1</span>
+                <button type="button" class="order-btn" data-move="-1" aria-label="Mover Perfil para cima">↑</button>
+                <button type="button" class="order-btn" data-move="1" aria-label="Mover Perfil para baixo">↓</button>
+              </div>
+              <div class="order-row" data-section="quick">
+                <span class="order-row__name">Ações Rápidas</span>
+                <span class="order-row__badge">2</span>
+                <button type="button" class="order-btn" data-move="-1" aria-label="Mover Ações Rápidas para cima">↑</button>
+                <button type="button" class="order-btn" data-move="1" aria-label="Mover Ações Rápidas para baixo">↓</button>
+              </div>
+              <div class="order-row" data-section="links">
+                <span class="order-row__name">Lista de Links</span>
+                <span class="order-row__badge">3</span>
+                <button type="button" class="order-btn" data-move="-1" aria-label="Mover Lista de Links para cima">↑</button>
+                <button type="button" class="order-btn" data-move="1" aria-label="Mover Lista de Links para baixo">↓</button>
+              </div>
             </div>
+            <p class="panel__hint">Ajuste a posição de cada bloco (de cima para baixo).</p>
           </div>
 
           <div class="field">
@@ -1903,13 +1969,50 @@
       return Math.min(10, Math.max(1, n));
     }
 
+    /* Ordem de exibição das seções: info (Perfil) / quick (Ações Rápidas) / links */
+    const sectionOrder = { info: 1, quick: 2, links: 3 };
+
+    function orderRender() {
+      const list = el('order-list');
+      if (!list) return;
+      const entries = Object.entries(sectionOrder).sort((a, b) => a[1] - b[1]);
+      entries.forEach(([key], i) => {
+        const row = list.querySelector('[data-section="' + key + '"]');
+        if (!row) return;
+        const badge = row.querySelector('.order-row__badge');
+        if (badge) badge.textContent = String(i + 1);
+        const up = row.querySelector('[data-move="-1"]');
+        const down = row.querySelector('[data-move="1"]');
+        if (up) up.disabled = (i === 0);
+        if (down) down.disabled = (i === entries.length - 1);
+      });
+      renderLayout();
+    }
+
+    function orderMove(key, dir) {
+      const cur = sectionOrder[key];
+      const swapKey = Object.keys(sectionOrder).find((k) => sectionOrder[k] === cur + dir);
+      if (!swapKey) return;
+      sectionOrder[swapKey] = cur;
+      sectionOrder[key] = cur + dir;
+      orderRender();
+    }
+
+    el('order-list').addEventListener('click', (e) => {
+      const btn = e.target.closest('.order-btn');
+      if (!btn) return;
+      const row = btn.closest('.order-row');
+      if (!row) return;
+      orderMove(row.dataset.section, +btn.dataset.move);
+    });
+
     /* Reconstrói o fluxo do preview conforme os controles de layout. */
     function renderLayout() {
       const flow = el('pvFlow');
       const profile = el('pvProfile');
       const banner = el('pvBanner');
 
-      profile.style.order = clampOrder(el('order-info').value, 1);
+      profile.style.order = sectionOrder.info;
       profile.style.display = (el('info-layout').value === 'ocultar') ? 'none' : '';
 
       flow.replaceChildren(profile);
@@ -1917,11 +2020,11 @@
       banner.style.order = 0;
       flow.appendChild(banner);
 
-      previewQuickGrid.style.order = 2;
+      previewQuickGrid.style.order = sectionOrder.quick;
       flow.appendChild(previewQuickGrid);
       renderQuickActions();
 
-      previewLinksList.style.order = 999;
+      previewLinksList.style.order = sectionOrder.links;
       flow.appendChild(previewLinksList);
       applyLinkListMode();
     }
@@ -1930,7 +2033,6 @@
     el('cards-layout').addEventListener('change', renderLayout);
 
     el('info-layout').addEventListener('change', renderLayout);
-    el('order-info').addEventListener('input', renderLayout);
 
     /* ================================================================
        TEXTO (nome, biografia, endereço, títulos e descrições)
@@ -3204,9 +3306,10 @@
         layout: {
           quickMode: el('quick-layout').value,
           cardsMode: el('cards-layout').value,
-          info: {
-            order: clampOrder(el('order-info').value, 1),
-            hidden: el('info-layout').value === 'ocultar'
+          items: {
+            info: { order: sectionOrder.info, hidden: el('info-layout').value === 'ocultar' },
+            quick: { order: sectionOrder.quick },
+            links: { order: sectionOrder.links }
           }
         },
         design: JSON.parse(JSON.stringify(designState))
@@ -3263,7 +3366,8 @@
       const q = cfg.quickActions;
       const v = cfg.visual || {};
       const lay = cfg.layout || {};
-      const layInfo = lay.info || {};
+      const layItems = lay.items || {};
+      const layInfo = layItems.info || lay.info || {};
 
       const values = {
         profileName: p.name, profileBio: p.bio, profileAddress: p.address,
@@ -3271,8 +3375,7 @@
         'input-btn-quick': v.quickBg, 'input-card-destaque': v.cardBg,
         'input-radius': toRadiusEnum(v.radius), 'input-font': v.font,
         'quick-layout': lay.quickMode, 'cards-layout': lay.cardsMode,
-        'info-layout': (layInfo.hidden === true) ? 'ocultar' : ((layInfo.hidden === false) ? 'exibir' : undefined),
-        'order-info': layInfo.order
+        'info-layout': (layInfo.hidden === true) ? 'ocultar' : ((layInfo.hidden === false) ? 'exibir' : undefined)
       };
 
       Object.entries(values).forEach(([id, value]) => {
@@ -3281,6 +3384,11 @@
         input.value = value;
         input.dispatchEvent(new Event('input'));
       });
+
+      sectionOrder.info = clampOrder(layItems.info && layItems.info.order != null ? layItems.info.order : layInfo.order, sectionOrder.info);
+      if (layItems.quick) sectionOrder.quick = clampOrder(layItems.quick.order, sectionOrder.quick);
+      if (layItems.links) sectionOrder.links = clampOrder(layItems.links.order, sectionOrder.links);
+      orderRender();
 
       el('input-radius').dispatchEvent(new Event('change'));
       el('input-font').dispatchEvent(new Event('change'));
@@ -3318,8 +3426,7 @@
         'input-bg-page': 'visual.pageBg', 'input-text-color': 'visual.textColor',
         'input-btn-quick': 'visual.quickBg', 'input-card-destaque': 'visual.cardBg',
         'input-radius': 'visual.radius', 'input-font': 'visual.font',
-        'quick-layout': 'layout.quickMode', 'cards-layout': 'layout.cardsMode',
-        'order-info': 'layout.info.order'
+        'quick-layout': 'layout.quickMode', 'cards-layout': 'layout.cardsMode'
       };
 
       const getPath = (obj, path) => path.split('.').reduce((o, k) => (o == null ? null : o[k]), obj);
@@ -3337,8 +3444,17 @@
       });
 
       if (saved.layout) {
-        const info = saved.layout.info;
+        const layItems = saved.layout.items;
+        if (layItems) {
+          if (layItems.info) sectionOrder.info = clampOrder(layItems.info.order, sectionOrder.info);
+          if (layItems.quick) sectionOrder.quick = clampOrder(layItems.quick.order, sectionOrder.quick);
+          if (layItems.links) sectionOrder.links = clampOrder(layItems.links.order, sectionOrder.links);
+        } else if (saved.layout.info) {
+          sectionOrder.info = clampOrder(saved.layout.info.order, sectionOrder.info);
+        }
+        const info = layItems && layItems.info ? layItems.info : saved.layout.info;
         if (info) el('info-layout').value = info.hidden ? 'ocultar' : 'exibir';
+        orderRender();
       }
 
       if (saved.visual) {

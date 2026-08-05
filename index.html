@@ -1058,8 +1058,9 @@
       const profile = document.getElementById('pageProfile');
 
       if (flow && profile) {
-        profile.style.order = clampOrder(lay.info && lay.info.order, 1);
-        profile.style.display = (lay.info && lay.info.hidden) ? 'none' : '';
+        const infoCfg = layItems.info || lay.info || {};
+        profile.style.order = clampOrder(infoCfg.order, 1);
+        profile.style.display = (infoCfg.hidden === true || (infoCfg.hidden == null && lay.info && lay.info.hidden)) ? 'none' : '';
 
         const sections = [
           { key: 'quick', node: quickContainer, mode: quickMode, order: 2 },

@@ -58,6 +58,10 @@ window.AXIUMLINK_CONFIG = {
   layout: {
     quickMode: "grid2x2",
     cardsMode: "list",
-    info: { order: 1, hidden: false }
+    items: {
+      info: { order: 1, hidden: false },
+      quick: { order: 2 },
+      links: { order: 3 }
+    }
   }
 };
