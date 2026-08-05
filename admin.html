@@ -513,50 +513,56 @@
 
     .crop-modal__actions .crop-apply:hover { background: #4338ca; }
 
-    /* ---- Ordem de exibição das seções ---- */
-    .order-list { display: flex; flex-direction: column; gap: 0.5rem; }
+    /* ---- Ordem de exibição das seções (arrastar e soltar) ---- */
+    .drag-container { display: flex; flex-direction: column; gap: 0.5rem; }
 
-    .order-row {
+    .drag-item {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-      padding: 0.5rem 0.75rem;
-      background: var(--ds-bg);
+      gap: 0.625rem;
+      padding: 0.75rem 0.875rem;
+      background: #ffffff;
       border: 1px solid var(--ds-border-soft);
       border-radius: 10px;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+      cursor: grab;
+      user-select: none;
+      -webkit-user-select: none;
+      transition: opacity 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
     }
 
-    .order-row__name { flex: 1; font-size: 0.8125rem; font-weight: 600; color: var(--ds-title); }
+    .drag-item:hover { border-color: #c7d2fe; box-shadow: 0 2px 6px rgba(79, 70, 229, 0.08); }
 
-    .order-row__badge {
-      min-width: 22px;
-      height: 22px;
+    .drag-item:active { cursor: grabbing; }
+
+    .drag-item.dragging {
+      opacity: 0.5;
+      border: 1px dashed #a5b4fc;
+      box-shadow: 0 8px 24px rgba(79, 70, 229, 0.18);
+    }
+
+    .drag-handle {
       display: grid;
       place-items: center;
+      color: #94a3b8;
+      cursor: grab;
+      flex-shrink: 0;
+    }
+
+    .drag-handle svg { width: 16px; height: 16px; }
+
+    .drag-text { flex: 1; font-size: 0.8125rem; font-weight: 600; color: var(--ds-title); }
+
+    .drag-container:empty::after {
+      content: 'Nenhum bloco disponível';
+      display: block;
+      text-align: center;
       font-size: 0.75rem;
-      font-weight: 700;
-      color: #ffffff;
-      border-radius: 6px;
-      background: #64748b;
+      color: #94a3b8;
+      padding: 0.75rem;
+      border: 1px dashed var(--ds-border-soft);
+      border-radius: 10px;
     }
-
-    .order-btn {
-      width: 30px;
-      height: 30px;
-      display: grid;
-      place-items: center;
-      border: 1px solid var(--ds-border-soft);
-      background: #ffffff;
-      color: #475569;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 0.9rem;
-      line-height: 1;
-      transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
-    }
-
-    .order-btn:hover { border-color: #c7d2fe; color: var(--ds-accent); background: #f5f6ff; }
-    .order-btn:disabled { opacity: 0.35; cursor: default; background: #ffffff; color: #94a3b8; border-color: var(--ds-border-soft); }
 
     /* ---- Gerenciador de links dinâmico ---- */
     #links-management-container {
@@ -1544,27 +1550,27 @@
 
           <div class="field">
             <label>Ordem de Exibição</label>
-            <div class="order-list" id="order-list">
-              <div class="order-row" data-section="info">
-                <span class="order-row__name">Perfil</span>
-                <span class="order-row__badge">1</span>
-                <button type="button" class="order-btn" data-move="-1" aria-label="Mover Perfil para cima">↑</button>
-                <button type="button" class="order-btn" data-move="1" aria-label="Mover Perfil para baixo">↓</button>
+            <div class="drag-container" id="blocks-drag-container">
+              <div class="drag-item" draggable="true" data-block="perfil">
+                <div class="drag-handle" title="Arraste para reordenar" aria-label="Arraste para reordenar">
+                  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="9" cy="5" r="1.7"/><circle cx="15" cy="5" r="1.7"/><circle cx="9" cy="12" r="1.7"/><circle cx="15" cy="12" r="1.7"/><circle cx="9" cy="19" r="1.7"/><circle cx="15" cy="19" r="1.7"/></svg>
+                </div>
+                <span class="drag-text">Perfil</span>
               </div>
-              <div class="order-row" data-section="quick">
-                <span class="order-row__name">Ações Rápidas</span>
-                <span class="order-row__badge">2</span>
-                <button type="button" class="order-btn" data-move="-1" aria-label="Mover Ações Rápidas para cima">↑</button>
-                <button type="button" class="order-btn" data-move="1" aria-label="Mover Ações Rápidas para baixo">↓</button>
+              <div class="drag-item" draggable="true" data-block="acoes-rapidas">
+                <div class="drag-handle" title="Arraste para reordenar" aria-label="Arraste para reordenar">
+                  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="9" cy="5" r="1.7"/><circle cx="15" cy="5" r="1.7"/><circle cx="9" cy="12" r="1.7"/><circle cx="15" cy="12" r="1.7"/><circle cx="9" cy="19" r="1.7"/><circle cx="15" cy="19" r="1.7"/></svg>
+                </div>
+                <span class="drag-text">Ações Rápidas</span>
               </div>
-              <div class="order-row" data-section="links">
-                <span class="order-row__name">Lista de Links</span>
-                <span class="order-row__badge">3</span>
-                <button type="button" class="order-btn" data-move="-1" aria-label="Mover Lista de Links para cima">↑</button>
-                <button type="button" class="order-btn" data-move="1" aria-label="Mover Lista de Links para baixo">↓</button>
+              <div class="drag-item" draggable="true" data-block="lista-links">
+                <div class="drag-handle" title="Arraste para reordenar" aria-label="Arraste para reordenar">
+                  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="9" cy="5" r="1.7"/><circle cx="15" cy="5" r="1.7"/><circle cx="9" cy="12" r="1.7"/><circle cx="15" cy="12" r="1.7"/><circle cx="9" cy="19" r="1.7"/><circle cx="15" cy="19" r="1.7"/></svg>
+                </div>
+                <span class="drag-text">Lista de Links</span>
               </div>
             </div>
-            <p class="panel__hint">Ajuste a posição de cada bloco (de cima para baixo).</p>
+            <p class="panel__hint">Arraste os blocos para definir a posição (de cima para baixo).</p>
           </div>
 
           <div class="field">
@@ -2174,38 +2180,70 @@
     /* Ordem de exibição das seções: info (Perfil) / quick (Ações Rápidas) / links */
     const sectionOrder = { info: 1, quick: 2, links: 3 };
 
-    function orderRender() {
-      const list = el('order-list');
+    const sectionBlockMap = { perfil: 'info', 'acoes-rapidas': 'quick', 'lista-links': 'links' };
+
+    /* Lê a ordem física dos cartões (#blocks-drag-container) e sincroniza
+       seções + mockup do celular imediatamente. */
+    function atualizarOrdemNoPreview() {
+      const list = el('blocks-drag-container');
       if (!list) return;
-      const entries = Object.entries(sectionOrder).sort((a, b) => a[1] - b[1]);
-      entries.forEach(([key], i) => {
-        const row = list.querySelector('[data-section="' + key + '"]');
-        if (!row) return;
-        const badge = row.querySelector('.order-row__badge');
-        if (badge) badge.textContent = String(i + 1);
-        const up = row.querySelector('[data-move="-1"]');
-        const down = row.querySelector('[data-move="1"]');
-        if (up) up.disabled = (i === 0);
-        if (down) down.disabled = (i === entries.length - 1);
+      Array.from(list.querySelectorAll('.drag-item')).forEach((item, i) => {
+        const key = sectionBlockMap[item.dataset.block];
+        if (key) sectionOrder[key] = i + 1;
       });
       renderLayout();
     }
 
-    function orderMove(key, dir) {
-      const cur = sectionOrder[key];
-      const swapKey = Object.keys(sectionOrder).find((k) => sectionOrder[k] === cur + dir);
-      if (!swapKey) return;
-      sectionOrder[swapKey] = cur;
-      sectionOrder[key] = cur + dir;
-      orderRender();
+    /* Reordena os cartões na esquerda conforme o sectionOrder salvo/restaurado */
+    function orderRender() {
+      const list = el('blocks-drag-container');
+      if (!list) return;
+      const ordered = Object.entries(sectionOrder)
+        .sort((a, b) => a[1] - b[1])
+        .map(([key]) => list.querySelector('[data-block="' + reverseSectionBlockMap(key) + '"]'))
+        .filter(Boolean);
+      ordered.forEach((item) => list.appendChild(item));
+      renderLayout();
     }
 
-    el('order-list').addEventListener('click', (e) => {
-      const btn = e.target.closest('.order-btn');
-      if (!btn) return;
-      const row = btn.closest('.order-row');
-      if (!row) return;
-      orderMove(row.dataset.section, +btn.dataset.move);
+    function reverseSectionBlockMap(key) {
+      return Object.keys(sectionBlockMap).find((b) => sectionBlockMap[b] === key);
+    }
+
+    const orderDragContainer = el('blocks-drag-container');
+    let draggingItem = null;
+
+    orderDragContainer.addEventListener('dragstart', (e) => {
+      const item = e.target.closest('.drag-item');
+      if (!item) return;
+      draggingItem = item;
+      item.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      try { e.dataTransfer.setData('text/plain', item.dataset.block); } catch (err) {}
+    });
+
+    orderDragContainer.addEventListener('dragover', (e) => {
+      if (!draggingItem) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      const siblings = Array.from(orderDragContainer.querySelectorAll('.drag-item:not(.dragging)'));
+      const nextSibling = siblings.find((sibling) => {
+        const box = sibling.getBoundingClientRect();
+        const offset = e.clientY - box.top - box.height / 2;
+        return offset < 0;
+      });
+      orderDragContainer.insertBefore(draggingItem, nextSibling);
+    });
+
+    orderDragContainer.addEventListener('drop', (e) => {
+      e.preventDefault();
+    });
+
+    orderDragContainer.addEventListener('dragend', (e) => {
+      const item = e.target.closest('.drag-item');
+      if (item) item.classList.remove('dragging');
+      draggingItem = null;
+      atualizarOrdemNoPreview();
     });
 
     /* Reconstrói o fluxo do preview conforme os controles de layout. */
