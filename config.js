@@ -63,5 +63,42 @@ window.AXIUMLINK_CONFIG = {
       quick: { order: 2 },
       links: { order: 3 }
     }
+  },
+  design: {
+    banner: {
+      enabled: true,
+      height: 132,
+      monogram: "",
+      brand: "",
+      image: null,
+      blend: "normal",
+      angle: 135,
+      stops: [
+        { color: "#0f172a", pos: 0, alpha: 100 },
+        { color: "#334155", pos: 55, alpha: 100 },
+        { color: "#64748b", pos: 100, alpha: 100 }
+      ],
+      glass: false,
+      glassBlur: 18,
+      textColor: "#ffffff",
+      font: "system",
+      monogramSize: 40,
+      brandSize: 11,
+      fontWeight: 800,
+      align: "center",
+      textShadowOn: true,
+      textShadowBlur: 18,
+      textShadowColor: "#000000",
+      textShadowAlpha: 60,
+      monogramBadge: false,
+      monogramBg: "#000000",
+      monogramBgAlpha: 35,
+      monogramBorder: true,
+      monogramBorderColor: "#ffffff",
+      monogramBorderWidth: 2,
+      monogramRadius: 12,
+      scrim: "none",
+      scrimOpacity: 45
+    }
   }
 };

@@ -858,6 +858,13 @@
 
     /* ---- Banner superior do mockup (monograma + sobreposição da foto) ---- */
     .pv-banner {
+      --pv-banner-text: #ffffff;
+      --pv-banner-font: inherit;
+      --pv-banner-weight: 800;
+      --pv-banner-mono-size: 40px;
+      --pv-banner-brand-size: 11px;
+      --pv-banner-align: center;
+      --pv-banner-shadow: none;
       position: relative;
       width: 100%;
       height: 132px;
@@ -865,7 +872,7 @@
       border-radius: var(--global-radius);
       display: flex;
       flex-direction: column;
-      align-items: center;
+      align-items: var(--pv-banner-align);
       justify-content: center;
       gap: 0.375rem;
       background: linear-gradient(135deg, #0f172a 0%, #334155 55%, #64748b 100%);
@@ -873,25 +880,41 @@
       transition: height 0.2s ease;
     }
 
+    .pv-banner__scrim {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
     .pv-banner__monogram {
-      font-size: 2.4rem;
-      font-weight: 800;
+      position: relative;
+      z-index: 1;
+      font-family: var(--pv-banner-font);
+      font-size: var(--pv-banner-mono-size);
+      font-weight: var(--pv-banner-weight);
       letter-spacing: 0.1em;
       line-height: 1;
-      background: linear-gradient(180deg, #fde68a 0%, #d4af37 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      text-shadow: 0 2px 18px rgba(212, 175, 55, 0.35);
+      color: var(--pv-banner-text);
+      text-shadow: var(--pv-banner-shadow);
+      transition: background 0.2s ease, border-color 0.2s ease;
     }
 
     .pv-banner__brand {
-      font-size: 0.6rem;
-      font-weight: 700;
+      position: relative;
+      z-index: 1;
+      font-family: var(--pv-banner-font);
+      font-size: var(--pv-banner-brand-size);
+      font-weight: var(--pv-banner-weight);
       letter-spacing: 0.32em;
       text-transform: uppercase;
-      color: rgba(255, 255, 255, 0.8);
+      color: var(--pv-banner-text);
+      text-shadow: var(--pv-banner-shadow);
+      opacity: 0.85;
     }
+
+    .pv-banner__monogram[hidden],
+    .pv-banner__brand[hidden] { display: none; }
 
     /* Foto de perfil sobreposta ao banner com borda metálica */
     .pv-profile { margin-top: -2.4rem; position: relative; z-index: 2; }
@@ -1752,6 +1775,127 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" /><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><line x1="10" x2="10" y1="11" y2="17" /><line x1="14" x2="14" y1="11" y2="17" /></svg>
                 <span>Remover imagem do banner</span>
               </button>
+              <p class="adv-subtitle adv-subtitle--sm">Ao usar imagem de fundo, monograma e marca ficam ocultos automaticamente.</p>
+            </div>
+
+            <div class="adv-group">
+              <p class="adv-subtitle adv-subtitle--sm">Textos (monograma e marca)</p>
+
+              <div class="adv-row">
+                <div class="field">
+                  <label for="ds-banner-text-color">Cor do texto</label>
+                  <input type="color" id="ds-banner-text-color" value="#ffffff" />
+                </div>
+                <div class="field">
+                  <label for="ds-banner-font">Fonte</label>
+                  <select id="ds-banner-font">
+                    <option value="system" selected>Padrão do sistema</option>
+                    <option value="serif">Serifada</option>
+                    <option value="sans">Sem serifa</option>
+                    <option value="mono">Monoespaçada</option>
+                    <option value="cursive">Manuscrita</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="slider-field">
+                <div class="slider-field__head"><label for="ds-banner-monogram-size">Tamanho do monograma</label><output id="ds-banner-monogram-size-out">40px</output></div>
+                <input type="range" id="ds-banner-monogram-size" min="16" max="96" value="40" />
+              </div>
+
+              <div class="slider-field">
+                <div class="slider-field__head"><label for="ds-banner-brand-size">Tamanho da marca</label><output id="ds-banner-brand-size-out">11px</output></div>
+                <input type="range" id="ds-banner-brand-size" min="8" max="32" value="11" />
+              </div>
+
+              <div class="adv-row">
+                <div class="slider-field">
+                  <div class="slider-field__head"><label for="ds-banner-weight">Espessura</label><output id="ds-banner-weight-out">800</output></div>
+                  <input type="range" id="ds-banner-weight" min="100" max="900" step="100" value="800" />
+                </div>
+                <div class="field">
+                  <label for="ds-banner-align">Alinhamento</label>
+                  <select id="ds-banner-align">
+                    <option value="center" selected>Centro</option>
+                    <option value="left">Esquerda</option>
+                    <option value="right">Direita</option>
+                  </select>
+                </div>
+              </div>
+
+              <label class="adv-check">
+                <input type="checkbox" id="ds-banner-text-shadow" checked />
+                <span>Sombra no texto</span>
+              </label>
+              <div class="slider-field">
+                <div class="slider-field__head"><label for="ds-banner-text-shadow-blur">Desfoque da sombra</label><output id="ds-banner-text-shadow-blur-out">18px</output></div>
+                <input type="range" id="ds-banner-text-shadow-blur" min="0" max="40" value="18" />
+              </div>
+              <div class="field">
+                <label for="ds-banner-text-shadow-color">Cor da sombra</label>
+                <input type="color" id="ds-banner-text-shadow-color" value="#000000" />
+              </div>
+              <div class="slider-field">
+                <div class="slider-field__head"><label for="ds-banner-text-shadow-alpha">Opacidade da sombra</label><output id="ds-banner-text-shadow-alpha-out">60%</output></div>
+                <input type="range" id="ds-banner-text-shadow-alpha" min="0" max="100" value="60" />
+              </div>
+            </div>
+
+            <div class="adv-group">
+              <p class="adv-subtitle adv-subtitle--sm">Estilo do monograma</p>
+
+              <label class="adv-check">
+                <input type="checkbox" id="ds-banner-mono-badge" />
+                <span>Fundo (badge) atrás do monograma</span>
+              </label>
+              <div class="adv-row">
+                <div class="field">
+                  <label for="ds-banner-mono-bg">Cor do fundo</label>
+                  <input type="color" id="ds-banner-mono-bg" value="#000000" />
+                </div>
+                <div class="slider-field">
+                  <div class="slider-field__head"><label for="ds-banner-mono-bg-alpha">Opacidade</label><output id="ds-banner-mono-bg-alpha-out">35%</output></div>
+                  <input type="range" id="ds-banner-mono-bg-alpha" min="0" max="100" value="35" />
+                </div>
+              </div>
+
+              <label class="adv-check">
+                <input type="checkbox" id="ds-banner-mono-border" checked />
+                <span>Borda no badge</span>
+              </label>
+              <div class="adv-row">
+                <div class="field">
+                  <label for="ds-banner-mono-border-color">Cor da borda</label>
+                  <input type="color" id="ds-banner-mono-border-color" value="#ffffff" />
+                </div>
+                <div class="slider-field">
+                  <div class="slider-field__head"><label for="ds-banner-mono-border-width">Espessura</label><output id="ds-banner-mono-border-width-out">2px</output></div>
+                  <input type="range" id="ds-banner-mono-border-width" min="0" max="8" value="2" />
+                </div>
+              </div>
+
+              <div class="slider-field">
+                <div class="slider-field__head"><label for="ds-banner-mono-radius">Cantos do badge</label><output id="ds-banner-mono-radius-out">12px</output></div>
+                <input type="range" id="ds-banner-mono-radius" min="0" max="24" value="12" />
+              </div>
+            </div>
+
+            <div class="adv-group">
+              <p class="adv-subtitle adv-subtitle--sm">Camada de legibilidade</p>
+              <div class="adv-row">
+                <div class="field">
+                  <label for="ds-banner-scrim">Sobreposição</label>
+                  <select id="ds-banner-scrim">
+                    <option value="none" selected>Nenhuma</option>
+                    <option value="dark">Escura</option>
+                    <option value="light">Clara</option>
+                  </select>
+                </div>
+                <div class="slider-field">
+                  <div class="slider-field__head"><label for="ds-banner-scrim-opacity">Opacidade</label><output id="ds-banner-scrim-opacity-out">45%</output></div>
+                  <input type="range" id="ds-banner-scrim-opacity" min="0" max="90" value="45" />
+                </div>
+              </div>
             </div>
 
             <div class="adv-group">
@@ -1906,6 +2050,7 @@
             <div class="pv-flow" id="pvFlow">
 
               <div class="pv-banner" id="pvBanner">
+                <div class="pv-banner__scrim" id="pvScrim"></div>
                 <div class="pv-banner__monogram" id="pvMonogram">N</div>
                 <div class="pv-banner__brand" id="pvBrand">NOME</div>
               </div>
@@ -2208,7 +2353,26 @@
           { color: '#64748b', pos: 100, alpha: 100 }
         ],
         glass: false,
-        glassBlur: 18
+        glassBlur: 18,
+        textColor: '#ffffff',
+        font: 'system',
+        monogramSize: 40,
+        brandSize: 11,
+        fontWeight: 800,
+        align: 'center',
+        textShadowOn: true,
+        textShadowBlur: 18,
+        textShadowColor: '#000000',
+        textShadowAlpha: 60,
+        monogramBadge: false,
+        monogramBg: '#000000',
+        monogramBgAlpha: 35,
+        monogramBorder: true,
+        monogramBorderColor: '#ffffff',
+        monogramBorderWidth: 2,
+        monogramRadius: 12,
+        scrim: 'none',
+        scrimOpacity: 45
       },
       profile: {
         marginTop: -38,
@@ -2239,6 +2403,20 @@
         + b.stops.map((s) => toRgba(s.color, s.alpha) + ' ' + s.pos + '%').join(', ') + ')';
     }
 
+    function bannerFontCSS(font) {
+      switch (font) {
+        case 'serif':   return '"Georgia", "Times New Roman", serif';
+        case 'sans':    return '"Arial", "Helvetica Neue", sans-serif';
+        case 'mono':    return '"Courier New", Consolas, monospace';
+        case 'cursive': return '"Brush Script MT", "Segoe Script", cursive';
+        default:        return 'inherit';
+      }
+    }
+
+    function bannerAlignCSS(align) {
+      return align === 'left' ? 'flex-start' : align === 'right' ? 'flex-end' : 'center';
+    }
+
     function gradStopHTML(s, i) {
       return ''
         + '<div class="grad-stop">'
@@ -2266,6 +2444,15 @@
       set('ds-banner-height-out', b.height + 'px');
       set('ds-banner-angle-out', b.angle + '°');
       set('ds-banner-glass-blur-out', b.glassBlur + 'px');
+      set('ds-banner-monogram-size-out', b.monogramSize + 'px');
+      set('ds-banner-brand-size-out', b.brandSize + 'px');
+      set('ds-banner-weight-out', String(b.fontWeight));
+      set('ds-banner-text-shadow-blur-out', b.textShadowBlur + 'px');
+      set('ds-banner-text-shadow-alpha-out', b.textShadowAlpha + '%');
+      set('ds-banner-mono-bg-alpha-out', b.monogramBgAlpha + '%');
+      set('ds-banner-mono-border-width-out', b.monogramBorderWidth + 'px');
+      set('ds-banner-mono-radius-out', b.monogramRadius + 'px');
+      set('ds-banner-scrim-opacity-out', b.scrimOpacity + '%');
       set('ds-avatar-margin-out', p.marginTop + 'px');
       set('ds-avatar-z-out', String(p.zIndex));
       set('ds-avatar-radius-tl-out', p.radius.tl + 'px');
@@ -2301,7 +2488,38 @@
         banner.style.backgroundBlendMode = b.blend;
         banner.style.backdropFilter = b.glass ? 'blur(' + b.glassBlur + 'px)' : '';
         banner.style.webkitBackdropFilter = banner.style.backdropFilter;
+
+        banner.style.setProperty('--pv-banner-text', b.textColor);
+        banner.style.setProperty('--pv-banner-font', bannerFontCSS(b.font));
+        banner.style.setProperty('--pv-banner-weight', String(b.fontWeight));
+        banner.style.setProperty('--pv-banner-mono-size', b.monogramSize + 'px');
+        banner.style.setProperty('--pv-banner-brand-size', b.brandSize + 'px');
+        banner.style.setProperty('--pv-banner-align', bannerAlignCSS(b.align));
+        banner.style.setProperty('--pv-banner-shadow',
+          b.textShadowOn
+            ? '0 ' + (b.textShadowBlur / 2) + 'px ' + b.textShadowBlur + 'px ' + toRgba(b.textShadowColor, b.textShadowAlpha)
+            : 'none');
+
+        const scrim = el('pvScrim');
+        scrim.style.display = (b.scrim === 'none') ? 'none' : 'block';
+        scrim.style.background = (b.scrim === 'dark')
+          ? 'rgba(0, 0, 0, ' + (b.scrimOpacity / 100) + ')'
+          : (b.scrim === 'light')
+            ? 'rgba(255, 255, 255, ' + (b.scrimOpacity / 100) + ')'
+            : 'none';
+
+        const monogram = el('pvMonogram');
+        monogram.style.background = b.monogramBadge ? toRgba(b.monogramBg, b.monogramBgAlpha) : 'none';
+        monogram.style.border = (b.monogramBadge && b.monogramBorder && b.monogramBorderWidth > 0)
+          ? b.monogramBorderWidth + 'px solid ' + b.monogramBorderColor
+          : 'none';
+        monogram.style.borderRadius = b.monogramBadge ? b.monogramRadius + 'px' : '0';
+        monogram.style.padding = b.monogramBadge ? '0.3em 0.6em' : '0';
       }
+
+      const hideText = !!b.image;
+      el('pvMonogram').hidden = hideText;
+      el('pvBrand').hidden = hideText;
 
       const profileName = (el('profileName').value || '').trim();
       el('pvMonogram').textContent = b.monogram || (profileName ? profileName.charAt(0).toUpperCase() : 'N');
@@ -2331,6 +2549,25 @@
       el('ds-banner-blend').value = b.blend;
       el('ds-banner-glass').checked = b.glass;
       el('ds-banner-glass-blur').value = b.glassBlur;
+      el('ds-banner-text-color').value = b.textColor;
+      el('ds-banner-font').value = b.font;
+      el('ds-banner-monogram-size').value = b.monogramSize;
+      el('ds-banner-brand-size').value = b.brandSize;
+      el('ds-banner-weight').value = b.fontWeight;
+      el('ds-banner-align').value = b.align;
+      el('ds-banner-text-shadow').checked = b.textShadowOn;
+      el('ds-banner-text-shadow-blur').value = b.textShadowBlur;
+      el('ds-banner-text-shadow-color').value = b.textShadowColor;
+      el('ds-banner-text-shadow-alpha').value = b.textShadowAlpha;
+      el('ds-banner-mono-badge').checked = b.monogramBadge;
+      el('ds-banner-mono-bg').value = b.monogramBg;
+      el('ds-banner-mono-bg-alpha').value = b.monogramBgAlpha;
+      el('ds-banner-mono-border').checked = b.monogramBorder;
+      el('ds-banner-mono-border-color').value = b.monogramBorderColor;
+      el('ds-banner-mono-border-width').value = b.monogramBorderWidth;
+      el('ds-banner-mono-radius').value = b.monogramRadius;
+      el('ds-banner-scrim').value = b.scrim;
+      el('ds-banner-scrim-opacity').value = b.scrimOpacity;
       el('ds-avatar-margin').value = p.marginTop;
       el('ds-avatar-z').value = p.zIndex;
       el('ds-avatar-radius-tl').value = p.radius.tl;
@@ -2366,6 +2603,25 @@
       b.blend = el('ds-banner-blend').value;
       b.glass = el('ds-banner-glass').checked;
       b.glassBlur = +el('ds-banner-glass-blur').value;
+      b.textColor = el('ds-banner-text-color').value;
+      b.font = el('ds-banner-font').value;
+      b.monogramSize = +el('ds-banner-monogram-size').value;
+      b.brandSize = +el('ds-banner-brand-size').value;
+      b.fontWeight = +el('ds-banner-weight').value;
+      b.align = el('ds-banner-align').value;
+      b.textShadowOn = el('ds-banner-text-shadow').checked;
+      b.textShadowBlur = +el('ds-banner-text-shadow-blur').value;
+      b.textShadowColor = el('ds-banner-text-shadow-color').value;
+      b.textShadowAlpha = +el('ds-banner-text-shadow-alpha').value;
+      b.monogramBadge = el('ds-banner-mono-badge').checked;
+      b.monogramBg = el('ds-banner-mono-bg').value;
+      b.monogramBgAlpha = +el('ds-banner-mono-bg-alpha').value;
+      b.monogramBorder = el('ds-banner-mono-border').checked;
+      b.monogramBorderColor = el('ds-banner-mono-border-color').value;
+      b.monogramBorderWidth = +el('ds-banner-mono-border-width').value;
+      b.monogramRadius = +el('ds-banner-mono-radius').value;
+      b.scrim = el('ds-banner-scrim').value;
+      b.scrimOpacity = +el('ds-banner-scrim-opacity').value;
       p.marginTop = +el('ds-avatar-margin').value;
       p.zIndex = +el('ds-avatar-z').value;
       p.radius.tl = +el('ds-avatar-radius-tl').value;
@@ -2403,6 +2659,10 @@
 
     const DS_SLIDERS = [
       'ds-banner-height', 'ds-banner-angle', 'ds-banner-glass-blur',
+      'ds-banner-monogram-size', 'ds-banner-brand-size', 'ds-banner-weight',
+      'ds-banner-text-shadow-blur', 'ds-banner-text-shadow-alpha',
+      'ds-banner-mono-bg-alpha', 'ds-banner-mono-border-width', 'ds-banner-mono-radius',
+      'ds-banner-scrim-opacity',
       'ds-avatar-margin', 'ds-avatar-z',
       'ds-avatar-radius-tl', 'ds-avatar-radius-tr', 'ds-avatar-radius-br', 'ds-avatar-radius-bl',
       'ds-avatar-border-width',
