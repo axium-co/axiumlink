@@ -443,6 +443,16 @@
 
     #links-management-container .block { margin-bottom: 0; }
 
+    /* ---- Gerenciador de ações rápidas dinâmico ---- */
+    #quick-actions-management {
+      display: flex;
+      flex-direction: column;
+      gap: 0.875rem;
+      margin-bottom: 0.875rem;
+    }
+
+    #quick-actions-management .block { margin-bottom: 0; }
+
     .link-block__head {
       display: flex;
       align-items: center;
@@ -490,6 +500,26 @@
 
     .btn-premium-action:hover { background: #e0e7ff; border-color: #a5b4fc; }
     .btn-premium-action:active { transform: scale(0.98); }
+
+    .btn-secondary-action {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      width: 100%;
+      padding: 0.875rem 1rem;
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--ds-body);
+      background: var(--ds-bg);
+      border: 1.5px dashed #cbd5e1;
+      border-radius: var(--ds-radius);
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+    }
+
+    .btn-secondary-action:hover { background: #f1f5f9; border-color: #94a3b8; color: var(--ds-title); }
+    .btn-secondary-action:active { transform: scale(0.98); }
 
     .panel__hint {
       margin-top: 0.9375rem;
@@ -586,7 +616,7 @@
 
     .preview a { color: inherit; text-decoration: none; }
     .preview button { font-family: inherit; cursor: pointer; }
-    .preview button:not(.pv-quick__item) { background: none; border: none; color: inherit; }
+    .preview button:not(.btn-quick-compact) { background: none; border: none; color: inherit; }
 
     .pv-profile {
       display: flex;
@@ -653,11 +683,6 @@
 
     .pv-profile { width: 100%; }
 
-    /* Larguras individuais (order/width vêm do painel via style.order) */
-    .pv-item--full { flex: 1 1 100%; }
-    .pv-item--half { flex: 1 1 calc(50% - 4px); }
-    .pv-item--auto { flex: 0 1 auto; }
-
     /* Linha horizontal rolável / carrossel lateral */
     .pv-strip {
       display: flex;
@@ -672,32 +697,63 @@
 
     .pv-strip::-webkit-scrollbar { display: none; }
 
-    .pv-strip--quick .pv-quick__item { flex: 0 0 auto; width: auto; min-width: 130px; }
-    .pv-strip--cards .pv-card { flex: 0 0 auto; width: auto; min-width: 220px; }
-
-    .preview .pv-quick__item {
+    /* ---- Botões Rápidos compactos (grade superior 2x2) ---- */
+    .preview .btn-quick-compact {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       gap: 0.25rem;
-      min-height: 4rem;
+      min-height: 3.25rem;
+      padding: 0.5rem 0.375rem;
       background: var(--btn-quick-bg);
       color: var(--btn-quick-text);
       border: var(--global-border);
       border-radius: var(--global-radius);
-      padding: 0.625rem 0.5rem;
-      font-size: 0.68rem;
+      font-size: 0.62rem;
       font-weight: 600;
       text-align: center;
       line-height: 1.2;
       transition: transform var(--transition), filter var(--transition);
     }
 
-    .pv-quick__item:hover { transform: scale(1.02); filter: brightness(1.06); }
-    .pv-quick__item:active { transform: scale(0.98); }
+    .btn-quick-compact:hover { transform: scale(1.02); filter: brightness(1.06); }
+    .btn-quick-compact:active { transform: scale(0.98); }
 
-    .pv-quick__item svg { width: 16px; height: 16px; flex-shrink: 0; }
+    .btn-quick-compact svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+    /* ---- Grid de Ações Rápidas (mockup) — adapta-se à quantidade de botões ---- */
+    .quick-actions-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      width: 100%;
+    }
+
+    .quick-actions-grid[hidden] { display: none; }
+
+    .quick-actions-grid .btn-quick-compact:only-child { grid-column: 1 / -1; }
+
+    .quick-actions-grid--list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .quick-actions-grid--scroll {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 8px;
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      scroll-snap-type: x proximity;
+      scrollbar-width: none;
+      padding-bottom: 4px;
+    }
+
+    .quick-actions-grid--scroll::-webkit-scrollbar { display: none; }
+
+    .quick-actions-grid--scroll .btn-quick-compact { flex: 0 0 auto; width: auto; min-width: 130px; }
 
     .pv-card {
       display: flex;
@@ -740,7 +796,8 @@
     .pv-card__body span { font-size: 0.68rem; opacity: 0.8; }
 
     /* ---- Lista de links dinâmica (mockup) ---- */
-    #preview-links-list {
+    #preview-links-list,
+    #preview-links-list.mode-lista-vertical {
       display: flex;
       flex-direction: column;
       gap: 8px;
@@ -757,10 +814,35 @@
       min-width: 0;
     }
 
+    /* ---- Modo Carrossel Lateral (Cards lado a lado com deslize horizontal) ---- */
+    #preview-links-list.mode-carrossel,
+    #preview-links-list.pv-strip {
+      display: flex !important;
+      flex-direction: row !important;
+      overflow-x: auto !important;
+      overscroll-behavior-x: contain;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+      gap: 16px;
+      padding: 10px 16px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    #preview-links-list.mode-carrossel::-webkit-scrollbar,
+    #preview-links-list.pv-strip::-webkit-scrollbar {
+      display: none;
+    }
+
+    #preview-links-list.mode-carrossel .pv-link,
     #preview-links-list.pv-strip .pv-link {
-      flex: 0 0 auto;
-      width: auto;
-      min-width: 200px;
+      flex: 0 0 80%;
+      scroll-snap-align: center;
+      min-height: 120px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
     }
 
     .pv-link {
@@ -961,7 +1043,7 @@
           </div>
 
           <div class="field">
-            <label for="quick-layout">Ações Rápidas (4 botões)</label>
+            <label for="quick-layout">Ações Rápidas</label>
             <select id="quick-layout">
               <option value="grid2x2" selected>Grid 2x2</option>
               <option value="list">Lista Vertical (Empilhado)</option>
@@ -981,8 +1063,8 @@
           </div>
 
           <p class="panel__hint">
-            Os <strong>Botões Rápidos</strong> (4 fixos) e a <strong>Lista de Links</strong> (ilimitada)
-            se combinam livremente no preview. Cada link adicionado vira um botão na página pública.
+            Os <strong>Botões Rápidos</strong> e a <strong>Lista de Links</strong> são ilimitados
+            e se combinam livremente no preview. Cada botão adicionado vira um link na página pública.
           </p>
         </section>
 
@@ -990,105 +1072,9 @@
         <section class="section">
           <h2 class="section__title">Links e Botões</h2>
 
-          <div class="block">
-            <h3 class="block__title">
-              Botão 1 — WhatsApp
-              <span class="block__hint">Ação Rápida</span>
-            </h3>
-            <div class="field">
-              <label for="quickContact">Link de Contato</label>
-              <input type="url" id="quickContact" data-key="quickContact" value="https://wa.me/5500000000000" placeholder="https://wa.me/55..." />
-            </div>
-            <div class="row-2">
-              <div class="field">
-                <label for="order-quickContact">Ordem de Exibição</label>
-                <input type="number" id="order-quickContact" min="1" max="10" value="2" />
-              </div>
-              <div class="field">
-                <label for="width-quickContact">Largura do Botão</label>
-                <select id="width-quickContact">
-                  <option value="full">Largura Total (100%)</option>
-                  <option value="half" selected>Metade da Tela (50%)</option>
-                  <option value="auto">Compacto</option>
-                </select>
-              </div>
-            </div>
-          </div>
+          <div id="quick-actions-management"></div>
 
-          <div class="block">
-            <h3 class="block__title">
-              Botão 2 — Arquivo VCF
-              <span class="block__hint">Ação Rápida</span>
-            </h3>
-            <div class="field">
-              <label for="quickVcf">Arquivo .vcf</label>
-              <input type="text" id="quickVcf" data-key="quickVcf" value="contato.vcf" placeholder="contato.vcf" />
-            </div>
-            <div class="row-2">
-              <div class="field">
-                <label for="order-quickVcf">Ordem de Exibição</label>
-                <input type="number" id="order-quickVcf" min="1" max="10" value="3" />
-              </div>
-              <div class="field">
-                <label for="width-quickVcf">Largura do Botão</label>
-                <select id="width-quickVcf">
-                  <option value="full">Largura Total (100%)</option>
-                  <option value="half" selected>Metade da Tela (50%)</option>
-                  <option value="auto">Compacto</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <div class="block">
-            <h3 class="block__title">
-              Botão 3 — Telefone
-              <span class="block__hint">Ação Rápida</span>
-            </h3>
-            <div class="field">
-              <label for="quickPhone">Telefone</label>
-              <input type="tel" id="quickPhone" data-key="quickPhone" value="+5500000000000" placeholder="+55..." />
-            </div>
-            <div class="row-2">
-              <div class="field">
-                <label for="order-quickPhone">Ordem de Exibição</label>
-                <input type="number" id="order-quickPhone" min="1" max="10" value="4" />
-              </div>
-              <div class="field">
-                <label for="width-quickPhone">Largura do Botão</label>
-                <select id="width-quickPhone">
-                  <option value="full">Largura Total (100%)</option>
-                  <option value="half" selected>Metade da Tela (50%)</option>
-                  <option value="auto">Compacto</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <div class="block">
-            <h3 class="block__title">
-              Botão 4 — PIX
-              <span class="block__hint">Ação Rápida</span>
-            </h3>
-            <div class="field">
-              <label for="pixKey">Chave PIX</label>
-              <input type="text" id="pixKey" data-key="pixKey" value="sua.chave@pix.com.br" placeholder="sua.chave@pix.com.br" />
-            </div>
-            <div class="row-2">
-              <div class="field">
-                <label for="order-pixKey">Ordem de Exibição</label>
-                <input type="number" id="order-pixKey" min="1" max="10" value="5" />
-              </div>
-              <div class="field">
-                <label for="width-pixKey">Largura do Botão</label>
-                <select id="width-pixKey">
-                  <option value="full">Largura Total (100%)</option>
-                  <option value="half" selected>Metade da Tela (50%)</option>
-                  <option value="auto">Compacto</option>
-                </select>
-              </div>
-            </div>
-          </div>
+          <button type="button" id="btn-add-quick-action" class="btn-secondary-action">➕ Adicionar Ação Rápida</button>
 
           <div id="links-management-container"></div>
 
@@ -1226,38 +1212,7 @@
                 </a>
               </header>
 
-              <a class="pv-quick__item" id="pvQuickContact" data-link="quickContact" href="https://wa.me/5500000000000" target="_blank" rel="noopener">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5Z" />
-                  <path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1" />
-                </svg>
-                <span>Contato</span>
-              </a>
-
-              <a class="pv-quick__item" id="pvQuickVcf" data-link="quickVcf" href="contato.vcf" download>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                  <polyline points="7 10 12 15 17 10" />
-                  <line x1="12" x2="12" y1="15" y2="3" />
-                </svg>
-                <span>Salvar Contato</span>
-              </a>
-
-              <a class="pv-quick__item" id="pvQuickPhone" data-link="quickPhone" href="tel:+5500000000000">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92Z" />
-                </svg>
-                <span>Ligar</span>
-              </a>
-
-              <button class="pv-quick__item" id="pvQuickPix" type="button">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <rect x="2" y="6" width="20" height="12" rx="2" />
-                  <circle cx="12" cy="12" r="2" />
-                  <path d="M6 12h.01M18 12h.01" />
-                </svg>
-                <span>PIX</span>
-              </button>
+              <div id="preview-quick-grid" class="quick-actions-grid"></div>
 
               <div id="preview-links-list"></div>
 
@@ -1318,110 +1273,51 @@
 
     const linksContainer = el('links-management-container');
     const previewLinksList = el('preview-links-list');
+    const quickActionsContainer = el('quick-actions-management');
+    const previewQuickGrid = el('preview-quick-grid');
+
+    /* Escopos de dados totalmente independentes:
+       Array 1 → Ações Rápidas (grade compacta superior)
+       Array 2 → Lista de Links (cards maiores inferiores) */
+    let quickActionsData = [];
+    let mainLinksData = [];
 
     const STORAGE_KEY = 'axiumlink-preview-v1';
 
     /* ================================================================
-       LAYOUT DINÂMICO — mapa dos blocos fixos do preview
-       Cada item = 1 botão rápido que pode ser reordenado (order) e
-       ter largura própria dentro do fluxo flex. A lista de links é
-       um bloco único (ilimitado) gerado pelo gerenciador dinâmico.
+       LAYOUT DINÂMICO — monta o fluxo do preview
+       Perfil + grade de ações rápidas (dinâmica) + lista de links.
        ================================================================ */
-    const LAYOUT_ITEMS = [
-      { key: 'quickContact',  group: 'quick', el: el('pvQuickContact') },
-      { key: 'quickVcf',      group: 'quick', el: el('pvQuickVcf') },
-      { key: 'quickPhone',    group: 'quick', el: el('pvQuickPhone') },
-      { key: 'pixKey',        group: 'quick', el: el('pvQuickPix') }
-    ];
-
-    /* Modo do grupo → largura sugerida para os itens do grupo */
-    const LAYOUT_PRESETS = {
-      quick: { grid2x2: 'half', list: 'full', scroll: 'auto' },
-      cards: { list: 'full', grid2: 'half', carousel: 'auto' }
-    };
-
     function clampOrder(value, fallback) {
       const n = parseInt(value, 10);
       if (Number.isNaN(n)) return fallback;
       return Math.min(10, Math.max(1, n));
     }
 
-    function applyItemStyle(entry, inStrip) {
-      const node = entry.el;
-      node.style.order = entry.order;
-      node.style.display = '';
-      node.classList.remove('pv-item--full', 'pv-item--half', 'pv-item--auto');
-      const width = inStrip ? 'auto' : entry.width;
-      if (width === 'half') node.classList.add('pv-item--half');
-      else if (width === 'auto') node.classList.add('pv-item--auto');
-      else node.classList.add('pv-item--full');
-    }
-
-    /* Reconstrói o fluxo do preview conforme os controles de layout.
-       Perfil + botões rápidos (ordenados) + lista de links dinâmica. */
+    /* Reconstrói o fluxo do preview conforme os controles de layout. */
     function renderLayout() {
       const flow = el('pvFlow');
       const profile = el('pvProfile');
 
-      const quickMode = el('quick-layout').value;
-
       profile.style.order = clampOrder(el('order-info').value, 1);
       profile.style.display = (el('info-layout').value === 'ocultar') ? 'none' : '';
 
-      const quickItems = LAYOUT_ITEMS
-        .map((it) => ({
-          ...it,
-          order: clampOrder(el('order-' + it.key).value, 10),
-          width: el('width-' + it.key).value
-        }))
-        .filter(() => quickMode !== 'hidden')
-        .sort((a, b) => a.order - b.order);
-
       flow.replaceChildren(profile);
 
-      if (quickMode === 'scroll') {
-        const strip = document.createElement('div');
-        strip.className = 'pv-strip pv-strip--quick';
-        quickItems.forEach((entry) => {
-          applyItemStyle(entry, true);
-          strip.appendChild(entry.el);
-        });
-        strip.style.order = quickItems.length ? Math.min(...quickItems.map((e) => e.order)) : 1;
-        flow.appendChild(strip);
-      } else {
-        quickItems.forEach((entry) => {
-          applyItemStyle(entry, false);
-          flow.appendChild(entry.el);
-        });
-      }
+      previewQuickGrid.style.order = 2;
+      flow.appendChild(previewQuickGrid);
+      renderQuickActions();
 
       previewLinksList.style.order = 999;
       flow.appendChild(previewLinksList);
       applyLinkListMode();
     }
 
-    /* Modo do grupo → aplica o preset de largura e re-renderiza */
-    function applyGroupPreset(group) {
-      const mode = (group === 'quick') ? el('quick-layout').value : el('cards-layout').value;
-      const preset = LAYOUT_PRESETS[group][mode];
-      if (preset) {
-        LAYOUT_ITEMS.filter((it) => it.group === group).forEach((it) => {
-          el('width-' + it.key).value = preset;
-        });
-      }
-      renderLayout();
-    }
-
-    el('quick-layout').addEventListener('change', () => applyGroupPreset('quick'));
+    el('quick-layout').addEventListener('change', renderLayout);
     el('cards-layout').addEventListener('change', renderLayout);
 
     el('info-layout').addEventListener('change', renderLayout);
     el('order-info').addEventListener('input', renderLayout);
-
-    LAYOUT_ITEMS.forEach((it) => {
-      el('order-' + it.key).addEventListener('input', renderLayout);
-      el('width-' + it.key).addEventListener('change', renderLayout);
-    });
 
     /* ================================================================
        TEXTO (nome, biografia, endereço, títulos e descrições)
@@ -1444,24 +1340,6 @@
           }
         });
       }
-    });
-
-    /* ================================================================
-       LINKS (hrefs dos botões e cards)
-       ================================================================ */
-    document.querySelectorAll('[data-link]').forEach((link) => {
-      const field = el(link.dataset.link);
-      if (!field) return;
-
-      field.addEventListener('input', () => {
-        const v = field.value.trim();
-
-        if (link.dataset.link === 'quickPhone') {
-          link.setAttribute('href', 'tel:' + v);
-        } else {
-          link.setAttribute('href', v || '#');
-        }
-      });
     });
 
     /* ================================================================
@@ -1514,7 +1392,7 @@
       'suave-sombra':       { css: '12px',             label: 'Suave Sombra',      extras: { boxShadow: '0 10px 24px rgba(0,0,0,0.18)' } }
     };
 
-    const radiusTargets = () => preview.querySelectorAll('.pv-quick__item, .pv-card, .pv-link');
+    const radiusTargets = () => preview.querySelectorAll('.btn-quick-compact, .pv-card, .pv-link');
 
     function applyRadius(value) {
       const opt = radiusMap[value] || radiusMap.arredondado;
@@ -1554,6 +1432,191 @@
     });
 
     /* ================================================================
+       GERENCIADOR DE AÇÕES RÁPIDAS DINÂMICO — botões superiores
+       Cada bloco do formulário gera um botão no grid do mockup.
+       ================================================================ */
+    const QUICK_ICON_OPTIONS = [
+      ['mensagem', 'Balão de Mensagem'],
+      ['telefone', 'Telefone'],
+      ['download', 'Download / Salvar'],
+      ['pix', 'Dinheiro / PIX'],
+      ['link', 'Link'],
+      ['email', 'E-mail'],
+      ['localizacao', 'Localização']
+    ];
+
+    const QUICK_ICONS = {
+      mensagem: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+      telefone: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92Z"/></svg>',
+      download: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>',
+      pix: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>',
+      link: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>',
+      email: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>',
+      localizacao: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>'
+    };
+
+    function createQuickActionBlock(data) {
+      const d = data || {};
+      const block = document.createElement('div');
+      block.className = 'block quick-action-block';
+
+      const iconOptions = QUICK_ICON_OPTIONS.map(([value, label]) =>
+        '<option value="' + value + '"' + (d.icon === value ? ' selected' : '') + '>' + label + '</option>'
+      ).join('');
+
+      block.innerHTML = ''
+        + '<div class="link-block__head">'
+        +   '<h3 class="block__title"><span class="quick-action-block__num">Ação #0</span> <span class="block__hint">Ação Rápida</span></h3>'
+        +   '<button type="button" class="btn-delete-link btn-delete-action" title="Excluir ação" aria-label="Excluir ação">'
+        +     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>'
+        +   '</button>'
+        + '</div>'
+        + '<div class="field">'
+        +   '<label>Nome do Botão</label>'
+        +   '<input type="text" class="quick-title" placeholder="Ex: WhatsApp, PIX, Chame Agora" value="' + escapeAttr(d.title) + '" />'
+        + '</div>'
+        + '<div class="field">'
+        +   '<label>Link / Ação</label>'
+        +   '<input type="text" class="quick-url" placeholder="https://... · tel:... · mailto:..." value="' + escapeAttr(d.url) + '" />'
+        + '</div>'
+        + '<div class="field">'
+        +   '<label>Ícone</label>'
+        +   '<select class="quick-icon">' + iconOptions + '</select>'
+        + '</div>';
+
+      return block;
+    }
+
+    function renumberQuickActionBlocks() {
+      quickActionsContainer.querySelectorAll('.quick-action-block').forEach((b, i) => {
+        const num = b.querySelector('.quick-action-block__num');
+        if (num) num.textContent = 'Ação #' + (i + 1);
+      });
+    }
+
+    /* Sincroniza o Array 1 a partir dos formulários do painel.
+       ÚNICA fonte que alimenta #preview-quick-grid. */
+    function syncQuickActionsData() {
+      quickActionsData = Array.from(quickActionsContainer.querySelectorAll('.quick-action-block')).map((block) => ({
+        title: (block.querySelector('.quick-title').value || '').trim(),
+        url: (block.querySelector('.quick-url').value || '').trim(),
+        icon: block.querySelector('.quick-icon').value
+      }));
+      return quickActionsData;
+    }
+
+    /* Renderiza a grade compacta superior EXCLUSIVAMENTE a partir do Array 1 */
+    function renderQuickActions() {
+      const mode = el('quick-layout').value;
+      const actions = quickActionsData;
+
+      previewQuickGrid.innerHTML = '';
+      previewQuickGrid.className = 'quick-actions-grid';
+
+      if (mode === 'hidden' || !actions.length) {
+        previewQuickGrid.hidden = true;
+        return;
+      }
+
+      previewQuickGrid.hidden = false;
+      if (mode === 'list') previewQuickGrid.classList.add('quick-actions-grid--list');
+      else if (mode === 'scroll') previewQuickGrid.classList.add('quick-actions-grid--scroll');
+
+      actions.forEach((action) => {
+        const a = document.createElement('a');
+        a.className = 'btn-quick-compact';
+        a.href = normalizeHref(action.url, action.icon);
+
+        if (/^(tel:|mailto:|sms:|#)/i.test(a.href)) {
+          a.removeAttribute('target');
+          a.removeAttribute('rel');
+        } else {
+          a.target = '_blank';
+          a.rel = 'noopener';
+        }
+
+        a.insertAdjacentHTML('afterbegin', QUICK_ICONS[action.icon] || QUICK_ICONS.link);
+
+        const label = document.createElement('span');
+        label.textContent = action.title || 'Nova Ação';
+        a.appendChild(label);
+
+        previewQuickGrid.appendChild(a);
+      });
+
+      applyRadius(el('input-radius').value);
+    }
+
+    function addQuickActionBlock(data) {
+      const d = data || {};
+      quickActionsData.push({
+        title: d.title || '',
+        url: d.url || '',
+        icon: d.icon || 'mensagem'
+      });
+      quickActionsContainer.appendChild(createQuickActionBlock(data));
+      renumberQuickActionBlocks();
+      renderQuickActions();
+    }
+
+    el('btn-add-quick-action').addEventListener('click', () => addQuickActionBlock());
+
+    quickActionsContainer.addEventListener('click', (e) => {
+      const deleteBtn = e.target.closest('.btn-delete-action');
+      if (!deleteBtn) return;
+      deleteBtn.closest('.quick-action-block').remove();
+      syncQuickActionsData();
+      renumberQuickActionBlocks();
+      renderQuickActions();
+    });
+
+    quickActionsContainer.addEventListener('input', (e) => {
+      if (e.target.matches('.quick-title, .quick-url')) {
+        syncQuickActionsData();
+        renderQuickActions();
+      }
+    });
+
+    quickActionsContainer.addEventListener('change', (e) => {
+      if (e.target.classList.contains('quick-icon')) {
+        syncQuickActionsData();
+        renderQuickActions();
+      }
+    });
+
+    /* Migra o formato antigo (objeto fixo de 4 ações) para o novo array */
+    function quickActionsFromLegacy(obj) {
+      if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return null;
+      const map = [
+        { key: 'contactLink', title: 'Contato', icon: 'mensagem' },
+        { key: 'vcf', title: 'Salvar Contato', icon: 'download' },
+        { key: 'phone', title: 'Ligar', icon: 'telefone' },
+        { key: 'pixKey', title: 'PIX', icon: 'pix' }
+      ];
+      const seed = map
+        .map((m) => {
+          const url = String(obj[m.key] || '').trim();
+          return url ? { title: m.title, url, icon: m.icon } : null;
+        })
+        .filter(Boolean);
+      return seed.length ? seed : null;
+    }
+
+    function seedQuickActions(seed) {
+      if (!Array.isArray(seed) || !seed.length) return;
+      seed.forEach((a) => {
+        quickActionsContainer.appendChild(createQuickActionBlock(a));
+        quickActionsData.push({
+          title: a.title || '',
+          url: a.url || '',
+          icon: a.icon || 'mensagem'
+        });
+      });
+      renumberQuickActionBlocks();
+      renderQuickActions();
+    }
+
+    /* ================================================================
        GERENCIADOR DE LINKS DINÂMICO — blocos ilimitados (SaaS)
        Cada bloco do formulário gera um botão no mockup em tempo real.
        ================================================================ */
@@ -1587,6 +1650,7 @@
       if (!v) return '#';
       if (/^(https?:|mailto:|tel:|sms:)/i.test(v)) return v;
       if (icon === 'telefone') return 'tel:' + v.replace(/[^+\d]/g, '');
+      if (icon === 'email') return 'mailto:' + v;
       return 'https://' + v;
     }
 
@@ -1650,37 +1714,47 @@
       const mode = el('cards-layout').value;
       previewLinksList.classList.toggle('pv-strip', mode === 'carousel');
       previewLinksList.classList.toggle('pv-links--grid', mode === 'grid2');
+      previewLinksList.classList.toggle('mode-carrossel', mode === 'carousel');
+      previewLinksList.classList.toggle('mode-lista-vertical', mode === 'list');
       previewLinksList.style.display = (mode === 'hidden') ? 'none' : 'flex';
     }
 
-    /* Reconstrói a lista do mockup a partir dos blocos do formulário */
+    /* Sincroniza o Array 2 a partir dos formulários do painel.
+       ÚNICA fonte que alimenta #preview-links-list. */
+    function syncLinksData() {
+      mainLinksData = Array.from(linksContainer.querySelectorAll('.link-block')).map((block) => ({
+        id: block.dataset.id,
+        title: (block.querySelector('.link-title').value || '').trim(),
+        url: (block.querySelector('.link-url').value || '').trim(),
+        icon: block.querySelector('.link-icon').value,
+        image: block.dataset.image || null
+      }));
+      return mainLinksData;
+    }
+
+    /* Reconstrói a lista de cards maiores EXCLUSIVAMENTE a partir do Array 2 */
     function renderPreviewLinks() {
       previewLinksList.innerHTML = '';
 
-      linksContainer.querySelectorAll('.link-block').forEach((block) => {
-        const title = (block.querySelector('.link-title').value || '').trim();
-        const url = (block.querySelector('.link-url').value || '').trim();
-        const icon = block.querySelector('.link-icon').value;
-        const image = block.dataset.image || '';
-
+      mainLinksData.forEach((link) => {
         const a = document.createElement('a');
         a.className = 'pv-link';
-        a.href = normalizeHref(url, icon);
+        a.href = normalizeHref(link.url, link.icon);
         a.target = '_blank';
         a.rel = 'noopener';
 
-        if (image) {
+        if (link.image) {
           const img = document.createElement('img');
           img.className = 'pv-link__img';
-          img.src = image;
+          img.src = link.image;
           img.alt = '';
           a.appendChild(img);
         } else {
-          a.insertAdjacentHTML('afterbegin', LINK_ICONS[icon] || LINK_ICONS.outro);
+          a.insertAdjacentHTML('afterbegin', LINK_ICONS[link.icon] || LINK_ICONS.outro);
         }
 
         const label = document.createElement('span');
-        label.textContent = title || 'Novo Link';
+        label.textContent = link.title || 'Novo Link';
         a.appendChild(label);
 
         previewLinksList.appendChild(a);
@@ -1690,19 +1764,10 @@
       applyRadius(el('input-radius').value);
     }
 
-    /* Captura todos os blocos da tela e devolve um array de objetos JSON */
-    function getLinksData() {
-      return Array.from(linksContainer.querySelectorAll('.link-block')).map((block) => ({
-        id: block.dataset.id,
-        title: (block.querySelector('.link-title').value || '').trim(),
-        url: (block.querySelector('.link-url').value || '').trim(),
-        icon: block.querySelector('.link-icon').value,
-        image: block.dataset.image || null
-      }));
-    }
-
     function addLinkBlock(data) {
-      linksContainer.appendChild(createLinkBlock(data));
+      const block = createLinkBlock(data);
+      linksContainer.appendChild(block);
+      syncLinksData();
       renumberLinkBlocks();
       renderPreviewLinks();
     }
@@ -1714,6 +1779,7 @@
       const deleteBtn = e.target.closest('.btn-delete-link');
       if (deleteBtn) {
         deleteBtn.closest('.link-block').remove();
+        syncLinksData();
         renumberLinkBlocks();
         renderPreviewLinks();
         return;
@@ -1725,16 +1791,21 @@
         delete block.dataset.image;
         block.querySelector('.link-image').value = '';
         clearBtn.hidden = true;
+        syncLinksData();
         renderPreviewLinks();
       }
     });
 
     linksContainer.addEventListener('input', (e) => {
-      if (e.target.matches('.link-title, .link-url')) renderPreviewLinks();
+      if (e.target.matches('.link-title, .link-url')) {
+        syncLinksData();
+        renderPreviewLinks();
+      }
     });
 
     linksContainer.addEventListener('change', (e) => {
       if (e.target.classList.contains('link-icon')) {
+        syncLinksData();
         renderPreviewLinks();
         return;
       }
@@ -1747,6 +1818,7 @@
           block.dataset.image = ev.target.result;
           const clearBtn = block.querySelector('.link-image-clear');
           if (clearBtn) clearBtn.hidden = false;
+          syncLinksData();
           renderPreviewLinks();
         };
         reader.readAsDataURL(file);
@@ -1775,6 +1847,7 @@
       if (!seed.length) return;
       seed.forEach((l) => linksContainer.appendChild(createLinkBlock(l)));
       renumberLinkBlocks();
+      syncLinksData();
       renderPreviewLinks();
     }
 
@@ -1841,13 +1914,8 @@
           bio: el('profileBio').value,
           address: el('profileAddress').value
         },
-        quickActions: {
-          contactLink: el('quickContact').value,
-          vcf: el('quickVcf').value,
-          phone: el('quickPhone').value,
-          pixKey: el('pixKey').value
-        },
-        links: getLinksData(),
+        quickActions: syncQuickActionsData(),
+        links: syncLinksData(),
         visual: {
           pageBg: el('input-bg-page').value,
           textColor: el('input-text-color').value,
@@ -1866,14 +1934,7 @@
           info: {
             order: clampOrder(el('order-info').value, 1),
             hidden: el('info-layout').value === 'ocultar'
-          },
-          items: LAYOUT_ITEMS.reduce((acc, it) => {
-            acc[it.key] = {
-              order: clampOrder(el('order-' + it.key).value, 10),
-              width: el('width-' + it.key).value
-            };
-            return acc;
-          }, {})
+          }
         }
       };
     }
@@ -1925,30 +1986,19 @@
       if (!cfg) return;
 
       const p = cfg.profile || {};
-      const q = cfg.quickActions || {};
+      const q = cfg.quickActions;
       const v = cfg.visual || {};
       const lay = cfg.layout || {};
-      const layItems = lay.items || {};
       const layInfo = lay.info || {};
-
-      const itemVal = (key, prop) => {
-        const it = layItems[key];
-        return it ? it[prop] : undefined;
-      };
 
       const values = {
         profileName: p.name, profileBio: p.bio, profileAddress: p.address,
-        quickContact: q.contactLink, quickVcf: q.vcf, quickPhone: q.phone, pixKey: q.pixKey,
         'input-bg-page': v.pageBg, 'input-text-color': v.textColor,
         'input-btn-quick': v.quickBg, 'input-card-destaque': v.cardBg,
         'input-radius': toRadiusEnum(v.radius), 'input-font': v.font,
         'quick-layout': lay.quickMode, 'cards-layout': lay.cardsMode,
         'info-layout': (layInfo.hidden === true) ? 'ocultar' : ((layInfo.hidden === false) ? 'exibir' : undefined),
-        'order-info': layInfo.order,
-        'order-quickContact': itemVal('quickContact', 'order'),  'width-quickContact': itemVal('quickContact', 'width'),
-        'order-quickVcf': itemVal('quickVcf', 'order'),          'width-quickVcf': itemVal('quickVcf', 'width'),
-        'order-quickPhone': itemVal('quickPhone', 'order'),      'width-quickPhone': itemVal('quickPhone', 'width'),
-        'order-pixKey': itemVal('pixKey', 'order'),              'width-pixKey': itemVal('pixKey', 'width')
+        'order-info': layInfo.order
       };
 
       Object.entries(values).forEach(([id, value]) => {
@@ -1962,6 +2012,7 @@
       el('input-font').dispatchEvent(new Event('change'));
 
       seedLinksFromConfig(cfg);
+      seedQuickActions(Array.isArray(q) ? q : quickActionsFromLegacy(q));
       renderLayout();
     })();
 
@@ -1975,18 +2026,12 @@
 
       const map = {
         'profileName': 'profile.name', 'profileBio': 'profile.bio',
-        'profileAddress': 'profile.address', 'quickContact': 'quickActions.contactLink',
-        'quickVcf': 'quickActions.vcf', 'quickPhone': 'quickActions.phone',
-        'pixKey': 'quickActions.pixKey',
+        'profileAddress': 'profile.address',
         'input-bg-page': 'visual.pageBg', 'input-text-color': 'visual.textColor',
         'input-btn-quick': 'visual.quickBg', 'input-card-destaque': 'visual.cardBg',
         'input-radius': 'visual.radius', 'input-font': 'visual.font',
         'quick-layout': 'layout.quickMode', 'cards-layout': 'layout.cardsMode',
-        'order-info': 'layout.info.order',
-        'order-quickContact': 'layout.items.quickContact.order',   'width-quickContact': 'layout.items.quickContact.width',
-        'order-quickVcf': 'layout.items.quickVcf.order',           'width-quickVcf': 'layout.items.quickVcf.width',
-        'order-quickPhone': 'layout.items.quickPhone.order',       'width-quickPhone': 'layout.items.quickPhone.width',
-        'order-pixKey': 'layout.items.pixKey.order',               'width-pixKey': 'layout.items.pixKey.width'
+        'order-info': 'layout.info.order'
       };
 
       const getPath = (obj, path) => path.split('.').reduce((o, k) => (o == null ? null : o[k]), obj);
@@ -2020,6 +2065,19 @@
       }
       el('input-font').dispatchEvent(new Event('change'));
 
+      /* Restaura as ações rápidas dinâmicas (ou migra o formato antigo) */
+      if (saved.quickActions) {
+        quickActionsContainer.innerHTML = '';
+        const quickSeed = Array.isArray(saved.quickActions)
+          ? saved.quickActions
+          : quickActionsFromLegacy(saved.quickActions);
+        if (quickSeed) {
+          quickSeed.forEach((a) => quickActionsContainer.appendChild(createQuickActionBlock(a)));
+          renumberQuickActionBlocks();
+          syncQuickActionsData();
+        }
+      }
+
       /* Restaura os links dinâmicos (ou migra os antigos cards) */
       if (Array.isArray(saved.links) || saved.cards) {
         linksContainer.innerHTML = '';
@@ -2028,6 +2086,7 @@
           : linksFromCards(saved.cards);
         seed.forEach((l) => linksContainer.appendChild(createLinkBlock(l)));
         renumberLinkBlocks();
+        syncLinksData();
       }
       renderPreviewLinks();
 

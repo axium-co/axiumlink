@@ -224,51 +224,84 @@
 
     .pg-strip::-webkit-scrollbar { display: none; }
 
-    .pg-strip--quick .quick__item { flex: 0 0 auto; width: auto; min-width: 9.5rem; }
-    .pg-strip--links .pg-links {
-      flex: 0 0 auto;
-      flex-direction: row;
-      width: max-content;
-    }
-
-    .pg-strip--links .featured__card { flex: 0 0 auto; width: auto; min-width: 15rem; }
-
     .pg-links {
       display: flex;
       flex-direction: column;
       gap: 0.75rem;
-      scroll-snap-align: start;
     }
-
-    .pg-links .featured__card { width: 100%; }
 
     .pg-links--grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
     }
 
+    .pg-links--scroll {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 0.75rem;
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      scroll-snap-type: x proximity;
+      scrollbar-width: none;
+      padding-bottom: 4px;
+    }
+
+    .pg-links--scroll::-webkit-scrollbar { display: none; }
+    .pg-links--scroll .featured__card { flex: 0 0 auto; width: auto; min-width: 15rem; }
+
+    /* ---- Ações Rápidas: grade compacta 2x2 (identidade própria) ---- */
+    .quick-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      width: 100%;
+    }
+
+    .quick-grid[hidden] { display: none; }
+
+    .quick-grid--list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .quick-grid--scroll {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 8px;
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      scroll-snap-type: x proximity;
+      scrollbar-width: none;
+      padding-bottom: 4px;
+    }
+
+    .quick-grid--scroll::-webkit-scrollbar { display: none; }
+
+    .quick-grid--scroll .quick__item { flex: 0 0 auto; width: auto; min-width: 7.5rem; }
+
     .quick__item {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 0.375rem;
-      min-height: 5rem;
+      gap: 0.25rem;
+      min-height: 3.25rem;
       background: var(--btn-quick-bg);
       color: var(--btn-quick-text);
       border: var(--global-border);
       border-radius: var(--global-radius);
-      padding: 0.875rem 1rem;
-      font-size: 0.8125rem;
+      padding: 0.5rem 0.375rem;
+      font-size: 0.62rem;
       font-weight: 600;
       text-align: center;
-      scroll-snap-align: center;
+      line-height: 1.2;
       will-change: transform;
     }
 
-    .quick__item svg { width: 20px; height: 20px; flex-shrink: 0; }
+    .quick__item svg { width: 16px; height: 16px; flex-shrink: 0; }
 
-    .quick__item--primary { box-shadow: var(--shadow); }
+    .quick-grid .quick__item:only-child { grid-column: 1 / -1; }
 
     /* ================================================================
        CARDS DE DESTAQUE (ícone à esquerda, texto à direita)
@@ -556,45 +589,10 @@
     </header>
 
     <!-- ================================================================
-         AÇÕES RÁPIDAS (4 botões compactos)
+         AÇÕES RÁPIDAS (geradas dinamicamente a partir de cfg.quickActions)
          ================================================================ -->
 
-      <!-- TODO: SEU WHATSAPP -->
-      <a class="quick__item quick__item--primary" id="pgQuickContact" data-link="quickContact" href="https://wa.me/5500000000000" target="_blank" rel="noopener">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5Z" />
-          <path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1" />
-        </svg>
-        <span>Contato</span>
-      </a>
-
-      <!-- TODO: SEU ARQUIVO .vcf — caminho em href -->
-      <a class="quick__item" id="pgQuickVcf" data-link="quickVcf" href="contato.vcf" download>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-          <polyline points="7 10 12 15 17 10" />
-          <line x1="12" x2="12" y1="15" y2="3" />
-        </svg>
-        <span>Salvar Contato</span>
-      </a>
-
-      <!-- TODO: SEU TELEFONE — troque o número em href="tel:" -->
-      <a class="quick__item" id="pgQuickPhone" data-link="quickPhone" href="tel:+5500000000000">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92Z" />
-        </svg>
-        <span>Ligar</span>
-      </a>
-
-      <!-- TODO: SUA CHAVE PIX — abrir o modal nativo -->
-      <button class="quick__item" id="pgQuickPix" type="button" data-dialog-open>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <rect x="2" y="6" width="20" height="12" rx="2" />
-          <circle cx="12" cy="12" r="2" />
-          <path d="M6 12h.01M18 12h.01" />
-        </svg>
-        <span>PIX</span>
-      </button>
+      <div id="pgQuick" class="quick-grid"></div>
 
     <!-- ================================================================
          LISTA DE LINKS (gerada dinamicamente a partir de cfg.links)
@@ -663,11 +661,10 @@
        MODAL PIX (nativo <dialog>)
        ================================================================ */
     const dialog = document.querySelector('[data-dialog]');
-    const openBtn = document.querySelector('[data-dialog-open]');
 
-    if (dialog && openBtn) {
-      openBtn.addEventListener('click', () => {
-        if (!dialog.open) dialog.showModal();
+    if (dialog) {
+      document.addEventListener('click', (e) => {
+        if (e.target.closest('[data-dialog-open]') && !dialog.open) dialog.showModal();
       });
 
       document.querySelectorAll('[data-dialog-close]').forEach((btn) => {
@@ -764,17 +761,12 @@
 
       /* ---- achatando a config para mapear diretamente nos elementos ---- */
       const p = cfg.profile || {};
-      const q = cfg.quickActions || {};
       const v = cfg.visual || {};
 
       const flat = {
         profileName: p.name,
         profileBio: p.bio,
-        profileAddress: p.address,
-        quickContact: q.contactLink,
-        quickVcf: q.vcf,
-        quickPhone: q.phone,
-        pixKey: q.pixKey
+        profileAddress: p.address
       };
 
       /* ---- textos ---- */
@@ -782,18 +774,6 @@
         const val = flat[el.dataset.bind];
         if (val != null) el.textContent = val;
       });
-
-      /* ---- links ---- */
-      document.querySelectorAll('[data-link]').forEach((el) => {
-        const val = flat[el.dataset.link];
-        if (val == null) return;
-        if (el.dataset.link === 'quickPhone') el.setAttribute('href', 'tel:' + val);
-        else el.setAttribute('href', val || '#');
-      });
-
-      /* ---- chave PIX no modal ---- */
-      const pixKey = document.getElementById('pix-key');
-      if (pixKey && flat.pixKey != null) pixKey.textContent = flat.pixKey;
 
       /* ---- CSS Variables ---- */
       const root = document.documentElement.style;
@@ -847,6 +827,93 @@
       const layItems = lay.items || {};
       const quickMode = lay.quickMode || 'grid2x2';
       const cardsMode = lay.cardsMode || 'list';
+
+      /* ---- Ações Rápidas dinâmicas (cfg.quickActions ou migra formato antigo) ---- */
+      const quickIcons = {
+        mensagem: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+        telefone: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92Z"/></svg>',
+        download: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>',
+        pix: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>',
+        link: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>',
+        email: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>',
+        localizacao: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>',
+        whatsapp: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5Z"/><path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1"/></svg>',
+        instagram: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37Z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>',
+        site: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>',
+        outro: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>'
+      };
+
+      function quickHref(url, icon) {
+        const value = String(url || '').trim();
+        if (!value) return '#';
+        if (/^(https?:|mailto:|tel:|sms:)/i.test(value)) return value;
+        if (icon === 'telefone') return 'tel:' + value.replace(/[^+\d]/g, '');
+        if (icon === 'email') return 'mailto:' + value;
+        return 'https://' + value;
+      }
+
+      function quickActionsFromLegacy(obj) {
+        if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return null;
+        const map = [
+          { key: 'contactLink', title: 'Contato', icon: 'mensagem' },
+          { key: 'vcf', title: 'Salvar Contato', icon: 'download' },
+          { key: 'phone', title: 'Ligar', icon: 'telefone' },
+          { key: 'pixKey', title: 'PIX', icon: 'pix' }
+        ];
+        const seed = map
+          .map((m) => {
+            const url = String(obj[m.key] || '').trim();
+            return url ? { title: m.title, url: m.icon === 'pix' ? '#' : url, icon: m.icon } : null;
+          })
+          .filter(Boolean);
+        return seed.length ? seed : null;
+      }
+
+      const quickContainer = document.getElementById('pgQuick');
+      const quickList = Array.isArray(cfg.quickActions)
+        ? cfg.quickActions
+        : quickActionsFromLegacy(cfg.quickActions);
+
+      if (quickContainer && Array.isArray(quickList) && quickList.length) {
+        quickContainer.classList.remove('quick-grid--list', 'quick-grid--scroll');
+        if (quickMode === 'list') quickContainer.classList.add('quick-grid--list');
+        else if (quickMode === 'scroll') quickContainer.classList.add('quick-grid--scroll');
+
+        const pixKeyEl = document.getElementById('pix-key');
+
+        quickList.forEach((action) => {
+          const isPix = action.icon === 'pix';
+          const node = document.createElement(isPix ? 'button' : 'a');
+          node.className = 'quick__item';
+          node.type = 'button';
+
+          if (isPix) {
+            node.setAttribute('data-dialog-open', '');
+            if (pixKeyEl && action.url && action.url !== '#') {
+              pixKeyEl.textContent = action.url;
+            }
+          } else {
+            node.href = quickHref(action.url, action.icon);
+            if (/^(tel:|mailto:|sms:|#)/i.test(node.href)) {
+              node.removeAttribute('target');
+              node.removeAttribute('rel');
+            } else {
+              node.target = '_blank';
+              node.rel = 'noopener';
+            }
+          }
+
+          node.insertAdjacentHTML('afterbegin', quickIcons[action.icon] || quickIcons.link);
+
+          const label = document.createElement('span');
+          label.textContent = action.title || 'Nova Ação';
+          node.appendChild(label);
+
+          quickContainer.appendChild(node);
+        });
+      } else if (quickContainer) {
+        quickContainer.hidden = true;
+      }
 
       /* ---- Lista de links dinâmicos (cfg.links ou migra cards antigos) ---- */
       const linkIcons = {
@@ -931,13 +998,10 @@
         });
       }
 
-      const PAGE_ITEMS = [
-        { key: 'quickContact',  group: 'quick', elId: 'pgQuickContact' },
-        { key: 'quickVcf',      group: 'quick', elId: 'pgQuickVcf' },
-        { key: 'quickPhone',    group: 'quick', elId: 'pgQuickPhone' },
-        { key: 'pixKey',        group: 'quick', elId: 'pgQuickPix' },
-        { key: 'links',         group: 'links', elId: 'pgLinks' }
-      ];
+      document.querySelectorAll('.quick__item, .featured__card').forEach((t) => {
+        t.style.border = radiusOpt.extras.border || '';
+        t.style.boxShadow = radiusOpt.extras.boxShadow || '';
+      });
 
       function clampOrder(value, fallback) {
         const n = parseInt(value, 10);
@@ -945,56 +1009,42 @@
         return Math.min(10, Math.max(1, n));
       }
 
-      function applyItemStyle(entry, inStrip) {
-        const node = entry.node;
-        node.style.order = entry.order;
-        node.style.display = '';
-        node.classList.remove('pg-item--full', 'pg-item--half', 'pg-item--auto');
-        const width = inStrip ? 'auto' : entry.width;
-        if (width === 'half') node.classList.add('pg-item--half');
-        else if (width === 'auto') node.classList.add('pg-item--auto');
-        else node.classList.add('pg-item--full');
-      }
-
       const flow = document.getElementById('pageFlow');
       const profile = document.getElementById('pageProfile');
+
       if (flow && profile) {
         profile.style.order = clampOrder(lay.info && lay.info.order, 1);
         profile.style.display = (lay.info && lay.info.hidden) ? 'none' : '';
 
-        const pgItems = PAGE_ITEMS
-          .map((item) => {
-            const conf = layItems[item.key] || {};
-            const mode = (item.group === 'quick') ? quickMode : cardsMode;
+        const sections = [
+          { key: 'quick', node: quickContainer, mode: quickMode, order: 2 },
+          { key: 'links', node: linksContainer, mode: cardsMode, order: 3 }
+        ]
+          .map((s) => {
+            const conf = layItems[s.key] || (lay[s.key] || {});
             return {
-              key: item.key,
-              group: item.group,
-              node: document.getElementById(item.elId),
-              order: clampOrder(conf.order, 10),
-              width: conf.width || 'full',
-              visible: mode !== 'hidden'
+              key: s.key,
+              node: s.node,
+              mode: s.mode,
+              order: clampOrder(conf.order, s.order),
+              visible: s.mode !== 'hidden'
             };
           })
-          .filter((item) => item.node && item.visible)
+          .filter((s) => s.node && s.visible)
           .sort((a, b) => a.order - b.order);
 
         flow.replaceChildren(profile);
-        const done = new Set();
-        pgItems.forEach((entry) => {
-          const mode = (entry.group === 'quick') ? quickMode : cardsMode;
-          if (mode !== 'scroll' && mode !== 'carousel') {
-            applyItemStyle(entry, false);
-            flow.appendChild(entry.node);
-            return;
+        sections.forEach((s) => {
+          s.node.style.order = s.order;
+          s.node.classList.remove('pg-item--half', 'pg-item--auto');
+          s.node.classList.add('pg-item--full');
+
+          if (s.key === 'links') {
+            linksContainer.classList.remove('pg-links--grid');
+            if (cardsMode === 'scroll') linksContainer.classList.add('pg-links--scroll');
           }
-          if (done.has(entry.group)) return;
-          done.add(entry.group);
-          const groupItems = pgItems.filter((e) => e.group === entry.group);
-          const strip = document.createElement('div');
-          strip.className = 'pg-strip pg-strip--' + (entry.group === 'quick' ? 'quick' : 'links');
-          groupItems.forEach((e) => { applyItemStyle(e, true); strip.appendChild(e.node); });
-          strip.style.order = Math.min(...groupItems.map((e) => e.order));
-          flow.appendChild(strip);
+
+          flow.appendChild(s.node);
         });
       }
 
