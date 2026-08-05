@@ -481,6 +481,75 @@
     .btn-delete-link:active { transform: scale(0.95); }
     .btn-delete-link svg { width: 15px; height: 15px; }
 
+    /* ---- Customização Avançada (por bloco) ---- */
+    .adv-toggle {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      width: 100%;
+      margin-top: 0.75rem;
+      padding: 0.625rem 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      font-family: inherit;
+      color: var(--ds-body);
+      background: #f8fafc;
+      border: 1px solid #e6ecf3;
+      border-radius: var(--ds-radius-sm);
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    }
+
+    .adv-toggle:hover { border-color: #c7d2fe; color: var(--ds-accent); background: #f5f6ff; }
+    .adv-toggle:active { transform: scale(0.99); }
+    .adv-toggle svg { width: 15px; height: 15px; flex-shrink: 0; }
+    .adv-toggle__chev { margin-left: auto; transition: transform 0.2s ease; }
+    .adv-toggle.is-open .adv-toggle__chev { transform: rotate(180deg); }
+
+    .adv-body { padding-top: 0.875rem; }
+    .adv-body[hidden] { display: none; }
+
+    .adv-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.625rem;
+      padding: 0.75rem;
+      margin-bottom: 0.75rem;
+      background: #f8fafc;
+      border: 1px solid #eef2f7;
+      border-radius: 10px;
+    }
+
+    .adv-check {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      line-height: 1.4;
+      color: var(--ds-title);
+      cursor: pointer;
+    }
+
+    .adv-check input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      margin-top: 1px;
+      flex-shrink: 0;
+      accent-color: #6366f1;
+      cursor: pointer;
+    }
+
+    .adv-colors { margin-bottom: 0; }
+
+    .adv-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    .adv-row .field { margin-bottom: 0; }
+
     .btn-premium-action {
       display: flex;
       align-items: center;
@@ -868,6 +937,53 @@
     .pv-link__img { width: 20px; height: 20px; object-fit: cover; border-radius: 4px; flex-shrink: 0; }
     .pv-link:hover { transform: scale(1.02); filter: brightness(1.06); }
     .pv-link:active { transform: scale(0.98); }
+
+    /* ---- Largura individual (Links Principais) ---- */
+    .pv-link--half { width: calc(50% - 4px); }
+    .pv-link--compact { width: auto; min-width: 9rem; }
+
+    #preview-links-list.pv-links--grid .pv-link--full { flex: 1 1 100%; }
+    #preview-links-list.pv-links--grid .pv-link--compact { flex: 0 0 auto; width: auto; }
+
+    /* ---- Largura individual (Ações Rápidas) ---- */
+    .btn-quick-compact--full { grid-column: 1 / -1; width: 100%; }
+    .btn-quick-compact--compact { justify-self: center; width: auto; min-width: 130px; }
+
+    .quick-actions-grid--list .btn-quick-compact--half { width: calc(50% - 4px); }
+    .quick-actions-grid--list .btn-quick-compact--compact { align-self: flex-start; }
+
+    .btn-quick-compact__img { width: 20px; height: 20px; object-fit: contain; flex-shrink: 0; }
+
+    /* ---- Animações de Destaque (por bloco) ---- */
+    .anim-pulse { animation: animPulse 2.2s ease-in-out infinite; }
+    .anim-shake { animation: animShake 2.4s ease-in-out infinite; }
+    .anim-shine { position: relative; overflow: hidden; }
+
+    .anim-shine::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(120deg, transparent 30%, rgba(255, 255, 255, 0.5) 50%, transparent 70%);
+      transform: translateX(-130%);
+      animation: animShine 2.8s ease-in-out infinite;
+    }
+
+    @keyframes animPulse {
+      0%, 100% { transform: scale(1); }
+      50%      { transform: scale(1.045); }
+    }
+
+    @keyframes animShake {
+      0%, 100% { transform: translateX(0); }
+      10%, 30%, 50%, 70%, 90% { transform: translateX(-2.5px); }
+      20%, 40%, 60%, 80%      { transform: translateX(2.5px); }
+    }
+
+    @keyframes animShine {
+      0%        { transform: translateX(-130%); }
+      60%, 100% { transform: translateX(130%); }
+    }
 
     /* ---- Toast de salvamento ---- */
     .toast {
@@ -1455,10 +1571,98 @@
       localizacao: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>'
     };
 
+    /* HTML compartilhado da seção "Customização Avançada" de cada bloco.
+       Classes iguais para Ações Rápidas e Links (queries escopadas no bloco). */
+    function customizeSectionHTML(d) {
+      const dd = d || {};
+      const checked = dd.customColors ? ' checked' : '';
+      const bg = dd.customBg || '#000000';
+      const text = dd.customText || '#ffffff';
+      const width = dd.width || 'auto';
+      const animation = dd.animation || 'none';
+      const showColors = dd.customColors ? '' : ' hidden';
+      const hasImage = !!dd.image;
+
+      const widthOptions = [
+        ['auto', 'Seguir o Layout da Seção'],
+        ['full', 'Largura Total (100%)'],
+        ['half', 'Metade da Tela (50% - Lado a Lado)'],
+        ['compact', 'Compacto (Estilo Grade)']
+      ].map(([value, label]) =>
+        '<option value="' + value + '"' + (width === value ? ' selected' : '') + '>' + label + '</option>'
+      ).join('');
+
+      const animationOptions = [
+        ['none', 'Nenhuma'],
+        ['pulse', 'Pulsar Suavemente'],
+        ['shake', 'Balançar (Shake)'],
+        ['shine', 'Brilho Passante']
+      ].map(([value, label]) =>
+        '<option value="' + value + '"' + (animation === value ? ' selected' : '') + '>' + label + '</option>'
+      ).join('');
+
+      return ''
+        + '<button type="button" class="adv-toggle" aria-expanded="false">'
+        +   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>'
+        +   '<span>Customização Avançada</span>'
+        +   '<svg class="adv-toggle__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>'
+        + '</button>'
+        + '<div class="adv-body" hidden>'
+
+        +   '<div class="adv-group">'
+        +     '<label class="adv-check">'
+        +       '<input type="checkbox" class="custom-colors"' + checked + ' />'
+        +       '<span>🎨 Usar cores personalizadas para este botão</span>'
+        +     '</label>'
+        +     '<div class="color-grid adv-colors"' + showColors + '>'
+        +       '<div class="field color-field">'
+        +         '<label>Fundo do Botão</label>'
+        +         '<div class="color-field__control">'
+        +           '<input type="color" class="custom-bg" value="' + bg + '" />'
+        +           '<span class="custom-bg-hex">' + bg + '</span>'
+        +         '</div>'
+        +       '</div>'
+        +       '<div class="field color-field">'
+        +         '<label>Texto / Ícone</label>'
+        +         '<div class="color-field__control">'
+        +           '<input type="color" class="custom-text" value="' + text + '" />'
+        +           '<span class="custom-text-hex">' + text + '</span>'
+        +         '</div>'
+        +       '</div>'
+        +     '</div>'
+        +   '</div>'
+
+        +   '<div class="adv-group">'
+        +     '<label class="file-btn">'
+        +       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>'
+        +       '<span>Enviar imagem / ícone próprio</span>'
+        +       '<input type="file" class="icon-upload" accept="image/*" />'
+        +     '</label>'
+        +     '<button type="button" class="btn-remove btn-remove--block icon-clear"' + (hasImage ? '' : ' hidden') + '>'
+        +       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>'
+        +       '<span>Remover imagem própria</span>'
+        +     '</button>'
+        +   '</div>'
+
+        +   '<div class="adv-row">'
+        +     '<div class="field">'
+        +       '<label>Largura do Botão</label>'
+        +       '<select class="btn-width">' + widthOptions + '</select>'
+        +     '</div>'
+        +     '<div class="field">'
+        +       '<label>Animação de Destaque</label>'
+        +       '<select class="btn-animation">' + animationOptions + '</select>'
+        +     '</div>'
+        +   '</div>'
+
+        + '</div>';
+    }
+
     function createQuickActionBlock(data) {
       const d = data || {};
       const block = document.createElement('div');
       block.className = 'block quick-action-block';
+      if (d.image) block.dataset.image = d.image;
 
       const iconOptions = QUICK_ICON_OPTIONS.map(([value, label]) =>
         '<option value="' + value + '"' + (d.icon === value ? ' selected' : '') + '>' + label + '</option>'
@@ -1482,7 +1686,8 @@
         + '<div class="field">'
         +   '<label>Ícone</label>'
         +   '<select class="quick-icon">' + iconOptions + '</select>'
-        + '</div>';
+        + '</div>'
+        + customizeSectionHTML(d);
 
       return block;
     }
@@ -1497,11 +1702,20 @@
     /* Sincroniza o Array 1 a partir dos formulários do painel.
        ÚNICA fonte que alimenta #preview-quick-grid. */
     function syncQuickActionsData() {
-      quickActionsData = Array.from(quickActionsContainer.querySelectorAll('.quick-action-block')).map((block) => ({
-        title: (block.querySelector('.quick-title').value || '').trim(),
-        url: (block.querySelector('.quick-url').value || '').trim(),
-        icon: block.querySelector('.quick-icon').value
-      }));
+      quickActionsData = Array.from(quickActionsContainer.querySelectorAll('.quick-action-block')).map((block) => {
+        const colorsOn = !!block.querySelector('.custom-colors').checked;
+        return {
+          title: (block.querySelector('.quick-title').value || '').trim(),
+          url: (block.querySelector('.quick-url').value || '').trim(),
+          icon: block.querySelector('.quick-icon').value,
+          image: block.dataset.image || null,
+          customColors: colorsOn,
+          customBg: block.querySelector('.custom-bg').value,
+          customText: block.querySelector('.custom-text').value,
+          width: block.querySelector('.btn-width').value,
+          animation: block.querySelector('.btn-animation').value
+        };
+      });
       return quickActionsData;
     }
 
@@ -1535,7 +1749,29 @@
           a.rel = 'noopener';
         }
 
-        a.insertAdjacentHTML('afterbegin', QUICK_ICONS[action.icon] || QUICK_ICONS.link);
+        /* Largura individual */
+        if (action.width === 'full') a.classList.add('btn-quick-compact--full');
+        else if (action.width === 'half') a.classList.add('btn-quick-compact--half');
+        else if (action.width === 'compact') a.classList.add('btn-quick-compact--compact');
+
+        /* Animação de destaque */
+        if (action.animation && action.animation !== 'none') a.classList.add('anim-' + action.animation);
+
+        /* Cores personalizadas (override inline, ignorando o padrão global) */
+        if (action.customColors) {
+          a.style.backgroundColor = action.customBg;
+          a.style.color = action.customText;
+        }
+
+        if (action.image) {
+          const img = document.createElement('img');
+          img.className = 'btn-quick-compact__img';
+          img.src = action.image;
+          img.alt = '';
+          a.appendChild(img);
+        } else {
+          a.insertAdjacentHTML('afterbegin', QUICK_ICONS[action.icon] || QUICK_ICONS.link);
+        }
 
         const label = document.createElement('span');
         label.textContent = action.title || 'Nova Ação';
@@ -1548,13 +1784,9 @@
     }
 
     function addQuickActionBlock(data) {
-      const d = data || {};
-      quickActionsData.push({
-        title: d.title || '',
-        url: d.url || '',
-        icon: d.icon || 'mensagem'
-      });
-      quickActionsContainer.appendChild(createQuickActionBlock(data));
+      const block = createQuickActionBlock(data);
+      quickActionsContainer.appendChild(block);
+      syncQuickActionsData();
       renumberQuickActionBlocks();
       renderQuickActions();
     }
@@ -1563,15 +1795,45 @@
 
     quickActionsContainer.addEventListener('click', (e) => {
       const deleteBtn = e.target.closest('.btn-delete-action');
-      if (!deleteBtn) return;
-      deleteBtn.closest('.quick-action-block').remove();
-      syncQuickActionsData();
-      renumberQuickActionBlocks();
-      renderQuickActions();
+      if (deleteBtn) {
+        deleteBtn.closest('.quick-action-block').remove();
+        syncQuickActionsData();
+        renumberQuickActionBlocks();
+        renderQuickActions();
+        return;
+      }
+
+      const clearBtn = e.target.closest('.icon-clear');
+      if (clearBtn) {
+        const block = clearBtn.closest('.quick-action-block');
+        delete block.dataset.image;
+        const upload = block.querySelector('.icon-upload');
+        if (upload) upload.value = '';
+        clearBtn.hidden = true;
+        syncQuickActionsData();
+        renderQuickActions();
+        return;
+      }
+
+      const toggle = e.target.closest('.adv-toggle');
+      if (toggle) {
+        const body = toggle.parentElement.querySelector('.adv-body');
+        if (body) body.hidden = !body.hidden;
+        toggle.classList.toggle('is-open', !body.hidden);
+        toggle.setAttribute('aria-expanded', String(!body.hidden));
+      }
     });
 
     quickActionsContainer.addEventListener('input', (e) => {
       if (e.target.matches('.quick-title, .quick-url')) {
+        syncQuickActionsData();
+        renderQuickActions();
+        return;
+      }
+      if (e.target.classList.contains('custom-bg') || e.target.classList.contains('custom-text')) {
+        const block = e.target.closest('.quick-action-block');
+        const hex = block.querySelector(e.target.classList.contains('custom-bg') ? '.custom-bg-hex' : '.custom-text-hex');
+        if (hex) hex.textContent = e.target.value;
         syncQuickActionsData();
         renderQuickActions();
       }
@@ -1581,6 +1843,34 @@
       if (e.target.classList.contains('quick-icon')) {
         syncQuickActionsData();
         renderQuickActions();
+        return;
+      }
+      if (e.target.classList.contains('custom-colors')) {
+        const block = e.target.closest('.quick-action-block');
+        const grid = block.querySelector('.adv-colors');
+        if (grid) grid.hidden = !e.target.checked;
+        syncQuickActionsData();
+        renderQuickActions();
+        return;
+      }
+      if (e.target.classList.contains('btn-width') || e.target.classList.contains('btn-animation')) {
+        syncQuickActionsData();
+        renderQuickActions();
+        return;
+      }
+      if (e.target.classList.contains('icon-upload')) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const block = e.target.closest('.quick-action-block');
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          block.dataset.image = ev.target.result;
+          const clearBtn = block.querySelector('.icon-clear');
+          if (clearBtn) clearBtn.hidden = false;
+          syncQuickActionsData();
+          renderQuickActions();
+        };
+        reader.readAsDataURL(file);
       }
     });
 
@@ -1604,15 +1894,9 @@
 
     function seedQuickActions(seed) {
       if (!Array.isArray(seed) || !seed.length) return;
-      seed.forEach((a) => {
-        quickActionsContainer.appendChild(createQuickActionBlock(a));
-        quickActionsData.push({
-          title: a.title || '',
-          url: a.url || '',
-          icon: a.icon || 'mensagem'
-        });
-      });
+      seed.forEach((a) => quickActionsContainer.appendChild(createQuickActionBlock(a)));
       renumberQuickActionBlocks();
+      syncQuickActionsData();
       renderQuickActions();
     }
 
@@ -1686,18 +1970,7 @@
         +   '<label>Ícone</label>'
         +   '<select class="link-icon">' + iconOptions + '</select>'
         + '</div>'
-        + '<div class="field">'
-        +   '<label>Imagem do Ícone (opcional)</label>'
-        +   '<label class="file-btn">'
-        +     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>'
-        +     '<span>Enviar ícone</span>'
-        +     '<input type="file" class="link-image" accept="image/*" />'
-        +   '</label>'
-        +   '<button type="button" class="btn-remove btn-remove--block link-image-clear" hidden>'
-        +     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>'
-        +     '<span>Remover ícone</span>'
-        +   '</button>'
-        + '</div>';
+        + customizeSectionHTML(d);
 
       return block;
     }
@@ -1722,13 +1995,21 @@
     /* Sincroniza o Array 2 a partir dos formulários do painel.
        ÚNICA fonte que alimenta #preview-links-list. */
     function syncLinksData() {
-      mainLinksData = Array.from(linksContainer.querySelectorAll('.link-block')).map((block) => ({
-        id: block.dataset.id,
-        title: (block.querySelector('.link-title').value || '').trim(),
-        url: (block.querySelector('.link-url').value || '').trim(),
-        icon: block.querySelector('.link-icon').value,
-        image: block.dataset.image || null
-      }));
+      mainLinksData = Array.from(linksContainer.querySelectorAll('.link-block')).map((block) => {
+        const colorsOn = !!block.querySelector('.custom-colors').checked;
+        return {
+          id: block.dataset.id,
+          title: (block.querySelector('.link-title').value || '').trim(),
+          url: (block.querySelector('.link-url').value || '').trim(),
+          icon: block.querySelector('.link-icon').value,
+          image: block.dataset.image || null,
+          customColors: colorsOn,
+          customBg: block.querySelector('.custom-bg').value,
+          customText: block.querySelector('.custom-text').value,
+          width: block.querySelector('.btn-width').value,
+          animation: block.querySelector('.btn-animation').value
+        };
+      });
       return mainLinksData;
     }
 
@@ -1742,6 +2023,20 @@
         a.href = normalizeHref(link.url, link.icon);
         a.target = '_blank';
         a.rel = 'noopener';
+
+        /* Largura individual */
+        if (link.width === 'full') a.classList.add('pv-link--full');
+        else if (link.width === 'half') a.classList.add('pv-link--half');
+        else if (link.width === 'compact') a.classList.add('pv-link--compact');
+
+        /* Animação de destaque */
+        if (link.animation && link.animation !== 'none') a.classList.add('anim-' + link.animation);
+
+        /* Cores personalizadas (override inline, ignorando o padrão global) */
+        if (link.customColors) {
+          a.style.backgroundColor = link.customBg;
+          a.style.color = link.customText;
+        }
 
         if (link.image) {
           const img = document.createElement('img');
@@ -1785,19 +2080,37 @@
         return;
       }
 
-      const clearBtn = e.target.closest('.link-image-clear');
+      const clearBtn = e.target.closest('.icon-clear');
       if (clearBtn) {
         const block = clearBtn.closest('.link-block');
         delete block.dataset.image;
-        block.querySelector('.link-image').value = '';
+        const upload = block.querySelector('.icon-upload');
+        if (upload) upload.value = '';
         clearBtn.hidden = true;
         syncLinksData();
         renderPreviewLinks();
+        return;
+      }
+
+      const toggle = e.target.closest('.adv-toggle');
+      if (toggle) {
+        const body = toggle.parentElement.querySelector('.adv-body');
+        if (body) body.hidden = !body.hidden;
+        toggle.classList.toggle('is-open', !body.hidden);
+        toggle.setAttribute('aria-expanded', String(!body.hidden));
       }
     });
 
     linksContainer.addEventListener('input', (e) => {
       if (e.target.matches('.link-title, .link-url')) {
+        syncLinksData();
+        renderPreviewLinks();
+        return;
+      }
+      if (e.target.classList.contains('custom-bg') || e.target.classList.contains('custom-text')) {
+        const block = e.target.closest('.link-block');
+        const hex = block.querySelector(e.target.classList.contains('custom-bg') ? '.custom-bg-hex' : '.custom-text-hex');
+        if (hex) hex.textContent = e.target.value;
         syncLinksData();
         renderPreviewLinks();
       }
@@ -1809,14 +2122,27 @@
         renderPreviewLinks();
         return;
       }
-      if (e.target.classList.contains('link-image')) {
+      if (e.target.classList.contains('custom-colors')) {
+        const block = e.target.closest('.link-block');
+        const grid = block.querySelector('.adv-colors');
+        if (grid) grid.hidden = !e.target.checked;
+        syncLinksData();
+        renderPreviewLinks();
+        return;
+      }
+      if (e.target.classList.contains('btn-width') || e.target.classList.contains('btn-animation')) {
+        syncLinksData();
+        renderPreviewLinks();
+        return;
+      }
+      if (e.target.classList.contains('icon-upload')) {
         const file = e.target.files[0];
         if (!file) return;
         const block = e.target.closest('.link-block');
         const reader = new FileReader();
         reader.onload = (ev) => {
           block.dataset.image = ev.target.result;
-          const clearBtn = block.querySelector('.link-image-clear');
+          const clearBtn = block.querySelector('.icon-clear');
           if (clearBtn) clearBtn.hidden = false;
           syncLinksData();
           renderPreviewLinks();
