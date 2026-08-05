@@ -550,6 +550,186 @@
 
     .adv-row .field { margin-bottom: 0; }
 
+    /* ---- Sliders de propriedades (motor de estilos) ---- */
+    .slider-field { display: flex; flex-direction: column; gap: 0.25rem; }
+    .slider-field__head { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+    .slider-field__head label { margin: 0; font-size: 0.72rem; }
+    .slider-field output {
+      font-size: 0.66rem;
+      font-weight: 700;
+      font-family: ui-monospace, 'SF Mono', monospace;
+      color: var(--ds-accent);
+      background: var(--ds-accent-soft);
+      border: 1px solid var(--ds-accent-border);
+      padding: 0.125rem 0.375rem;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    .slider-field input[type="range"] {
+      width: 100%;
+      height: 18px;
+      margin: 0;
+      accent-color: #6366f1;
+      cursor: pointer;
+    }
+
+    .slider-field input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: #fff;
+      border: 2px solid #6366f1;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+      cursor: pointer;
+    }
+
+    .slider-field input[type="range"]::-moz-range-thumb {
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: #fff;
+      border: 2px solid #6366f1;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+      cursor: pointer;
+    }
+
+    .adv-subtitle {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      margin: 0.25rem 0 0.5rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--ds-muted);
+    }
+
+    .adv-subtitle--sm { font-size: 0.66rem; margin-bottom: 0.375rem; }
+
+    /* ---- Pontos de cor do gradiente ---- */
+    .grad-stops { display: flex; flex-direction: column; gap: 0.5rem; }
+
+    .grad-stop {
+      display: grid;
+      grid-template-columns: 38px 1fr 1fr 28px;
+      gap: 0.5rem;
+      align-items: center;
+      background: #fff;
+      border: 1px solid #eef2f7;
+      border-radius: 8px;
+      padding: 0.5rem;
+    }
+
+    .grad-stop > input[type="color"] {
+      width: 38px;
+      height: 30px;
+      border: none;
+      border-radius: 6px;
+      padding: 0;
+      background: none;
+      cursor: pointer;
+    }
+
+    .grad-stop .slider-field { min-width: 0; }
+    .grad-stop .slider-field__head label { font-size: 0.6rem; }
+
+    .grad-stop__remove {
+      display: grid;
+      place-items: center;
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      font-size: 1rem;
+      line-height: 1;
+      color: #ef4444;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+
+    .grad-stop__remove:hover { background: #fee2e2; border-color: #fca5a5; }
+
+    .grad-add {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.375rem;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--ds-accent);
+      background: var(--ds-accent-soft);
+      border: 1px dashed var(--ds-accent-border);
+      border-radius: var(--ds-radius-sm);
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+
+    .grad-add:hover { background: #e0e7ff; border-color: #a5b4fc; }
+
+    .bg-image-btn { margin-bottom: 0.5rem; }
+
+    /* ---- Banner superior do mockup (monograma + sobreposição da foto) ---- */
+    .pv-banner {
+      position: relative;
+      width: 100%;
+      height: 132px;
+      margin-bottom: -2.4rem;
+      border-radius: var(--global-radius);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.375rem;
+      background: linear-gradient(135deg, #0f172a 0%, #334155 55%, #64748b 100%);
+      overflow: hidden;
+      transition: height 0.2s ease;
+    }
+
+    .pv-banner__monogram {
+      font-size: 2.4rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      line-height: 1;
+      background: linear-gradient(180deg, #fde68a 0%, #d4af37 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-shadow: 0 2px 18px rgba(212, 175, 55, 0.35);
+    }
+
+    .pv-banner__brand {
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    /* Foto de perfil sobreposta ao banner com borda metálica */
+    .pv-profile { margin-top: -2.4rem; position: relative; z-index: 2; }
+
+    .pv-avatar {
+      border: 3px solid #fff;
+      box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.7), 0 12px 24px -10px rgba(0, 0, 0, 0.5);
+    }
+
+    .pv-banner[hidden] { display: none; }
+
+    /* Grid 2x2 para sliders do motor (cantos, sombra) */
+    .ds-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+    }
+
+    .ds-grid-2 .slider-field__head label { font-size: 0.6rem; }
+
     .btn-premium-action {
       display: flex;
       align-items: center;
@@ -1294,6 +1474,213 @@
           </div>
         </section>
 
+        <!-- ================= Motor de Estilos ================= -->
+        <section class="section" id="ds-engine">
+          <h2 class="section__title">Motor de Estilos</h2>
+          <p class="panel__hint">
+            Banner, perfil e avatar com propriedades calculadas em tempo real no preview.
+          </p>
+
+          <button type="button" class="adv-toggle" id="ds-toggle" aria-expanded="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+            <span>Banner Superior</span>
+            <svg class="adv-toggle__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="adv-body" id="ds-banner-body" hidden>
+
+            <div class="adv-group">
+              <label class="adv-check">
+                <input type="checkbox" id="ds-banner-enable" checked />
+                <span>Exibir banner superior</span>
+              </label>
+
+              <div class="slider-field">
+                <div class="slider-field__head"><label for="ds-banner-height">Altura</label><output id="ds-banner-height-out">132px</output></div>
+                <input type="range" id="ds-banner-height" min="80" max="240" value="132" />
+              </div>
+
+              <div class="row-2">
+                <div class="field">
+                  <label for="ds-banner-monogram">Monograma</label>
+                  <input type="text" id="ds-banner-monogram" maxlength="3" placeholder="Inicial do nome" />
+                </div>
+                <div class="field">
+                  <label for="ds-banner-brand">Marca</label>
+                  <input type="text" id="ds-banner-brand" maxlength="24" placeholder="Texto pequeno" />
+                </div>
+              </div>
+            </div>
+
+            <div class="adv-group">
+              <p class="adv-subtitle adv-subtitle--sm">Gradiente de fundo</p>
+
+              <div class="adv-row">
+                <div class="slider-field">
+                  <div class="slider-field__head"><label for="ds-banner-angle">Ângulo</label><output id="ds-banner-angle-out">135°</output></div>
+                  <input type="range" id="ds-banner-angle" min="0" max="360" value="135" />
+                </div>
+                <div class="field">
+                  <label for="ds-banner-blend">Mesclar</label>
+                  <select id="ds-banner-blend">
+                    <option value="normal" selected>Normal</option>
+                    <option value="multiply">Multiplicar</option>
+                    <option value="screen">Tela</option>
+                    <option value="overlay">Sobrepor</option>
+                    <option value="darken">Escurecer</option>
+                    <option value="lighten">Clarear</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="grad-stops" id="ds-grad-stops"></div>
+              <button type="button" class="grad-add" id="ds-grad-add">➕ Adicionar cor</button>
+            </div>
+
+            <div class="adv-group">
+              <label class="file-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L6 21" /></svg>
+                <span>Imagem de fundo do banner</span>
+                <input type="file" id="ds-banner-image" accept="image/*" />
+              </label>
+              <button type="button" class="btn-remove btn-remove--block" id="ds-banner-image-clear" hidden>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" /><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><line x1="10" x2="10" y1="11" y2="17" /><line x1="14" x2="14" y1="11" y2="17" /></svg>
+                <span>Remover imagem do banner</span>
+              </button>
+            </div>
+
+            <div class="adv-group">
+              <label class="adv-check">
+                <input type="checkbox" id="ds-banner-glass" />
+                <span>🧊 Vidro no banner (backdrop blur)</span>
+              </label>
+              <div class="slider-field">
+                <div class="slider-field__head"><label for="ds-banner-glass-blur">Desfoque</label><output id="ds-banner-glass-blur-out">18px</output></div>
+                <input type="range" id="ds-banner-glass-blur" min="0" max="40" value="18" />
+              </div>
+            </div>
+
+          </div>
+
+          <button type="button" class="adv-toggle" id="ds-toggle-profile" aria-expanded="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="5" /><path d="M20 21a8 8 0 0 0-16 0" /></svg>
+            <span>Perfil &amp; Avatar</span>
+            <svg class="adv-toggle__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="adv-body" id="ds-profile-body" hidden>
+
+            <div class="adv-group">
+              <p class="adv-subtitle adv-subtitle--sm">Posição</p>
+              <div class="adv-row">
+                <div class="slider-field">
+                  <div class="slider-field__head"><label for="ds-avatar-margin">Sobrepor ao banner</label><output id="ds-avatar-margin-out">-38px</output></div>
+                  <input type="range" id="ds-avatar-margin" min="-120" max="0" value="-38" />
+                </div>
+                <div class="slider-field">
+                  <div class="slider-field__head"><label for="ds-avatar-z">Camada (z-index)</label><output id="ds-avatar-z-out">2</output></div>
+                  <input type="range" id="ds-avatar-z" min="1" max="50" value="2" />
+                </div>
+              </div>
+            </div>
+
+            <div class="adv-group">
+              <p class="adv-subtitle adv-subtitle--sm">Cantos (border-radius)</p>
+              <div class="ds-grid-2">
+                <div class="slider-field">
+                  <div class="slider-field__head"><label for="ds-avatar-radius-tl">Sup. Esq.</label><output id="ds-avatar-radius-tl-out">14px</output></div>
+                  <input type="range" id="ds-avatar-radius-tl" min="0" max="120" value="14" />
+                </div>
+                <div class="slider-field">
+                  <div class="slider-field__head"><label for="ds-avatar-radius-tr">Sup. Dir.</label><output id="ds-avatar-radius-tr-out">14px</output></div>
+                  <input type="range" id="ds-avatar-radius-tr" min="0" max="120" value="14" />
+                </div>
+                <div class="slider-field">
+                  <div class="slider-field__head"><label for="ds-avatar-radius-br">Inf. Dir.</label><output id="ds-avatar-radius-br-out">14px</output></div>
+                  <input type="range" id="ds-avatar-radius-br" min="0" max="120" value="14" />
+                </div>
+                <div class="slider-field">
+                  <div class="slider-field__head"><label for="ds-avatar-radius-bl">Inf. Esq.</label><output id="ds-avatar-radius-bl-out">14px</output></div>
+                  <input type="range" id="ds-avatar-radius-bl" min="0" max="120" value="14" />
+                </div>
+              </div>
+            </div>
+
+            <div class="adv-group">
+              <p class="adv-subtitle adv-subtitle--sm">Borda</p>
+              <div class="adv-row">
+                <div class="field">
+                  <label for="ds-avatar-border-style">Estilo</label>
+                  <select id="ds-avatar-border-style">
+                    <option value="solid" selected>Sólida</option>
+                    <option value="double">Dupla</option>
+                    <option value="groove">Groove</option>
+                    <option value="ridge">Ridge</option>
+                    <option value="none">Nenhuma</option>
+                  </select>
+                </div>
+                <div class="slider-field">
+                  <div class="slider-field__head"><label for="ds-avatar-border-width">Espessura</label><output id="ds-avatar-border-width-out">3px</output></div>
+                  <input type="range" id="ds-avatar-border-width" min="0" max="12" value="3" />
+                </div>
+              </div>
+              <div class="field color-field">
+                <label for="ds-avatar-border-color">Cor da borda</label>
+                <div class="color-field__control">
+                  <input type="color" id="ds-avatar-border-color" value="#ffffff" />
+                  <span id="ds-avatar-border-colorHex">#ffffff</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="adv-group">
+              <label class="adv-check">
+                <input type="checkbox" id="ds-avatar-shadow" checked />
+                <span>Sombra (anel metálico + queda)</span>
+              </label>
+              <div class="ds-grid-2">
+                <div class="slider-field">
+                  <div class="slider-field__head"><label for="ds-avatar-shadow-x">Eixo X</label><output id="ds-avatar-shadow-x-out">0px</output></div>
+                  <input type="range" id="ds-avatar-shadow-x" min="-40" max="40" value="0" />
+                </div>
+                <div class="slider-field">
+                  <div class="slider-field__head"><label for="ds-avatar-shadow-y">Eixo Y</label><output id="ds-avatar-shadow-y-out">12px</output></div>
+                  <input type="range" id="ds-avatar-shadow-y" min="-40" max="40" value="12" />
+                </div>
+                <div class="slider-field">
+                  <div class="slider-field__head"><label for="ds-avatar-shadow-blur">Desfoque</label><output id="ds-avatar-shadow-blur-out">24px</output></div>
+                  <input type="range" id="ds-avatar-shadow-blur" min="0" max="60" value="24" />
+                </div>
+                <div class="slider-field">
+                  <div class="slider-field__head"><label for="ds-avatar-shadow-spread">Propagar</label><output id="ds-avatar-shadow-spread-out">-10px</output></div>
+                  <input type="range" id="ds-avatar-shadow-spread" min="-40" max="40" value="-10" />
+                </div>
+              </div>
+              <div class="field color-field">
+                <label for="ds-avatar-shadow-color">Cor da sombra</label>
+                <div class="color-field__control">
+                  <input type="color" id="ds-avatar-shadow-color" value="#000000" />
+                  <span id="ds-avatar-shadow-colorHex">#000000</span>
+                </div>
+              </div>
+              <div class="slider-field">
+                <div class="slider-field__head"><label for="ds-avatar-shadow-alpha">Opacidade</label><output id="ds-avatar-shadow-alpha-out">50%</output></div>
+                <input type="range" id="ds-avatar-shadow-alpha" min="0" max="100" value="50" />
+              </div>
+            </div>
+
+            <div class="adv-group">
+              <label class="adv-check">
+                <input type="checkbox" id="ds-avatar-glass" />
+                <span>🧊 Vidro no avatar</span>
+              </label>
+              <div class="slider-field">
+                <div class="slider-field__head"><label for="ds-avatar-glass-blur">Desfoque</label><output id="ds-avatar-glass-blur-out">14px</output></div>
+                <input type="range" id="ds-avatar-glass-blur" min="0" max="40" value="14" />
+              </div>
+            </div>
+
+          </div>
+        </section>
+
         <button class="btn btn--block btn--ghost" type="button" id="exportBtn">Baixar config.js</button>
         <p class="panel__hint">
           Salvar aplica na página pública (mesmo navegador) e registra no <code>console.log</code>.
@@ -1312,8 +1699,13 @@
           <div class="preview" id="preview">
             <div class="pv-flow" id="pvFlow">
 
+              <div class="pv-banner" id="pvBanner">
+                <div class="pv-banner__monogram" id="pvMonogram">N</div>
+                <div class="pv-banner__brand" id="pvBrand">NOME</div>
+              </div>
+
               <header class="pv-profile" id="pvProfile">
-                <div class="pv-avatar">
+                <div class="pv-avatar" id="pvAvatar">
                   <span class="pv-avatar__letter" id="pvAvatarLetter">N</span>
                   <img class="pv-avatar__img" id="pvAvatarImg" alt="" hidden />
                 </div>
@@ -1414,11 +1806,15 @@
     function renderLayout() {
       const flow = el('pvFlow');
       const profile = el('pvProfile');
+      const banner = el('pvBanner');
 
       profile.style.order = clampOrder(el('order-info').value, 1);
       profile.style.display = (el('info-layout').value === 'ocultar') ? 'none' : '';
 
       flow.replaceChildren(profile);
+
+      banner.style.order = 0;
+      flow.appendChild(banner);
 
       previewQuickGrid.style.order = 2;
       flow.appendChild(previewQuickGrid);
@@ -1527,6 +1923,323 @@
     el('input-font').addEventListener('change', () => {
       setVar('--font-main', "'" + el('input-font').value + "', sans-serif");
     });
+
+    /* ================================================================
+       MOTOR DE ESTILOS — banner, perfil e avatar (designState)
+       O preview recebe estilos inline calculados a partir do objeto.
+       ================================================================ */
+    function toRgba(hex, alpha) {
+      const [r, g, b] = hexToRgb(hex);
+      return 'rgba(' + r + ',' + g + ',' + b + ',' + (alpha / 100) + ')';
+    }
+
+    const designState = {
+      banner: {
+        enabled: true,
+        height: 132,
+        monogram: '',
+        brand: '',
+        image: null,
+        blend: 'normal',
+        angle: 135,
+        stops: [
+          { color: '#0f172a', pos: 0, alpha: 100 },
+          { color: '#334155', pos: 55, alpha: 100 },
+          { color: '#64748b', pos: 100, alpha: 100 }
+        ],
+        glass: false,
+        glassBlur: 18
+      },
+      profile: {
+        marginTop: -38,
+        zIndex: 2,
+        radius: { tl: 14, tr: 14, br: 14, bl: 14 },
+        borderStyle: 'solid',
+        borderWidth: 3,
+        borderColor: '#ffffff',
+        shadowOn: true,
+        shadowX: 0, shadowY: 12, shadowBlur: 24, shadowSpread: -10,
+        shadowColor: '#000000',
+        shadowAlpha: 50,
+        glass: false,
+        glassBlur: 14
+      }
+    };
+
+    function shadowCSS() {
+      const p = designState.profile;
+      return '0 0 0 2px rgba(212,175,55,0.7), '
+        + p.shadowX + 'px ' + p.shadowY + 'px ' + p.shadowBlur + 'px ' + p.shadowSpread + 'px '
+        + toRgba(p.shadowColor, p.shadowAlpha);
+    }
+
+    function gradientCSS() {
+      const b = designState.banner;
+      return 'linear-gradient(' + b.angle + 'deg, '
+        + b.stops.map((s) => toRgba(s.color, s.alpha) + ' ' + s.pos + '%').join(', ') + ')';
+    }
+
+    function gradStopHTML(s, i) {
+      return ''
+        + '<div class="grad-stop">'
+        +   '<input type="color" class="gs-color" value="' + s.color + '" data-i="' + i + '" />'
+        +   '<div class="slider-field">'
+        +     '<div class="slider-field__head"><label>Pos</label><output class="gs-pos-out">' + s.pos + '%</output></div>'
+        +     '<input type="range" class="gs-pos" min="0" max="100" value="' + s.pos + '" data-i="' + i + '" />'
+        +   '</div>'
+        +   '<div class="slider-field">'
+        +     '<div class="slider-field__head"><label>Opac</label><output class="gs-alpha-out">' + s.alpha + '%</output></div>'
+        +     '<input type="range" class="gs-alpha" min="0" max="100" value="' + s.alpha + '" data-i="' + i + '" />'
+        +   '</div>'
+        +   '<button type="button" class="grad-stop__remove" data-i="' + i + '" title="Remover cor" aria-label="Remover cor">×</button>'
+        + '</div>';
+    }
+
+    function renderGradStops() {
+      el('ds-grad-stops').innerHTML = designState.banner.stops.map(gradStopHTML).join('');
+    }
+
+    function updateDesignOutputs() {
+      const b = designState.banner;
+      const p = designState.profile;
+      const set = (id, txt) => { const o = el(id); if (o) o.textContent = txt; };
+      set('ds-banner-height-out', b.height + 'px');
+      set('ds-banner-angle-out', b.angle + '°');
+      set('ds-banner-glass-blur-out', b.glassBlur + 'px');
+      set('ds-avatar-margin-out', p.marginTop + 'px');
+      set('ds-avatar-z-out', String(p.zIndex));
+      set('ds-avatar-radius-tl-out', p.radius.tl + 'px');
+      set('ds-avatar-radius-tr-out', p.radius.tr + 'px');
+      set('ds-avatar-radius-br-out', p.radius.br + 'px');
+      set('ds-avatar-radius-bl-out', p.radius.bl + 'px');
+      set('ds-avatar-border-width-out', p.borderWidth + 'px');
+      set('ds-avatar-shadow-x-out', p.shadowX + 'px');
+      set('ds-avatar-shadow-y-out', p.shadowY + 'px');
+      set('ds-avatar-shadow-blur-out', p.shadowBlur + 'px');
+      set('ds-avatar-shadow-spread-out', p.shadowSpread + 'px');
+      set('ds-avatar-shadow-alpha-out', p.shadowAlpha + '%');
+      set('ds-avatar-glass-blur-out', p.glassBlur + 'px');
+    }
+
+    /* Aplica o designState no mockup (estilos inline calculados) */
+    function applyDesign() {
+      const b = designState.banner;
+      const p = designState.profile;
+      const banner = el('pvBanner');
+      const profile = el('pvProfile');
+      const avatar = el('pvAvatar');
+      if (!banner || !profile || !avatar) return;
+
+      banner.hidden = !b.enabled;
+      if (b.enabled) {
+        banner.style.height = b.height + 'px';
+        banner.style.background = b.image
+          ? gradientCSS() + ', url(' + b.image + ')'
+          : gradientCSS();
+        banner.style.backgroundSize = b.image ? 'cover' : '';
+        banner.style.backgroundPosition = b.image ? 'center' : '';
+        banner.style.backgroundBlendMode = b.blend;
+        banner.style.backdropFilter = b.glass ? 'blur(' + b.glassBlur + 'px)' : '';
+        banner.style.webkitBackdropFilter = banner.style.backdropFilter;
+      }
+
+      const profileName = (el('profileName').value || '').trim();
+      el('pvMonogram').textContent = b.monogram || (profileName ? profileName.charAt(0).toUpperCase() : 'N');
+      el('pvBrand').textContent = (b.brand || (profileName ? profileName.toUpperCase() : 'NOME')).slice(0, 30);
+
+      profile.style.marginTop = (b.enabled ? p.marginTop : 0) + 'px';
+      profile.style.zIndex = p.zIndex;
+
+      avatar.style.borderRadius = p.radius.tl + 'px ' + p.radius.tr + 'px ' + p.radius.br + 'px ' + p.radius.bl + 'px';
+      avatar.style.border = (p.borderStyle === 'none' || p.borderWidth <= 0)
+        ? 'none'
+        : p.borderWidth + 'px ' + p.borderStyle + ' ' + p.borderColor;
+      avatar.style.boxShadow = p.shadowOn ? shadowCSS() : 'none';
+      avatar.style.backdropFilter = p.glass ? 'blur(' + p.glassBlur + 'px)' : '';
+      avatar.style.webkitBackdropFilter = avatar.style.backdropFilter;
+    }
+
+    /* Popula os controles a partir do designState */
+    function designToControls() {
+      const b = designState.banner;
+      const p = designState.profile;
+      el('ds-banner-enable').checked = b.enabled;
+      el('ds-banner-height').value = b.height;
+      el('ds-banner-monogram').value = b.monogram;
+      el('ds-banner-brand').value = b.brand;
+      el('ds-banner-angle').value = b.angle;
+      el('ds-banner-blend').value = b.blend;
+      el('ds-banner-glass').checked = b.glass;
+      el('ds-banner-glass-blur').value = b.glassBlur;
+      el('ds-avatar-margin').value = p.marginTop;
+      el('ds-avatar-z').value = p.zIndex;
+      el('ds-avatar-radius-tl').value = p.radius.tl;
+      el('ds-avatar-radius-tr').value = p.radius.tr;
+      el('ds-avatar-radius-br').value = p.radius.br;
+      el('ds-avatar-radius-bl').value = p.radius.bl;
+      el('ds-avatar-border-style').value = p.borderStyle;
+      el('ds-avatar-border-width').value = p.borderWidth;
+      el('ds-avatar-border-color').value = p.borderColor;
+      el('ds-avatar-shadow').checked = p.shadowOn;
+      el('ds-avatar-shadow-x').value = p.shadowX;
+      el('ds-avatar-shadow-y').value = p.shadowY;
+      el('ds-avatar-shadow-blur').value = p.shadowBlur;
+      el('ds-avatar-shadow-spread').value = p.shadowSpread;
+      el('ds-avatar-shadow-color').value = p.shadowColor;
+      el('ds-avatar-shadow-alpha').value = p.shadowAlpha;
+      el('ds-avatar-glass').checked = p.glass;
+      el('ds-avatar-glass-blur').value = p.glassBlur;
+      el('ds-banner-image-clear').hidden = !b.image;
+      renderGradStops();
+      updateDesignOutputs();
+    }
+
+    /* Lê os controles para o designState */
+    function controlsToDesign() {
+      const b = designState.banner;
+      const p = designState.profile;
+      b.enabled = el('ds-banner-enable').checked;
+      b.height = +el('ds-banner-height').value;
+      b.monogram = el('ds-banner-monogram').value.trim();
+      b.brand = el('ds-banner-brand').value.trim();
+      b.angle = +el('ds-banner-angle').value;
+      b.blend = el('ds-banner-blend').value;
+      b.glass = el('ds-banner-glass').checked;
+      b.glassBlur = +el('ds-banner-glass-blur').value;
+      p.marginTop = +el('ds-avatar-margin').value;
+      p.zIndex = +el('ds-avatar-z').value;
+      p.radius.tl = +el('ds-avatar-radius-tl').value;
+      p.radius.tr = +el('ds-avatar-radius-tr').value;
+      p.radius.br = +el('ds-avatar-radius-br').value;
+      p.radius.bl = +el('ds-avatar-radius-bl').value;
+      p.borderStyle = el('ds-avatar-border-style').value;
+      p.borderWidth = +el('ds-avatar-border-width').value;
+      p.borderColor = el('ds-avatar-border-color').value;
+      p.shadowOn = el('ds-avatar-shadow').checked;
+      p.shadowX = +el('ds-avatar-shadow-x').value;
+      p.shadowY = +el('ds-avatar-shadow-y').value;
+      p.shadowBlur = +el('ds-avatar-shadow-blur').value;
+      p.shadowSpread = +el('ds-avatar-shadow-spread').value;
+      p.shadowColor = el('ds-avatar-shadow-color').value;
+      p.shadowAlpha = +el('ds-avatar-shadow-alpha').value;
+      p.glass = el('ds-avatar-glass').checked;
+      p.glassBlur = +el('ds-avatar-glass-blur').value;
+      return designState;
+    }
+
+    function mergeDesign(saved) {
+      if (!saved) return;
+      if (saved.banner) {
+        Object.assign(designState.banner, saved.banner);
+        if (Array.isArray(saved.banner.stops) && saved.banner.stops.length >= 2) {
+          designState.banner.stops = saved.banner.stops;
+        }
+      }
+      if (saved.profile) {
+        Object.assign(designState.profile, saved.profile);
+        if (saved.profile.radius) Object.assign(designState.profile.radius, saved.profile.radius);
+      }
+    }
+
+    const DS_SLIDERS = [
+      'ds-banner-height', 'ds-banner-angle', 'ds-banner-glass-blur',
+      'ds-avatar-margin', 'ds-avatar-z',
+      'ds-avatar-radius-tl', 'ds-avatar-radius-tr', 'ds-avatar-radius-br', 'ds-avatar-radius-bl',
+      'ds-avatar-border-width',
+      'ds-avatar-shadow-x', 'ds-avatar-shadow-y', 'ds-avatar-shadow-blur', 'ds-avatar-shadow-spread', 'ds-avatar-shadow-alpha',
+      'ds-avatar-glass-blur'
+    ];
+
+    DS_SLIDERS.forEach((id) => {
+      el(id).addEventListener('input', () => {
+        controlsToDesign();
+        updateDesignOutputs();
+        applyDesign();
+      });
+    });
+
+    el('ds-engine').addEventListener('change', (e) => {
+      if (e.target.classList.contains('gs-pos') || e.target.classList.contains('gs-alpha')) return;
+      if (e.target === el('ds-banner-image')) return;
+      controlsToDesign();
+      if (e.target === el('ds-avatar-border-color') || e.target === el('ds-avatar-shadow-color')) {
+        const hexId = e.target.id + 'Hex';
+        const hexEl = el(hexId);
+        if (hexEl) hexEl.textContent = e.target.value;
+      }
+      applyDesign();
+    });
+
+    el('ds-engine').addEventListener('input', (e) => {
+      if (e.target.id === 'ds-banner-monogram' || e.target.id === 'ds-banner-brand') {
+        controlsToDesign();
+        applyDesign();
+      }
+    });
+
+    /* Editor de pontos do gradiente */
+    el('ds-grad-stops').addEventListener('input', (e) => {
+      const t = e.target;
+      const s = designState.banner.stops[+t.dataset.i];
+      if (!s) return;
+      if (t.classList.contains('gs-color')) {
+        s.color = t.value;
+      } else if (t.classList.contains('gs-pos')) {
+        s.pos = +t.value;
+        t.parentElement.querySelector('.gs-pos-out').textContent = s.pos + '%';
+      } else if (t.classList.contains('gs-alpha')) {
+        s.alpha = +t.value;
+        t.parentElement.querySelector('.gs-alpha-out').textContent = s.alpha + '%';
+      }
+      applyDesign();
+    });
+
+    el('ds-grad-stops').addEventListener('click', (e) => {
+      const rm = e.target.closest('.grad-stop__remove');
+      if (!rm) return;
+      const stops = designState.banner.stops;
+      if (stops.length <= 2) return;
+      stops.splice(+rm.dataset.i, 1);
+      renderGradStops();
+      applyDesign();
+    });
+
+    el('ds-grad-add').addEventListener('click', () => {
+      designState.banner.stops.push({ color: '#4f46e5', pos: 50, alpha: 100 });
+      renderGradStops();
+      applyDesign();
+    });
+
+    el('ds-banner-image').addEventListener('change', () => {
+      const file = el('ds-banner-image').files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        designState.banner.image = e.target.result;
+        el('ds-banner-image-clear').hidden = false;
+        applyDesign();
+      };
+      reader.readAsDataURL(file);
+    });
+
+    el('ds-banner-image-clear').addEventListener('click', () => {
+      el('ds-banner-image').value = '';
+      designState.banner.image = null;
+      el('ds-banner-image-clear').hidden = true;
+      applyDesign();
+    });
+
+    /* Acordeões do motor */
+    function bindToggle(btnId, bodyId) {
+      el(btnId).addEventListener('click', () => {
+        const body = el(bodyId);
+        body.hidden = !body.hidden;
+        el(btnId).classList.toggle('is-open', !body.hidden);
+        el(btnId).setAttribute('aria-expanded', String(!body.hidden));
+      });
+    }
+    bindToggle('ds-toggle', 'ds-banner-body');
+    bindToggle('ds-toggle-profile', 'ds-profile-body');
 
     /* ================================================================
        UPLOADS — imagem de fundo (dataURL p/ payload)
@@ -2233,6 +2946,7 @@
     }
 
     function buildPayload() {
+      controlsToDesign();
       return {
         profile: {
           photo: (el('profilePhoto').files[0] || {}).name || null,
@@ -2261,7 +2975,8 @@
             order: clampOrder(el('order-info').value, 1),
             hidden: el('info-layout').value === 'ocultar'
           }
-        }
+        },
+        design: JSON.parse(JSON.stringify(designState))
       };
     }
 
@@ -2337,6 +3052,9 @@
       el('input-radius').dispatchEvent(new Event('change'));
       el('input-font').dispatchEvent(new Event('change'));
 
+      mergeDesign(cfg.design);
+      designToControls();
+
       seedLinksFromConfig(cfg);
       seedQuickActions(Array.isArray(q) ? q : quickActionsFromLegacy(q));
       renderLayout();
@@ -2391,6 +3109,10 @@
       }
       el('input-font').dispatchEvent(new Event('change'));
 
+      /* Restaura o motor de estilos (banner, perfil e avatar) */
+      mergeDesign(saved.design);
+      designToControls();
+
       /* Restaura as ações rápidas dinâmicas (ou migra o formato antigo) */
       if (saved.quickActions) {
         quickActionsContainer.innerHTML = '';
@@ -2426,6 +3148,8 @@
     el('input-radius').dispatchEvent(new Event('change'));
     el('input-font').dispatchEvent(new Event('change'));
     renderLayout();
+    designToControls();
+    applyDesign();
   </script>
 </body>
 </html>
