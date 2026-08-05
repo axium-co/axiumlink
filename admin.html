@@ -433,6 +433,86 @@
       pointer-events: none;
     }
 
+    /* ---- Modal de recorte da foto de perfil ---- */
+    .crop-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      display: grid;
+      place-items: center;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(3px);
+      padding: 1rem;
+    }
+
+    .crop-modal[hidden] { display: none; }
+
+    .crop-modal__box {
+      width: min(92vw, 380px);
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 1.25rem;
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.35);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .crop-modal__box h3 { margin: 0; font-size: 1.0625rem; }
+
+    .crop-modal__box .panel__hint { margin: 0; }
+
+    .crop-stage {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      overflow: hidden;
+      border-radius: 12px;
+      background: #0f172a;
+      touch-action: none;
+      cursor: grab;
+      user-select: none;
+    }
+
+    .crop-stage:active { cursor: grabbing; }
+
+    .crop-stage img {
+      position: absolute;
+      left: 0;
+      top: 0;
+      max-width: none;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .crop-modal__actions {
+      display: flex;
+      gap: 0.625rem;
+      justify-content: flex-end;
+    }
+
+    .crop-modal__actions button {
+      padding: 0.5625rem 1rem;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      border-radius: var(--ds-radius-sm);
+      cursor: pointer;
+      border: 1px solid #e2e8f0;
+      background: #ffffff;
+      color: #334155;
+      transition: background 0.15s ease;
+    }
+
+    .crop-modal__actions button:hover { background: #f1f5f9; }
+
+    .crop-modal__actions .crop-apply {
+      background: #4f46e5;
+      border-color: #4f46e5;
+      color: #ffffff;
+    }
+
+    .crop-modal__actions .crop-apply:hover { background: #4338ca; }
+
     /* ---- Gerenciador de links dinâmico ---- */
     #links-management-container {
       display: flex;
@@ -1115,6 +1195,9 @@
 
     .pv-link svg { width: 18px; height: 18px; flex-shrink: 0; }
     .pv-link__img { width: 20px; height: 20px; object-fit: cover; border-radius: 4px; flex-shrink: 0; }
+
+    .pv-link--banner { position: relative; padding: 0; overflow: hidden; aspect-ratio: 2 / 1; min-height: 0; }
+    .pv-link__banner { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
     .pv-link:hover { transform: scale(1.02); filter: brightness(1.06); }
     .pv-link:active { transform: scale(0.98); }
 
@@ -1739,6 +1822,24 @@
     <span>Alterações salvas!</span>
   </div>
 
+  <div class="crop-modal" id="cropModal" hidden>
+    <div class="crop-modal__box">
+      <h3>Recortar Foto de Perfil</h3>
+      <p class="panel__hint">Arraste para posicionar e use o controle para dar zoom. A foto vira um quadrado.</p>
+      <div class="crop-stage" id="cropStage">
+        <img id="cropImg" alt="" draggable="false" />
+      </div>
+      <div class="field">
+        <label for="cropZoom">Zoom</label>
+        <input type="range" id="cropZoom" min="1" max="3" step="0.01" value="1" />
+      </div>
+      <div class="crop-modal__actions">
+        <button type="button" id="cropCancel">Cancelar</button>
+        <button type="button" class="crop-apply" id="cropApply">Aplicar</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     /* ================================================================
        HELPERS DE COR
@@ -2244,7 +2345,7 @@
     /* ================================================================
        UPLOADS — imagem de fundo (dataURL p/ payload)
        ================================================================ */
-    const uploads = { bgImage: null };
+    const uploads = { bgImage: null, avatarImage: null };
 
     el('input-bg-image').addEventListener('change', () => {
       const file = el('input-bg-image').files[0];
@@ -2293,6 +2394,7 @@
       const text = dd.customText || '#ffffff';
       const width = dd.width || 'auto';
       const animation = dd.animation || 'none';
+      const style = dd.style || 'icon';
       const showColors = dd.customColors ? '' : ' hidden';
       const hasImage = !!dd.image;
 
@@ -2355,6 +2457,15 @@
         +       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>'
         +       '<span>Remover imagem própria</span>'
         +     '</button>'
+        +   '</div>'
+
+        +   '<div class="adv-group">'
+        +     '<label>Estilo do Botão</label>'
+        +     '<select class="link-style">'
+        +       '<option value="icon"' + (style === 'icon' ? ' selected' : '') + '>Ícone pequeno (padrão)</option>'
+        +       '<option value="banner"' + (style === 'banner' ? ' selected' : '') + '>Imagem completa (estilo Beacons)</option>'
+        +     '</select>'
+        +     '<p class="panel__hint">"Imagem completa" transforma o botão inteiro na imagem enviada acima.</p>'
         +   '</div>'
 
         +   '<div class="adv-row">'
@@ -2716,6 +2827,7 @@
           url: (block.querySelector('.link-url').value || '').trim(),
           icon: block.querySelector('.link-icon').value,
           image: block.dataset.image || null,
+          style: block.querySelector('.link-style').value,
           customColors: colorsOn,
           customBg: block.querySelector('.custom-bg').value,
           customText: block.querySelector('.custom-text').value,
@@ -2751,7 +2863,14 @@
           a.style.color = link.customText;
         }
 
-        if (link.image) {
+        if (link.image && link.style === 'banner') {
+          a.classList.add('pv-link--banner');
+          const img = document.createElement('img');
+          img.className = 'pv-link__banner';
+          img.src = link.image;
+          img.alt = '';
+          a.appendChild(img);
+        } else if (link.image) {
           const img = document.createElement('img');
           img.className = 'pv-link__img';
           img.src = link.image;
@@ -2761,9 +2880,11 @@
           a.insertAdjacentHTML('afterbegin', LINK_ICONS[link.icon] || LINK_ICONS.outro);
         }
 
-        const label = document.createElement('span');
-        label.textContent = link.title || 'Novo Link';
-        a.appendChild(label);
+        if (!(link.image && link.style === 'banner')) {
+          const label = document.createElement('span');
+          label.textContent = link.title || 'Novo Link';
+          a.appendChild(label);
+        }
 
         previewLinksList.appendChild(a);
       });
@@ -2843,7 +2964,7 @@
         renderPreviewLinks();
         return;
       }
-      if (e.target.classList.contains('btn-width') || e.target.classList.contains('btn-animation')) {
+      if (e.target.classList.contains('btn-width') || e.target.classList.contains('btn-animation') || e.target.classList.contains('link-style')) {
         syncLinksData();
         renderPreviewLinks();
         return;
@@ -2893,25 +3014,137 @@
     /* ================================================================
        UPLOAD DE FOTO / LOGO
        ================================================================ */
+    /* ================================================================
+       CROP DA FOTO DE PERFIL — recorte quadrado com zoom e arraste
+       ================================================================ */
+    const cropModal = el('cropModal');
+    const cropStage = el('cropStage');
+    const cropImg = el('cropImg');
+    const cropZoom = el('cropZoom');
+
+    const cropState = { src: null, naturalW: 0, naturalH: 0, dispW: 0, dispH: 0, x: 0, y: 0 };
+    let cropDrag = null;
+
+    function cropSetPosition() {
+      cropImg.style.width = cropState.dispW + 'px';
+      cropImg.style.height = cropState.dispH + 'px';
+      cropImg.style.left = cropState.x + 'px';
+      cropImg.style.top = cropState.y + 'px';
+    }
+
+    function cropLayout() {
+      const s = cropState;
+      const stageW = cropStage.clientWidth;
+      if (!stageW || !s.naturalW) return;
+      const zoom = +cropZoom.value;
+      const cover = Math.max(stageW / s.naturalW, stageW / s.naturalH);
+      s.dispW = s.naturalW * cover * zoom;
+      s.dispH = s.naturalH * cover * zoom;
+      s.x = Math.min(0, Math.max(stageW - s.dispW, s.x));
+      s.y = Math.min(0, Math.max(stageW - s.dispH, s.y));
+      cropSetPosition();
+    }
+
+    cropZoom.addEventListener('input', () => {
+      const s = cropState;
+      const stageW = cropStage.clientWidth;
+      if (!stageW || !s.naturalW) return;
+      const zoom = +cropZoom.value;
+      const cx = (stageW / 2 - s.x) / s.dispW;
+      const cy = (stageW / 2 - s.y) / s.dispH;
+      const cover = Math.max(stageW / s.naturalW, stageW / s.naturalH);
+      s.dispW = s.naturalW * cover * zoom;
+      s.dispH = s.naturalH * cover * zoom;
+      s.x = Math.min(0, Math.max(stageW - s.dispW, stageW / 2 - cx * s.dispW));
+      s.y = Math.min(0, Math.max(stageW - s.dispH, stageW / 2 - cy * s.dispH));
+      cropSetPosition();
+    });
+
+    cropStage.addEventListener('pointerdown', (e) => {
+      cropDrag = { id: e.pointerId, sx: e.clientX, sy: e.clientY, ox: cropState.x, oy: cropState.y };
+      cropStage.setPointerCapture(e.pointerId);
+    });
+
+    cropStage.addEventListener('pointermove', (e) => {
+      if (!cropDrag || e.pointerId !== cropDrag.id) return;
+      cropState.x = Math.min(0, Math.max(cropStage.clientWidth - cropState.dispW, cropDrag.ox + (e.clientX - cropDrag.sx)));
+      cropState.y = Math.min(0, Math.max(cropStage.clientWidth - cropState.dispH, cropDrag.oy + (e.clientY - cropDrag.sy)));
+      cropSetPosition();
+    });
+
+    cropStage.addEventListener('pointerup', (e) => { if (cropDrag && e.pointerId === cropDrag.id) cropDrag = null; });
+    cropStage.addEventListener('pointercancel', () => { cropDrag = null; });
+
+    function cropOpen(file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        cropImg.onload = () => {
+          cropState.src = cropImg.src;
+          cropState.naturalW = cropImg.naturalWidth;
+          cropState.naturalH = cropImg.naturalHeight;
+          cropZoom.value = '1';
+          cropModal.hidden = false;
+          cropLayout();
+        };
+        cropImg.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function cropApply() {
+      const s = cropState;
+      const stageW = cropStage.clientWidth;
+      if (!stageW || !s.naturalW) return;
+      const size = 512;
+      const scaleX = s.naturalW / s.dispW;
+      const scaleY = s.naturalH / s.dispH;
+      const sx = (-s.x) * scaleX;
+      const sy = (-s.y) * scaleY;
+      const sw = stageW * scaleX;
+      const sh = stageW * scaleY;
+      const canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(cropImg, sx, sy, sw, sh, 0, 0, size, size);
+      let hasAlpha = false;
+      try {
+        const data = ctx.getImageData(0, 0, size, size).data;
+        for (let i = 3; i < data.length; i += 4) {
+          if (data[i] < 250) { hasAlpha = true; break; }
+        }
+      } catch (e) { /* canvas limpo ou cross-origin: assume PNG */ }
+      uploads.avatarImage = hasAlpha
+        ? canvas.toDataURL('image/png')
+        : canvas.toDataURL('image/jpeg', 0.9);
+      avImg.src = uploads.avatarImage;
+      avImg.hidden = false;
+      avLetter.hidden = true;
+      const clone = avImg.cloneNode();
+      clone.removeAttribute('hidden');
+      upThumb.replaceChildren(clone);
+      el('btn-remove-avatar').hidden = false;
+      cropModal.hidden = true;
+    }
+
+    el('cropApply').addEventListener('click', cropApply);
+
+    el('cropCancel').addEventListener('click', () => {
+      cropModal.hidden = true;
+      el('profilePhoto').value = '';
+    });
+
     el('profilePhoto').addEventListener('change', () => {
       const file = el('profilePhoto').files[0];
       if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        avImg.src = e.target.result;
-        avImg.hidden = false;
-        avLetter.hidden = true;
-        const clone = avImg.cloneNode();
-        clone.removeAttribute('hidden');
-        upThumb.replaceChildren(clone);
-        el('btn-remove-avatar').hidden = false;
-      };
-      reader.readAsDataURL(file);
+      cropOpen(file);
     });
 
     el('btn-remove-avatar').addEventListener('click', () => {
       el('profilePhoto').value = '';
+      uploads.avatarImage = null;
       avImg.removeAttribute('src');
       avImg.hidden = true;
       avLetter.hidden = false;
@@ -2949,7 +3182,7 @@
       controlsToDesign();
       return {
         profile: {
-          photo: (el('profilePhoto').files[0] || {}).name || null,
+          photo: uploads.avatarImage,
           name: el('profileName').value,
           bio: el('profileBio').value,
           address: el('profileAddress').value
@@ -3055,6 +3288,17 @@
       mergeDesign(cfg.design);
       designToControls();
 
+      if (cfg.profile && cfg.profile.photo) {
+        uploads.avatarImage = cfg.profile.photo;
+        avImg.src = cfg.profile.photo;
+        avImg.hidden = false;
+        avLetter.hidden = true;
+        const clone = avImg.cloneNode();
+        clone.removeAttribute('hidden');
+        upThumb.replaceChildren(clone);
+        el('btn-remove-avatar').hidden = false;
+      }
+
       seedLinksFromConfig(cfg);
       seedQuickActions(Array.isArray(q) ? q : quickActionsFromLegacy(q));
       renderLayout();
@@ -3112,6 +3356,18 @@
       /* Restaura o motor de estilos (banner, perfil e avatar) */
       mergeDesign(saved.design);
       designToControls();
+
+      /* Restaura a foto de perfil (data URL recortada) */
+      if (saved.profile && saved.profile.photo) {
+        uploads.avatarImage = saved.profile.photo;
+        avImg.src = saved.profile.photo;
+        avImg.hidden = false;
+        avLetter.hidden = true;
+        const clone = avImg.cloneNode();
+        clone.removeAttribute('hidden');
+        upThumb.replaceChildren(clone);
+        el('btn-remove-avatar').hidden = false;
+      }
 
       /* Restaura as ações rápidas dinâmicas (ou migra o formato antigo) */
       if (saved.quickActions) {

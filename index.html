@@ -363,6 +363,27 @@
 
     .featured__card:hover .featured__arrow { transform: translateX(3px); }
 
+    /* ---- Card com imagem completa (estilo Beacons) ---- */
+    .featured__card--banner {
+      position: relative;
+      padding: 0;
+      overflow: hidden;
+      aspect-ratio: 2 / 1;
+      min-height: 0;
+    }
+
+    .featured__banner-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .featured__card--banner:hover .featured__banner-img { transform: scale(1.02); }
+    .featured__banner-img { transition: transform var(--transition); }
+
     /* ================================================================
        FOOTER DA PLATAFORMA
        ================================================================ */
@@ -568,7 +589,8 @@
 
       <!-- TODO: SEU LOGO — troque o <span> por <img src="sua-logo.png" alt="Nome do Cliente"> -->
       <div class="profile__avatar" aria-hidden="true">
-        <span>C</span>
+        <span id="pgAvatarLetter">C</span>
+        <img id="pgAvatarImg" class="profile__avatar-img" alt="" hidden />
       </div>
 
       <!-- TODO: NOME DO CLIENTE (dinâmico) -->
@@ -793,6 +815,17 @@
       set('--card-destaque-bg', v.cardBg);
       set('--card-destaque-text', v.cardText);
 
+      /* ---- Foto de perfil (data URL recortada no painel) ---- */
+      if (p.photo) {
+        const avatarImg = document.getElementById('pgAvatarImg');
+        const avatarLetter = document.getElementById('pgAvatarLetter');
+        if (avatarImg && avatarLetter) {
+          avatarImg.src = p.photo;
+          avatarImg.hidden = false;
+          avatarLetter.hidden = true;
+        }
+      }
+
       /* ---- Formato dos botões/cards (enum -> CSS; legado 0px/12px/30px) ---- */
       const radiusMap = {
         'quadrado':           { css: '0px',               extras: {} },
@@ -957,43 +990,54 @@
           a.target = '_blank';
           a.rel = 'noopener';
 
-          const icon = document.createElement('span');
-          icon.className = 'featured__icon';
-          icon.setAttribute('aria-hidden', 'true');
-          if (link.image) {
+          const isBanner = !!(link.image && link.style === 'banner');
+
+          if (isBanner) {
+            a.classList.add('featured__card--banner');
             const img = document.createElement('img');
-            img.className = 'featured__icon-img';
+            img.className = 'featured__banner-img';
             img.src = link.image;
-            img.alt = '';
-            icon.appendChild(img);
+            img.alt = link.title || '';
+            a.appendChild(img);
           } else {
-            icon.innerHTML = linkIcons[link.icon] || linkIcons.outro;
+            const icon = document.createElement('span');
+            icon.className = 'featured__icon';
+            icon.setAttribute('aria-hidden', 'true');
+            if (link.image) {
+              const img = document.createElement('img');
+              img.className = 'featured__icon-img';
+              img.src = link.image;
+              img.alt = '';
+              icon.appendChild(img);
+            } else {
+              icon.innerHTML = linkIcons[link.icon] || linkIcons.outro;
+            }
+            a.appendChild(icon);
+
+            const body = document.createElement('span');
+            body.className = 'featured__body';
+            const strong = document.createElement('strong');
+            strong.textContent = link.title || 'Novo Link';
+            const desc = document.createElement('span');
+            desc.textContent = link.url || '';
+            body.appendChild(strong);
+            body.appendChild(desc);
+            a.appendChild(body);
+
+            const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            arrow.setAttribute('class', 'featured__arrow');
+            arrow.setAttribute('viewBox', '0 0 24 24');
+            arrow.setAttribute('fill', 'none');
+            arrow.setAttribute('stroke', 'currentColor');
+            arrow.setAttribute('stroke-width', '2');
+            arrow.setAttribute('stroke-linecap', 'round');
+            arrow.setAttribute('stroke-linejoin', 'round');
+            arrow.setAttribute('aria-hidden', 'true');
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.setAttribute('d', 'm9 18 6-6-6-6');
+            arrow.appendChild(path);
+            a.appendChild(arrow);
           }
-          a.appendChild(icon);
-
-          const body = document.createElement('span');
-          body.className = 'featured__body';
-          const strong = document.createElement('strong');
-          strong.textContent = link.title || 'Novo Link';
-          const desc = document.createElement('span');
-          desc.textContent = link.url || '';
-          body.appendChild(strong);
-          body.appendChild(desc);
-          a.appendChild(body);
-
-          const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-          arrow.setAttribute('class', 'featured__arrow');
-          arrow.setAttribute('viewBox', '0 0 24 24');
-          arrow.setAttribute('fill', 'none');
-          arrow.setAttribute('stroke', 'currentColor');
-          arrow.setAttribute('stroke-width', '2');
-          arrow.setAttribute('stroke-linecap', 'round');
-          arrow.setAttribute('stroke-linejoin', 'round');
-          arrow.setAttribute('aria-hidden', 'true');
-          const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-          path.setAttribute('d', 'm9 18 6-6-6-6');
-          arrow.appendChild(path);
-          a.appendChild(arrow);
 
           linksContainer.appendChild(a);
         });
