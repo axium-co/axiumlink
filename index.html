@@ -237,6 +237,7 @@
 
     .pg-links--scroll {
       display: flex;
+      flex-direction: row;
       flex-wrap: nowrap;
       gap: 0.75rem;
       overflow-x: auto;
@@ -1041,7 +1042,9 @@
 
           if (s.key === 'links') {
             linksContainer.classList.remove('pg-links--grid');
-            if (cardsMode === 'scroll') linksContainer.classList.add('pg-links--scroll');
+            if (cardsMode === 'carousel' || cardsMode === 'scroll') {
+              linksContainer.classList.add('pg-links--scroll');
+            }
           }
 
           flow.appendChild(s.node);
