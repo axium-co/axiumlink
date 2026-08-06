@@ -125,6 +125,24 @@
       box-shadow: none;
     }
 
+    /* ---- Cor global dos textos = APENAS o texto interno dos botões ----
+       "Cor dos Textos" injeta --btn-text-color-global (via JS). Fallback:
+       preserva o contraste automático de cada botão/card. */
+    .quick__item, #pgQuick a, #pgQuick span {
+      color: var(--btn-text-color-global, var(--btn-quick-text, #000000)) !important;
+    }
+    .featured__card, #pgLinks a, #pgLinks span {
+      color: var(--btn-text-color-global, var(--card-destaque-text, #000000)) !important;
+    }
+
+    /* ---- Textos do perfil permanecem isolados (variáveis próprias) ---- */
+    #pgTitle {
+      color: var(--profile-name-color, #000000);
+    }
+    #pgSubtitle, #pgAddress {
+      color: var(--profile-bio-color, var(--text-body, #555555));
+    }
+
     /* ================================================================
        LAYOUT GERAL
        ================================================================ */
@@ -978,7 +996,7 @@
       const isSolidHex = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(pageBg);
 
       set('--page-bg', pageBg || '#ffffff');
-      set('--text-title', v.textColor);
+      set('--btn-text-color-global', v.textColor);
       set('--btn-border-color', v.borderColor);
 
       if (v.bgImage) {
@@ -990,10 +1008,10 @@
         document.body.style.backgroundImage = '';
       }
 
-      /* Subtítulo/descrições = texto misturado com o fundo (tom suave).
-         Só faz a mistura em hex; gradiente usa branco como base. */
-      if (v.textColor && (isSolidHex || isGradient)) {
-        set('--text-body', mixHex(v.textColor, isSolidHex ? pageBg : '#ffffff', 0.72));
+      /* Subtítulo/descrições = texto neutro misturado com o fundo (tom suave).
+         Independe do "Cor dos Textos": o perfil tem as próprias opções. */
+      if (isSolidHex) {
+        set('--text-body', mixHex('#000000', pageBg, 0.72));
       }
 
       set('--btn-quick-bg', v.quickBg);

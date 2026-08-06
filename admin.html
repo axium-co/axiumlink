@@ -794,6 +794,100 @@
       cursor: pointer;
     }
 
+    /* ---- Controle "Desfoque" do Vidro no Banner (layout corrigido) ---- */
+    .form-group-glass {
+      display: flex;
+      flex-direction: column;
+      gap: 0.625rem;
+      width: 100%;
+    }
+
+    .blur-control-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+      padding: 12px 0 4px 0;
+      box-sizing: border-box;
+    }
+
+    .blur-control-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      gap: 0.5rem;
+    }
+
+    .blur-control-title {
+      font-size: 14px;
+      color: #4a5568;
+      font-weight: 500;
+      margin: 0;
+      padding: 0;
+      white-space: nowrap;
+    }
+
+    .blur-control-badge {
+      background: #eef2f6;
+      color: #4f46e5;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 6px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .blur-control-wrapper input[type="range"] {
+      --ds-fill: 50%;
+      width: 100% !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      height: 6px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: linear-gradient(to right, #4f46e5 0%, #4f46e5 var(--ds-fill), #e2e8f0 var(--ds-fill), #e2e8f0 100%);
+      border-radius: 999px;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .blur-control-wrapper input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border: none;
+      border-radius: 50%;
+      background: #4f46e5;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 0 0 3px #ffffff;
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+      cursor: pointer;
+    }
+
+    .blur-control-wrapper input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 0 0 3px var(--ds-accent-soft);
+    }
+
+    .blur-control-wrapper input[type="range"]::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      border: none;
+      border-radius: 50%;
+      background: #4f46e5;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 0 0 3px #ffffff;
+      transition: transform 0.1s ease;
+      cursor: pointer;
+    }
+
+    .blur-control-wrapper input[type="range"]::-moz-range-track {
+      height: 6px;
+      background: linear-gradient(to right, #4f46e5 0%, #4f46e5 var(--ds-fill), #e2e8f0 var(--ds-fill), #e2e8f0 100%);
+      border-radius: 999px;
+    }
+
     /* ---- Controles de Posição (Sobrepor / Z-index) — um slider por linha ---- */
     .posicao-controls-grid {
       display: flex;
@@ -998,24 +1092,25 @@
       position: relative;
       z-index: 1;
       font-family: var(--pv-banner-font);
-      font-size: var(--pv-banner-mono-size);
-      font-weight: var(--pv-banner-weight);
+      font-size: var(--monograma-text-size, var(--pv-banner-mono-size, 40px));
+      font-weight: var(--marca-text-weight, var(--pv-banner-weight, 800));
       letter-spacing: 0.1em;
       line-height: 1;
-      color: var(--pv-banner-text);
+      color: var(--monograma-text-color, var(--pv-banner-text, #ffffff));
       text-shadow: var(--pv-banner-shadow);
-      transition: background 0.2s ease, border-color 0.2s ease;
+      text-align: var(--marca-text-align, var(--pv-banner-align, center));
+      transition: all 0.1s ease-out;
     }
 
     .pv-banner__brand {
       position: relative;
       z-index: 1;
       font-family: var(--pv-banner-font);
-      font-size: var(--pv-banner-brand-size);
-      font-weight: var(--pv-banner-weight);
+      font-size: var(--marca-text-size, var(--pv-banner-brand-size, 11px));
+      font-weight: var(--marca-text-weight, var(--pv-banner-weight, 800));
       letter-spacing: 0.32em;
       text-transform: uppercase;
-      color: var(--pv-banner-text);
+      color: var(--marca-text-color, var(--pv-banner-text, #ffffff));
       text-shadow: var(--pv-banner-shadow);
       opacity: 0.85;
     }
@@ -1220,6 +1315,24 @@
     .preview a { color: inherit; text-decoration: none; }
     .preview button { font-family: inherit; cursor: pointer; }
     .preview button:not(.btn-quick-compact) { background: none; border: none; color: inherit; }
+
+    /* ---- Cor global dos textos = APENAS o texto interno dos botões ----
+       #input-text-color injeta --btn-text-color-global no mockup (via JS).
+       Fallback: preserva o contraste automático de cada botão/card. */
+    .btn-quick-compact, #preview-quick-grid a, #preview-quick-grid span {
+      color: var(--btn-text-color-global, var(--btn-quick-text, #000000)) !important;
+    }
+    .pv-card, .pv-link, #preview-links-list a, #preview-links-list span {
+      color: var(--btn-text-color-global, var(--card-destaque-text, #000000)) !important;
+    }
+
+    /* ---- Textos do perfil permanecem isolados (variáveis próprias) ---- */
+    #preview-profile-name {
+      color: var(--profile-name-color, #000000);
+    }
+    #preview-profile-bio {
+      color: var(--profile-bio-color, var(--text-body, #555555));
+    }
 
     .pv-profile {
       display: flex;
@@ -1905,8 +2018,8 @@
             <div class="field color-field">
               <label for="input-text-color">Cor dos Textos</label>
               <div class="color-field__control">
-                <input type="color" id="input-text-color" data-key="colorText" value="#000000" />
-                <span id="input-text-colorHex">#000000</span>
+                <input type="color" id="input-text-color" data-key="colorText" value="#ffffff" />
+                <span id="input-text-colorHex">#ffffff</span>
               </div>
             </div>
 
@@ -2197,13 +2310,18 @@
             </div>
 
             <div class="adv-group">
-              <label class="adv-check">
-                <input type="checkbox" id="ds-banner-glass" />
-                <span>🧊 Vidro no banner (backdrop blur)</span>
-              </label>
-              <div class="slider-field">
-                <div class="slider-field__head"><label for="ds-banner-glass-blur">Desfoque</label><output id="ds-banner-glass-blur-out">18px</output></div>
-                <input type="range" id="ds-banner-glass-blur" min="0" max="40" value="18" />
+              <div class="form-group-glass">
+                <label class="adv-check">
+                  <input type="checkbox" id="ds-banner-glass" />
+                  <span>🧊 Vidro no banner (backdrop blur)</span>
+                </label>
+                <div class="blur-control-wrapper">
+                  <div class="blur-control-header">
+                    <span class="blur-control-title">Desfoque</span>
+                    <span id="ds-banner-glass-blur-out" class="blur-control-badge">18px</span>
+                  </div>
+                  <input type="range" id="ds-banner-glass-blur" min="0" max="40" value="18" />
+                </div>
               </div>
             </div>
 
@@ -2450,6 +2568,9 @@
 
     const el = (id) => document.getElementById(id);
 
+    /* Container do celular — onde a cor global do texto dos botões é injetada */
+    const mobileContainer = el('preview-mobile-container');
+
     /* Mockup do celular — usado como base da escala proporcional da sombra */
     const phoneMockup = document.querySelector('.phone-mockup');
 
@@ -2607,7 +2728,11 @@
 
     const colorFields = {
       'input-bg-page':       (v) => { setVar('--page-bg', v); refreshBodyText(); },
-      'input-text-color':    (v) => { setVar('--text-title', v); refreshBodyText(); },
+      'input-text-color':    (v) => {
+        /* Escopo restrito: afeta APENAS o texto interno dos botões.
+           O cabeçalho/perfil usa as próprias variáveis (profile-*-color). */
+        if (mobileContainer) mobileContainer.style.setProperty('--btn-text-color-global', v);
+      },
       'input-border-color':  (v) => setVar('--btn-border-color', v),
       'input-btn-quick':     (v) => {
         setVar('--btn-quick-bg', v);
@@ -2619,11 +2744,11 @@
       }
     };
 
-    /* Cor de subtítulo/descrições = texto misturado com o fundo (tom suave) */
+    /* Cor de subtítulo/descrições = texto neutro misturado com o fundo.
+       Independe do "Cor dos Textos" (o perfil tem as próprias opções). */
     function refreshBodyText() {
-      const title = el('input-text-color').value;
       const pageBg = el('input-bg-page').value;
-      setVar('--text-body', mixHex(title, pageBg, 0.72));
+      setVar('--text-body', mixHex('#000000', pageBg, 0.72));
     }
 
     Object.entries(colorFields).forEach(([id, handler]) => {
@@ -2845,6 +2970,49 @@
         b.textShadowOn ? '2px 2px ' + blur + 'px ' + rgba : 'none');
     }
 
+    /* ================================================================
+       TEXTOS (MONOGRAMA E MARCA) — motor reativo dedicado do preview.
+       Injeta variáveis CSS próprias (--monograma-text-* / --marca-text-*)
+       diretamente no banner, isoladas das cores globais dos botões.
+       Cada controle escuta `input` E `change` para reagir em tempo real.
+       ================================================================ */
+    const BANNER_TEXT_CONTROLS = [
+      'ds-banner-text-color', 'ds-banner-font',
+      'ds-banner-monogram-size', 'ds-banner-brand-size',
+      'ds-banner-weight', 'ds-banner-align',
+      'ds-banner-text-shadow', 'ds-banner-text-shadow-blur',
+      'ds-banner-text-shadow-color', 'ds-banner-text-shadow-alpha'
+    ];
+
+    function atualizarTextosEMarca() {
+      const b = designState.banner;
+      const elBanner = el('pvBanner');
+      if (!elBanner) return;
+
+      elBanner.style.setProperty('--monograma-text-color', b.textColor);
+      elBanner.style.setProperty('--monograma-text-size', b.monogramSize + 'px');
+      elBanner.style.setProperty('--marca-text-color', b.textColor);
+      elBanner.style.setProperty('--marca-text-size', b.brandSize + 'px');
+      elBanner.style.setProperty('--marca-text-weight', String(b.fontWeight));
+      elBanner.style.setProperty('--marca-text-align', bannerAlignCSS(b.align));
+      elBanner.style.setProperty('--pv-banner-font', bannerFontCSS(b.font));
+
+      atualizarSombraTexto();
+    }
+
+    BANNER_TEXT_CONTROLS.forEach((id) => {
+      const control = el(id);
+      if (!control) return;
+      const handler = () => {
+        controlsToDesign();
+        updateDesignOutputs();
+        atualizarTextosEMarca();
+        applyDesign();
+      };
+      control.addEventListener('input', handler);
+      control.addEventListener('change', handler);
+    });
+
     /* Aplica o designState no mockup (estilos inline calculados) */
     function applyDesign() {
       const b = designState.banner;
@@ -2873,7 +3041,7 @@
         banner.style.setProperty('--pv-banner-mono-size', b.monogramSize + 'px');
         banner.style.setProperty('--pv-banner-brand-size', b.brandSize + 'px');
         banner.style.setProperty('--pv-banner-align', bannerAlignCSS(b.align));
-        atualizarSombraTexto();
+        atualizarTextosEMarca();
 
         const scrim = el('pvScrim');
         scrim.style.display = (b.scrim === 'none') ? 'none' : 'block';
