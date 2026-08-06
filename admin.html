@@ -204,6 +204,29 @@
       background: linear-gradient(180deg, #6366f1, #4f46e5);
     }
 
+    .section__subtitle {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.6875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--ds-muted);
+      margin: 0 0 0.75rem;
+    }
+
+    .btn-global-style {
+      border: 1px solid var(--ds-border-soft);
+      border-radius: 10px;
+      padding: 0.875rem;
+      margin-bottom: 1rem;
+      background: #f8fafc;
+    }
+
+    .btn-global-style .row-2 { margin-top: 0.75rem; }
+    .btn-global-style .row-2:first-of-type { margin-top: 0; }
+
     .field { margin-bottom: 0.9375rem; }
     .field:last-child { margin-bottom: 0; }
 
@@ -737,8 +760,6 @@
       accent-color: #6366f1;
       cursor: pointer;
     }
-
-    .adv-colors { margin-bottom: 0; }
 
     .adv-row {
       display: grid;
@@ -1316,14 +1337,27 @@
     .preview button { font-family: inherit; cursor: pointer; }
     .preview button:not(.btn-quick-compact) { background: none; border: none; color: inherit; }
 
-    /* ---- Cor global dos textos = APENAS o texto interno dos botões ----
-       #input-text-color injeta --btn-text-color-global no mockup (via JS).
-       Fallback: preserva o contraste automático de cada botão/card. */
-    .btn-quick-compact, #preview-quick-grid a, #preview-quick-grid span {
-      color: var(--btn-text-color-global, var(--btn-quick-text, #000000)) !important;
+    /* ---- Estilo GLOBAL dos Botões da Página ----
+       Uma única fonte de verdade no celular (#preview-mobile-container).
+       Ações Rápidas (superiores) e Lista de Links (inferiores) obedecem
+       estritamente às mesmas variáveis, sem exceção nem override. */
+    #preview-mobile-container {
+      --btn-bg-universal: #000000;
+      --btn-text-universal: #ffffff;
+      --btn-radius-universal: 12px;
+      --btn-border-universal: 1px solid transparent;
     }
-    .pv-card, .pv-link, #preview-links-list a, #preview-links-list span {
-      color: var(--btn-text-color-global, var(--card-destaque-text, #000000)) !important;
+
+    .btn-quick-compact,
+    .pv-card,
+    .pv-link,
+    #preview-quick-grid a,
+    #preview-links-list a {
+      background-color: var(--btn-bg-universal) !important;
+      color: var(--btn-text-universal) !important;
+      border-radius: var(--btn-radius-universal) !important;
+      border: var(--btn-border-universal) !important;
+      transition: all 0.2s ease;
     }
 
     /* ---- Textos do perfil permanecem isolados (variáveis próprias) ---- */
@@ -2015,38 +2049,46 @@
               </div>
             </div>
 
-            <div class="field color-field">
-              <label for="input-text-color">Cor dos Textos</label>
-              <div class="color-field__control">
-                <input type="color" id="input-text-color" data-key="colorText" value="#ffffff" />
-                <span id="input-text-colorHex">#ffffff</span>
+          </div>
+
+          <div class="btn-global-style">
+            <h3 class="section__subtitle">Estilo dos Botões da Página</h3>
+
+            <div class="row-2">
+              <div class="field color-field">
+                <label for="global-btn-bg">Cor de Fundo dos Botões</label>
+                <div class="color-field__control">
+                  <input type="color" id="global-btn-bg" value="#000000" />
+                  <span id="global-btn-bgHex">#000000</span>
+                </div>
+              </div>
+              <div class="field color-field">
+                <label for="global-btn-text">Cor do Texto/Ícone dos Botões</label>
+                <div class="color-field__control">
+                  <input type="color" id="global-btn-text" value="#ffffff" />
+                  <span id="global-btn-textHex">#ffffff</span>
+                </div>
               </div>
             </div>
 
-            <div class="field color-field">
-              <label for="input-border-color">Cor das Bordas dos Botões</label>
-              <div class="color-field__control">
-                <input type="color" id="input-border-color" data-key="colorBorder" value="#000000" />
-                <span id="input-border-colorHex">#000000</span>
+            <div class="row-2">
+              <div class="field">
+                <label for="global-btn-radius">Formato dos Botões</label>
+                <select id="global-btn-radius">
+                  <option value="quadrado">Quadrado</option>
+                  <option value="arredondado" selected>Arredondado</option>
+                  <option value="totalmente-oval">Totalmente Oval</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="global-btn-border">Estilo do Contorno</label>
+                <select id="global-btn-border">
+                  <option value="sem-borda">Sem Borda</option>
+                  <option value="borda-fina" selected>Borda Fina</option>
+                  <option value="outline">Outline Transparente</option>
+                </select>
               </div>
             </div>
-
-            <div class="field color-field">
-              <label for="input-btn-quick">Botões Rápidos</label>
-              <div class="color-field__control">
-                <input type="color" id="input-btn-quick" data-key="colorQuickBg" value="#000000" />
-                <span id="input-btn-quickHex">#000000</span>
-              </div>
-            </div>
-
-            <div class="field color-field">
-              <label for="input-card-destaque">Cards de Destaque</label>
-              <div class="color-field__control">
-                <input type="color" id="input-card-destaque" data-key="colorCardBg" value="#000000" />
-                <span id="input-card-destaqueHex">#000000</span>
-              </div>
-            </div>
-
           </div>
 
           <div class="field">
@@ -2072,37 +2114,22 @@
             </button>
           </div>
 
-          <div class="row-2">
-            <div class="field">
-              <label for="input-radius">Formato dos Botões</label>
-              <select id="input-radius" data-key="input-radius">
-                <option value="quadrado">Quadrado</option>
-                <option value="leve-arredondado">Leve Arredondado</option>
-                <option value="arredondado" selected>Arredondado</option>
-                <option value="totalmente-oval">Totalmente Oval</option>
-                <option value="assimetrico">Assimétrico</option>
-                <option value="outline">Outline</option>
-                <option value="sombra-bloco">Sombra Bloco</option>
-                <option value="suave-sombra">Suave Sombra</option>
-              </select>
-            </div>
-            <div class="field">
-              <label for="input-font">Fonte</label>
-              <select id="input-font" data-key="input-font">
-                <optgroup label="Sem Serifa (Sans)">
-                  <option value="Inter" selected>Inter</option>
-                  <option value="Roboto">Roboto</option>
-                  <option value="Open Sans">Open Sans</option>
-                  <option value="Poppins">Poppins</option>
-                  <option value="Montserrat">Montserrat</option>
-                  <option value="Lato">Lato</option>
-                </optgroup>
-                <optgroup label="Serifa (Serif)">
-                  <option value="Merriweather">Merriweather</option>
-                  <option value="Playfair Display">Playfair Display</option>
-                </optgroup>
-              </select>
-            </div>
+          <div class="field">
+            <label for="input-font">Fonte</label>
+            <select id="input-font" data-key="input-font">
+              <optgroup label="Sem Serifa (Sans)">
+                <option value="Inter" selected>Inter</option>
+                <option value="Roboto">Roboto</option>
+                <option value="Open Sans">Open Sans</option>
+                <option value="Poppins">Poppins</option>
+                <option value="Montserrat">Montserrat</option>
+                <option value="Lato">Lato</option>
+              </optgroup>
+              <optgroup label="Serifa (Serif)">
+                <option value="Merriweather">Merriweather</option>
+                <option value="Playfair Display">Playfair Display</option>
+              </optgroup>
+            </select>
           </div>
         </section>
 
@@ -2721,31 +2748,17 @@
       }
     });
 
-    /* ================================================================
+        /* ================================================================
        CORES — atualiza as CSS Variables do preview em tempo real
        ================================================================ */
     const setVar = (name, value) => preview.style.setProperty(name, value);
 
     const colorFields = {
-      'input-bg-page':       (v) => { setVar('--page-bg', v); refreshBodyText(); },
-      'input-text-color':    (v) => {
-        /* Escopo restrito: afeta APENAS o texto interno dos botões.
-           O cabeçalho/perfil usa as próprias variáveis (profile-*-color). */
-        if (mobileContainer) mobileContainer.style.setProperty('--btn-text-color-global', v);
-      },
-      'input-border-color':  (v) => setVar('--btn-border-color', v),
-      'input-btn-quick':     (v) => {
-        setVar('--btn-quick-bg', v);
-        setVar('--btn-quick-text', contrastText(v));
-      },
-      'input-card-destaque': (v) => {
-        setVar('--card-destaque-bg', v);
-        setVar('--card-destaque-text', contrastText(v));
-      }
+      'input-bg-page': (v) => { setVar('--page-bg', v); refreshBodyText(); }
     };
 
     /* Cor de subtítulo/descrições = texto neutro misturado com o fundo.
-       Independe do "Cor dos Textos" (o perfil tem as próprias opções). */
+       Independe da cor dos botões (o perfil tem as próprias opções). */
     function refreshBodyText() {
       const pageBg = el('input-bg-page').value;
       setVar('--text-body', mixHex('#000000', pageBg, 0.72));
@@ -2761,35 +2774,71 @@
     });
 
     /* ================================================================
-       FORMATO DOS BOTÕES (--global-radius + estilos extras no preview)
-       quadrado | leve-arredondado | arredondado | totalmente-oval
-       assimetrico | outline | sombra-bloco | suave-sombra
+       ESTILO GLOBAL DOS BOTÕES — motor unificado do live preview.
+       Injeta as variáveis universais na raiz do celular
+       (#preview-mobile-container). Ações Rápidas e Lista de Links
+       obedecem estritamente aos mesmos valores, sem exceção.
        ================================================================ */
-    const radiusMap = {
-      'quadrado':           { css: '0px',              label: 'Quadrado',          extras: {} },
-      'leve-arredondado':   { css: '8px',              label: 'Leve Arredondado',  extras: {} },
-      'arredondado':        { css: '14px',             label: 'Arredondado',       extras: {} },
-      'totalmente-oval':    { css: '999px',            label: 'Totalmente Oval',   extras: {} },
-      'assimetrico':        { css: '14px 4px 14px 4px', label: 'Assimétrico',      extras: {} },
-      'outline':            { css: '10px',             label: 'Outline',           extras: { border: '2px solid var(--btn-border-color)', boxShadow: 'none' } },
-      'sombra-bloco':       { css: '10px',             label: 'Sombra Bloco',      extras: { boxShadow: '6px 6px 0 0 rgba(0,0,0,0.25)' } },
-      'suave-sombra':       { css: '12px',             label: 'Suave Sombra',      extras: { boxShadow: '0 10px 24px rgba(0,0,0,0.18)' } }
-    };
+    const inputBtnBg     = el('global-btn-bg');
+    const inputBtnText   = el('global-btn-text');
+    const selectRadius   = el('global-btn-radius');
+    const selectBorder   = el('global-btn-border');
 
-    const radiusTargets = () => preview.querySelectorAll('.btn-quick-compact, .pv-card, .pv-link');
-
-    function applyRadius(value) {
-      const opt = radiusMap[value] || radiusMap.arredondado;
-      setVar('--global-radius', opt.css);
-      radiusTargets().forEach((t) => {
-        t.style.border = opt.extras.border || '';
-        t.style.boxShadow = opt.extras.boxShadow || '';
-      });
+    /* Cor do contorno adaptativa: deriva um tom sutil da cor de fundo
+       do botão (claro sobre fundo escuro / escuro sobre fundo claro). */
+    function computeBtnBorderColor() {
+      const bg = inputBtnBg.value;
+      const isDark = contrastText(bg) === '#ffffff';
+      return isDark ? mixHex(bg, '#ffffff', 0.45) : mixHex(bg, '#000000', 0.35);
     }
 
-    el('input-radius').addEventListener('change', () => applyRadius(el('input-radius').value));
+    function atualizarDesignDosBotoes() {
+      if (!mobileContainer) return;
+
+      const bg     = inputBtnBg.value;
+      const text   = inputBtnText.value;
+      const radius = selectRadius.value;
+      const border = selectBorder.value;
+
+      let radiusValue = '12px';
+      if (radius === 'quadrado') radiusValue = '0px';
+      else if (radius === 'totalmente-oval') radiusValue = '50px';
+
+      let borderValue = 'none';
+      if (border === 'borda-fina') borderValue = '1px solid ' + computeBtnBorderColor();
+      else if (border === 'outline') borderValue = '1px solid transparent';
+
+      mobileContainer.style.setProperty('--btn-bg-universal', bg);
+      mobileContainer.style.setProperty('--btn-text-universal', text);
+      mobileContainer.style.setProperty('--btn-radius-universal', radiusValue);
+      mobileContainer.style.setProperty('--btn-border-universal', borderValue);
+
+      /* Mantém as variáveis legadas sincronizadas (avatar, ícones internos
+         e a mesma estética na página pública index.html). */
+      setVar('--btn-quick-bg', bg);
+      setVar('--btn-quick-text', text);
+      setVar('--card-destaque-bg', bg);
+      setVar('--card-destaque-text', text);
+      setVar('--global-radius', radiusValue);
+      setVar('--btn-border-color', computeBtnBorderColor());
+    }
+
+    [inputBtnBg, inputBtnText].forEach((input) => {
+      input.addEventListener('input', () => {
+        const hex = el(input.id + 'Hex');
+        if (hex) hex.textContent = input.value;
+        atualizarDesignDosBotoes();
+      });
+    });
+
+    [selectRadius, selectBorder].forEach((select) => {
+      select.addEventListener('input', atualizarDesignDosBotoes);
+      select.addEventListener('change', atualizarDesignDosBotoes);
+    });
 
     /* ================================================================
+
+
        FONTE (--font-main)
        ================================================================ */
     el('input-font').addEventListener('change', () => {
@@ -3619,13 +3668,9 @@
        Classes iguais para Ações Rápidas e Links (queries escopadas no bloco). */
     function customizeSectionHTML(d) {
       const dd = d || {};
-      const checked = dd.customColors ? ' checked' : '';
-      const bg = dd.customBg || '#000000';
-      const text = dd.customText || '#ffffff';
       const width = dd.width || 'auto';
       const animation = dd.animation || 'none';
       const style = dd.style || 'icon';
-      const showColors = dd.customColors ? '' : ' hidden';
       const hasImage = !!dd.image;
 
       const widthOptions = [
@@ -3653,29 +3698,6 @@
         +   '<svg class="adv-toggle__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>'
         + '</button>'
         + '<div class="adv-body" hidden>'
-
-        +   '<div class="adv-group">'
-        +     '<label class="adv-check">'
-        +       '<input type="checkbox" class="custom-colors"' + checked + ' />'
-        +       '<span>🎨 Usar cores personalizadas para este botão</span>'
-        +     '</label>'
-        +     '<div class="color-grid adv-colors"' + showColors + '>'
-        +       '<div class="field color-field">'
-        +         '<label>Fundo do Botão</label>'
-        +         '<div class="color-field__control">'
-        +           '<input type="color" class="custom-bg" value="' + bg + '" />'
-        +           '<span class="custom-bg-hex">' + bg + '</span>'
-        +         '</div>'
-        +       '</div>'
-        +       '<div class="field color-field">'
-        +         '<label>Texto / Ícone</label>'
-        +         '<div class="color-field__control">'
-        +           '<input type="color" class="custom-text" value="' + text + '" />'
-        +           '<span class="custom-text-hex">' + text + '</span>'
-        +         '</div>'
-        +       '</div>'
-        +     '</div>'
-        +   '</div>'
 
         +   '<div class="adv-group">'
         +     '<label class="file-btn">'
@@ -3836,15 +3858,11 @@
        ÚNICA fonte que alimenta #preview-quick-grid. */
     function syncQuickActionsData() {
       quickActionsData = Array.from(quickActionsContainer.querySelectorAll('.quick-action-block')).map((block) => {
-        const colorsOn = !!block.querySelector('.custom-colors').checked;
         return {
           title: (block.querySelector('.quick-title').value || '').trim(),
           url: (block.querySelector('.quick-url').value || '').trim(),
           icon: block.querySelector('.quick-icon').value,
           image: block.dataset.image || null,
-          customColors: colorsOn,
-          customBg: block.querySelector('.custom-bg').value,
-          customText: block.querySelector('.custom-text').value,
           width: block.querySelector('.btn-width').value,
           animation: block.querySelector('.btn-animation').value,
           style: block.querySelector('.link-style').value
@@ -3894,12 +3912,6 @@
         /* Estilo "Imagem completa" (estilo Beacons) */
         if (action.style === 'banner') a.classList.add('btn-quick-compact--banner');
 
-        /* Cores personalizadas (override inline, ignorando o padrão global) */
-        if (action.customColors) {
-          a.style.backgroundColor = action.customBg;
-          a.style.color = action.customText;
-        }
-
         if (action.image) {
           const img = document.createElement('img');
           img.className = 'btn-quick-compact__img';
@@ -3917,7 +3929,7 @@
         previewQuickGrid.appendChild(a);
       });
 
-      applyRadius(el('input-radius').value);
+      atualizarDesignDosBotoes();
     }
 
     function addQuickActionBlock(data) {
@@ -3968,25 +3980,10 @@
         renderQuickActions();
         return;
       }
-      if (e.target.classList.contains('custom-bg') || e.target.classList.contains('custom-text')) {
-        const block = e.target.closest('.quick-action-block');
-        const hex = block.querySelector(e.target.classList.contains('custom-bg') ? '.custom-bg-hex' : '.custom-text-hex');
-        if (hex) hex.textContent = e.target.value;
-        syncQuickActionsData();
-        renderQuickActions();
-      }
     });
 
     quickActionsContainer.addEventListener('change', (e) => {
       if (e.target.classList.contains('quick-icon')) {
-        syncQuickActionsData();
-        renderQuickActions();
-        return;
-      }
-      if (e.target.classList.contains('custom-colors')) {
-        const block = e.target.closest('.quick-action-block');
-        const grid = block.querySelector('.adv-colors');
-        if (grid) grid.hidden = !e.target.checked;
         syncQuickActionsData();
         renderQuickActions();
         return;
@@ -4148,7 +4145,6 @@
        ÚNICA fonte que alimenta #preview-links-list. */
     function syncLinksData() {
       mainLinksData = Array.from(linksContainer.querySelectorAll('.link-block')).map((block) => {
-        const colorsOn = !!block.querySelector('.custom-colors').checked;
         return {
           id: block.dataset.id,
           title: (block.querySelector('.link-title').value || '').trim(),
@@ -4156,9 +4152,6 @@
           icon: block.querySelector('.link-icon').value || 'outro',
           image: block.dataset.image || null,
           style: block.querySelector('.link-style').value,
-          customColors: colorsOn,
-          customBg: block.querySelector('.custom-bg').value,
-          customText: block.querySelector('.custom-text').value,
           width: block.querySelector('.btn-width').value,
           animation: block.querySelector('.btn-animation').value
         };
@@ -4168,8 +4161,8 @@
 
     /* Monta o conteúdo visual (ícone ou imagem) de um card de link.
        Prioridade limpa: 1) imagem própria do cliente; 2) ícone selecionado
-       no dropdown; 3) ícone padrão (fallback). O SVG herda a cor atual do
-       card via `currentColor` (respeita as cores customizadas do botão). */
+       no dropdown; 3) ícone padrão (fallback). O SVG herda a cor do botão
+       via `currentColor` (estilo global unificado). */
     function buildLinkIcon(link) {
       if (link.image) {
         const img = document.createElement('img');
@@ -4207,12 +4200,6 @@
         /* Animação de destaque */
         if (link.animation && link.animation !== 'none') a.classList.add('anim-' + link.animation);
 
-        /* Cores personalizadas (override inline, ignorando o padrão global) */
-        if (link.customColors) {
-          a.style.backgroundColor = link.customBg;
-          a.style.color = link.customText;
-        }
-
         /* Imagem própria em modo banner cobre o cartão inteiro */
         if (link.image && link.style === 'banner') {
           a.classList.add('pv-link--banner');
@@ -4235,7 +4222,7 @@
       });
 
       applyLinkListMode();
-      applyRadius(el('input-radius').value);
+      atualizarDesignDosBotoes();
     }
 
     function addLinkBlock(data) {
@@ -4287,25 +4274,10 @@
         renderPreviewLinks();
         return;
       }
-      if (e.target.classList.contains('custom-bg') || e.target.classList.contains('custom-text')) {
-        const block = e.target.closest('.link-block');
-        const hex = block.querySelector(e.target.classList.contains('custom-bg') ? '.custom-bg-hex' : '.custom-text-hex');
-        if (hex) hex.textContent = e.target.value;
-        syncLinksData();
-        renderPreviewLinks();
-      }
     });
 
     linksContainer.addEventListener('change', (e) => {
       if (e.target.classList.contains('link-icon')) {
-        syncLinksData();
-        renderPreviewLinks();
-        return;
-      }
-      if (e.target.classList.contains('custom-colors')) {
-        const block = e.target.closest('.link-block');
-        const grid = block.querySelector('.adv-colors');
-        if (grid) grid.hidden = !e.target.checked;
         syncLinksData();
         renderPreviewLinks();
         return;
@@ -4515,12 +4487,11 @@
     /* ================================================================
        SALVAR ALTERAÇÕES (simulação + integração futura com banco)
        ================================================================ */
-    /* Migra valores antigos ("0px"/"12px"/"30px") para os novos enums */
+    /* Migra valores antigos ("0px"/"30px"/enums antigos) para os novos enums */
     function toRadiusEnum(value) {
       if (value == null) return 'arredondado';
-      if (value in radiusMap) return value;
-      if (value === '0px') return 'quadrado';
-      if (value === '30px') return 'totalmente-oval';
+      if (value === '0px' || value === 'quadrado') return 'quadrado';
+      if (value === '30px' || value === 'totalmente-oval') return 'totalmente-oval';
       return 'arredondado';
     }
 
@@ -4537,14 +4508,15 @@
         links: syncLinksData(),
         visual: {
           pageBg: el('input-bg-page').value,
-          textColor: el('input-text-color').value,
-          borderColor: el('input-border-color').value,
-          quickBg: el('input-btn-quick').value,
-          quickText: preview.style.getPropertyValue('--btn-quick-text').trim() || '#ffffff',
-          cardBg: el('input-card-destaque').value,
-          cardText: preview.style.getPropertyValue('--card-destaque-text').trim() || '#ffffff',
-          radius: toRadiusEnum(el('input-radius').value),
-          radiusLabel: el('input-radius').selectedOptions[0].text,
+          textColor: el('global-btn-text').value,
+          borderColor: computeBtnBorderColor(),
+          quickBg: el('global-btn-bg').value,
+          quickText: el('global-btn-text').value,
+          cardBg: el('global-btn-bg').value,
+          cardText: el('global-btn-text').value,
+          radius: toRadiusEnum(el('global-btn-radius').value),
+          radiusLabel: el('global-btn-radius').selectedOptions[0].text,
+          btnBorder: el('global-btn-border').value,
           font: el('input-font').value,
           bgImage: uploads.bgImage
         },
@@ -4616,10 +4588,12 @@
 
       const values = {
         profileName: p.name, profileBio: p.bio, profileAddress: p.address,
-        'input-bg-page': v.pageBg, 'input-text-color': v.textColor,
-        'input-border-color': v.borderColor,
-        'input-btn-quick': v.quickBg, 'input-card-destaque': v.cardBg,
-        'input-radius': toRadiusEnum(v.radius), 'input-font': v.font,
+        'input-bg-page': v.pageBg,
+        'global-btn-bg': v.quickBg || v.cardBg || '#000000',
+        'global-btn-text': v.textColor || v.quickText || '#ffffff',
+        'global-btn-radius': toRadiusEnum(v.radius),
+        'global-btn-border': v.btnBorder || 'borda-fina',
+        'input-font': v.font,
         'quick-layout': lay.quickMode, 'cards-layout': lay.cardsMode,
         'info-layout': (layInfo.hidden === true) ? 'ocultar' : ((layInfo.hidden === false) ? 'exibir' : undefined)
       };
@@ -4636,7 +4610,8 @@
       if (layItems.links) sectionOrder.links = clampOrder(layItems.links.order, sectionOrder.links);
       orderRender();
 
-      el('input-radius').dispatchEvent(new Event('change'));
+      el('global-btn-radius').dispatchEvent(new Event('change'));
+      el('global-btn-border').dispatchEvent(new Event('change'));
       el('input-font').dispatchEvent(new Event('change'));
 
       mergeDesign(cfg.design);
@@ -4669,10 +4644,12 @@
       const map = {
         'profileName': 'profile.name', 'profileBio': 'profile.bio',
         'profileAddress': 'profile.address',
-        'input-bg-page': 'visual.pageBg', 'input-text-color': 'visual.textColor',
-        'input-border-color': 'visual.borderColor',
-        'input-btn-quick': 'visual.quickBg', 'input-card-destaque': 'visual.cardBg',
-        'input-radius': 'visual.radius', 'input-font': 'visual.font',
+        'input-bg-page': 'visual.pageBg',
+        'global-btn-bg': 'visual.quickBg',
+        'global-btn-text': 'visual.textColor',
+        'global-btn-radius': 'visual.radius',
+        'global-btn-border': 'visual.btnBorder',
+        'input-font': 'visual.font',
         'quick-layout': 'layout.quickMode', 'cards-layout': 'layout.cardsMode'
       };
 
@@ -4682,13 +4659,19 @@
         const value = getPath(saved, path);
         const input = el(fieldId);
         if (input == null || value == null) return;
-        if (fieldId === 'input-radius') {
+        if (fieldId === 'global-btn-radius') {
           input.value = toRadiusEnum(value);
+        } else if (fieldId === 'global-btn-bg' && !value) {
+          input.value = (getPath(saved, 'visual.cardBg') || '#000000');
         } else {
           input.value = value;
         }
         input.dispatchEvent(new Event('input'));
       });
+      if (saved.visual && !saved.visual.btnBorder) {
+        el('global-btn-border').value = 'borda-fina';
+        el('global-btn-border').dispatchEvent(new Event('change'));
+      }
 
       if (saved.layout) {
         const layItems = saved.layout.items;
@@ -4705,7 +4688,8 @@
       }
 
       if (saved.visual) {
-        el('input-radius').dispatchEvent(new Event('change'));
+        el('global-btn-radius').dispatchEvent(new Event('change'));
+        el('global-btn-border').dispatchEvent(new Event('change'));
         if (saved.visual.bgImage) {
           uploads.bgImage = saved.visual.bgImage;
           preview.style.backgroundImage = 'url(' + uploads.bgImage + ')';
@@ -4764,11 +4748,13 @@
        INIT — aplica contraste/texto padrão no carregamento
        ================================================================ */
     refreshBodyText();
-    el('input-radius').dispatchEvent(new Event('change'));
+    el('global-btn-radius').dispatchEvent(new Event('change'));
+    el('global-btn-border').dispatchEvent(new Event('change'));
     el('input-font').dispatchEvent(new Event('change'));
     renderLayout();
     designToControls();
     applyDesign();
+    atualizarDesignDosBotoes();
   </script>
 </body>
 </html>
