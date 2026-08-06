@@ -972,6 +972,7 @@
       --pv-banner-align: center;
       --pv-banner-shadow: none;
       position: relative;
+      z-index: 10; /* Camada base fixa: o avatar fica atrás abaixo de 10 */
       width: 100%;
       height: 132px;
       margin-bottom: -2.4rem;
@@ -1022,8 +1023,16 @@
     .pv-banner__monogram[hidden],
     .pv-banner__brand[hidden] { display: none; }
 
-    /* Foto de perfil sobreposta ao banner com borda metálica */
-    .pv-profile { margin-top: -2.4rem; position: relative; z-index: 2; }
+    /* Foto de perfil sobreposta ao banner com borda metálica.
+       `position` + `z-index` são FUNDAMENTAIS para o controle de camadas:
+       o JS injeta o z-index inline via slider "Camada (z-index)". */
+    .pv-profile {
+      position: relative;
+      z-index: 20;
+      margin-top: -2.4rem;
+      will-change: z-index, margin-top;
+      transition: margin-top 0.1s ease-out;
+    }
 
     .pv-avatar { border: 3px solid #fff; }
 
@@ -2203,9 +2212,9 @@
                 <div class="property-control-item">
                   <div class="property-control-header">
                     <span>Camada (z-index)</span>
-                    <span id="ds-avatar-z-out" class="badge-value">2</span>
+                    <span id="ds-avatar-z-out" class="badge-value">20</span>
                   </div>
-                  <input type="range" id="ds-avatar-z" min="1" max="50" value="2" />
+                  <input type="range" id="ds-avatar-z" min="1" max="50" value="20" />
                 </div>
               </div>
             </div>
@@ -2691,7 +2700,7 @@
       },
       profile: {
         marginTop: -38,
-        zIndex: 2,
+        zIndex: 20,
         radius: { tl: 14, tr: 14, br: 14, bl: 14 },
         borderStyle: 'solid',
         borderWidth: 3,
@@ -3050,6 +3059,9 @@
       if (saved.profile) {
         const textDefaults = designState.profile.text;
         Object.assign(designState.profile, saved.profile);
+        /* Migração: o antigo default (2) sempre significava "na frente".
+           Com a base do banner em 10, converte 2 para o novo default (20). */
+        if (designState.profile.zIndex === 2) designState.profile.zIndex = 20;
         if (saved.profile.radius) Object.assign(designState.profile.radius, saved.profile.radius);
         if (saved.profile.text) {
           designState.profile.text = {};
@@ -3066,7 +3078,7 @@
       'ds-banner-text-shadow-blur', 'ds-banner-text-shadow-alpha',
       'ds-banner-mono-bg-alpha', 'ds-banner-mono-border-width', 'ds-banner-mono-radius',
       'ds-banner-scrim-opacity',
-      'ds-avatar-margin', 'ds-avatar-z',
+      'ds-avatar-margin',
       'ds-avatar-radius-tl', 'ds-avatar-radius-tr', 'ds-avatar-radius-br', 'ds-avatar-radius-bl',
       'ds-avatar-border-width',
       'ds-avatar-shadow-x', 'ds-avatar-shadow-y', 'ds-avatar-shadow-blur', 'ds-avatar-shadow-spread', 'ds-avatar-shadow-alpha',
@@ -3081,6 +3093,28 @@
         applyDesign();
       });
     });
+
+    /* Camada (z-index) do avatar — handler dedicado do live preview.
+       O banner tem z-index base 10 (ver CSS .pv-banner): valores abaixo
+       de 10 deixam o avatar ATRÁS do banner; acima de 10, na frente. */
+    const inputZIndex = el('ds-avatar-z');
+    const labelZIndex = el('ds-avatar-z-out');
+    const elementoAvatar = el('pvProfile');
+
+    function atualizarCamadaAvatar() {
+      if (!inputZIndex || !elementoAvatar) return;
+      const valorCamada = parseInt(inputZIndex.value, 10) || 0;
+      if (labelZIndex) labelZIndex.textContent = String(valorCamada);
+      updateRangeFill(inputZIndex);
+      designState.profile.zIndex = valorCamada;
+      elementoAvatar.style.zIndex = valorCamada;
+      applyDesign();
+    }
+
+    if (inputZIndex) {
+      inputZIndex.addEventListener('input', atualizarCamadaAvatar);
+      inputZIndex.addEventListener('change', atualizarCamadaAvatar);
+    }
 
     el('ds-engine').addEventListener('change', (e) => {
       if (e.target.classList.contains('gs-pos') || e.target.classList.contains('gs-alpha')) return;

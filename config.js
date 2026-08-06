@@ -102,7 +102,7 @@ window.AXIUMLINK_CONFIG = {
     },
     profile: {
       marginTop: -38,
-      zIndex: 2,
+      zIndex: 20,
       radius: { tl: 14, tr: 14, br: 14, bl: 14 },
       borderStyle: "solid",
       borderWidth: 3,
