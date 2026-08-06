@@ -413,6 +413,7 @@
       overflow: hidden;
       aspect-ratio: 1 / 1;
       min-height: 0;
+      border-radius: var(--global-radius);
     }
 
     .quick__item--banner img { width: 100%; height: 100%; object-fit: cover; display: block; flex-shrink: 0; }
@@ -528,6 +529,13 @@
 
     .featured__card--banner:hover .featured__banner-img { transform: scale(1.02); }
     .featured__banner-img { transition: transform var(--transition); }
+
+    /* ---- Largura individual (Links Principais) ---- */
+    .featured__card--full { grid-column: 1 / -1; width: 100%; }
+    .pg-links .featured__card--half { width: calc(50% - 0.375rem); }
+    .featured__card--compact { width: auto; min-width: 9rem; }
+    .pg-links--grid .featured__card--compact { justify-self: start; }
+    .pg-links--grid .featured__card { min-width: 0; }
 
     /* ================================================================
        FOOTER DA PLATAFORMA
@@ -923,18 +931,25 @@
                    2) config.js (defaults/deploy)
        Atualiza as CSS Variables (:root) e os textos/links da página.
        ================================================================ */
-    (function applyClientConfig() {
+    (function () {
       const STORAGE_KEY = 'axiumlink-preview-v1';
 
-      let saved = null;
-      try { saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); } catch (e) {}
+      function readConfig() {
+        let saved = null;
+        try { saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); } catch (e) {}
 
-      const defaults = (typeof window.AXIUMLINK_CONFIG !== 'undefined' && window.AXIUMLINK_CONFIG)
-        ? window.AXIUMLINK_CONFIG
-        : null;
+        const defaults = (typeof window.AXIUMLINK_CONFIG !== 'undefined' && window.AXIUMLINK_CONFIG)
+          ? window.AXIUMLINK_CONFIG
+          : null;
 
-      const cfg = saved || defaults;
-      if (!cfg) return;
+        return saved || defaults;
+      }
+
+      /* Motor reativo: lê o payload (ou o recebido por parâmetro) e
+         reaplica tudo de forma idempotente. Chamar novamente com outro
+         payload atualiza a página inteira sem duplicar blocos. */
+      function applyConfig(cfg) {
+        if (!cfg) return;
 
       /* ---- achatando a config para mapear diretamente nos elementos ---- */
       const p = cfg.profile || {};
@@ -952,16 +967,31 @@
         if (val != null) el.textContent = val;
       });
 
-      /* ---- CSS Variables ---- */
+      /* ---- CSS Variables (:root) ---- */
       const root = document.documentElement.style;
       const set = (name, value) => { if (value != null) root.setProperty(name, value); };
 
-      set('--page-bg', v.pageBg);
+      /* ---- Plano de fundo: cor sólida, gradiente ou imagem ---- */
+      const pageBg = String(v.pageBg || '').trim();
+      const isGradient = /^(repeating-)?(linear|radial|conic)-gradient\(/i.test(pageBg);
+      const isSolidHex = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(pageBg);
+
+      set('--page-bg', pageBg || '#ffffff');
       set('--text-title', v.textColor);
 
-      /* Subtítulo/descrições = texto misturado com o fundo (tom suave) */
-      if (v.textColor && v.pageBg) {
-        set('--text-body', mixHex(v.textColor, v.pageBg, 0.72));
+      if (v.bgImage) {
+        document.body.style.backgroundImage = 'url(' + v.bgImage + ')';
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center';
+        document.body.style.backgroundBlendMode = v.bgBlend || '';
+      } else {
+        document.body.style.backgroundImage = '';
+      }
+
+      /* Subtítulo/descrições = texto misturado com o fundo (tom suave).
+         Só faz a mistura em hex; gradiente usa branco como base. */
+      if (v.textColor && (isSolidHex || isGradient)) {
+        set('--text-body', mixHex(v.textColor, isSolidHex ? pageBg : '#ffffff', 0.72));
       }
 
       set('--btn-quick-bg', v.quickBg);
@@ -1144,13 +1174,6 @@
 
       set('--font-main', "'" + (v.font || 'Inter') + "', sans-serif");
 
-      /* ---- Imagem de fundo da página ---- */
-      if (v.bgImage) {
-        document.body.style.backgroundImage = 'url(' + v.bgImage + ')';
-        document.body.style.backgroundSize = 'cover';
-        document.body.style.backgroundPosition = 'center';
-      }
-
       /* ---- Layout livre (ordem, largura e modos por seção) ---- */
       const lay = cfg.layout || {};
       const layItems = lay.items || {};
@@ -1204,6 +1227,8 @@
         : quickActionsFromLegacy(cfg.quickActions);
 
       if (quickContainer && Array.isArray(quickList) && quickList.length) {
+        quickContainer.replaceChildren();
+        quickContainer.hidden = false;
         quickContainer.classList.remove('quick-grid--list', 'quick-grid--scroll');
         if (quickMode === 'list') quickContainer.classList.add('quick-grid--list');
         else if (quickMode === 'scroll') quickContainer.classList.add('quick-grid--scroll');
@@ -1308,6 +1333,7 @@
       const linksContainer = document.getElementById('pgLinks');
       const linkList = Array.isArray(cfg.links) ? cfg.links : linksFromCards(cfg.cards);
       if (linksContainer && linkList.length) {
+        linksContainer.replaceChildren();
         linksContainer.classList.toggle('pg-links--grid', cardsMode === 'grid2');
         linkList.forEach((link) => {
           const a = document.createElement('a');
@@ -1315,6 +1341,17 @@
           a.href = linkHref(link.url, link.icon);
           a.target = '_blank';
           a.rel = 'noopener';
+
+          if (link.width === 'full') a.classList.add('featured__card--full');
+          else if (link.width === 'half') a.classList.add('featured__card--half');
+          else if (link.width === 'compact') a.classList.add('featured__card--compact');
+
+          if (link.animation && link.animation !== 'none') a.classList.add('anim-' + link.animation);
+
+          if (link.customColors) {
+            a.style.backgroundColor = link.customBg;
+            a.style.color = link.customText;
+          }
 
           const isBanner = !!(link.image && link.style === 'banner');
 
@@ -1412,10 +1449,9 @@
           s.node.classList.add('pg-item--full');
 
           if (s.key === 'links') {
-            linksContainer.classList.remove('pg-links--grid');
-            if (cardsMode === 'carousel' || cardsMode === 'scroll') {
-              linksContainer.classList.add('pg-links--scroll');
-            }
+            const isStrip = cardsMode === 'carousel' || cardsMode === 'scroll';
+            linksContainer.classList.toggle('pg-links--scroll', isStrip);
+            if (isStrip) linksContainer.classList.remove('pg-links--grid');
           }
 
           flow.appendChild(s.node);
@@ -1439,6 +1475,14 @@
         const rgb = a.map((x, i) => Math.round(x + (b[i] - x) * t));
         return '#' + rgb.map((x) => x.toString(16).padStart(2, '0')).join('');
       }
+      }
+
+      /* API pública — permite reaplicar um payload novo a qualquer momento */
+      window.applyAxiumlinkConfig = function (payload) {
+        return applyConfig(payload || readConfig());
+      };
+
+      applyConfig(readConfig());
     })();
   </script>
 </body>
