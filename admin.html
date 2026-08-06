@@ -1458,7 +1458,6 @@
     }
 
     .pv-link svg { width: 18px; height: 18px; flex-shrink: 0; }
-    .pv-link__icon { display: grid; place-items: center; flex-shrink: 0; }
     .pv-link__img { width: 20px; height: 20px; object-fit: cover; border-radius: 4px; flex-shrink: 0; }
 
     .pv-link--banner { position: relative; padding: 0; overflow: hidden; aspect-ratio: 2 / 1; min-height: 0; }
@@ -2701,7 +2700,12 @@
         shadowColor: '#000000',
         shadowAlpha: 50,
         glass: false,
-        glassBlur: 14
+        glassBlur: 14,
+        text: {
+          name: { color: '', size: 0, weight: 0, align: '' },
+          bio: { color: '', size: 0, weight: 0, align: '' },
+          address: { color: '', size: 0, align: '' }
+        }
       }
     };
 
@@ -2897,6 +2901,19 @@
         glassCard.style.setProperty('--shadow-color', 'rgba(0, 0, 0, 0)');
         glassCard.classList.remove('avatar-ring');
       }
+
+      /* Estilos de texto do perfil persistidos (cor, tamanho, peso, alinhamento) */
+      const applyTextCSS = (targetId, cfg) => {
+        const t = el(targetId);
+        if (!t || !cfg) return;
+        if (cfg.color) t.style.color = cfg.color;
+        if (cfg.size) t.style.fontSize = cfg.size + 'px';
+        if (cfg.weight) t.style.fontWeight = cfg.weight;
+        if (cfg.align) t.style.textAlign = cfg.align;
+      };
+      applyTextCSS('pvTitle', p.text.name);
+      applyTextCSS('pvSubtitle', p.text.bio);
+      applyTextCSS('pvAddress', p.text.address);
     }
 
     /* Popula os controles a partir do designState */
@@ -2951,6 +2968,22 @@
       el('ds-banner-image-clear').hidden = !b.image;
       renderGradStops();
       updateDesignOutputs();
+
+      /* Restaura a estilização avançada de texto do perfil */
+      const pre = { name: 'profile-name', bio: 'profile-bio', address: 'profile-address' };
+      ['name', 'bio', 'address'].forEach((k) => {
+        const t = p.text[k];
+        if (!t) return;
+        const prefix = pre[k];
+        if (t.color) el(prefix + '-color').value = t.color;
+        if (t.size) el(prefix + '-size').value = t.size;
+        if (t.weight) el(prefix + '-weight').value = t.weight;
+        if (t.align) el(prefix + '-align').value = t.align;
+        const hex = el(prefix + '-colorHex');
+        if (hex && t.color) hex.textContent = t.color.toUpperCase();
+        const out = el(prefix + '-size-out');
+        if (out && t.size) out.textContent = t.size + 'px';
+      });
     }
 
     /* Lê os controles para o designState */
@@ -3014,8 +3047,15 @@
         }
       }
       if (saved.profile) {
+        const textDefaults = designState.profile.text;
         Object.assign(designState.profile, saved.profile);
         if (saved.profile.radius) Object.assign(designState.profile.radius, saved.profile.radius);
+        if (saved.profile.text) {
+          designState.profile.text = {};
+          Object.keys(textDefaults).forEach((k) => {
+            designState.profile.text[k] = Object.assign({}, textDefaults[k], saved.profile.text[k] || {});
+          });
+        }
       }
     }
 
@@ -3154,45 +3194,61 @@
         if (color && !target.style.color) color.value = toHexColor(getComputedStyle(target).color);
       });
 
-      const apply = () => {
+      const apply = (persist) => {
         groups.forEach((g) => {
           const color = el(g.color);
           const size = el(g.size);
           const weight = el(g.weight);
           const align = el(g.align);
+          const cfg = designState.profile.text[g.key];
           if (color) {
-            target.style.color = color.value;
             const hex = el(g.hex);
             if (hex) hex.textContent = color.value.toUpperCase();
+            if (persist && cfg) {
+              cfg.color = color.value;
+              target.style.color = color.value;
+            }
           }
           if (size) {
-            target.style.fontSize = size.value + 'px';
             const out = el(g.out);
             if (out) out.textContent = size.value + 'px';
+            if (persist && cfg) {
+              cfg.size = +size.value;
+              target.style.fontSize = size.value + 'px';
+            }
           }
-          if (weight) target.style.fontWeight = weight.value;
-          if (align) target.style.textAlign = align.value;
+          if (weight && persist && cfg) {
+            cfg.weight = +weight.value;
+            target.style.fontWeight = weight.value;
+          }
+          if (align && persist && cfg) {
+            cfg.align = align.value;
+            target.style.textAlign = align.value;
+          }
         });
+        if (persist) applyDesign();
       };
 
       groups.forEach((g) => {
         [g.color, g.size, g.weight, g.align].forEach((id) => {
           const input = el(id);
-          if (input) input.addEventListener('input', apply);
+          if (input) input.addEventListener('input', () => apply(true));
         });
       });
 
-      apply();
+      /* Init: sincroniza apenas os rótulos (hex/tamanho), sem persistir nem
+         forçar estilos inline sobre o tema atual. */
+      apply(false);
     }
 
     bindProfileTextStyling('pvTitle', [
-      { color: 'profile-name-color', hex: 'profile-name-colorHex', size: 'profile-name-size', out: 'profile-name-size-out', weight: 'profile-name-weight', align: 'profile-name-align' }
+      { key: 'name', color: 'profile-name-color', hex: 'profile-name-colorHex', size: 'profile-name-size', out: 'profile-name-size-out', weight: 'profile-name-weight', align: 'profile-name-align' }
     ]);
     bindProfileTextStyling('pvSubtitle', [
-      { color: 'profile-bio-color', hex: 'profile-bio-colorHex', size: 'profile-bio-size', out: 'profile-bio-size-out', weight: 'profile-bio-weight', align: 'profile-bio-align' }
+      { key: 'bio', color: 'profile-bio-color', hex: 'profile-bio-colorHex', size: 'profile-bio-size', out: 'profile-bio-size-out', weight: 'profile-bio-weight', align: 'profile-bio-align' }
     ]);
     bindProfileTextStyling('pvAddress', [
-      { color: 'profile-address-color', hex: 'profile-address-colorHex', size: 'profile-address-size', out: 'profile-address-size-out', align: 'profile-address-align' }
+      { key: 'address', color: 'profile-address-color', hex: 'profile-address-colorHex', size: 'profile-address-size', out: 'profile-address-size-out', align: 'profile-address-align' }
     ]);
 
     /* ================================================================
