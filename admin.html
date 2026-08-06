@@ -513,56 +513,66 @@
 
     .crop-modal__actions .crop-apply:hover { background: #4338ca; }
 
-    /* ---- Ordem de exibição das seções (arrastar e soltar) ---- */
-    .drag-container { display: flex; flex-direction: column; gap: 0.5rem; }
-
-    .drag-item {
+    /* ---- Ordem de exibição das seções (cards arrastáveis) ---- */
+    #global-sections-container {
       display: flex;
-      align-items: center;
-      gap: 0.625rem;
-      padding: 0.75rem 0.875rem;
-      background: #ffffff;
+      flex-direction: column;
+      gap: 1.125rem;
+      margin-bottom: 1.125rem;
+    }
+
+    .section-card-parent {
+      background: var(--ds-surface);
       border: 1px solid var(--ds-border-soft);
-      border-radius: 10px;
-      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
-      cursor: grab;
-      user-select: none;
-      -webkit-user-select: none;
+      border-radius: var(--ds-radius);
+      box-shadow: var(--ds-shadow);
+      overflow: hidden;
       transition: opacity 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
     }
 
-    .drag-item:hover { border-color: #c7d2fe; box-shadow: 0 2px 6px rgba(79, 70, 229, 0.08); }
+    .section-card-parent:hover { border-color: #c7d2fe; }
 
-    .drag-item:active { cursor: grabbing; }
-
-    .drag-item.dragging {
+    .section-card-parent.dragging {
       opacity: 0.5;
       border: 1px dashed #a5b4fc;
       box-shadow: 0 8px 24px rgba(79, 70, 229, 0.18);
     }
 
-    .drag-handle {
+    .section-card__head {
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+      padding: 0.75rem 1.25rem;
+      background: linear-gradient(180deg, rgba(99, 102, 241, 0.07), rgba(99, 102, 241, 0.01));
+      border-bottom: 1px solid var(--ds-border-soft);
+      cursor: grab;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+    }
+
+    .section-card__head:hover { background: linear-gradient(180deg, rgba(99, 102, 241, 0.12), rgba(99, 102, 241, 0.02)); }
+
+    .section-card__head:active { cursor: grabbing; }
+
+    .section-card__handle {
       display: grid;
       place-items: center;
       color: #94a3b8;
-      cursor: grab;
       flex-shrink: 0;
     }
 
-    .drag-handle svg { width: 16px; height: 16px; }
+    .section-card__handle svg { width: 16px; height: 16px; }
 
-    .drag-text { flex: 1; font-size: 0.8125rem; font-weight: 600; color: var(--ds-title); }
-
-    .drag-container:empty::after {
-      content: 'Nenhum bloco disponível';
-      display: block;
-      text-align: center;
-      font-size: 0.75rem;
-      color: #94a3b8;
-      padding: 0.75rem;
-      border: 1px dashed var(--ds-border-soft);
-      border-radius: 10px;
+    .section-card__title {
+      font-size: 0.6875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--ds-muted);
     }
+
+    .section-card__body { padding: 1.25rem; }
 
     /* ---- Gerenciador de links dinâmico ---- */
     #links-management-container {
@@ -784,6 +794,96 @@
       cursor: pointer;
     }
 
+    /* ---- Controles de Posição (Sobrepor / Z-index) — um slider por linha ---- */
+    .posicao-controls-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 20px; /* Espaço vertical generoso para não colar os sliders */
+      width: 100%;
+      padding: 4px 0;
+    }
+
+    .property-control-item {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .property-control-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 14px;
+      color: var(--ds-muted);
+      font-weight: 500;
+    }
+
+    .badge-value {
+      font-size: 0.72rem;
+      font-weight: 700;
+      font-family: ui-monospace, 'SF Mono', monospace;
+      color: var(--ds-accent);
+      background: var(--ds-accent-soft);
+      border: 1px solid var(--ds-accent-border);
+      padding: 0.1875rem 0.5rem;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    .property-control-item input[type="range"] {
+      --ds-fill: 50%;
+      width: 100%;
+      height: 6px;
+      margin: 0;
+      padding: 0;
+      -webkit-appearance: none;
+      appearance: none;
+      background: linear-gradient(to right, #4f46e5 0%, #4f46e5 var(--ds-fill), #e2e8f0 var(--ds-fill), #e2e8f0 100%);
+      border-radius: 999px;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .property-control-item input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #4f46e5;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 0 0 3px #ffffff;
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+      cursor: pointer;
+    }
+
+    .property-control-item input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 0 0 3px var(--ds-accent-soft);
+    }
+
+    .property-control-item input[type="range"]::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      border: none;
+      border-radius: 50%;
+      background: #4f46e5;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 0 0 3px #ffffff;
+      transition: transform 0.1s ease;
+      cursor: pointer;
+    }
+
+    .property-control-item input[type="range"]::-moz-range-thumb:hover {
+      transform: scale(1.2);
+    }
+
+    .property-control-item input[type="range"]::-moz-range-track {
+      height: 6px;
+      background: linear-gradient(to right, #4f46e5 0%, #4f46e5 var(--ds-fill), #e2e8f0 var(--ds-fill), #e2e8f0 100%);
+      border-radius: 999px;
+    }
+
     .adv-subtitle {
       display: flex;
       align-items: center;
@@ -925,10 +1025,43 @@
     /* Foto de perfil sobreposta ao banner com borda metálica */
     .pv-profile { margin-top: -2.4rem; position: relative; z-index: 2; }
 
-    .pv-avatar {
-      border: 3px solid #fff;
-      box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.7), 0 12px 24px -10px rgba(0, 0, 0, 0.5);
+    .pv-avatar { border: 3px solid #fff; }
+
+    /* ---- Container de vidro + sombra responsiva do avatar ----
+       O backdrop-filter precisa de um container pai semi-transparente
+       (não funciona direto em <img>/fundo sólido). As variáveis abaixo
+       são alimentadas pelo JS em applyDesign() com escala proporcional
+       à largura atual do mockup do celular. */
+    .avatar-glass-card {
+      --glass-pad: 0;
+      --glass-bg: transparent;
+      --glass-border: transparent;
+      --glass-blur: 0px;
+      --shadow-x: 0px;
+      --shadow-y: 12px;
+      --shadow-blur: 24px;
+      --shadow-spread: -10px;
+      --shadow-color: rgba(0, 0, 0, 0.5);
+      position: relative;
+      display: grid;
+      place-items: center;
+      padding: var(--glass-pad);
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 999px;
+      -webkit-backdrop-filter: blur(var(--glass-blur));
+      backdrop-filter: blur(var(--glass-blur));
+      box-shadow: var(--shadow-x) var(--shadow-y) var(--shadow-blur) var(--shadow-spread) var(--shadow-color);
+      will-change: box-shadow, backdrop-filter;
+      transition: background 0.2s ease, border-color 0.2s ease, padding 0.2s ease, box-shadow 0.1s ease-out;
     }
+
+    .avatar-glass-card.avatar-ring {
+      outline: 2px solid rgba(212, 175, 55, 0.7);
+      outline-offset: -1px;
+    }
+
+    .avatar-glass-card .pv-avatar { border-radius: inherit; }
 
     .pv-banner[hidden] { display: none; }
 
@@ -1325,6 +1458,7 @@
     }
 
     .pv-link svg { width: 18px; height: 18px; flex-shrink: 0; }
+    .pv-link__icon { display: grid; place-items: center; flex-shrink: 0; }
     .pv-link__img { width: 20px; height: 20px; object-fit: cover; border-radius: 4px; flex-shrink: 0; }
 
     .pv-link--banner { position: relative; padding: 0; overflow: hidden; aspect-ratio: 2 / 1; min-height: 0; }
@@ -1347,6 +1481,27 @@
     .quick-actions-grid--list .btn-quick-compact--compact { align-self: flex-start; }
 
     .btn-quick-compact__img { width: 20px; height: 20px; object-fit: contain; flex-shrink: 0; }
+
+    /* ---- Ação Rápida em modo "Imagem completa" (estilo Beacons) ---- */
+    .btn-quick-compact--banner {
+      padding: 0 !important;
+      background: transparent !important;
+      border: none !important;
+      overflow: hidden;
+      aspect-ratio: 1 / 1;
+      min-height: 0;
+      border-radius: var(--global-radius);
+    }
+
+    .btn-quick-compact--banner img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      flex-shrink: 0;
+    }
+
+    .btn-quick-compact--banner span { display: none; }
 
     /* ---- Animações de Destaque (por bloco) ---- */
     .anim-pulse { animation: animPulse 2.2s ease-in-out infinite; }
@@ -1521,16 +1676,127 @@
           <div class="field">
             <label for="profileName">Nome do Cliente</label>
             <input type="text" id="profileName" data-key="profileName" value="Nome do Cliente" />
+
+            <button type="button" class="adv-toggle profile-text-toggle" aria-expanded="false">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+              <span>⚙️ Estilizar Texto</span>
+              <svg class="adv-toggle__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="adv-body profile-text-controls" hidden>
+              <div class="adv-group">
+                <div class="field color-field">
+                  <label for="profile-name-color">Cor do Texto</label>
+                  <div class="color-field__control">
+                    <input type="color" id="profile-name-color" value="#000000" />
+                    <span id="profile-name-colorHex">#000000</span>
+                  </div>
+                </div>
+                <div class="slider-field">
+                  <div class="slider-field__head"><label for="profile-name-size">Tamanho da Fonte</label><output id="profile-name-size-out">20px</output></div>
+                  <input type="range" id="profile-name-size" min="14" max="32" value="20" />
+                </div>
+                <div class="adv-row">
+                  <div class="field">
+                    <label for="profile-name-weight">Peso da Fonte</label>
+                    <select id="profile-name-weight">
+                      <option value="300">Fina</option>
+                      <option value="400">Normal</option>
+                      <option value="600">Semi-Bold</option>
+                      <option value="700" selected>Bold</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label for="profile-name-align">Alinhamento</label>
+                    <select id="profile-name-align">
+                      <option value="left">Esquerda</option>
+                      <option value="center" selected>Centralizado</option>
+                      <option value="right">Direita</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div class="field">
             <label for="profileBio">Biografia / Tags</label>
             <textarea id="profileBio" data-key="profileBio">Biografia curta, serviços ou tags separadas por • vírgulas.</textarea>
+
+            <button type="button" class="adv-toggle profile-text-toggle" aria-expanded="false">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+              <span>⚙️ Estilizar Texto</span>
+              <svg class="adv-toggle__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="adv-body profile-text-controls" hidden>
+              <div class="adv-group">
+                <div class="field color-field">
+                  <label for="profile-bio-color">Cor do Texto</label>
+                  <div class="color-field__control">
+                    <input type="color" id="profile-bio-color" value="#555555" />
+                    <span id="profile-bio-colorHex">#555555</span>
+                  </div>
+                </div>
+                <div class="slider-field">
+                  <div class="slider-field__head"><label for="profile-bio-size">Tamanho da Fonte</label><output id="profile-bio-size-out">14px</output></div>
+                  <input type="range" id="profile-bio-size" min="12" max="20" value="14" />
+                </div>
+                <div class="adv-row">
+                  <div class="field">
+                    <label for="profile-bio-weight">Peso da Fonte</label>
+                    <select id="profile-bio-weight">
+                      <option value="300">Fina</option>
+                      <option value="400" selected>Normal</option>
+                      <option value="600">Semi-Bold</option>
+                      <option value="700">Bold</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label for="profile-bio-align">Alinhamento</label>
+                    <select id="profile-bio-align">
+                      <option value="left">Esquerda</option>
+                      <option value="center" selected>Centralizado</option>
+                      <option value="right">Direita</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div class="field">
             <label for="profileAddress">Endereço</label>
             <input type="text" id="profileAddress" data-key="profileAddress" value="Rua Exemplo, 123 – Cidade/UF" />
+
+            <button type="button" class="adv-toggle profile-text-toggle" aria-expanded="false">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+              <span>⚙️ Estilizar Texto</span>
+              <svg class="adv-toggle__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="adv-body profile-text-controls" hidden>
+              <div class="adv-group">
+                <div class="field color-field">
+                  <label for="profile-address-color">Cor do Texto</label>
+                  <div class="color-field__control">
+                    <input type="color" id="profile-address-color" value="#555555" />
+                    <span id="profile-address-colorHex">#555555</span>
+                  </div>
+                </div>
+                <div class="slider-field">
+                  <div class="slider-field__head"><label for="profile-address-size">Tamanho da Fonte</label><output id="profile-address-size-out">13px</output></div>
+                  <input type="range" id="profile-address-size" min="11" max="18" value="13" />
+                </div>
+                <div class="adv-row">
+                  <div class="field">
+                    <label for="profile-address-align">Alinhamento</label>
+                    <select id="profile-address-align">
+                      <option value="left">Esquerda</option>
+                      <option value="center" selected>Centralizado</option>
+                      <option value="right">Direita</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -1926,13 +2192,19 @@
 
             <div class="adv-group">
               <p class="adv-subtitle adv-subtitle--sm">Posição</p>
-              <div class="adv-row">
-                <div class="slider-field">
-                  <div class="slider-field__head"><label for="ds-avatar-margin">Sobrepor ao banner</label><output id="ds-avatar-margin-out">-38px</output></div>
+              <div class="posicao-controls-grid">
+                <div class="property-control-item">
+                  <div class="property-control-header">
+                    <span>Sobrepor ao banner</span>
+                    <span id="ds-avatar-margin-out" class="badge-value">-38px</span>
+                  </div>
                   <input type="range" id="ds-avatar-margin" min="-120" max="0" value="-38" />
                 </div>
-                <div class="slider-field">
-                  <div class="slider-field__head"><label for="ds-avatar-z">Camada (z-index)</label><output id="ds-avatar-z-out">2</output></div>
+                <div class="property-control-item">
+                  <div class="property-control-header">
+                    <span>Camada (z-index)</span>
+                    <span id="ds-avatar-z-out" class="badge-value">2</span>
+                  </div>
                   <input type="range" id="ds-avatar-z" min="1" max="50" value="2" />
                 </div>
               </div>
@@ -2062,13 +2334,15 @@
               </div>
 
               <header class="pv-profile" id="pvProfile">
-                <div class="pv-avatar" id="pvAvatar">
-                  <span class="pv-avatar__letter" id="pvAvatarLetter">N</span>
-                  <img class="pv-avatar__img" id="pvAvatarImg" alt="" hidden />
+                <div class="avatar-glass-card" id="pvAvatarCard">
+                  <div class="pv-avatar" id="pvAvatar">
+                    <span class="pv-avatar__letter" id="pvAvatarLetter">N</span>
+                    <img class="pv-avatar__img" id="pvAvatarImg" alt="" hidden />
+                  </div>
                 </div>
-                <h1 class="pv-title" data-bind="profileName" data-default="Nome do Cliente">Nome do Cliente</h1>
-                <p class="pv-subtitle" data-bind="profileBio" data-default="Biografia curta, serviços ou tags.">Biografia curta, serviços ou tags.</p>
-                <a class="pv-address" href="https://www.google.com/maps" target="_blank" rel="noopener">
+                <h1 class="pv-title" id="pvTitle" data-bind="profileName" data-default="Nome do Cliente">Nome do Cliente</h1>
+                <p class="pv-subtitle" id="pvSubtitle" data-bind="profileBio" data-default="Biografia curta, serviços ou tags.">Biografia curta, serviços ou tags.</p>
+                <a class="pv-address" id="pvAddress" href="https://www.google.com/maps" target="_blank" rel="noopener">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
                     <circle cx="12" cy="10" r="3" />
@@ -2149,6 +2423,9 @@
     const toast    = document.getElementById('toast');
 
     const el = (id) => document.getElementById(id);
+
+    /* Mockup do celular — usado como base da escala proporcional da sombra */
+    const phoneMockup = document.querySelector('.phone-mockup');
 
     const avLetter = el('pvAvatarLetter');
     const avImg    = el('pvAvatarImg');
@@ -2428,11 +2705,19 @@
       }
     };
 
-    function shadowCSS() {
+    /* Calcula a sombra do avatar com escala proporcional à largura atual do
+       mockup (320/360px em telas baixas) para nunca estourar o frame. */
+    function avatarShadowValues() {
       const p = designState.profile;
-      return '0 0 0 2px rgba(212,175,55,0.7), '
-        + p.shadowX + 'px ' + p.shadowY + 'px ' + p.shadowBlur + 'px ' + p.shadowSpread + 'px '
-        + toRgba(p.shadowColor, p.shadowAlpha);
+      const phoneW = (phoneMockup && phoneMockup.clientWidth) || 360;
+      const k = phoneW > 0 ? phoneW / 360 : 1;
+      return {
+        x: (p.shadowX * k).toFixed(1),
+        y: (p.shadowY * k).toFixed(1),
+        blur: (p.shadowBlur * k).toFixed(1),
+        spread: (p.shadowSpread * k).toFixed(1),
+        color: toRgba(p.shadowColor, p.shadowAlpha)
+      };
     }
 
     function gradientCSS() {
@@ -2475,6 +2760,13 @@
       el('ds-grad-stops').innerHTML = designState.banner.stops.map(gradStopHTML).join('');
     }
 
+    function updateRangeFill(input) {
+      if (!input || !input.matches('input[type="range"]')) return;
+      const min = +input.min, max = +input.max, val = +input.value;
+      const pct = max > min ? ((val - min) / (max - min)) * 100 : 100;
+      input.style.setProperty('--ds-fill', Math.round(pct) + '%');
+    }
+
     function updateDesignOutputs() {
       const b = designState.banner;
       const p = designState.profile;
@@ -2493,6 +2785,7 @@
       set('ds-banner-scrim-opacity-out', b.scrimOpacity + '%');
       set('ds-avatar-margin-out', p.marginTop + 'px');
       set('ds-avatar-z-out', String(p.zIndex));
+      DS_SLIDERS.forEach((id) => updateRangeFill(el(id)));
       set('ds-avatar-radius-tl-out', p.radius.tl + 'px');
       set('ds-avatar-radius-tr-out', p.radius.tr + 'px');
       set('ds-avatar-radius-br-out', p.radius.br + 'px');
@@ -2513,7 +2806,8 @@
       const banner = el('pvBanner');
       const profile = el('pvProfile');
       const avatar = el('pvAvatar');
-      if (!banner || !profile || !avatar) return;
+      const glassCard = el('pvAvatarCard');
+      if (!banner || !profile || !avatar || !glassCard) return;
 
       banner.hidden = !b.enabled;
       if (b.enabled) {
@@ -2566,13 +2860,43 @@
       profile.style.marginTop = (b.enabled ? p.marginTop : 0) + 'px';
       profile.style.zIndex = p.zIndex;
 
-      avatar.style.borderRadius = p.radius.tl + 'px ' + p.radius.tr + 'px ' + p.radius.br + 'px ' + p.radius.bl + 'px';
+      const radiusCSS = p.radius.tl + 'px ' + p.radius.tr + 'px ' + p.radius.br + 'px ' + p.radius.bl + 'px';
+      avatar.style.borderRadius = radiusCSS;
       avatar.style.border = (p.borderStyle === 'none' || p.borderWidth <= 0)
         ? 'none'
         : p.borderWidth + 'px ' + p.borderStyle + ' ' + p.borderColor;
-      avatar.style.boxShadow = p.shadowOn ? shadowCSS() : 'none';
-      avatar.style.backdropFilter = p.glass ? 'blur(' + p.glassBlur + 'px)' : '';
-      avatar.style.webkitBackdropFilter = avatar.style.backdropFilter;
+
+      /* Vidro: o backdrop-filter vive no container pai (não no <img>/fundo sólido) */
+      glassCard.style.borderRadius = radiusCSS;
+      if (p.glass) {
+        glassCard.style.setProperty('--glass-pad', '6px');
+        glassCard.style.setProperty('--glass-bg', 'rgba(255, 255, 255, 0.2)');
+        glassCard.style.setProperty('--glass-border', 'rgba(255, 255, 255, 0.3)');
+        glassCard.style.setProperty('--glass-blur', p.glassBlur + 'px');
+      } else {
+        glassCard.style.setProperty('--glass-pad', '0');
+        glassCard.style.setProperty('--glass-bg', 'transparent');
+        glassCard.style.setProperty('--glass-border', 'transparent');
+        glassCard.style.setProperty('--glass-blur', '0px');
+      }
+
+      /* Sombra projetada responsiva: valores escalados + variáveis CSS */
+      if (p.shadowOn) {
+        const s = avatarShadowValues();
+        glassCard.style.setProperty('--shadow-x', s.x + 'px');
+        glassCard.style.setProperty('--shadow-y', s.y + 'px');
+        glassCard.style.setProperty('--shadow-blur', s.blur + 'px');
+        glassCard.style.setProperty('--shadow-spread', s.spread + 'px');
+        glassCard.style.setProperty('--shadow-color', s.color);
+        glassCard.classList.add('avatar-ring');
+      } else {
+        glassCard.style.setProperty('--shadow-x', '0px');
+        glassCard.style.setProperty('--shadow-y', '0px');
+        glassCard.style.setProperty('--shadow-blur', '0px');
+        glassCard.style.setProperty('--shadow-spread', '0px');
+        glassCard.style.setProperty('--shadow-color', 'rgba(0, 0, 0, 0)');
+        glassCard.classList.remove('avatar-ring');
+      }
     }
 
     /* Popula os controles a partir do designState */
@@ -2710,6 +3034,7 @@
 
     DS_SLIDERS.forEach((id) => {
       el(id).addEventListener('input', () => {
+        updateRangeFill(el(id));
         controlsToDesign();
         updateDesignOutputs();
         applyDesign();
@@ -2798,6 +3123,77 @@
     }
     bindToggle('ds-toggle', 'ds-banner-body');
     bindToggle('ds-toggle-profile', 'ds-profile-body');
+
+    /* ================================================================
+       ESTILIZAÇÃO AVANÇADA DE TEXTO DO PERFIL (colapsáveis + preview)
+       ================================================================ */
+    document.addEventListener('click', (e) => {
+      const toggle = e.target.closest('.profile-text-toggle');
+      if (!toggle) return;
+      const body = toggle.parentElement.querySelector('.profile-text-controls');
+      if (!body) return;
+      body.hidden = !body.hidden;
+      toggle.classList.toggle('is-open', !body.hidden);
+      toggle.setAttribute('aria-expanded', String(!body.hidden));
+    });
+
+    function toHexColor(str) {
+      const m = String(str).match(/\d+(\.\d+)?/g);
+      if (!m || m.length < 3) return '#ffffff';
+      const toHex = (v) => Math.round(Number(v)).toString(16).padStart(2, '0');
+      return '#' + toHex(m[0]) + toHex(m[1]) + toHex(m[2]);
+    }
+
+    function bindProfileTextStyling(targetId, groups) {
+      const target = el(targetId);
+      if (!target) return;
+
+      /* Defaults dos controles = estilo atual do mockup (mantém o tema) */
+      groups.forEach((g) => {
+        const color = el(g.color);
+        if (color && !target.style.color) color.value = toHexColor(getComputedStyle(target).color);
+      });
+
+      const apply = () => {
+        groups.forEach((g) => {
+          const color = el(g.color);
+          const size = el(g.size);
+          const weight = el(g.weight);
+          const align = el(g.align);
+          if (color) {
+            target.style.color = color.value;
+            const hex = el(g.hex);
+            if (hex) hex.textContent = color.value.toUpperCase();
+          }
+          if (size) {
+            target.style.fontSize = size.value + 'px';
+            const out = el(g.out);
+            if (out) out.textContent = size.value + 'px';
+          }
+          if (weight) target.style.fontWeight = weight.value;
+          if (align) target.style.textAlign = align.value;
+        });
+      };
+
+      groups.forEach((g) => {
+        [g.color, g.size, g.weight, g.align].forEach((id) => {
+          const input = el(id);
+          if (input) input.addEventListener('input', apply);
+        });
+      });
+
+      apply();
+    }
+
+    bindProfileTextStyling('pvTitle', [
+      { color: 'profile-name-color', hex: 'profile-name-colorHex', size: 'profile-name-size', out: 'profile-name-size-out', weight: 'profile-name-weight', align: 'profile-name-align' }
+    ]);
+    bindProfileTextStyling('pvSubtitle', [
+      { color: 'profile-bio-color', hex: 'profile-bio-colorHex', size: 'profile-bio-size', out: 'profile-bio-size-out', weight: 'profile-bio-weight', align: 'profile-bio-align' }
+    ]);
+    bindProfileTextStyling('pvAddress', [
+      { color: 'profile-address-color', hex: 'profile-address-colorHex', size: 'profile-address-size', out: 'profile-address-size-out', align: 'profile-address-align' }
+    ]);
 
     /* ================================================================
        UPLOADS — imagem de fundo (dataURL p/ payload)
@@ -3073,7 +3469,8 @@
           customBg: block.querySelector('.custom-bg').value,
           customText: block.querySelector('.custom-text').value,
           width: block.querySelector('.btn-width').value,
-          animation: block.querySelector('.btn-animation').value
+          animation: block.querySelector('.btn-animation').value,
+          style: block.querySelector('.link-style').value
         };
       });
       return quickActionsData;
@@ -3116,6 +3513,9 @@
 
         /* Animação de destaque */
         if (action.animation && action.animation !== 'none') a.classList.add('anim-' + action.animation);
+
+        /* Estilo "Imagem completa" (estilo Beacons) */
+        if (action.style === 'banner') a.classList.add('btn-quick-compact--banner');
 
         /* Cores personalizadas (override inline, ignorando o padrão global) */
         if (action.customColors) {
