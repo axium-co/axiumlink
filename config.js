@@ -46,6 +46,7 @@ window.AXIUMLINK_CONFIG = {
   visual: {
     pageBg: "#ffffff",
     textColor: "#000000",
+    borderColor: "#000000",
     quickBg: "#000000",
     quickText: "#ffffff",
     cardBg: "#000000",
@@ -73,6 +74,7 @@ window.AXIUMLINK_CONFIG = {
       image: null,
       blend: "normal",
       angle: 135,
+      gradientScope: "banner",
       stops: [
         { color: "#0f172a", pos: 0, alpha: 100 },
         { color: "#334155", pos: 55, alpha: 100 },

@@ -1203,7 +1203,8 @@
       --card-destaque-bg: #000000;
       --card-destaque-text: #ffffff;
       --global-radius: 12px;
-      --global-border: 1px solid transparent;
+      --btn-border-color: #000000;
+      --global-border: 2px solid var(--btn-border-color);
       --shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
       --transition: 0.2s ease;
 
@@ -1910,6 +1911,14 @@
             </div>
 
             <div class="field color-field">
+              <label for="input-border-color">Cor das Bordas dos Botões</label>
+              <div class="color-field__control">
+                <input type="color" id="input-border-color" data-key="colorBorder" value="#000000" />
+                <span id="input-border-colorHex">#000000</span>
+              </div>
+            </div>
+
+            <div class="field color-field">
               <label for="input-btn-quick">Botões Rápidos</label>
               <div class="color-field__control">
                 <input type="color" id="input-btn-quick" data-key="colorQuickBg" value="#000000" />
@@ -2042,6 +2051,14 @@
                 </div>
               </div>
 
+              <div class="field">
+                <label for="ds-banner-gradient-scope">Aplicar Gradiente em:</label>
+                <select id="ds-banner-gradient-scope">
+                  <option value="banner" selected>Apenas no Banner do Topo</option>
+                  <option value="page">Na Página Inteira (Fundo)</option>
+                </select>
+              </div>
+
               <div class="grad-stops" id="ds-grad-stops"></div>
               <button type="button" class="grad-add" id="ds-grad-add">➕ Adicionar cor</button>
             </div>
@@ -2110,7 +2127,7 @@
               </label>
               <div class="slider-field">
                 <div class="slider-field__head"><label for="ds-banner-text-shadow-blur">Desfoque da sombra</label><output id="ds-banner-text-shadow-blur-out">18px</output></div>
-                <input type="range" id="ds-banner-text-shadow-blur" min="0" max="40" value="18" />
+                <input type="range" id="ds-banner-text-shadow-blur" min="0" max="24" value="18" />
               </div>
               <div class="field">
                 <label for="ds-banner-text-shadow-color">Cor da sombra</label>
@@ -2591,6 +2608,7 @@
     const colorFields = {
       'input-bg-page':       (v) => { setVar('--page-bg', v); refreshBodyText(); },
       'input-text-color':    (v) => { setVar('--text-title', v); refreshBodyText(); },
+      'input-border-color':  (v) => setVar('--btn-border-color', v),
       'input-btn-quick':     (v) => {
         setVar('--btn-quick-bg', v);
         setVar('--btn-quick-text', contrastText(v));
@@ -2628,7 +2646,7 @@
       'arredondado':        { css: '14px',             label: 'Arredondado',       extras: {} },
       'totalmente-oval':    { css: '999px',            label: 'Totalmente Oval',   extras: {} },
       'assimetrico':        { css: '14px 4px 14px 4px', label: 'Assimétrico',      extras: {} },
-      'outline':            { css: '10px',             label: 'Outline',           extras: { border: '2px solid currentColor', boxShadow: 'none' } },
+      'outline':            { css: '10px',             label: 'Outline',           extras: { border: '2px solid var(--btn-border-color)', boxShadow: 'none' } },
       'sombra-bloco':       { css: '10px',             label: 'Sombra Bloco',      extras: { boxShadow: '6px 6px 0 0 rgba(0,0,0,0.25)' } },
       'suave-sombra':       { css: '12px',             label: 'Suave Sombra',      extras: { boxShadow: '0 10px 24px rgba(0,0,0,0.18)' } }
     };
@@ -2671,6 +2689,7 @@
         image: null,
         blend: 'normal',
         angle: 135,
+        gradientScope: 'banner',
         stops: [
           { color: '#0f172a', pos: 0, alpha: 100 },
           { color: '#334155', pos: 55, alpha: 100 },
@@ -2813,6 +2832,19 @@
       set('ds-avatar-glass-blur-out', p.glassBlur + 'px');
     }
 
+    /* Sombra do texto do banner — sombra suave e "esfumaçada" de verdade:
+       converte a cor para RGBA com a opacidade do slider e limita o
+       desfoque para a sombra nunca "explodir" como um bloco escuro. */
+    function atualizarSombraTexto() {
+      const b = designState.banner;
+      const elBanner = el('pvBanner');
+      if (!elBanner) return;
+      const blur = Math.min(b.textShadowBlur, 24);
+      const rgba = toRgba(b.textShadowColor, b.textShadowAlpha);
+      elBanner.style.setProperty('--pv-banner-shadow',
+        b.textShadowOn ? '2px 2px ' + blur + 'px ' + rgba : 'none');
+    }
+
     /* Aplica o designState no mockup (estilos inline calculados) */
     function applyDesign() {
       const b = designState.banner;
@@ -2841,10 +2873,7 @@
         banner.style.setProperty('--pv-banner-mono-size', b.monogramSize + 'px');
         banner.style.setProperty('--pv-banner-brand-size', b.brandSize + 'px');
         banner.style.setProperty('--pv-banner-align', bannerAlignCSS(b.align));
-        banner.style.setProperty('--pv-banner-shadow',
-          b.textShadowOn
-            ? '0 ' + (b.textShadowBlur / 2) + 'px ' + b.textShadowBlur + 'px ' + toRgba(b.textShadowColor, b.textShadowAlpha)
-            : 'none');
+        atualizarSombraTexto();
 
         const scrim = el('pvScrim');
         scrim.style.display = (b.scrim === 'none') ? 'none' : 'block';
@@ -2861,6 +2890,24 @@
           : 'none';
         monogram.style.borderRadius = b.monogramBadge ? b.monogramRadius + 'px' : '0';
         monogram.style.padding = b.monogramBadge ? '0.3em 0.6em' : '0';
+      }
+
+      /* Escopo do gradiente: no modo "Na Página Inteira" o loop de pontos
+         de cor é injetado no fundo do celular (#preview-mobile-container),
+         fazendo toda a interface receber a transição fluida de cores. */
+      const phoneScreen = el('preview-mobile-container');
+      if (b.gradientScope === 'page') {
+        phoneScreen.style.backgroundColor = el('input-bg-page').value;
+        phoneScreen.style.backgroundImage = gradientCSS();
+        phoneScreen.style.backgroundSize = 'cover';
+        phoneScreen.style.backgroundBlendMode = b.blend === 'normal' ? '' : b.blend;
+        preview.style.background = 'transparent';
+      } else {
+        phoneScreen.style.backgroundImage = '';
+        phoneScreen.style.backgroundColor = '';
+        phoneScreen.style.backgroundSize = '';
+        phoneScreen.style.backgroundBlendMode = '';
+        preview.style.background = '';
       }
 
       const hideText = !!b.image;
@@ -2936,6 +2983,7 @@
       el('ds-banner-brand').value = b.brand;
       el('ds-banner-angle').value = b.angle;
       el('ds-banner-blend').value = b.blend;
+      el('ds-banner-gradient-scope').value = b.gradientScope || 'banner';
       el('ds-banner-glass').checked = b.glass;
       el('ds-banner-glass-blur').value = b.glassBlur;
       el('ds-banner-text-color').value = b.textColor;
@@ -3006,6 +3054,7 @@
       b.brand = el('ds-banner-brand').value.trim();
       b.angle = +el('ds-banner-angle').value;
       b.blend = el('ds-banner-blend').value;
+      b.gradientScope = el('ds-banner-gradient-scope').value;
       b.glass = el('ds-banner-glass').checked;
       b.glassBlur = +el('ds-banner-glass-blur').value;
       b.textColor = el('ds-banner-text-color').value;
@@ -4321,6 +4370,7 @@
         visual: {
           pageBg: el('input-bg-page').value,
           textColor: el('input-text-color').value,
+          borderColor: el('input-border-color').value,
           quickBg: el('input-btn-quick').value,
           quickText: preview.style.getPropertyValue('--btn-quick-text').trim() || '#ffffff',
           cardBg: el('input-card-destaque').value,
@@ -4399,6 +4449,7 @@
       const values = {
         profileName: p.name, profileBio: p.bio, profileAddress: p.address,
         'input-bg-page': v.pageBg, 'input-text-color': v.textColor,
+        'input-border-color': v.borderColor,
         'input-btn-quick': v.quickBg, 'input-card-destaque': v.cardBg,
         'input-radius': toRadiusEnum(v.radius), 'input-font': v.font,
         'quick-layout': lay.quickMode, 'cards-layout': lay.cardsMode,
@@ -4451,6 +4502,7 @@
         'profileName': 'profile.name', 'profileBio': 'profile.bio',
         'profileAddress': 'profile.address',
         'input-bg-page': 'visual.pageBg', 'input-text-color': 'visual.textColor',
+        'input-border-color': 'visual.borderColor',
         'input-btn-quick': 'visual.quickBg', 'input-card-destaque': 'visual.cardBg',
         'input-radius': 'visual.radius', 'input-font': 'visual.font',
         'quick-layout': 'layout.quickMode', 'cards-layout': 'layout.cardsMode'

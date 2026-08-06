@@ -62,7 +62,8 @@
 
       /* == Modificadores de Formato (Bordas) == */
       --global-radius: 12px;         /* 0px = quadrado | 12px = arredondado | 30px = oval */
-      --global-border: 1px solid transparent; /* Borda opcional p/ estilo "Outline" */
+      --btn-border-color: #000000;   /* Cor do contorno dos botões e cards de destaque */
+      --global-border: 2px solid var(--btn-border-color); /* Borda isolada do cor do texto */
 
       /* == Tokens de apoio (avançado) == */
       --max-width: 560px;
@@ -978,6 +979,7 @@
 
       set('--page-bg', pageBg || '#ffffff');
       set('--text-title', v.textColor);
+      set('--btn-border-color', v.borderColor);
 
       if (v.bgImage) {
         document.body.style.backgroundImage = 'url(' + v.bgImage + ')';
@@ -1045,7 +1047,21 @@
           pgBanner.style.setProperty('--bn-shadow',
             bn.textShadowOn === false
               ? 'none'
-              : '0 ' + ((bn.textShadowBlur || 18) / 2) + 'px ' + (bn.textShadowBlur || 18) + 'px ' + toRgba(bn.textShadowColor || '#000000', bn.textShadowAlpha == null ? 60 : bn.textShadowAlpha));
+              : '2px 2px ' + Math.min(bn.textShadowBlur || 18, 24) + 'px ' + toRgba(bn.textShadowColor || '#000000', bn.textShadowAlpha == null ? 60 : bn.textShadowAlpha));
+
+          /* Escopo do gradiente: "Na Página Inteira" aplica o loop de pontos
+             de cor no fundo do <body>, com o modo de mesclagem escolhido. */
+          if (bn.gradientScope === 'page') {
+            document.body.style.backgroundColor = isSolidHex ? pageBg : '#ffffff';
+            document.body.style.backgroundImage = grad;
+            document.body.style.backgroundSize = 'cover';
+            document.body.style.backgroundPosition = 'center';
+            document.body.style.backgroundBlendMode = (bn.blend && bn.blend !== 'normal') ? bn.blend : '';
+          } else {
+            document.body.style.backgroundColor = '';
+            document.body.style.backgroundBlendMode = '';
+            if (!v.bgImage) document.body.style.backgroundImage = '';
+          }
 
           const scrim = document.getElementById('pgScrim');
           scrim.style.display = (bn.scrim === 'none' || !bn.scrim) ? 'none' : 'block';
@@ -1158,7 +1174,7 @@
         'arredondado':        { css: '14px',              extras: {} },
         'totalmente-oval':    { css: '999px',             extras: {} },
         'assimetrico':        { css: '14px 4px 14px 4px', extras: {} },
-        'outline':            { css: '10px',              extras: { border: '2px solid currentColor', boxShadow: 'none' } },
+        'outline':            { css: '10px',              extras: { border: '2px solid var(--btn-border-color)', boxShadow: 'none' } },
         'sombra-bloco':       { css: '10px',              extras: { boxShadow: '6px 6px 0 0 rgba(0,0,0,0.25)' } },
         'suave-sombra':       { css: '12px',              extras: { boxShadow: '0 10px 24px rgba(0,0,0,0.18)' } }
       };
