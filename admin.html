@@ -2339,9 +2339,9 @@
                     <img class="pv-avatar__img" id="pvAvatarImg" alt="" hidden />
                   </div>
                 </div>
-                <h1 class="pv-title" id="pvTitle" data-bind="profileName" data-default="Nome do Cliente">Nome do Cliente</h1>
-                <p class="pv-subtitle" id="pvSubtitle" data-bind="profileBio" data-default="Biografia curta, serviços ou tags.">Biografia curta, serviços ou tags.</p>
-                <a class="pv-address" id="pvAddress" href="https://www.google.com/maps" target="_blank" rel="noopener">
+                <h1 class="pv-title" id="preview-profile-name" data-bind="profileName" data-default="Nome do Cliente">Nome do Cliente</h1>
+                <p class="pv-subtitle" id="preview-profile-bio" data-bind="profileBio" data-default="Biografia curta, serviços ou tags.">Biografia curta, serviços ou tags.</p>
+                <a class="pv-address" id="preview-profile-address" href="https://www.google.com/maps" target="_blank" rel="noopener">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
                     <circle cx="12" cy="10" r="3" />
@@ -2911,9 +2911,9 @@
         if (cfg.weight) t.style.fontWeight = cfg.weight;
         if (cfg.align) t.style.textAlign = cfg.align;
       };
-      applyTextCSS('pvTitle', p.text.name);
-      applyTextCSS('pvSubtitle', p.text.bio);
-      applyTextCSS('pvAddress', p.text.address);
+      applyTextCSS('preview-profile-name', p.text.name);
+      applyTextCSS('preview-profile-bio', p.text.bio);
+      applyTextCSS('preview-profile-address', p.text.address);
     }
 
     /* Popula os controles a partir do designState */
@@ -3166,6 +3166,8 @@
 
     /* ================================================================
        ESTILIZAÇÃO AVANÇADA DE TEXTO DO PERFIL (colapsáveis + preview)
+       Cada campo (Nome, Biografia, Endereço) tem controles próprios de
+       cor, tamanho, peso e alinhamento aplicados ao mockup em tempo real.
        ================================================================ */
     document.addEventListener('click', (e) => {
       const toggle = e.target.closest('.profile-text-toggle');
@@ -3184,72 +3186,139 @@
       return '#' + toHex(m[0]) + toHex(m[1]) + toHex(m[2]);
     }
 
-    function bindProfileTextStyling(targetId, groups) {
-      const target = el(targetId);
-      if (!target) return;
+    /* ---- Nome do Cliente ---- */
+    const inputNameColor = document.getElementById('profile-name-color');
+    const inputNameSize = document.getElementById('profile-name-size');
+    const inputNameWeight = document.getElementById('profile-name-weight');
+    const inputNameAlign = document.getElementById('profile-name-align');
+    const previewNameElement = document.getElementById('preview-profile-name');
 
-      /* Defaults dos controles = estilo atual do mockup (mantém o tema) */
-      groups.forEach((g) => {
-        const color = el(g.color);
-        if (color && !target.style.color) color.value = toHexColor(getComputedStyle(target).color);
-      });
-
-      const apply = (persist) => {
-        groups.forEach((g) => {
-          const color = el(g.color);
-          const size = el(g.size);
-          const weight = el(g.weight);
-          const align = el(g.align);
-          const cfg = designState.profile.text[g.key];
-          if (color) {
-            const hex = el(g.hex);
-            if (hex) hex.textContent = color.value.toUpperCase();
-            if (persist && cfg) {
-              cfg.color = color.value;
-              target.style.color = color.value;
-            }
-          }
-          if (size) {
-            const out = el(g.out);
-            if (out) out.textContent = size.value + 'px';
-            if (persist && cfg) {
-              cfg.size = +size.value;
-              target.style.fontSize = size.value + 'px';
-            }
-          }
-          if (weight && persist && cfg) {
-            cfg.weight = +weight.value;
-            target.style.fontWeight = weight.value;
-          }
-          if (align && persist && cfg) {
-            cfg.align = align.value;
-            target.style.textAlign = align.value;
-          }
-        });
-        if (persist) applyDesign();
-      };
-
-      groups.forEach((g) => {
-        [g.color, g.size, g.weight, g.align].forEach((id) => {
-          const input = el(id);
-          if (input) input.addEventListener('input', () => apply(true));
-        });
-      });
-
-      /* Init: sincroniza apenas os rótulos (hex/tamanho), sem persistir nem
-         forçar estilos inline sobre o tema atual. */
-      apply(false);
+    function atualizarEstiloNome() {
+      if (!previewNameElement) return;
+      const cfg = designState.profile.text.name;
+      if (inputNameColor) {
+        cfg.color = inputNameColor.value;
+        previewNameElement.style.color = inputNameColor.value;
+        const hex = document.getElementById('profile-name-colorHex');
+        if (hex) hex.textContent = inputNameColor.value.toUpperCase();
+      }
+      if (inputNameSize) {
+        cfg.size = +inputNameSize.value;
+        previewNameElement.style.fontSize = inputNameSize.value + 'px';
+        const out = document.getElementById('profile-name-size-out');
+        if (out) out.textContent = inputNameSize.value + 'px';
+      }
+      if (inputNameWeight) {
+        cfg.weight = +inputNameWeight.value;
+        previewNameElement.style.fontWeight = inputNameWeight.value;
+      }
+      if (inputNameAlign) {
+        cfg.align = inputNameAlign.value;
+        previewNameElement.style.textAlign = inputNameAlign.value;
+      }
+      applyDesign();
     }
 
-    bindProfileTextStyling('pvTitle', [
-      { key: 'name', color: 'profile-name-color', hex: 'profile-name-colorHex', size: 'profile-name-size', out: 'profile-name-size-out', weight: 'profile-name-weight', align: 'profile-name-align' }
-    ]);
-    bindProfileTextStyling('pvSubtitle', [
-      { key: 'bio', color: 'profile-bio-color', hex: 'profile-bio-colorHex', size: 'profile-bio-size', out: 'profile-bio-size-out', weight: 'profile-bio-weight', align: 'profile-bio-align' }
-    ]);
-    bindProfileTextStyling('pvAddress', [
-      { key: 'address', color: 'profile-address-color', hex: 'profile-address-colorHex', size: 'profile-address-size', out: 'profile-address-size-out', align: 'profile-address-align' }
-    ]);
+    [inputNameColor, inputNameSize, inputNameWeight, inputNameAlign].forEach((input) => {
+      input?.addEventListener('input', atualizarEstiloNome);
+      input?.addEventListener('change', atualizarEstiloNome);
+    });
+
+    /* ---- Biografia / Tags ---- */
+    const inputBioColor = document.getElementById('profile-bio-color');
+    const inputBioSize = document.getElementById('profile-bio-size');
+    const inputBioWeight = document.getElementById('profile-bio-weight');
+    const inputBioAlign = document.getElementById('profile-bio-align');
+    const previewBioElement = document.getElementById('preview-profile-bio');
+
+    function atualizarEstiloBio() {
+      if (!previewBioElement) return;
+      const cfg = designState.profile.text.bio;
+      if (inputBioColor) {
+        cfg.color = inputBioColor.value;
+        previewBioElement.style.color = inputBioColor.value;
+        const hex = document.getElementById('profile-bio-colorHex');
+        if (hex) hex.textContent = inputBioColor.value.toUpperCase();
+      }
+      if (inputBioSize) {
+        cfg.size = +inputBioSize.value;
+        previewBioElement.style.fontSize = inputBioSize.value + 'px';
+        const out = document.getElementById('profile-bio-size-out');
+        if (out) out.textContent = inputBioSize.value + 'px';
+      }
+      if (inputBioWeight) {
+        cfg.weight = +inputBioWeight.value;
+        previewBioElement.style.fontWeight = inputBioWeight.value;
+      }
+      if (inputBioAlign) {
+        cfg.align = inputBioAlign.value;
+        previewBioElement.style.textAlign = inputBioAlign.value;
+      }
+      applyDesign();
+    }
+
+    [inputBioColor, inputBioSize, inputBioWeight, inputBioAlign].forEach((input) => {
+      input?.addEventListener('input', atualizarEstiloBio);
+      input?.addEventListener('change', atualizarEstiloBio);
+    });
+
+    /* ---- Endereço ---- */
+    const inputAddressColor = document.getElementById('profile-address-color');
+    const inputAddressSize = document.getElementById('profile-address-size');
+    const inputAddressAlign = document.getElementById('profile-address-align');
+    const previewAddressElement = document.getElementById('preview-profile-address');
+
+    function atualizarEstiloAddress() {
+      if (!previewAddressElement) return;
+      const cfg = designState.profile.text.address;
+      if (inputAddressColor) {
+        cfg.color = inputAddressColor.value;
+        previewAddressElement.style.color = inputAddressColor.value;
+        const hex = document.getElementById('profile-address-colorHex');
+        if (hex) hex.textContent = inputAddressColor.value.toUpperCase();
+      }
+      if (inputAddressSize) {
+        cfg.size = +inputAddressSize.value;
+        previewAddressElement.style.fontSize = inputAddressSize.value + 'px';
+        const out = document.getElementById('profile-address-size-out');
+        if (out) out.textContent = inputAddressSize.value + 'px';
+      }
+      if (inputAddressAlign) {
+        cfg.align = inputAddressAlign.value;
+        previewAddressElement.style.textAlign = inputAddressAlign.value;
+      }
+      applyDesign();
+    }
+
+    [inputAddressColor, inputAddressSize, inputAddressAlign].forEach((input) => {
+      input?.addEventListener('input', atualizarEstiloAddress);
+      input?.addEventListener('change', atualizarEstiloAddress);
+    });
+
+    /* Init: controles de cor refletem o tema atual do mockup (não persiste) */
+    [
+      ['preview-profile-name', 'profile-name-color'],
+      ['preview-profile-bio', 'profile-bio-color'],
+      ['preview-profile-address', 'profile-address-color']
+    ].forEach(([targetId, colorId]) => {
+      const target = document.getElementById(targetId);
+      const color = document.getElementById(colorId);
+      if (target && color && !target.style.color) color.value = toHexColor(getComputedStyle(target).color);
+    });
+
+    /* Init: sincroniza rótulos (hex / tamanho) sem forçar estilos inline */
+    [
+      ['profile-name-color', 'profile-name-colorHex', 'profile-name-size', 'profile-name-size-out'],
+      ['profile-bio-color', 'profile-bio-colorHex', 'profile-bio-size', 'profile-bio-size-out'],
+      ['profile-address-color', 'profile-address-colorHex', 'profile-address-size', 'profile-address-size-out']
+    ].forEach(([colorId, hexId, sizeId, outId]) => {
+      const color = document.getElementById(colorId);
+      const hex = document.getElementById(hexId);
+      const size = document.getElementById(sizeId);
+      const out = document.getElementById(outId);
+      if (color && hex) hex.textContent = color.value.toUpperCase();
+      if (size && out) out.textContent = size.value + 'px';
+    });
 
     /* ================================================================
        UPLOADS — imagem de fundo (dataURL p/ payload)
