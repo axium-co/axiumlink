@@ -99,6 +99,25 @@ window.AXIUMLINK_CONFIG = {
       monogramRadius: 12,
       scrim: "none",
       scrimOpacity: 45
+    },
+    profile: {
+      marginTop: -38,
+      zIndex: 2,
+      radius: { tl: 14, tr: 14, br: 14, bl: 14 },
+      borderStyle: "solid",
+      borderWidth: 3,
+      borderColor: "#ffffff",
+      shadowOn: true,
+      shadowX: 0, shadowY: 12, shadowBlur: 24, shadowSpread: -10,
+      shadowColor: "#000000",
+      shadowAlpha: 50,
+      glass: false,
+      glassBlur: 14,
+      text: {
+        name: { color: "", size: 0, weight: 0, align: "" },
+        bio: { color: "", size: 0, weight: 0, align: "" },
+        address: { color: "", size: 0, align: "" }
+      }
     }
   }
 };
