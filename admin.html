@@ -1077,7 +1077,28 @@
 
     .bg-image-btn { margin-bottom: 0.5rem; }
 
-    /* ---- Banner superior do mockup (monograma + sobreposição da foto) ---- */
+    /* ---- Banner superior do mockup (monograma + sobreposição da foto) ----
+       A div do banner é um contêiner TOTALMENTE independente do fundo da
+       página: tem cor/imagem própria (--banner-bg) e a visibilidade é
+       controlada apenas pela classe .banner-oculto. Nada aqui toca no
+       background do celular (#preview-mobile-container). */
+    .header-banner-element {
+      width: 100%;
+      height: 120px;
+      background-color: var(--banner-bg, #0F172A);
+      background-image: var(--banner-bg-image, none);
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      transition: all 0.2s ease;
+    }
+
+    /* Classe para quando o banner for ocultado de verdade: atinge
+       estritamente a div do banner e nada mais. */
+    .banner-oculto {
+      display: none !important;
+    }
+
     .pv-banner {
       --pv-banner-text: #ffffff;
       --pv-banner-font: inherit;
@@ -1086,6 +1107,7 @@
       --pv-banner-brand-size: 11px;
       --pv-banner-align: center;
       --pv-banner-shadow: none;
+      --banner-bg: #0F172A;
       position: relative;
       z-index: 10; /* Camada base fixa: o avatar fica atrás abaixo de 10 */
       width: 100%;
@@ -1098,6 +1120,8 @@
       justify-content: center;
       gap: 0.375rem;
       background: linear-gradient(135deg, #0f172a 0%, #334155 55%, #64748b 100%);
+      background-color: var(--banner-bg, #0F172A);
+      background-blend-mode: normal; /* nunca mescla com o fundo da página */
       overflow: hidden;
       transition: height 0.2s ease;
     }
@@ -1150,8 +1174,6 @@
       transition: margin-top 0.1s ease-out;
     }
 
-    .pv-avatar { border: 3px solid #fff; }
-
     /* ---- Container de vidro + sombra responsiva do avatar ----
        O backdrop-filter precisa de um container pai semi-transparente
        (não funciona direto em <img>/fundo sólido). As variáveis abaixo
@@ -1179,11 +1201,6 @@
       box-shadow: var(--shadow-x) var(--shadow-y) var(--shadow-blur) var(--shadow-spread) var(--shadow-color);
       will-change: box-shadow, backdrop-filter;
       transition: background 0.2s ease, border-color 0.2s ease, padding 0.2s ease, box-shadow 0.1s ease-out;
-    }
-
-    .avatar-glass-card.avatar-ring {
-      outline: 2px solid rgba(212, 175, 55, 0.7);
-      outline-offset: -1px;
     }
 
     .avatar-glass-card .pv-avatar { border-radius: inherit; }
@@ -1348,6 +1365,22 @@
       --btn-border-universal: 1px solid transparent;
     }
 
+    /* O contêiner do celular é a ÚNICA fonte de verdade do fundo da página.
+       A cor vem de --page-bg (color picker) e o gradiente gerado pelo JS
+       é injetado ESTRITAMENTE em --bg-page-gradient. O banner do topo nunca
+       recebe nada disso: ele usa as próprias variáveis (--banner-bg /
+       --banner-bg-image) e permanece totalmente opaco e isolado. */
+    #preview-mobile-container {
+      background-color: var(--page-bg, #ffffff);
+      background-image: var(--bg-page-gradient, none);
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
     .btn-quick-compact,
     .pv-card,
     .pv-link,
@@ -1383,7 +1416,6 @@
       border-radius: var(--global-radius);
       background: var(--btn-quick-bg);
       color: var(--btn-quick-text);
-      border: var(--global-border);
       display: grid;
       place-items: center;
       overflow: hidden;
@@ -2498,7 +2530,7 @@
           <div class="preview" id="preview">
             <div class="pv-flow" id="pvFlow">
 
-              <div class="pv-banner" id="pvBanner">
+              <div class="pv-banner header-banner-element" id="pvBanner">
                 <div class="pv-banner__scrim" id="pvScrim"></div>
                 <div class="pv-banner__monogram" id="pvMonogram">N</div>
                 <div class="pv-banner__brand" id="pvBrand">NOME</div>
@@ -2754,7 +2786,13 @@
     const setVar = (name, value) => preview.style.setProperty(name, value);
 
     const colorFields = {
-      'input-bg-page': (v) => { setVar('--page-bg', v); refreshBodyText(); }
+      'input-bg-page': (v) => {
+        setVar('--page-bg', v);
+        /* O fundo do celular deve refletir a cor da página (e nunca a do
+           banner). Sincroniza a variável também no contêiner do mockup. */
+        if (mobileContainer) mobileContainer.style.setProperty('--page-bg', v);
+        refreshBodyText();
+      }
     };
 
     /* Cor de subtítulo/descrições = texto neutro misturado com o fundo.
@@ -2933,6 +2971,30 @@
         + b.stops.map((s) => toRgba(s.color, s.alpha) + ' ' + s.pos + '%').join(', ') + ')';
     }
 
+    /* ================================================================
+       GRADIENTE DE FUNDO — gerador dedicado e isolado.
+       Varre os pontos de cor dinâmicos (cor + posição + opacidade) do
+       designState e injeta a string final ESTRITAMENTE na variável
+       --bg-page-gradient do contêiner do celular (#preview-mobile-container).
+       O banner do topo NUNCA recebe esta string: ele usa as próprias
+       variáveis --banner-bg / --banner-bg-image e fica 100% isolado.
+       ================================================================ */
+    function gerarGradienteFundoResponsivo() {
+      const containerCelular = el('preview-mobile-container');
+      if (!containerCelular) return;
+
+      const b = designState.banner;
+      const pontosDeCor = b.stops.map((s) => toRgba(s.color, s.alpha) + ' ' + s.pos + '%');
+
+      if (b.enabled && b.gradientScope === 'page' && pontosDeCor.length >= 2) {
+        const stringGradienteFinal = 'linear-gradient(' + b.angle + 'deg, ' + pontosDeCor.join(', ') + ')';
+        containerCelular.style.setProperty('--bg-page-gradient', stringGradienteFinal);
+      } else {
+        /* Sem gradiente no fundo: a página volta à cor própria (--page-bg). */
+        containerCelular.style.setProperty('--bg-page-gradient', 'none');
+      }
+    }
+
     function bannerFontCSS(font) {
       switch (font) {
         case 'serif':   return '"Georgia", "Times New Roman", serif';
@@ -3062,6 +3124,38 @@
       control.addEventListener('change', handler);
     });
 
+    /* ================================================================
+       BORDA + SOMBRA DO AVATAR — sincronização isolada.
+       Sombra/anel ativo: remove COMPLETAMENTE qualquer borda dourada,
+       outline ou borda antiga ao redor da foto para o novo efeito não
+       encavalar com nada. Sombra desativada: restaura a borda que o
+       usuário configurou no painel (estilo, espessura e cor).
+       ================================================================ */
+    function sincronizarBordaESombraAvatar() {
+      const avatarPreviewImage = el('pvAvatar');
+      if (!avatarPreviewImage) return;
+
+      if (designState.profile.shadowOn) {
+        /* SE A SOMBRA/ANEL ESTIVER ATIVA:
+           Remove qualquer borda amarela ou estilo de borda anterior. */
+        avatarPreviewImage.style.border = 'none';
+        avatarPreviewImage.style.outline = 'none';
+      } else {
+        /* SE A SOMBRA ESTIVER DESATIVADA:
+           Restaura o comportamento padrão baseado nos inputs de borda
+           superiores (Sólida/Dashed, Espessura e Cor da Borda). */
+        const estilo = (el('ds-avatar-border-style') || {}).value || 'none';
+        const espessura = +(el('ds-avatar-border-width') || {}).value || 0;
+        const cor = (el('ds-avatar-border-color') || {}).value || 'transparent';
+
+        avatarPreviewImage.style.border =
+          (estilo === 'none' || espessura <= 0)
+            ? 'none'
+            : espessura + 'px ' + estilo + ' ' + cor;
+        avatarPreviewImage.style.outline = 'none';
+      }
+    }
+
     /* Aplica o designState no mockup (estilos inline calculados) */
     function applyDesign() {
       const b = designState.banner;
@@ -3072,15 +3166,34 @@
       const glassCard = el('pvAvatarCard');
       if (!banner || !profile || !avatar || !glassCard) return;
 
-      banner.hidden = !b.enabled;
+      /* Visibilidade do banner: classe dedicada (.banner-oculto) que afeta
+         ESTRITAMENTE a div #pvBanner — nunca o fundo da página/celular. */
+      banner.classList.toggle('banner-oculto', !b.enabled);
       if (b.enabled) {
         banner.style.height = b.height + 'px';
-        banner.style.background = b.image
-          ? gradientCSS() + ', url(' + b.image + ')'
-          : gradientCSS();
-        banner.style.backgroundSize = b.image ? 'cover' : '';
-        banner.style.backgroundPosition = b.image ? 'center' : '';
-        banner.style.backgroundBlendMode = b.blend;
+
+        if (b.gradientScope === 'page') {
+          /* Isolamento rígido: no modo "Na Página Inteira" o banner NÃO
+             recebe o gradiente do fundo. Mantém apenas cor sólida própria
+             (--banner-bg) ou a imagem própria enviada, com blend neutro.
+             O gradiente vive exclusivamente no --bg-page-gradient do
+             contêiner do celular, abaixo do banner. */
+          banner.style.background = 'none';
+          banner.style.backgroundColor = 'var(--banner-bg, #0F172A)';
+          banner.style.backgroundImage = b.image ? 'url(' + b.image + ')' : 'none';
+          banner.style.backgroundSize = b.image ? 'cover' : 'auto';
+          banner.style.backgroundPosition = b.image ? 'center' : '0 0';
+          banner.style.backgroundRepeat = 'no-repeat';
+          banner.style.backgroundBlendMode = 'normal';
+        } else {
+          /* Modo "Apenas no Banner do Topo": o gradiente pertence ao banner. */
+          banner.style.background = b.image
+            ? gradientCSS() + ', url(' + b.image + ')'
+            : gradientCSS();
+          banner.style.backgroundSize = b.image ? 'cover' : '';
+          banner.style.backgroundPosition = b.image ? 'center' : '';
+          banner.style.backgroundBlendMode = b.blend;
+        }
         banner.style.backdropFilter = b.glass ? 'blur(' + b.glassBlur + 'px)' : '';
         banner.style.webkitBackdropFilter = banner.style.backdropFilter;
 
@@ -3109,21 +3222,18 @@
         monogram.style.padding = b.monogramBadge ? '0.3em 0.6em' : '0';
       }
 
-      /* Escopo do gradiente: no modo "Na Página Inteira" o loop de pontos
-         de cor é injetado no fundo do celular (#preview-mobile-container),
-         fazendo toda a interface receber a transição fluida de cores. */
+      /* Escopo do gradiente: no modo "Na Página Inteira" o gradiente é
+         injetado ESTRITAMENTE em --bg-page-gradient (fundo do celular) e o
+         contêiner de conteúdo (.preview) fica transparente para revelar o
+         fundo. Nenhum background-blend-mode é aplicado no contêiner: o
+         banner do topo permanece opaco e isolado com as próprias cores. */
       const phoneScreen = el('preview-mobile-container');
-      if (b.gradientScope === 'page') {
+      gerarGradienteFundoResponsivo();
+      if (b.enabled && b.gradientScope === 'page') {
         phoneScreen.style.backgroundColor = el('input-bg-page').value;
-        phoneScreen.style.backgroundImage = gradientCSS();
-        phoneScreen.style.backgroundSize = 'cover';
-        phoneScreen.style.backgroundBlendMode = b.blend === 'normal' ? '' : b.blend;
         preview.style.background = 'transparent';
       } else {
-        phoneScreen.style.backgroundImage = '';
         phoneScreen.style.backgroundColor = '';
-        phoneScreen.style.backgroundSize = '';
-        phoneScreen.style.backgroundBlendMode = '';
         preview.style.background = '';
       }
 
@@ -3140,9 +3250,9 @@
 
       const radiusCSS = p.radius.tl + 'px ' + p.radius.tr + 'px ' + p.radius.br + 'px ' + p.radius.bl + 'px';
       avatar.style.borderRadius = radiusCSS;
-      avatar.style.border = (p.borderStyle === 'none' || p.borderWidth <= 0)
-        ? 'none'
-        : p.borderWidth + 'px ' + p.borderStyle + ' ' + p.borderColor;
+      /* A borda do avatar NÃO é mais definida aqui: ela é gerenciada de
+         forma isolada por sincronizarBordaESombraAvatar() (restaura a
+         borda do painel apenas quando a sombra estiver desativada). */
 
       /* Vidro: o backdrop-filter vive no container pai (não no <img>/fundo sólido) */
       glassCard.style.borderRadius = radiusCSS;
@@ -3158,7 +3268,10 @@
         glassCard.style.setProperty('--glass-blur', '0px');
       }
 
-      /* Sombra projetada responsiva: valores escalados + variáveis CSS */
+      /* Sombra projetada responsiva: valores escalados + variáveis CSS.
+         O antigo anel dourado (.avatar-ring) foi removido por completo:
+         com a sombra ativa NADA de outline/borda amarela permanece ao
+         redor da foto (garantido por sincronizarBordaESombraAvatar). */
       if (p.shadowOn) {
         const s = avatarShadowValues();
         glassCard.style.setProperty('--shadow-x', s.x + 'px');
@@ -3166,15 +3279,16 @@
         glassCard.style.setProperty('--shadow-blur', s.blur + 'px');
         glassCard.style.setProperty('--shadow-spread', s.spread + 'px');
         glassCard.style.setProperty('--shadow-color', s.color);
-        glassCard.classList.add('avatar-ring');
+        glassCard.style.outline = 'none';
       } else {
         glassCard.style.setProperty('--shadow-x', '0px');
         glassCard.style.setProperty('--shadow-y', '0px');
         glassCard.style.setProperty('--shadow-blur', '0px');
         glassCard.style.setProperty('--shadow-spread', '0px');
         glassCard.style.setProperty('--shadow-color', 'rgba(0, 0, 0, 0)');
-        glassCard.classList.remove('avatar-ring');
+        glassCard.style.outline = '';
       }
+      sincronizarBordaESombraAvatar();
 
       /* Estilos de texto do perfil persistidos (cor, tamanho, peso, alinhamento) */
       const applyTextCSS = (targetId, cfg) => {
@@ -3382,9 +3496,50 @@
       inputZIndex.addEventListener('change', atualizarCamadaAvatar);
     }
 
+    /* ================================================================
+       VISIBILIDADE DO BANNER — toggle dedicado e isolado (checkbox
+       "Exibir banner superior"). A ação alterna a classe .banner-oculto
+       ESTRITAMENTE na div #pvBanner, sem tocar em nenhum outro elemento
+       nem no fundo da página/celular.
+       ================================================================ */
+    const checkboxMostrarBanner = el('ds-banner-enable');
+    const divBannerPreview = el('pvBanner');
+
+    if (checkboxMostrarBanner && divBannerPreview) {
+      checkboxMostrarBanner.addEventListener('change', (e) => {
+        designState.banner.enabled = e.target.checked;
+        if (e.target.checked) {
+          // Mostra o banner restaurando seu bloco
+          divBannerPreview.classList.remove('banner-oculto');
+        } else {
+          // Oculta estritamente o banner sem tocar no fundo do celular
+          divBannerPreview.classList.add('banner-oculto');
+        }
+        applyDesign();
+      });
+    }
+
+    /* ================================================================
+       SOMBRA/ANEL DO AVATAR — checkbox dedicado e isolado.
+       Ao marcar, remove imediatamente a borda/outline dourado da foto
+       (via sincronizarBordaESombraAvatar). Ao desmarcar, restaura a
+       borda configurada no painel superior.
+       ================================================================ */
+    const checkboxSombraAnel = el('ds-avatar-shadow');
+
+    if (checkboxSombraAnel) {
+      checkboxSombraAnel.addEventListener('change', (e) => {
+        designState.profile.shadowOn = e.target.checked;
+        updateDesignOutputs();
+        applyDesign();
+      });
+    }
+
     el('ds-engine').addEventListener('change', (e) => {
       if (e.target.classList.contains('gs-pos') || e.target.classList.contains('gs-alpha')) return;
       if (e.target === el('ds-banner-image')) return;
+      if (e.target === checkboxMostrarBanner) return; // tratado pelo toggle dedicado acima
+      if (e.target === checkboxSombraAnel) return; // tratado pelo toggle dedicado acima
       controlsToDesign();
       if (e.target === el('ds-avatar-border-color') || e.target === el('ds-avatar-shadow-color')) {
         const hexId = e.target.id + 'Hex';
