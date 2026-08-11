@@ -759,6 +759,14 @@
 
     .adv-row .field { margin-bottom: 0; }
 
+    .form-group-weight label {
+      display: block;
+      font-size: 0.7813rem;
+      font-weight: 600;
+      color: var(--ds-body);
+      margin-bottom: 0.4375rem;
+    }
+
     /* ---- Sliders de propriedades (motor de estilos) ---- */
     .slider-field { display: flex; flex-direction: column; gap: 0.25rem; }
     .slider-field__head { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
@@ -1098,6 +1106,7 @@
       --pv-banner-align: center;
       --pv-banner-shadow: none;
       --banner-bg: #0F172A;
+      --banner-blur-amount: 0px; /* recebe o valor (px) arrastado no slider de desfoque */
       position: relative;
       z-index: 10; /* Camada base fixa: o avatar fica atrás abaixo de 10 */
       width: 100%;
@@ -1109,11 +1118,16 @@
       align-items: var(--pv-banner-align);
       justify-content: center;
       gap: 0.375rem;
-      background: linear-gradient(135deg, #0f172a 0%, #334155 55%, #64748b 100%);
-      background-color: var(--banner-bg, #0F172A);
+      /* FUNDAMENTAL para o vidro fosco: o fundo padrão NÃO pode ser um hex
+         sólido — o backdrop-filter só fica VISÍVEL com cor RGBA translúcida.
+         O hex opaco cobria o blur por baixo e o efeito nunca aparecia. */
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.55) 0%, rgba(51, 65, 85, 0.55) 55%, rgba(100, 116, 139, 0.55) 100%);
+      background-color: rgba(255, 255, 255, 0.15);
       background-blend-mode: normal; /* nunca mescla com o fundo da página */
       overflow: hidden;
-      transition: height 0.2s ease;
+      backdrop-filter: blur(var(--banner-blur-amount));
+      -webkit-backdrop-filter: blur(var(--banner-blur-amount)); /* suporte Safari/iPhone */
+      transition: backdrop-filter 0.1s ease-out, background-color 0.2s ease, height 0.2s ease;
     }
 
     .pv-banner__scrim {
@@ -1401,6 +1415,7 @@
     }
 
     .pv-avatar {
+      box-sizing: border-box;
       width: 72px;
       height: 72px;
       border-radius: var(--global-radius);
@@ -1411,9 +1426,18 @@
       overflow: hidden;
       font-size: 1.75rem;
       font-weight: 700;
+      /* Borda (estilo/espessura/cor) e sombra são independentes: nenhuma
+         limpa a outra. box-sizing mantém a borda dentro das 72px. */
+      transition: border 0.1s ease, box-shadow 0.1s ease;
+      will-change: border, box-shadow;
     }
 
-    .pv-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .pv-avatar img {
+      box-sizing: border-box;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
 
     .pv-title {
       font-size: 1rem;
@@ -1454,6 +1478,29 @@
     }
 
     .pv-profile { width: 100%; }
+
+    /* ---- Alinhamento dos textos do perfil (largura total) ----
+       Dentro do flex column (align-items: center) os itens encolhem até
+       a largura do próprio texto, então `text-align` não tem espaço para
+       atuar. Com largura total, Esquerda/Centro/Direita funcionam de fato
+       (apenas Nome e Biografia têm seletor de alinhamento). */
+    #preview-profile-name,
+    #preview-profile-bio,
+    #preview-profile-address {
+      width: 100%;
+      max-width: 100%;
+    }
+
+    /* Endereço: alinhamento fixo e centralizado (sem seletor dinâmico).
+       O peso da fonte é controlado pelo novo select "Espessura do Texto"
+       via variável --address-font-weight injetada pelo JS. */
+    #preview-profile-address, .profile-address-text {
+      display: block !important;
+      width: 100%;
+      text-align: center !important;
+      font-weight: var(--address-font-weight, 400);
+      transition: font-weight 0.1s ease;
+    }
 
     /* Linha horizontal rolável / carrossel lateral */
     .pv-strip {
@@ -1572,17 +1619,18 @@
     #preview-links-list.mode-lista-vertical {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 12px;
       width: 100%;
     }
 
     #preview-links-list.pv-links--grid {
       flex-direction: row;
       flex-wrap: wrap;
+      align-items: stretch;
     }
 
     #preview-links-list.pv-links--grid .pv-link {
-      flex: 1 1 calc(50% - 4px);
+      flex: 1 1 calc(50% - 6px);
       min-width: 0;
     }
 
@@ -1640,17 +1688,51 @@
     .pv-link__img { width: 20px; height: 20px; object-fit: cover; border-radius: 4px; flex-shrink: 0; }
     .pv-link__icon { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
 
-    .pv-link--banner { position: relative; padding: 0; overflow: hidden; aspect-ratio: 2 / 1; min-height: 0; }
-    .pv-link__banner { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
     .pv-link:hover { transform: scale(1.02); filter: brightness(1.06); }
     .pv-link:active { transform: scale(0.98); }
 
-    /* ---- Largura individual (Links Principais) ---- */
-    .pv-link--half { width: calc(50% - 4px); }
+    /* ---- Largura individual (Links Principais) ----
+       "Metade da Tela (50%)": trava o card em exatamente metade do
+       container, descontando metade do gap (12px) para os botões
+       ficarem lado a lado sem quebrar linha. */
+    .pv-link--half { width: calc(50% - 6px); }
     .pv-link--compact { width: auto; min-width: 9rem; }
 
     #preview-links-list.pv-links--grid .pv-link--full { flex: 1 1 100%; }
+    #preview-links-list.pv-links--grid .pv-link--half {
+      flex: 0 0 calc(50% - 6px);
+      max-width: calc(50% - 6px);
+    }
     #preview-links-list.pv-links--grid .pv-link--compact { flex: 0 0 auto; width: auto; }
+
+    /* ---- Modo Imagem Completa (estilo Beacons) ----
+       Trava de proporção profissional: o card fixa um aspect-ratio rígido
+       (16/9) e a imagem é recortada com object-fit: cover — nunca estica
+       nem estoura, independente da largura escolhida (100% ou 50%). */
+    .pv-link--banner {
+      position: relative;
+      padding: 0;
+      background: transparent !important;
+      border: none !important;
+      overflow: hidden;
+      aspect-ratio: 16 / 9 !important;
+      height: auto;
+      min-height: 0;
+    }
+
+    .pv-link--banner .pv-link__banner,
+    .pv-link--banner img {
+      position: absolute;
+      inset: 0;
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+      object-position: center;
+      display: block;
+      max-width: none;
+      max-height: none;
+      flex-shrink: 0;
+    }
 
     /* ---- Largura individual (Ações Rápidas) ---- */
     .btn-quick-compact--full { grid-column: 1 / -1; width: 100%; }
@@ -2090,15 +2172,15 @@
                   <div class="slider-field__head"><label for="profile-address-size">Tamanho da Fonte</label><output id="profile-address-size-out">13px</output></div>
                   <input type="range" id="profile-address-size" min="11" max="18" value="13" />
                 </div>
-                <div class="adv-row">
-                  <div class="field">
-                    <label for="profile-address-align">Alinhamento</label>
-                    <select id="profile-address-align">
-                      <option value="left">Esquerda</option>
-                      <option value="center" selected>Centralizado</option>
-                      <option value="right">Direita</option>
-                    </select>
-                  </div>
+                <div class="form-group-weight" style="margin-top: 12px;">
+                  <label for="address-weight">Espessura do Texto (Peso)</label>
+                  <select id="address-weight" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #E2E8F0;">
+                    <option value="300">Fina</option>
+                    <option value="400" selected>Normal</option>
+                    <option value="500">Média</option>
+                    <option value="600">Semi-Bold</option>
+                    <option value="700">Negrito</option>
+                  </select>
                 </div>
               </div>
             </div>
@@ -3091,7 +3173,7 @@
         text: {
           name: { color: '', size: 0, weight: 0, align: '' },
           bio: { color: '', size: 0, weight: 0, align: '' },
-          address: { color: '', size: 0, align: '' }
+          address: { color: '', size: 0, weight: 0 }
         }
       }
     };
@@ -3201,6 +3283,7 @@
       set('ds-avatar-margin-out', p.marginTop + 'px');
       set('ds-avatar-z-out', String(p.zIndex));
       DS_SLIDERS.forEach((id) => updateRangeFill(el(id)));
+      updateRangeFill(el('ds-banner-glass-blur'));
       set('ds-avatar-radius-tl-out', p.radius.tl + 'px');
       set('ds-avatar-radius-tr-out', p.radius.tr + 'px');
       set('ds-avatar-radius-br-out', p.radius.br + 'px');
@@ -3271,34 +3354,78 @@
     });
 
     /* ================================================================
-       BORDA + SOMBRA DO AVATAR — sincronização isolada.
-       Sombra/anel ativo: remove COMPLETAMENTE qualquer borda dourada,
-       outline ou borda antiga ao redor da foto para o novo efeito não
-       encavalar com nada. Sombra desativada: restaura a borda que o
-       usuário configurou no painel (estilo, espessura e cor).
+       BORDA + SOMBRA DO AVATAR — estilos independentes e coexistentes.
+       A borda (estilo/espessura/cor do painel de cima) é SEMPRE aplicada
+       na div .pv-avatar, e a sombra (anel + queda) vive no card de vidro
+       via box-shadow. Nenhuma propriedade zera a outra: antigamente a
+       sombra ativa limpava a borda configurada por completo.
        ================================================================ */
-    function sincronizarBordaESombraAvatar() {
-      const avatarPreviewImage = el('pvAvatar');
-      if (!avatarPreviewImage) return;
+    function atualizarEstilosFinaisAvatar() {
+      const p = designState.profile;
+      const avatar = el('pvAvatar');
+      const glassCard = el('pvAvatarCard');
+      if (!avatar || !glassCard) return;
 
-      if (designState.profile.shadowOn) {
-        /* SE A SOMBRA/ANEL ESTIVER ATIVA:
-           Remove qualquer borda amarela ou estilo de borda anterior. */
-        avatarPreviewImage.style.border = 'none';
-        avatarPreviewImage.style.outline = 'none';
+      /* 1. BORDA — sempre ativa conforme os inputs do painel */
+      const estilo = p.borderStyle || 'none';
+      const espessura = +p.borderWidth || 0;
+      const cor = p.borderColor || 'transparent';
+      avatar.style.border =
+        (estilo === 'none' || espessura <= 0)
+          ? 'none'
+          : espessura + 'px ' + estilo + ' ' + cor;
+      avatar.style.outline = 'none';
+
+      /* 2. SOMBRA — condicional, aplicada no card (sem tocar na borda).
+         Valores escalados para o mockup + cor com opacidade (alpha). */
+      if (p.shadowOn) {
+        const s = avatarShadowValues();
+        glassCard.style.setProperty('--shadow-x', s.x + 'px');
+        glassCard.style.setProperty('--shadow-y', s.y + 'px');
+        glassCard.style.setProperty('--shadow-blur', s.blur + 'px');
+        glassCard.style.setProperty('--shadow-spread', s.spread + 'px');
+        glassCard.style.setProperty('--shadow-color', s.color);
+        glassCard.style.outline = 'none';
       } else {
-        /* SE A SOMBRA ESTIVER DESATIVADA:
-           Restaura o comportamento padrão baseado nos inputs de borda
-           superiores (Sólida/Dashed, Espessura e Cor da Borda). */
-        const estilo = (el('ds-avatar-border-style') || {}).value || 'none';
-        const espessura = +(el('ds-avatar-border-width') || {}).value || 0;
-        const cor = (el('ds-avatar-border-color') || {}).value || 'transparent';
+        glassCard.style.setProperty('--shadow-x', '0px');
+        glassCard.style.setProperty('--shadow-y', '0px');
+        glassCard.style.setProperty('--shadow-blur', '0px');
+        glassCard.style.setProperty('--shadow-spread', '0px');
+        glassCard.style.setProperty('--shadow-color', 'rgba(0, 0, 0, 0)');
+        glassCard.style.outline = '';
+      }
+    }
 
-        avatarPreviewImage.style.border =
-          (estilo === 'none' || espessura <= 0)
-            ? 'none'
-            : espessura + 'px ' + estilo + ' ' + cor;
-        avatarPreviewImage.style.outline = 'none';
+    /* 🧊 Vidro no banner (backdrop blur) — atualização reativa.
+       Sincroniza o banner do mockup com a checkbox de ativação e o slider
+       de desfoque: atualiza o indicador numérico ("18px"), injeta o blur
+       via variável CSS + inline direto (defesa contra cache de CSS) e
+       garante o fundo semi-transparente do vidro. Sem um fundo RGBA o
+       backdrop-filter roda mas fica escondido atrás do hex opaco. */
+    function sincronizarEfeitoVidroBanner(banner, b) {
+      if (!banner || !b) return;
+
+      const vidroAtivo = !!b.glass;
+      const valorPx = (vidroAtivo ? (b.glassBlur || 0) : 0) + 'px';
+
+      /* 1. Indicador numérico na tela esquerda (ex: 36px) */
+      const label = el('ds-banner-glass-blur-out');
+      if (label) label.textContent = valorPx;
+
+      /* 2. Variável CSS consumida no .pv-banner */
+      banner.style.setProperty('--banner-blur-amount', valorPx);
+
+      /* 3. Filtro inline direto para aplicação imediata */
+      banner.style.backdropFilter = vidroAtivo ? 'blur(' + valorPx + ')' : 'none';
+      banner.style.webkitBackdropFilter = banner.style.backdropFilter;
+
+      /* 4. Fundo do vidro: quando ativo, RGBA branco-fosco (20%). O
+            restauro da cor sólida opaca fica a cargo dos branches de
+            gradientScope em applyDesign (vidro desligado). */
+      if (vidroAtivo) {
+        banner.style.background = 'none';
+        banner.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+        banner.style.backgroundImage = 'none';
       }
     }
 
@@ -3318,7 +3445,20 @@
       if (b.enabled) {
         banner.style.height = b.height + 'px';
 
-        if (b.gradientScope === 'page') {
+        if (b.glass) {
+          /* 🧊 Vidro ativo: o fundo do banner vira um RGBA branco-fosco
+             (20% de opacidade) e a imagem/gradiente próprios são zerados.
+             O backdrop-filter embaça o que fica ATRÁS (--bg-page-gradient
+             e conteúdo do celular) — o efeito só aparece porque o fundo
+             do banner deixou de ser opaco. */
+          banner.style.background = 'none';
+          banner.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+          banner.style.backgroundImage = 'none';
+          banner.style.backgroundSize = 'auto';
+          banner.style.backgroundPosition = '0 0';
+          banner.style.backgroundRepeat = 'no-repeat';
+          banner.style.backgroundBlendMode = 'normal';
+        } else if (b.gradientScope === 'page') {
           /* Isolamento rígido: no modo "Na Página Inteira" o banner NÃO
              recebe o gradiente do fundo. Mantém apenas cor sólida própria
              (--banner-bg) ou a imagem própria enviada, com blend neutro.
@@ -3340,8 +3480,9 @@
           banner.style.backgroundPosition = b.image ? 'center' : '';
           banner.style.backgroundBlendMode = b.blend;
         }
-        banner.style.backdropFilter = b.glass ? 'blur(' + b.glassBlur + 'px)' : '';
-        banner.style.webkitBackdropFilter = banner.style.backdropFilter;
+
+        /* Aplica (ou limpa) o desfoque reativo e o indicador "18px" */
+        sincronizarEfeitoVidroBanner(banner, b);
 
         banner.style.setProperty('--pv-banner-text', b.textColor);
         banner.style.setProperty('--pv-banner-font', bannerFontCSS(b.font));
@@ -3396,9 +3537,6 @@
 
       const radiusCSS = p.radius.tl + 'px ' + p.radius.tr + 'px ' + p.radius.br + 'px ' + p.radius.bl + 'px';
       avatar.style.borderRadius = radiusCSS;
-      /* A borda do avatar NÃO é mais definida aqui: ela é gerenciada de
-         forma isolada por sincronizarBordaESombraAvatar() (restaura a
-         borda do painel apenas quando a sombra estiver desativada). */
 
       /* Vidro: o backdrop-filter vive no container pai (não no <img>/fundo sólido) */
       glassCard.style.borderRadius = radiusCSS;
@@ -3414,27 +3552,10 @@
         glassCard.style.setProperty('--glass-blur', '0px');
       }
 
-      /* Sombra projetada responsiva: valores escalados + variáveis CSS.
-         O antigo anel dourado (.avatar-ring) foi removido por completo:
-         com a sombra ativa NADA de outline/borda amarela permanece ao
-         redor da foto (garantido por sincronizarBordaESombraAvatar). */
-      if (p.shadowOn) {
-        const s = avatarShadowValues();
-        glassCard.style.setProperty('--shadow-x', s.x + 'px');
-        glassCard.style.setProperty('--shadow-y', s.y + 'px');
-        glassCard.style.setProperty('--shadow-blur', s.blur + 'px');
-        glassCard.style.setProperty('--shadow-spread', s.spread + 'px');
-        glassCard.style.setProperty('--shadow-color', s.color);
-        glassCard.style.outline = 'none';
-      } else {
-        glassCard.style.setProperty('--shadow-x', '0px');
-        glassCard.style.setProperty('--shadow-y', '0px');
-        glassCard.style.setProperty('--shadow-blur', '0px');
-        glassCard.style.setProperty('--shadow-spread', '0px');
-        glassCard.style.setProperty('--shadow-color', 'rgba(0, 0, 0, 0)');
-        glassCard.style.outline = '';
-      }
-      sincronizarBordaESombraAvatar();
+      /* Borda + sombra do avatar: a borda configurada no painel é SEMPRE
+         aplicada na div .pv-avatar e a sombra (anel + queda) vive no card
+         de vidro via box-shadow. As duas coexistem — nenhuma limpa a outra. */
+      atualizarEstilosFinaisAvatar();
 
       /* Estilos de texto do perfil persistidos (cor, tamanho, peso, alinhamento) */
       const applyTextCSS = (targetId, cfg) => {
@@ -3506,14 +3627,15 @@
 
       /* Restaura a estilização avançada de texto do perfil */
       const pre = { name: 'profile-name', bio: 'profile-bio', address: 'profile-address' };
+      const weightId = { name: 'profile-name-weight', bio: 'profile-bio-weight', address: 'address-weight' };
       ['name', 'bio', 'address'].forEach((k) => {
         const t = p.text[k];
         if (!t) return;
         const prefix = pre[k];
         if (t.color) el(prefix + '-color').value = t.color;
         if (t.size) el(prefix + '-size').value = t.size;
-        if (t.weight) el(prefix + '-weight').value = t.weight;
-        if (t.align) el(prefix + '-align').value = t.align;
+        if (t.weight) el(weightId[k]).value = t.weight;
+        if (k !== 'address' && t.align) el(prefix + '-align').value = t.align;
         const hex = el(prefix + '-colorHex');
         if (hex && t.color) hex.textContent = t.color.toUpperCase();
         const out = el(prefix + '-size-out');
@@ -3599,7 +3721,7 @@
     }
 
     const DS_SLIDERS = [
-      'ds-banner-height', 'ds-banner-angle', 'ds-banner-glass-blur',
+      'ds-banner-height', 'ds-banner-angle',
       'ds-banner-monogram-size', 'ds-banner-brand-size', 'ds-banner-weight',
       'ds-banner-text-shadow-blur', 'ds-banner-text-shadow-alpha',
       'ds-banner-mono-bg-alpha', 'ds-banner-mono-border-width', 'ds-banner-mono-radius',
@@ -3666,10 +3788,36 @@
     }
 
     /* ================================================================
+       🧊 VIDRO NO BANNER (backdrop blur) — checkbox + slider dedicados.
+       A rotina reativa lê a checkbox de ativação e o slider de desfoque,
+       sincroniza o designState e força a aplicação no mockup do celular
+       em tempo real (indicador "18px", --banner-blur-amount e o filtro
+       inline). Tanto o 'input' (arrastar) quanto o 'change' (soltar) e a
+       checkbox disparam o mesmo pipeline idempotente.
+       ================================================================ */
+    const checkboxVidroBanner = el('ds-banner-glass');
+    const sliderDesfoqueBanner = el('ds-banner-glass-blur');
+
+    function sincronizarVidroBanner() {
+      updateRangeFill(sliderDesfoqueBanner);
+      controlsToDesign();
+      updateDesignOutputs();
+      applyDesign();
+    }
+
+    if (checkboxVidroBanner) {
+      checkboxVidroBanner.addEventListener('change', sincronizarVidroBanner);
+    }
+    if (sliderDesfoqueBanner) {
+      sliderDesfoqueBanner.addEventListener('input', sincronizarVidroBanner);
+      sliderDesfoqueBanner.addEventListener('change', sincronizarVidroBanner);
+    }
+
+    /* ================================================================
        SOMBRA/ANEL DO AVATAR — checkbox dedicado e isolado.
-       Ao marcar, remove imediatamente a borda/outline dourado da foto
-       (via sincronizarBordaESombraAvatar). Ao desmarcar, restaura a
-       borda configurada no painel superior.
+       Liga/desliga a sombra no card de vidro (box-shadow). A borda do
+       painel NÃO é afetada: ela continua aplicada na div .pv-avatar via
+       atualizarEstilosFinaisAvatar — os dois estilos coexistem.
        ================================================================ */
     const checkboxSombraAnel = el('ds-avatar-shadow');
 
@@ -3686,6 +3834,8 @@
       if (e.target === el('ds-banner-image')) return;
       if (e.target === checkboxMostrarBanner) return; // tratado pelo toggle dedicado acima
       if (e.target === checkboxSombraAnel) return; // tratado pelo toggle dedicado acima
+      if (e.target === checkboxVidroBanner) return; // tratado pela rotina dedicada do vidro
+      if (e.target === sliderDesfoqueBanner) return; // tratado pela rotina dedicada do vidro
       controlsToDesign();
       if (e.target === el('ds-avatar-border-color') || e.target === el('ds-avatar-shadow-color')) {
         const hexId = e.target.id + 'Hex';
@@ -3867,7 +4017,7 @@
     /* ---- Endereço ---- */
     const inputAddressColor = document.getElementById('profile-address-color');
     const inputAddressSize = document.getElementById('profile-address-size');
-    const inputAddressAlign = document.getElementById('profile-address-align');
+    const selectAddressWeight = document.getElementById('address-weight');
     const previewAddressElement = document.getElementById('preview-profile-address');
 
     function atualizarEstiloAddress() {
@@ -3885,14 +4035,15 @@
         const out = document.getElementById('profile-address-size-out');
         if (out) out.textContent = inputAddressSize.value + 'px';
       }
-      if (inputAddressAlign) {
-        cfg.align = inputAddressAlign.value;
-        previewAddressElement.style.textAlign = inputAddressAlign.value;
+      if (selectAddressWeight) {
+        cfg.weight = +selectAddressWeight.value;
+        previewAddressElement.style.setProperty('--address-font-weight', selectAddressWeight.value);
+        previewAddressElement.style.fontWeight = selectAddressWeight.value;
       }
       applyDesign();
     }
 
-    [inputAddressColor, inputAddressSize, inputAddressAlign].forEach((input) => {
+    [inputAddressColor, inputAddressSize, selectAddressWeight].forEach((input) => {
       input?.addEventListener('input', atualizarEstiloAddress);
       input?.addEventListener('change', atualizarEstiloAddress);
     });
@@ -4473,7 +4624,9 @@
       return wrapper;
     }
 
-    /* Reconstrói a lista de cards maiores EXCLUSIVAMENTE a partir do Array 2 */
+    /* Reconstrói a lista de cards maiores EXCLUSIVAMENTE a partir do Array 2.
+       Cada card é criado limpo (sem classes acumuladas) e recebe os
+       modificadores de largura e do modo "Imagem completa" de forma isolada. */
     function renderPreviewLinks() {
       previewLinksList.innerHTML = '';
 
@@ -4484,7 +4637,7 @@
         a.target = '_blank';
         a.rel = 'noopener';
 
-        /* Largura individual */
+        /* Largura individual: 'full' | 'half' | 'compact' | 'auto' */
         if (link.width === 'full') a.classList.add('pv-link--full');
         else if (link.width === 'half') a.classList.add('pv-link--half');
         else if (link.width === 'compact') a.classList.add('pv-link--compact');
@@ -4492,13 +4645,17 @@
         /* Animação de destaque */
         if (link.animation && link.animation !== 'none') a.classList.add('anim-' + link.animation);
 
-        /* Imagem própria em modo banner cobre o cartão inteiro */
-        if (link.image && link.style === 'banner') {
+        /* Imagem completa (estilo Beacons): exige imagem própria. A classe
+           pv-link--banner trava aspect-ratio + object-fit: cover no CSS,
+           então a imagem preenche o card exato sem distorcer ou estourar. */
+        const isImagemCompleta = link.style === 'banner' && !!link.image;
+        if (isImagemCompleta) {
           a.classList.add('pv-link--banner');
           const img = document.createElement('img');
           img.className = 'pv-link__banner';
           img.src = link.image;
-          img.alt = '';
+          img.alt = link.title || '';
+          img.loading = 'lazy';
           a.appendChild(img);
         } else {
           /* Ícone do dropdown (ou imagem própria pequena) + rótulo centralizado */

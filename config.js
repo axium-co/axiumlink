@@ -118,7 +118,7 @@ window.AXIUMLINK_CONFIG = {
       text: {
         name: { color: "", size: 0, weight: 0, align: "" },
         bio: { color: "", size: 0, weight: 0, align: "" },
-        address: { color: "", size: 0, align: "" }
+        address: { color: "", size: 0, weight: 0 }
       }
     }
   }

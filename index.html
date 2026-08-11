@@ -309,6 +309,26 @@
 
     .profile__address svg { width: 14px; height: 14px; flex-shrink: 0; }
 
+    /* ---- Alinhamento dos textos do perfil (largura total) ----
+       Dentro do flex column (align-items: center) os itens encolhem até
+       a largura do próprio texto, então `text-align` não tem espaço para
+       atuar. Com largura total, Esquerda/Centro/Direita funcionam de fato
+       (apenas Nome e Biografia têm seletor de alinhamento). */
+    #pgTitle,
+    #pgSubtitle,
+    #pgAddress {
+      width: 100%;
+      max-width: 100%;
+    }
+
+    /* Endereço: alinhamento fixo e centralizado (sem seletor dinâmico).
+       O peso da fonte vem de design.profile.text.address (--weight). */
+    #pgAddress {
+      display: block;
+      width: 100%;
+      text-align: center;
+    }
+
     /* ================================================================
        FLUXO LIVRE — botões e cards num único container flex
        (order/largura definidos pelo Painel Axiumlink)
@@ -528,22 +548,29 @@
 
     .featured__card:hover .featured__arrow { transform: translateX(3px); }
 
-    /* ---- Card com imagem completa (estilo Beacons) ---- */
+    /* ---- Card com imagem completa (estilo Beacons) ----
+       Mesma trava de proporção do painel (16/9): a imagem é recortada
+       com object-fit: cover dentro do card, sem distorcer nem estourar. */
     .featured__card--banner {
       position: relative;
       padding: 0;
       overflow: hidden;
-      aspect-ratio: 2 / 1;
+      aspect-ratio: 16 / 9;
+      height: auto;
       min-height: 0;
     }
 
     .featured__banner-img {
       position: absolute;
       inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+      object-position: center;
       display: block;
+      max-width: none;
+      max-height: none;
+      flex-shrink: 0;
     }
 
     .featured__card--banner:hover .featured__banner-img { transform: scale(1.02); }
@@ -1404,7 +1431,12 @@
         if (cfg.color) t.style.color = cfg.color;
         if (cfg.size) t.style.fontSize = cfg.size + 'px';
         if (cfg.weight) t.style.fontWeight = cfg.weight;
-        if (cfg.align) t.style.textAlign = cfg.align;
+        if (cfg.align) {
+          t.style.textAlign = cfg.align;
+          if (id === 'pgAddress') {
+            t.style.justifyContent = cfg.align === 'left' ? 'flex-start' : cfg.align === 'right' ? 'flex-end' : 'center';
+          }
+        }
       };
       applyPubText('pgTitle', ptext.name);
       applyPubText('pgSubtitle', ptext.bio);
