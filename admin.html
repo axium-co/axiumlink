@@ -3746,19 +3746,33 @@
     }
 
     el('ds-engine').addEventListener('change', (e) => {
-      if (e.target.classList.contains('gs-pos') || e.target.classList.contains('gs-alpha')) return;
+      if (e.target.classList.contains('gs-color') || e.target.classList.contains('gs-pos') || e.target.classList.contains('gs-alpha')) return;
       if (e.target === el('ds-banner-image')) return;
       if (e.target === checkboxMostrarBanner) return; // tratado pelo toggle dedicado acima
       if (e.target === checkboxSombraAnel) return; // tratado pelo toggle dedicado acima
       if (e.target === checkboxVidroBanner) return; // tratado pela rotina dedicada do vidro
       if (e.target === sliderDesfoqueBanner) return; // tratado pela rotina dedicada do vidro
+      if (DS_SLIDERS.indexOf(e.target.id) !== -1) return; // tratado pelo loop input de DS_SLIDERS
+      if (e.target === inputZIndex) return; // tratado pela rotina dedicada da camada do avatar
+      if (e.target === el('ds-page-gradient-on')) return; // tratado pela checkbox dedicada
+      if (e.target === el('ds-banner-bgtype')) return; // tratado pelo listener change dedicado
+      if (e.target === el('ds-banner-color')) return; // tratado pelo listener input dedicado
+      if (e.target === el('ds-avatar-border-color') || e.target === el('ds-avatar-shadow-color')) return; // tratado pelos listeners input dedicados
       controlsToDesign();
-      if (e.target === el('ds-avatar-border-color') || e.target === el('ds-avatar-shadow-color')) {
-        const hexId = e.target.id + 'Hex';
-        const hexEl = el(hexId);
-        if (hexEl) hexEl.textContent = e.target.value;
-      }
       applyDesign();
+    });
+
+    /* Cores de borda e sombra do avatar — atualização ao vivo no arrastar
+       (input), como o seletor de cor do banner. Antes só reagiam no change. */
+    ['ds-avatar-border-color', 'ds-avatar-shadow-color'].forEach((id) => {
+      const colorInput = el(id);
+      if (!colorInput) return;
+      colorInput.addEventListener('input', () => {
+        controlsToDesign();
+        const hexEl = el(id + 'Hex');
+        if (hexEl) hexEl.textContent = colorInput.value;
+        applyDesign();
+      });
     });
 
     /* ================================================================
@@ -4881,28 +4895,30 @@
     function cropLayout() {
       const s = cropState;
       const stageW = cropStage.clientWidth;
-      if (!stageW || !s.naturalW) return;
+      const stageH = cropStage.clientHeight;
+      if (!stageW || !stageH || !s.naturalW) return;
       const zoom = +cropZoom.value;
-      const cover = Math.max(stageW / s.naturalW, stageW / s.naturalH);
+      const cover = Math.max(stageW / s.naturalW, stageH / s.naturalH);
       s.dispW = s.naturalW * cover * zoom;
       s.dispH = s.naturalH * cover * zoom;
       s.x = Math.min(0, Math.max(stageW - s.dispW, s.x));
-      s.y = Math.min(0, Math.max(stageW - s.dispH, s.y));
+      s.y = Math.min(0, Math.max(stageH - s.dispH, s.y));
       cropSetPosition();
     }
 
     cropZoom.addEventListener('input', () => {
       const s = cropState;
       const stageW = cropStage.clientWidth;
-      if (!stageW || !s.naturalW) return;
+      const stageH = cropStage.clientHeight;
+      if (!stageW || !stageH || !s.naturalW) return;
       const zoom = +cropZoom.value;
       const cx = (stageW / 2 - s.x) / s.dispW;
-      const cy = (stageW / 2 - s.y) / s.dispH;
-      const cover = Math.max(stageW / s.naturalW, stageW / s.naturalH);
+      const cy = (stageH / 2 - s.y) / s.dispH;
+      const cover = Math.max(stageW / s.naturalW, stageH / s.naturalH);
       s.dispW = s.naturalW * cover * zoom;
       s.dispH = s.naturalH * cover * zoom;
       s.x = Math.min(0, Math.max(stageW - s.dispW, stageW / 2 - cx * s.dispW));
-      s.y = Math.min(0, Math.max(stageW - s.dispH, stageW / 2 - cy * s.dispH));
+      s.y = Math.min(0, Math.max(stageH - s.dispH, stageH / 2 - cy * s.dispH));
       cropSetPosition();
     });
 
@@ -4914,7 +4930,7 @@
     cropStage.addEventListener('pointermove', (e) => {
       if (!cropDrag || e.pointerId !== cropDrag.id) return;
       cropState.x = Math.min(0, Math.max(cropStage.clientWidth - cropState.dispW, cropDrag.ox + (e.clientX - cropDrag.sx)));
-      cropState.y = Math.min(0, Math.max(cropStage.clientWidth - cropState.dispH, cropDrag.oy + (e.clientY - cropDrag.sy)));
+      cropState.y = Math.min(0, Math.max(cropStage.clientHeight - cropState.dispH, cropDrag.oy + (e.clientY - cropDrag.sy)));
       cropSetPosition();
     });
 
