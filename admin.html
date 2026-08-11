@@ -2824,7 +2824,13 @@
        HELPERS DE COR
        ================================================================ */
     function hexToRgb(hex) {
-      const n = parseInt(hex.slice(1), 16);
+      let h = String(hex || '').trim();
+      if (h.charAt(0) !== '#') h = '#' + h;
+      if (/^#([0-9a-f]{3})$/i.test(h)) {
+        h = '#' + h[1] + h[1] + h[2] + h[2] + h[3] + h[3];
+      }
+      const n = parseInt(h.slice(1), 16);
+      if (Number.isNaN(n)) return [0, 0, 0];
       return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
     }
 
