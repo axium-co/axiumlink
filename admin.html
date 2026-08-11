@@ -2,10 +2,21 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#ffffff" />
 
   <title>Painel | Axiumlink</title>
+
+  <!-- ================================================================
+       PWA
+       ================================================================ -->
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 
   <!-- Fontes: Plus Jakarta Sans (painel) + fontes disponíveis para o cliente -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -544,58 +555,40 @@
       margin-bottom: 1.125rem;
     }
 
-    .section-card-parent {
-      background: var(--ds-surface);
-      border: 1px solid var(--ds-border-soft);
-      border-radius: var(--ds-radius);
-      box-shadow: var(--ds-shadow);
-      overflow: hidden;
-      transition: opacity 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    /* ---- Ordem de Exibição (reordenação das seções) ---- */
+    .drag-container {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
     }
 
-    .section-card-parent:hover { border-color: #c7d2fe; }
-
-    .section-card-parent.dragging {
-      opacity: 0.5;
-      border: 1px dashed #a5b4fc;
-      box-shadow: 0 8px 24px rgba(79, 70, 229, 0.18);
-    }
-
-    .section-card__head {
+    .drag-item {
       display: flex;
       align-items: center;
       gap: 0.625rem;
-      padding: 0.75rem 1.25rem;
-      background: linear-gradient(180deg, rgba(99, 102, 241, 0.07), rgba(99, 102, 241, 0.01));
-      border-bottom: 1px solid var(--ds-border-soft);
-      cursor: grab;
+      padding: 0.625rem 0.875rem;
+      background: var(--ds-surface);
+      border: 1px solid var(--ds-border);
+      border-radius: var(--ds-radius);
+      transition: border-color 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+    }
+
+    .drag-item:hover { border-color: #c7d2fe; }
+
+    .drag-item.dragging {
+      opacity: 0.5;
+      border-style: dashed;
+      border-color: #a5b4fc;
+      box-shadow: 0 8px 24px rgba(79, 70, 229, 0.18);
+    }
+
+    .drag-text {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--ds-body);
       user-select: none;
       -webkit-user-select: none;
-      touch-action: none;
     }
-
-    .section-card__head:hover { background: linear-gradient(180deg, rgba(99, 102, 241, 0.12), rgba(99, 102, 241, 0.02)); }
-
-    .section-card__head:active { cursor: grabbing; }
-
-    .section-card__handle {
-      display: grid;
-      place-items: center;
-      color: #94a3b8;
-      flex-shrink: 0;
-    }
-
-    .section-card__handle svg { width: 16px; height: 16px; }
-
-    .section-card__title {
-      font-size: 0.6875rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.09em;
-      color: var(--ds-muted);
-    }
-
-    .section-card__body { padding: 1.25rem; }
 
     /* ---- Gerenciador de links dinâmico ---- */
     #links-management-container {
@@ -664,6 +657,7 @@
       border: none;
       border-radius: 8px;
       cursor: grab;
+      touch-action: none;
       transition: background 0.15s ease, color 0.15s ease;
     }
 
@@ -672,10 +666,6 @@
     .drag-handle svg { width: 18px; height: 18px; }
 
     .block.is-dragging { opacity: 0.45; }
-    .block.is-over {
-      border-color: #6366f1;
-      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.18);
-    }
 
     .btn-danger-block {
       display: inline-flex;
@@ -1749,6 +1739,29 @@
 
     .toast--show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
+    /* ---- Aviso de offline ---- */
+    .offline-pill {
+      position: fixed;
+      left: 50%;
+      bottom: 1rem;
+      transform: translateX(-50%);
+      z-index: 150;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(15, 23, 42, 0.92);
+      color: #ffffff;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.5rem 0.875rem;
+      border-radius: 999px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+      pointer-events: none;
+    }
+
+    .offline-pill[hidden] { display: none; }
+    .offline-pill svg { width: 14px; height: 14px; }
+
     /* ================================================================
        RESPONSIVO — empilha colunas em telas menores
        ================================================================ */
@@ -1789,6 +1802,103 @@
       .topbar__name { display: none; }
       .btn { padding: 0 0.75rem; font-size: 0.8125rem; }
     }
+
+    /* ================================================================
+       MOBILE — tabs Editar/Prévia, barra de salvar fixa e preview
+       em tela cheia (notch + barra de gestos respeitados)
+       ================================================================ */
+    .mobile-tabs { display: none; }
+    .mobile-savebar { display: none; }
+
+    @media (max-width: 980px) {
+      .mobile-tabs {
+        position: sticky;
+        top: 64px;
+        z-index: 45;
+        display: flex;
+        gap: 0.375rem;
+        padding: 0.5rem 0.75rem;
+        background: rgba(255, 255, 255, 0.92);
+        -webkit-backdrop-filter: blur(14px);
+        backdrop-filter: blur(14px);
+        border-bottom: 1px solid var(--ds-border);
+      }
+
+      .mobile-tabs__btn {
+        flex: 1;
+        height: 42px;
+        border: 1px solid var(--ds-border);
+        border-radius: 10px;
+        background: var(--ds-surface);
+        color: var(--ds-body);
+        font-family: inherit;
+        font-size: 0.8125rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+      }
+
+      .mobile-tabs__btn.is-active {
+        background: var(--ds-accent);
+        border-color: var(--ds-accent);
+        color: #ffffff;
+      }
+
+      .topbar .btn--primary { display: none; }
+
+      body:not(.show-preview) .preview-zone { display: none; }
+      body.show-preview .panel { display: none; }
+
+      body.show-preview .preview-zone {
+        position: static;
+        top: auto;
+        display: flex;
+        height: calc(100dvh - 64px - 57px);
+        min-height: 0;
+        overflow: hidden;
+        padding: 0;
+        background: #0f172a;
+      }
+
+      body.show-preview .preview-zone .phone-mockup {
+        width: 100%;
+        height: 100%;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+        background: transparent;
+      }
+
+      .phone-notch { display: none; }
+      .phone-screen { border-radius: 0; }
+
+      .mobile-savebar {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 60;
+        display: flex;
+        gap: 0.75rem;
+        padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
+        background: rgba(255, 255, 255, 0.94);
+        -webkit-backdrop-filter: blur(14px);
+        backdrop-filter: blur(14px);
+        border-top: 1px solid var(--ds-border);
+      }
+
+      .mobile-savebar .btn { flex: 1; height: 46px; }
+
+      body.show-preview .mobile-savebar { display: none; }
+
+      body.show-preview .offline-pill { bottom: max(1rem, env(safe-area-inset-bottom)); }
+      body:not(.show-preview) .offline-pill { bottom: calc(5.25rem + env(safe-area-inset-bottom)); }
+
+      .panel { padding-bottom: calc(6rem + env(safe-area-inset-bottom)); }
+      .topbar { padding: 0 0.75rem; }
+      .drag-handle { min-width: 2.5rem; min-height: 2.5rem; }
+      .btn-delete-link { width: 2.5rem; height: 2.5rem; }
+    }
   </style>
 </head>
 
@@ -1816,6 +1926,12 @@
       </button>
     </div>
   </header>
+
+  <!-- Tabs móveis: alterna entre edição e pré-visualização em telas pequenas -->
+  <nav class="mobile-tabs" aria-label="Alternar entre edição e pré-visualização">
+    <button type="button" class="mobile-tabs__btn is-active" data-view="edit">Editar</button>
+    <button type="button" class="mobile-tabs__btn" data-view="preview">Prévia</button>
+  </nav>
 
   <main class="admin-layout">
 
@@ -2006,19 +2122,19 @@
           <div class="field">
             <label>Ordem de Exibição</label>
             <div class="drag-container" id="blocks-drag-container">
-              <div class="drag-item" draggable="true" data-block="perfil">
+              <div class="drag-item" data-block="perfil">
                 <div class="drag-handle" title="Arraste para reordenar" aria-label="Arraste para reordenar">
                   <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="9" cy="5" r="1.7"/><circle cx="15" cy="5" r="1.7"/><circle cx="9" cy="12" r="1.7"/><circle cx="15" cy="12" r="1.7"/><circle cx="9" cy="19" r="1.7"/><circle cx="15" cy="19" r="1.7"/></svg>
                 </div>
                 <span class="drag-text">Perfil</span>
               </div>
-              <div class="drag-item" draggable="true" data-block="acoes-rapidas">
+              <div class="drag-item" data-block="acoes-rapidas">
                 <div class="drag-handle" title="Arraste para reordenar" aria-label="Arraste para reordenar">
                   <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="9" cy="5" r="1.7"/><circle cx="15" cy="5" r="1.7"/><circle cx="9" cy="12" r="1.7"/><circle cx="15" cy="12" r="1.7"/><circle cx="9" cy="19" r="1.7"/><circle cx="15" cy="19" r="1.7"/></svg>
                 </div>
                 <span class="drag-text">Ações Rápidas</span>
               </div>
-              <div class="drag-item" draggable="true" data-block="lista-links">
+              <div class="drag-item" data-block="lista-links">
                 <div class="drag-handle" title="Arraste para reordenar" aria-label="Arraste para reordenar">
                   <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="9" cy="5" r="1.7"/><circle cx="15" cy="5" r="1.7"/><circle cx="9" cy="12" r="1.7"/><circle cx="15" cy="12" r="1.7"/><circle cx="9" cy="19" r="1.7"/><circle cx="15" cy="19" r="1.7"/></svg>
                 </div>
@@ -2566,6 +2682,30 @@
 
   </main>
 
+  <!-- Barra de salvar fixa (mobile) -->
+  <div class="mobile-savebar">
+    <button type="submit" form="admin-form" class="btn btn--primary">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polyline points="20 6 9 17 4 12" />
+      </svg>
+      <span>Salvar Alterações</span>
+    </button>
+  </div>
+
+  <!-- Aviso de conexão perdida -->
+  <div class="offline-pill" id="offlinePill" hidden>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M1 1l22 22" />
+      <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55" />
+      <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39" />
+      <path d="M10.71 5.05A16 16 0 0 1 22.58 9" />
+      <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88" />
+      <path d="M8.53 16.11a6 6 0 0 1 6.95 0" />
+      <line x1="12" x2="12.01" y1="20" y2="20" />
+    </svg>
+    <span>Você está offline</span>
+  </div>
+
   <div class="toast" id="toast">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <polyline points="20 6 9 17 4 12" />
@@ -2693,41 +2833,47 @@
       return Object.keys(sectionBlockMap).find((b) => sectionBlockMap[b] === key);
     }
 
-    const orderDragContainer = el('blocks-drag-container');
-    let draggingItem = null;
+    /* Reordenação por Pointer Events — funciona com mouse e toque.
+       Compartilha o helper getDropTarget usado pelos blocos. */
+    (function initSectionDrag() {
+      const container = el('blocks-drag-container');
+      if (!container) return;
+      let state = null;
 
-    orderDragContainer.addEventListener('dragstart', (e) => {
-      const item = e.target.closest('.drag-item');
-      if (!item) return;
-      draggingItem = item;
-      item.classList.add('dragging');
-      e.dataTransfer.effectAllowed = 'move';
-      try { e.dataTransfer.setData('text/plain', item.dataset.block); } catch (err) {}
-    });
+      const items = () => container.querySelectorAll('.drag-item');
 
-    orderDragContainer.addEventListener('dragover', (e) => {
-      if (!draggingItem) return;
-      e.preventDefault();
-      e.dataTransfer.dropEffect = 'move';
-      const siblings = Array.from(orderDragContainer.querySelectorAll('.drag-item:not(.dragging)'));
-      const nextSibling = siblings.find((sibling) => {
-        const box = sibling.getBoundingClientRect();
-        const offset = e.clientY - box.top - box.height / 2;
-        return offset < 0;
+      container.addEventListener('pointerdown', (e) => {
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
+        const handle = e.target.closest('.drag-handle');
+        if (!handle) return;
+        const item = handle.closest('.drag-item');
+        if (!item) return;
+        e.preventDefault();
+        state = { item, pointerId: e.pointerId, startY: e.clientY, moved: false };
+        item.classList.add('dragging');
+        try { item.setPointerCapture(e.pointerId); } catch (err) {}
       });
-      orderDragContainer.insertBefore(draggingItem, nextSibling);
-    });
 
-    orderDragContainer.addEventListener('drop', (e) => {
-      e.preventDefault();
-    });
+      container.addEventListener('pointermove', (e) => {
+        if (!state || e.pointerId !== state.pointerId) return;
+        e.preventDefault();
+        if (Math.abs(e.clientY - state.startY) < 6) return;
+        state.moved = true;
+        const after = getDropTarget(items(), e.clientY, state.item);
+        if (after) container.insertBefore(state.item, after);
+        else container.appendChild(state.item);
+      });
 
-    orderDragContainer.addEventListener('dragend', (e) => {
-      const item = e.target.closest('.drag-item');
-      if (item) item.classList.remove('dragging');
-      draggingItem = null;
-      atualizarOrdemNoPreview();
-    });
+      const end = (e) => {
+        if (!state || e.pointerId !== state.pointerId) return;
+        state.item.classList.remove('dragging');
+        const moved = state.moved;
+        state = null;
+        if (moved) atualizarOrdemNoPreview();
+      };
+      container.addEventListener('pointerup', end);
+      container.addEventListener('pointercancel', end);
+    })();
 
     /* Reconstrói o fluxo do preview conforme os controles de layout. */
     function renderLayout() {
@@ -3895,67 +4041,60 @@
 
     /* ================================================================
        DRAG & DROP — reordenação livre dos blocos (Ações Rápidas e Links)
+       Por Pointer Events: funciona com mouse e toque.
        ================================================================ */
-    let dragBlock = null;
-
-    function getDragAfterElement(container, y) {
-      const elements = Array.from(container.querySelectorAll('.block')).filter((el) => el !== dragBlock);
-      let closestEl = null;
+    function getDropTarget(items, y, item) {
+      const elements = Array.from(items).filter((el) => el !== item);
+      let closest = null;
       let closestOffset = Number.NEGATIVE_INFINITY;
       elements.forEach((child) => {
         const box = child.getBoundingClientRect();
         const offset = y - box.top - box.height / 2;
         if (offset < 0 && offset > closestOffset) {
           closestOffset = offset;
-          closestEl = child;
+          closest = child;
         }
       });
-      return closestEl;
+      return closest;
     }
 
-    function clearDragHighlights() {
-      document.querySelectorAll('.block.is-over').forEach((b) => b.classList.remove('is-over'));
-    }
+    function initBlockDrag(container, onDrop) {
+      let state = null;
 
-    function bindBlockDrag(block) {
-      block.draggable = true;
-      block.addEventListener('dragstart', (e) => {
-        if (e.target.closest('input, select, textarea, .adv-toggle, .btn-danger-block, .icon-upload, .icon-clear')) {
-          e.preventDefault();
-          return;
-        }
-        dragBlock = block;
-        block.classList.add('is-dragging');
-        e.dataTransfer.effectAllowed = 'move';
-        try { e.dataTransfer.setData('text/plain', block.dataset.id || 'block'); } catch (err) {}
-      });
-      block.addEventListener('dragend', () => {
-        block.classList.remove('is-dragging');
-        dragBlock = null;
-        clearDragHighlights();
-      });
-    }
+      const items = () => container.querySelectorAll('.block');
 
-    function setupDragContainer(container, onDrop) {
-      container.addEventListener('dragover', (e) => {
-        if (!dragBlock || dragBlock.parentElement !== container) return;
+      container.addEventListener('pointerdown', (e) => {
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
+        if (e.target.closest('input, select, textarea, .adv-toggle, .btn-danger-block, .icon-upload, .icon-clear')) return;
+        const handle = e.target.closest('.drag-handle');
+        if (!handle) return;
+        const item = handle.closest('.block');
+        if (!item) return;
         e.preventDefault();
-        e.dataTransfer.dropEffect = 'move';
-        clearDragHighlights();
-        const after = getDragAfterElement(container, e.clientY);
-        if (after) after.classList.add('is-over');
+        state = { item, pointerId: e.pointerId, startY: e.clientY, moved: false };
+        item.classList.add('is-dragging');
+        try { item.setPointerCapture(e.pointerId); } catch (err) {}
       });
-      container.addEventListener('drop', (e) => {
+
+      container.addEventListener('pointermove', (e) => {
+        if (!state || e.pointerId !== state.pointerId) return;
         e.preventDefault();
-        if (!dragBlock || dragBlock.parentElement !== container) return;
-        clearDragHighlights();
-        const after = getDragAfterElement(container, e.clientY);
-        if (after == null) container.appendChild(dragBlock);
-        else container.insertBefore(dragBlock, after);
-        dragBlock.classList.remove('is-dragging');
-        dragBlock = null;
-        onDrop();
+        if (Math.abs(e.clientY - state.startY) < 6) return;
+        state.moved = true;
+        const after = getDropTarget(items(), e.clientY, state.item);
+        if (after) container.insertBefore(state.item, after);
+        else container.appendChild(state.item);
       });
+
+      const end = (e) => {
+        if (!state || e.pointerId !== state.pointerId) return;
+        state.item.classList.remove('is-dragging');
+        const moved = state.moved;
+        state = null;
+        if (moved && onDrop) onDrop();
+      };
+      container.addEventListener('pointerup', end);
+      container.addEventListener('pointercancel', end);
     }
 
     function createQuickActionBlock(data) {
@@ -3963,7 +4102,6 @@
       const block = document.createElement('div');
       block.className = 'block quick-action-block';
       if (d.image) block.dataset.image = d.image;
-      bindBlockDrag(block);
 
       const iconOptions = QUICK_ICON_OPTIONS.map(([value, label]) =>
         '<option value="' + value + '"' + (d.icon === value ? ' selected' : '') + '>' + label + '</option>'
@@ -4096,7 +4234,7 @@
     }
 
     el('btn-add-quick-action').addEventListener('click', () => addQuickActionBlock());
-    setupDragContainer(quickActionsContainer, syncQuickActionsAfterReorder);
+    initBlockDrag(quickActionsContainer, syncQuickActionsAfterReorder);
 
     quickActionsContainer.addEventListener('click', (e) => {
       const deleteBtn = e.target.closest('.btn-delete-action');
@@ -4240,7 +4378,6 @@
       block.className = 'block link-block';
       block.dataset.id = 'link-' + (++linkSeq);
       if (d.image) block.dataset.image = d.image;
-      bindBlockDrag(block);
 
       const iconOptions = LINK_ICON_OPTIONS.map(([value, label]) =>
         '<option value="' + value + '"' + (d.icon === value ? ' selected' : '') + '>' + label + '</option>'
@@ -4389,7 +4526,7 @@
     }
 
     el('btn-add-new-link').addEventListener('click', () => addLinkBlock());
-    setupDragContainer(linksContainer, syncLinksAfterReorder);
+    initBlockDrag(linksContainer, syncLinksAfterReorder);
 
     /* Delegação de eventos dentro do gerenciador (um listener por ação) */
     linksContainer.addEventListener('click', (e) => {
@@ -4900,6 +5037,25 @@
     })();
 
     /* ================================================================
+       MOBILE — alternância Editar / Prévia
+       ================================================================ */
+    const tabButtons = Array.from(document.querySelectorAll('.mobile-tabs__btn'));
+    tabButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const view = btn.dataset.view;
+        document.body.classList.toggle('show-preview', view === 'preview');
+        tabButtons.forEach((b) => b.classList.toggle('is-active', b === btn));
+      });
+    });
+
+    /* Aviso de conexão perdida (offline) */
+    const offlinePill = el('offlinePill');
+    const updateStatus = () => { if (offlinePill) offlinePill.hidden = navigator.onLine; };
+    window.addEventListener('online', updateStatus);
+    window.addEventListener('offline', updateStatus);
+    updateStatus();
+
+    /* ================================================================
        INIT — aplica contraste/texto padrão no carregamento
        ================================================================ */
     refreshBodyText();
@@ -4910,6 +5066,14 @@
     designToControls();
     applyDesign();
     atualizarDesignDosBotoes();
+  </script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('./sw.js').catch(function () {});
+      });
+    }
   </script>
 </body>
 </html>
