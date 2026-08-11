@@ -69,12 +69,11 @@ window.AXIUMLINK_CONFIG = {
     banner: {
       enabled: true,
       height: 132,
-      monogram: "",
-      brand: "",
+      bgType: "gradient",
+      color: "#1e293b",
       image: null,
       blend: "normal",
       angle: 135,
-      gradientScope: "banner",
       stops: [
         { color: "#0f172a", pos: 0, alpha: 100 },
         { color: "#334155", pos: 55, alpha: 100 },
@@ -82,25 +81,17 @@ window.AXIUMLINK_CONFIG = {
       ],
       glass: false,
       glassBlur: 18,
-      textColor: "#ffffff",
-      font: "system",
-      monogramSize: 40,
-      brandSize: 11,
-      fontWeight: 800,
-      align: "center",
-      textShadowOn: true,
-      textShadowBlur: 18,
-      textShadowColor: "#000000",
-      textShadowAlpha: 60,
-      monogramBadge: false,
-      monogramBg: "#000000",
-      monogramBgAlpha: 35,
-      monogramBorder: true,
-      monogramBorderColor: "#ffffff",
-      monogramBorderWidth: 2,
-      monogramRadius: 12,
       scrim: "none",
       scrimOpacity: 45
+    },
+    page: {
+      gradientOn: true,
+      angle: 180,
+      blend: "normal",
+      stops: [
+        { color: "#e2e8f0", pos: 0, alpha: 100 },
+        { color: "#ffffff", pos: 100, alpha: 100 }
+      ]
     },
     profile: {
       marginTop: -38,

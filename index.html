@@ -247,23 +247,11 @@
 
     /* ---- Banner superior (design.banner) ---- */
     .profile__banner {
-      --bn-text: #ffffff;
-      --bn-font: inherit;
-      --bn-weight: 800;
-      --bn-mono-size: 40px;
-      --bn-brand-size: 11px;
-      --bn-align: center;
-      --bn-shadow: none;
       position: relative;
       width: 100%;
       height: 132px;
       margin-bottom: -2.4rem;
       border-radius: var(--global-radius);
-      display: flex;
-      flex-direction: column;
-      align-items: var(--bn-align);
-      justify-content: center;
-      gap: 0.375rem;
       background: linear-gradient(135deg, #0f172a 0%, #334155 55%, #64748b 100%);
       overflow: hidden;
     }
@@ -274,34 +262,6 @@
       z-index: 0;
       pointer-events: none;
     }
-
-    .profile__banner-monogram {
-      position: relative;
-      z-index: 1;
-      font-family: var(--bn-font);
-      font-size: var(--bn-mono-size);
-      font-weight: var(--bn-weight);
-      letter-spacing: 0.1em;
-      line-height: 1;
-      color: var(--bn-text);
-      text-shadow: var(--bn-shadow);
-    }
-
-    .profile__banner-brand {
-      position: relative;
-      z-index: 1;
-      font-family: var(--bn-font);
-      font-size: var(--bn-brand-size);
-      font-weight: var(--bn-weight);
-      letter-spacing: 0.32em;
-      text-transform: uppercase;
-      color: var(--bn-text);
-      text-shadow: var(--bn-shadow);
-      opacity: 0.85;
-    }
-
-    .profile__banner-monogram[hidden],
-    .profile__banner-brand[hidden] { display: none; }
 
     .profile__avatar { position: relative; z-index: 1; }
 
@@ -947,8 +907,6 @@
       <!-- Banner superior (gerado pelo Painel — design.banner) -->
       <div class="profile__banner" id="pgBanner" hidden>
         <div class="profile__banner-scrim" id="pgScrim"></div>
-        <span class="profile__banner-monogram" id="pgMonogram">N</span>
-        <span class="profile__banner-brand" id="pgBrand">NOME</span>
       </div>
 
       <!-- TODO: SEU LOGO — troque o <span> por <img src="sua-logo.png" alt="Nome do Cliente"> -->
@@ -1287,14 +1245,32 @@
       set('--btn-text-color-global', v.textColor);
       set('--btn-border-color', v.borderColor);
 
-      if (v.bgImage) {
-        document.body.style.backgroundImage = 'url(' + v.bgImage + ')';
-        document.body.style.backgroundSize = 'cover';
-        document.body.style.backgroundPosition = 'center';
-        document.body.style.backgroundBlendMode = v.bgBlend || '';
+      /* ---- Camadas do fundo da página no <body> ---- */
+      /* A imagem (visual.bgImage) fica ATRÁS; o gradiente próprio
+         (design.page) fica NA FRENTE, como uma película — primeiro layer.
+         A cor base (--page-bg) é o tapete por baixo de tudo. */
+      const pgd = (cfg.design && cfg.design.page) || {};
+      const pageGrad = (pgd.gradientOn !== false && Array.isArray(pgd.stops) && pgd.stops.length >= 2)
+        ? 'linear-gradient(' + (pgd.angle || 180) + 'deg, '
+          + pgd.stops.map((s) => toRgba(s.color || '#e2e8f0', s.alpha == null ? 100 : s.alpha) + ' ' + (s.pos == null ? 0 : s.pos) + '%').join(', ') + ')'
+        : '';
+      const bgImageUrl = v.bgImage ? 'url(' + v.bgImage + ')' : '';
+
+      document.body.style.backgroundColor = pageBg || '#ffffff';
+      if (pageGrad && bgImageUrl) {
+        document.body.style.backgroundImage = pageGrad + ', ' + bgImageUrl;
+      } else if (pageGrad) {
+        document.body.style.backgroundImage = pageGrad;
+      } else if (bgImageUrl) {
+        document.body.style.backgroundImage = bgImageUrl;
       } else {
         document.body.style.backgroundImage = '';
       }
+      document.body.style.backgroundSize = 'cover';
+      document.body.style.backgroundPosition = 'center';
+      document.body.style.backgroundBlendMode = pageGrad
+        ? ((pgd.blend && pgd.blend !== 'normal') ? pgd.blend : '')
+        : (v.bgBlend || '');
 
       /* Subtítulo/descrições = texto neutro misturado com o fundo (tom suave).
          Independe do "Cor dos Textos": o perfil tem as próprias opções. */
@@ -1326,47 +1302,33 @@
           pgBanner.hidden = true;
         } else {
           pgBanner.hidden = false;
-          const bstops = (Array.isArray(bn.stops) && bn.stops.length >= 2)
-            ? bn.stops
-            : [
-                { color: '#0f172a', pos: 0, alpha: 100 },
-                { color: '#334155', pos: 55, alpha: 100 },
-                { color: '#64748b', pos: 100, alpha: 100 }
-              ];
-          const grad = 'linear-gradient(' + (bn.angle || 135) + 'deg, '
-            + bstops.map((s) => toRgba(s.color || '#0f172a', s.alpha == null ? 100 : s.alpha) + ' ' + (s.pos == null ? 0 : s.pos) + '%').join(', ') + ')';
+
+          /* Fundo próprio do banner — vidro > tipo escolhido (cor sólida,
+             gradiente próprio ou imagem). Independe do fundo da página. */
+          const bglass = !!bn.glass;
+          const btype = bn.bgType || 'gradient';
 
           pgBanner.style.height = (bn.height || 132) + 'px';
-          pgBanner.style.background = bn.image ? grad + ', url(' + bn.image + ')' : grad;
-          pgBanner.style.backgroundSize = bn.image ? 'cover' : '';
-          pgBanner.style.backgroundPosition = bn.image ? 'center' : '';
-          pgBanner.style.backgroundBlendMode = bn.blend || 'normal';
-          pgBanner.style.backdropFilter = bn.glass ? 'blur(' + (bn.glassBlur || 18) + 'px)' : '';
+          pgBanner.style.backdropFilter = bglass ? 'blur(' + (bn.glassBlur || 18) + 'px)' : '';
           pgBanner.style.webkitBackdropFilter = pgBanner.style.backdropFilter;
 
-          pgBanner.style.setProperty('--bn-text', bn.textColor || '#ffffff');
-          pgBanner.style.setProperty('--bn-font', bannerFont(bn.font));
-          pgBanner.style.setProperty('--bn-weight', String(bn.fontWeight || 800));
-          pgBanner.style.setProperty('--bn-mono-size', (bn.monogramSize || 40) + 'px');
-          pgBanner.style.setProperty('--bn-brand-size', (bn.brandSize || 11) + 'px');
-          pgBanner.style.setProperty('--bn-align', bannerAlign(bn.align));
-          pgBanner.style.setProperty('--bn-shadow',
-            bn.textShadowOn === false
-              ? 'none'
-              : '2px 2px ' + Math.min(bn.textShadowBlur || 18, 24) + 'px ' + toRgba(bn.textShadowColor || '#000000', bn.textShadowAlpha == null ? 60 : bn.textShadowAlpha));
-
-          /* Escopo do gradiente: "Na Página Inteira" aplica o loop de pontos
-             de cor no fundo do <body>, com o modo de mesclagem escolhido. */
-          if (bn.gradientScope === 'page') {
-            document.body.style.backgroundColor = isSolidHex ? pageBg : '#ffffff';
-            document.body.style.backgroundImage = grad;
-            document.body.style.backgroundSize = 'cover';
-            document.body.style.backgroundPosition = 'center';
-            document.body.style.backgroundBlendMode = (bn.blend && bn.blend !== 'normal') ? bn.blend : '';
+          if (bglass) {
+            /* Vidro: fundo RGBA translúcido para o backdrop-filter aparecer */
+            pgBanner.style.background = 'rgba(255, 255, 255, 0.2)';
+          } else if (btype === 'solid') {
+            pgBanner.style.background = bn.color || '#1e293b';
+          } else if (btype === 'image' && bn.image) {
+            pgBanner.style.background = "url('" + bn.image + "') center / cover no-repeat";
           } else {
-            document.body.style.backgroundColor = '';
-            document.body.style.backgroundBlendMode = '';
-            if (!v.bgImage) document.body.style.backgroundImage = '';
+            const bstops = (Array.isArray(bn.stops) && bn.stops.length >= 2)
+              ? bn.stops
+              : [
+                  { color: '#0f172a', pos: 0, alpha: 100 },
+                  { color: '#334155', pos: 55, alpha: 100 },
+                  { color: '#64748b', pos: 100, alpha: 100 }
+                ];
+            pgBanner.style.background = 'linear-gradient(' + (bn.angle || 135) + 'deg, '
+              + bstops.map((s) => toRgba(s.color || '#0f172a', s.alpha == null ? 100 : s.alpha) + ' ' + (s.pos == null ? 0 : s.pos) + '%').join(', ') + ')';
           }
 
           const scrim = document.getElementById('pgScrim');
@@ -1376,21 +1338,6 @@
             : bn.scrim === 'light'
               ? 'rgba(255, 255, 255, ' + ((bn.scrimOpacity || 45) / 100) + ')'
               : 'none';
-
-          const pgMono = document.getElementById('pgMonogram');
-          const pgBrand = document.getElementById('pgBrand');
-          const hideText = !!bn.image;
-          pgMono.hidden = hideText;
-          pgBrand.hidden = hideText;
-          pgMono.textContent = bn.monogram || (p.name ? p.name.charAt(0).toUpperCase() : 'N');
-          pgBrand.textContent = (bn.brand || (p.name ? p.name.toUpperCase() : 'NOME')).slice(0, 30);
-
-          pgMono.style.background = bn.monogramBadge ? toRgba(bn.monogramBg || '#000000', bn.monogramBgAlpha == null ? 35 : bn.monogramBgAlpha) : 'none';
-          pgMono.style.border = (bn.monogramBadge && bn.monogramBorder && (bn.monogramBorderWidth || 0) > 0)
-            ? (bn.monogramBorderWidth || 2) + 'px solid ' + (bn.monogramBorderColor || '#ffffff')
-            : 'none';
-          pgMono.style.borderRadius = bn.monogramBadge ? (bn.monogramRadius || 12) + 'px' : '0';
-          pgMono.style.padding = bn.monogramBadge ? '0.3em 0.6em' : '0';
         }
       }
 
@@ -1458,20 +1405,6 @@
       applyPubText('pgTitle', ptext.name);
       applyPubText('pgSubtitle', ptext.bio);
       applyPubText('pgAddress', ptext.address);
-
-      function bannerFont(font) {
-        switch (font) {
-          case 'serif':   return '"Georgia", "Times New Roman", serif';
-          case 'sans':    return '"Arial", "Helvetica Neue", sans-serif';
-          case 'mono':    return '"Courier New", Consolas, monospace';
-          case 'cursive': return '"Brush Script MT", "Segoe Script", cursive';
-          default:        return 'inherit';
-        }
-      }
-
-      function bannerAlign(align) {
-        return align === 'left' ? 'flex-start' : align === 'right' ? 'flex-end' : 'center';
-      }
 
       function toRgba(hex, alpha) {
         const [r, g, b] = hexToRgb(hex);

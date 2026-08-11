@@ -1078,19 +1078,14 @@
 
     .bg-image-btn { margin-bottom: 0.5rem; }
 
-    /* ---- Banner superior do mockup (monograma + sobreposição da foto) ----
+    /* ---- Banner superior do mockup (sobreposição da foto) ----
        A div do banner é um contêiner TOTALMENTE independente do fundo da
-       página: tem cor/imagem própria (--banner-bg) e a visibilidade é
+       página: tem fundo próprio (--bg-banner-main) e a visibilidade é
        controlada apenas pela classe .banner-oculto. Nada aqui toca no
        background do celular (#preview-mobile-container). */
     .header-banner-element {
       width: 100%;
       height: 120px;
-      background-color: var(--banner-bg, #0F172A);
-      background-image: var(--banner-bg-image, none);
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
       transition: all 0.2s ease;
     }
 
@@ -1101,14 +1096,10 @@
     }
 
     .pv-banner {
-      --pv-banner-text: #ffffff;
-      --pv-banner-font: inherit;
-      --pv-banner-weight: 800;
-      --pv-banner-mono-size: 40px;
-      --pv-banner-brand-size: 11px;
-      --pv-banner-align: center;
-      --pv-banner-shadow: none;
-      --banner-bg: #0F172A;
+      /* Controle 2 — Cobertura do Banner do Topo (ecossistema próprio).
+         Recebe cor sólida, gradiente próprio ou imagem via --bg-banner-main,
+         calculada pelo JS em computarFundoBanner(). Nunca lê --bg-page-*. */
+      --bg-banner-main: linear-gradient(135deg, #0f172a 0%, #334155 55%, #64748b 100%);
       --banner-blur-amount: 0px; /* recebe o valor (px) arrastado no slider de desfoque */
       position: relative;
       z-index: 10; /* Camada base fixa: o avatar fica atrás abaixo de 10 */
@@ -1116,21 +1107,11 @@
       height: 132px;
       margin-bottom: -2.4rem;
       border-radius: var(--global-radius);
-      display: flex;
-      flex-direction: column;
-      align-items: var(--pv-banner-align);
-      justify-content: center;
-      gap: 0.375rem;
-      /* FUNDAMENTAL para o vidro fosco: o fundo padrão NÃO pode ser um hex
-         sólido — o backdrop-filter só fica VISÍVEL com cor RGBA translúcida.
-         O hex opaco cobria o blur por baixo e o efeito nunca aparecia. */
-      background: linear-gradient(135deg, rgba(15, 23, 42, 0.55) 0%, rgba(51, 65, 85, 0.55) 55%, rgba(100, 116, 139, 0.55) 100%);
-      background-color: rgba(255, 255, 255, 0.15);
-      background-blend-mode: normal; /* nunca mescla com o fundo da página */
+      background: var(--bg-banner-main) center / cover no-repeat;
       overflow: hidden;
       backdrop-filter: blur(var(--banner-blur-amount));
       -webkit-backdrop-filter: blur(var(--banner-blur-amount)); /* suporte Safari/iPhone */
-      transition: backdrop-filter 0.1s ease-out, background-color 0.2s ease, height 0.2s ease;
+      transition: backdrop-filter 0.1s ease-out, background 0.2s ease, height 0.2s ease;
     }
 
     .pv-banner__scrim {
@@ -1139,36 +1120,6 @@
       z-index: 0;
       pointer-events: none;
     }
-
-    .pv-banner__monogram {
-      position: relative;
-      z-index: 1;
-      font-family: var(--pv-banner-font);
-      font-size: var(--monograma-text-size, var(--pv-banner-mono-size, 40px));
-      font-weight: var(--marca-text-weight, var(--pv-banner-weight, 800));
-      letter-spacing: 0.1em;
-      line-height: 1;
-      color: var(--monograma-text-color, var(--pv-banner-text, #ffffff));
-      text-shadow: var(--pv-banner-shadow);
-      text-align: var(--marca-text-align, var(--pv-banner-align, center));
-      transition: all 0.1s ease-out;
-    }
-
-    .pv-banner__brand {
-      position: relative;
-      z-index: 1;
-      font-family: var(--pv-banner-font);
-      font-size: var(--marca-text-size, var(--pv-banner-brand-size, 11px));
-      font-weight: var(--marca-text-weight, var(--pv-banner-weight, 800));
-      letter-spacing: 0.32em;
-      text-transform: uppercase;
-      color: var(--marca-text-color, var(--pv-banner-text, #ffffff));
-      text-shadow: var(--pv-banner-shadow);
-      opacity: 0.85;
-    }
-
-    .pv-banner__monogram[hidden],
-    .pv-banner__brand[hidden] { display: none; }
 
     /* Foto de perfil sobreposta ao banner com borda metálica.
        `position` + `z-index` são FUNDAMENTAIS para o controle de camadas:
@@ -1352,6 +1303,10 @@
       background: transparent; /* revela o fundo unificado do celular */
       color: var(--text-title);
       min-height: 100%;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      overflow-x: hidden; /* nada interno estoura as bordas do aparelho */
       padding: 2.75rem 1rem 1.5rem;
       font-size: 0.8rem;
       line-height: 1.45;
@@ -1370,21 +1325,50 @@
       --btn-text-universal: #ffffff;
       --btn-radius-universal: 12px;
       --btn-border-universal: 1px solid transparent;
+
+      /* TRAVAS DE LAYOUT — a tela interna do celular nunca muda de forma,
+         nunca rola na horizontal e ganha respiro inferior para a lista.
+         O display flex + column estabiliza o fluxo: banner, perfil, grade
+         de ações e lista de links empilham de cima para baixo. */
+      display: flex !important;
+      flex-direction: column !important;
+      width: 100% !important;
+      height: 100% !important;
+      padding: 0 0 24px 0 !important;
+      box-sizing: border-box !important;
+      overflow-x: hidden !important;
+      overflow-y: auto !important;
     }
 
-    /* O contêiner do celular é a ÚNICA fonte de verdade do fundo da página.
-       A cor base vem de --page-bg (color picker) e as camadas de
-       gradiente/imagem são montadas pelo JS em renderizarFundoUnificado():
-       o gradiente entra NA FRENTE da foto (película colorida). O banner do
-       topo nunca recebe nada disso: ele usa as próprias variáveis
-       (--banner-bg / --banner-bg-image) e permanece totalmente opaco e
-       isolado. */
+    /* ==================================================================
+       ECOSSISTEMAS DE FUNDO SEPARADOS (PÁGINA × BANNER).
+       O celular do preview tem DUAS fontes de fundo INDEPENDENTES, cada
+       uma com as próprias variáveis e NENHUM cruzamento entre elas:
+
+       Controle 1 — FUNDO GERAL DA PÁGINA (#preview-mobile-container):
+         --bg-page-main  cor base (vem do color picker "Fundo da Página")
+         --bg-page-grad  gradiente injetado pela seção "Gradiente de
+                         Fundo" (renderizarGradienteDeFundoIsolado)
+         --bg-page-img   imagem enviada em "Personalização Visual"
+         --bg-page-blend mesclagem da camada de gradiente sobre a imagem
+
+       Controle 2 — COBERTURA DO BANNER DO TOPO (.pv-banner):
+         --bg-banner-main  fundo calculado da capa (cor sólida, gradiente
+                           próprio ou imagem), definido pela seção
+                           "Estilo do Banner". Nunca toca em --bg-page-*.
+       ================================================================== */
     #preview-mobile-container {
-      background-color: var(--page-bg, #ffffff);
-      background-image: none;
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
+      --bg-page-main: var(--page-bg, #ffffff);
+      --bg-page-grad: none;
+      --bg-page-img: none;
+      --bg-page-blend: normal;
+
+      background-color: var(--bg-page-main) !important;
+      background-image: var(--bg-page-grad), var(--bg-page-img);
+      background-size: cover, cover;
+      background-position: center, center;
+      background-repeat: no-repeat, no-repeat;
+      background-blend-mode: var(--bg-page-blend), normal;
       position: relative;
       width: 100%;
       height: 100%;
@@ -1480,6 +1464,16 @@
       flex-wrap: wrap;
       gap: 8px;
       align-items: stretch;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+    }
+
+    /* Nenhuma seção interna do preview pode estourar a largura do aparelho:
+       grades e listas assumem min-width 0 e respeitam 100% da coluna. */
+    #pvFlow > * {
+      min-width: 0;
+      max-width: 100%;
     }
 
     .pv-profile { width: 100%; }
@@ -1555,26 +1549,41 @@
       transition: all 0.2s ease;
     }
 
-    /* ---- Grid de Ações Rápidas (mockup) — adapta-se à quantidade de botões ---- */
-    .quick-actions-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-      width: 100%;
+    /* ---- Grid de Ações Rápidas (mockup) — grade rígida de 2 colunas ----
+       Travas estruturais: a grade SEMPRE ocupa 100% da largura e nunca
+       ultrapassa as bordas do aparelho. Os modificadores list/scroll trocam
+       apenas o display (flex) e a direção — nunca a largura. */
+    #preview-quick-grid {
+      display: grid !important;
+      grid-template-columns: repeat(2, 1fr) !important;
+      gap: 10px !important;
+      width: 100% !important;
+      max-width: 100%;
+      min-width: 0;
+      box-sizing: border-box !important;
+      align-items: stretch;
     }
 
-    .quick-actions-grid[hidden] { display: none; }
+    #preview-quick-grid[hidden] { display: none !important; }
 
-    .quick-actions-grid .btn-quick-compact:only-child { grid-column: 1 / -1; }
+    #preview-quick-grid .btn-quick-compact:only-child { grid-column: 1 / -1; }
 
-    .quick-actions-grid--list {
-      display: flex;
-      flex-direction: column;
+    /* Itens nunca forçam a grade além do previsto (texto longo quebraria
+       as 2 colunas). Compact e scroll mantêm o min-width próprio. */
+    #preview-quick-grid .btn-quick-compact { min-width: 0; }
+    #preview-quick-grid .btn-quick-compact--compact,
+    #preview-quick-grid.quick-actions-grid--scroll .btn-quick-compact {
+      min-width: 130px;
+    }
+
+    #preview-quick-grid.quick-actions-grid--list {
+      display: flex !important;
+      flex-direction: column !important;
       gap: 8px;
     }
 
-    .quick-actions-grid--scroll {
-      display: flex;
+    #preview-quick-grid.quick-actions-grid--scroll {
+      display: flex !important;
       flex-wrap: nowrap;
       gap: 8px;
       overflow-x: auto;
@@ -1584,9 +1593,9 @@
       padding-bottom: 4px;
     }
 
-    .quick-actions-grid--scroll::-webkit-scrollbar { display: none; }
+    #preview-quick-grid.quick-actions-grid--scroll::-webkit-scrollbar { display: none; }
 
-    .quick-actions-grid--scroll .btn-quick-compact { flex: 0 0 auto; width: auto; min-width: 130px; }
+    #preview-quick-grid.quick-actions-grid--scroll .btn-quick-compact { flex: 0 0 auto; width: auto; }
 
     .pv-card {
       display: flex;
@@ -1628,24 +1637,34 @@
     .pv-card__body strong { font-size: 0.8rem; font-weight: 700; line-height: 1.3; }
     .pv-card__body span { font-size: 0.68rem; opacity: 0.8; }
 
-    /* ---- Lista de links dinâmica (mockup) ---- */
+    /* ---- Lista de links dinâmica (mockup) ----
+       Estrutura rígida: empilhada em coluna por padrão, 100% da largura,
+       sem overflow lateral. O display NÃO usa !important na base para que o
+       JS possa ocultar a seção inteira via style.display = 'none'. */
     #preview-links-list,
     #preview-links-list.mode-lista-vertical {
       display: flex;
-      flex-direction: column;
-      gap: 12px;
-      width: 100%;
+      flex-direction: column !important;
+      flex-wrap: nowrap !important;
+      gap: 12px !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      min-width: 0;
+      align-items: stretch !important;
+      box-sizing: border-box !important;
     }
 
     #preview-links-list.pv-links--grid {
-      flex-direction: row;
-      flex-wrap: wrap;
-      align-items: stretch;
+      flex-direction: row !important;
+      flex-wrap: wrap !important;
+      align-items: stretch !important;
+      justify-content: flex-start !important;
     }
 
     #preview-links-list.pv-links--grid .pv-link {
       flex: 1 1 calc(50% - 6px);
       min-width: 0;
+      max-width: 100%;
     }
 
     /* ---- Modo Carrossel Lateral (Cards lado a lado com deslize horizontal) ---- */
@@ -1685,6 +1704,8 @@
       justify-content: center;
       gap: 0.5rem;
       width: 100%;
+      min-width: 0;      /* nunca empurra a largura do container */
+      max-width: 100%;   /* nunca explode além da coluna do aparelho */
       min-height: 2.75rem;
       padding: 0.75rem 1rem;
       background: var(--card-destaque-bg);
@@ -1752,6 +1773,10 @@
       aspect-ratio: 16 / 9 !important;
       height: auto;
       min-height: 0;
+      min-width: 0;
+      /* impede que align-items: stretch (modos grid/carrossel) estique o
+         card na vertical e esmague a proporção 16/9 em um bloco gigante */
+      align-self: flex-start !important;
     }
 
     .pv-link--banner .pv-link__banner,
@@ -2418,6 +2443,50 @@
             Banner, perfil e avatar com propriedades calculadas em tempo real no preview.
           </p>
 
+          <button type="button" class="adv-toggle" id="ds-toggle-page" aria-expanded="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L6 21" /></svg>
+            <span>Fundo da Página</span>
+            <svg class="adv-toggle__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="adv-body" id="ds-page-body" hidden>
+
+            <div class="adv-group">
+              <p class="adv-subtitle adv-subtitle--sm">Gradiente de Fundo</p>
+              <p class="panel__hint">
+                Configura SOMENTE o fundo geral da página (abaixo do banner).
+                A cor base e a imagem de fundo ficam em "Personalização Visual".
+              </p>
+
+              <label class="adv-check">
+                <input type="checkbox" id="ds-page-gradient-on" checked />
+                <span>Usar gradiente no fundo da página</span>
+              </label>
+
+              <div id="ds-page-grad-wrap">
+                <div class="slider-field">
+                  <div class="slider-field__head"><label for="ds-page-angle">Ângulo</label><output id="ds-page-angle-out">180°</output></div>
+                  <input type="range" id="ds-page-angle" min="0" max="360" value="180" />
+                </div>
+
+                <div class="field">
+                  <label for="ds-page-blend">Mesclar</label>
+                  <select id="ds-page-blend">
+                    <option value="normal" selected>Normal</option>
+                    <option value="multiply">Multiplicar</option>
+                    <option value="screen">Tela</option>
+                    <option value="overlay">Sobrepor</option>
+                    <option value="darken">Escurecer</option>
+                    <option value="lighten">Clarear</option>
+                  </select>
+                </div>
+
+                <div class="grad-stops" id="ds-page-grad-stops"></div>
+                <button type="button" class="grad-add" id="ds-page-grad-add">➕ Adicionar cor</button>
+              </div>
+            </div>
+
+          </div>
+
           <button type="button" class="adv-toggle" id="ds-toggle" aria-expanded="false">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
             <span>Banner Superior</span>
@@ -2435,164 +2504,55 @@
                 <div class="slider-field__head"><label for="ds-banner-height">Altura</label><output id="ds-banner-height-out">132px</output></div>
                 <input type="range" id="ds-banner-height" min="80" max="240" value="132" />
               </div>
-
-              <div class="row-2">
-                <div class="field">
-                  <label for="ds-banner-monogram">Monograma</label>
-                  <input type="text" id="ds-banner-monogram" maxlength="3" placeholder="Inicial do nome" />
-                </div>
-                <div class="field">
-                  <label for="ds-banner-brand">Marca</label>
-                  <input type="text" id="ds-banner-brand" maxlength="24" placeholder="Texto pequeno" />
-                </div>
-              </div>
             </div>
 
             <div class="adv-group">
-              <p class="adv-subtitle adv-subtitle--sm">Gradiente de fundo</p>
-
-              <div class="adv-row">
-                <div class="slider-field">
-                  <div class="slider-field__head"><label for="ds-banner-angle">Ângulo</label><output id="ds-banner-angle-out">135°</output></div>
-                  <input type="range" id="ds-banner-angle" min="0" max="360" value="135" />
-                </div>
-                <div class="field">
-                  <label for="ds-banner-blend">Mesclar</label>
-                  <select id="ds-banner-blend">
-                    <option value="normal" selected>Normal</option>
-                    <option value="multiply">Multiplicar</option>
-                    <option value="screen">Tela</option>
-                    <option value="overlay">Sobrepor</option>
-                    <option value="darken">Escurecer</option>
-                    <option value="lighten">Clarear</option>
-                  </select>
-                </div>
-              </div>
+              <p class="adv-subtitle adv-subtitle--sm">Estilo do Banner</p>
+              <p class="panel__hint">
+                Controles próprios da capa do topo — nunca afetam o fundo da página.
+              </p>
 
               <div class="field">
-                <label for="ds-banner-gradient-scope">Aplicar Gradiente em:</label>
-                <select id="ds-banner-gradient-scope">
-                  <option value="banner" selected>Apenas no Banner do Topo</option>
-                  <option value="page">Na Página Inteira (Fundo)</option>
+                <label for="ds-banner-bgtype">Tipo de Fundo</label>
+                <select id="ds-banner-bgtype">
+                  <option value="solid">Cor sólida</option>
+                  <option value="gradient" selected>Gradiente próprio</option>
+                  <option value="image">Imagem</option>
                 </select>
               </div>
 
-              <div class="grad-stops" id="ds-grad-stops"></div>
-              <button type="button" class="grad-add" id="ds-grad-add">➕ Adicionar cor</button>
-            </div>
-
-            <div class="adv-group">
-              <label class="file-btn">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L6 21" /></svg>
-                <span>Imagem de fundo do banner</span>
-                <input type="file" id="ds-banner-image" accept="image/*" />
-              </label>
-              <button type="button" class="btn-remove btn-remove--block" id="ds-banner-image-clear" hidden>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" /><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><line x1="10" x2="10" y1="11" y2="17" /><line x1="14" x2="14" y1="11" y2="17" /></svg>
-                <span>Remover imagem do banner</span>
-              </button>
-              <p class="adv-subtitle adv-subtitle--sm">Ao usar imagem de fundo, monograma e marca ficam ocultos automaticamente.</p>
-            </div>
-
-            <div class="adv-group">
-              <p class="adv-subtitle adv-subtitle--sm">Textos (monograma e marca)</p>
-
-              <div class="adv-row">
-                <div class="field">
-                  <label for="ds-banner-text-color">Cor do texto</label>
-                  <input type="color" id="ds-banner-text-color" value="#ffffff" />
-                </div>
-                <div class="field">
-                  <label for="ds-banner-font">Fonte</label>
-                  <select id="ds-banner-font">
-                    <option value="system" selected>Padrão do sistema</option>
-                    <option value="serif">Serifada</option>
-                    <option value="sans">Sem serifa</option>
-                    <option value="mono">Monoespaçada</option>
-                    <option value="cursive">Manuscrita</option>
-                  </select>
+              <div id="ds-banner-solid-wrap" hidden>
+                <div class="field color-field">
+                  <label for="ds-banner-color">Cor do banner</label>
+                  <div class="color-field__control">
+                    <input type="color" id="ds-banner-color" value="#1e293b" />
+                    <span id="ds-banner-colorHex">#1e293b</span>
+                  </div>
                 </div>
               </div>
 
-              <div class="slider-field">
-                <div class="slider-field__head"><label for="ds-banner-monogram-size">Tamanho do monograma</label><output id="ds-banner-monogram-size-out">40px</output></div>
-                <input type="range" id="ds-banner-monogram-size" min="16" max="96" value="40" />
-              </div>
-
-              <div class="slider-field">
-                <div class="slider-field__head"><label for="ds-banner-brand-size">Tamanho da marca</label><output id="ds-banner-brand-size-out">11px</output></div>
-                <input type="range" id="ds-banner-brand-size" min="8" max="32" value="11" />
-              </div>
-
-              <div class="adv-row">
-                <div class="slider-field">
-                  <div class="slider-field__head"><label for="ds-banner-weight">Espessura</label><output id="ds-banner-weight-out">800</output></div>
-                  <input type="range" id="ds-banner-weight" min="100" max="900" step="100" value="800" />
+              <div id="ds-banner-grad-wrap">
+                <div class="adv-row">
+                  <div class="slider-field">
+                    <div class="slider-field__head"><label for="ds-banner-angle">Ângulo</label><output id="ds-banner-angle-out">135°</output></div>
+                    <input type="range" id="ds-banner-angle" min="0" max="360" value="135" />
+                  </div>
                 </div>
-                <div class="field">
-                  <label for="ds-banner-align">Alinhamento</label>
-                  <select id="ds-banner-align">
-                    <option value="center" selected>Centro</option>
-                    <option value="left">Esquerda</option>
-                    <option value="right">Direita</option>
-                  </select>
-                </div>
+
+                <div class="grad-stops" id="ds-banner-grad-stops"></div>
+                <button type="button" class="grad-add" id="ds-banner-grad-add">➕ Adicionar cor</button>
               </div>
 
-              <label class="adv-check">
-                <input type="checkbox" id="ds-banner-text-shadow" checked />
-                <span>Sombra no texto</span>
-              </label>
-              <div class="slider-field">
-                <div class="slider-field__head"><label for="ds-banner-text-shadow-blur">Desfoque da sombra</label><output id="ds-banner-text-shadow-blur-out">18px</output></div>
-                <input type="range" id="ds-banner-text-shadow-blur" min="0" max="24" value="18" />
-              </div>
-              <div class="field">
-                <label for="ds-banner-text-shadow-color">Cor da sombra</label>
-                <input type="color" id="ds-banner-text-shadow-color" value="#000000" />
-              </div>
-              <div class="slider-field">
-                <div class="slider-field__head"><label for="ds-banner-text-shadow-alpha">Opacidade da sombra</label><output id="ds-banner-text-shadow-alpha-out">60%</output></div>
-                <input type="range" id="ds-banner-text-shadow-alpha" min="0" max="100" value="60" />
-              </div>
-            </div>
-
-            <div class="adv-group">
-              <p class="adv-subtitle adv-subtitle--sm">Estilo do monograma</p>
-
-              <label class="adv-check">
-                <input type="checkbox" id="ds-banner-mono-badge" />
-                <span>Fundo (badge) atrás do monograma</span>
-              </label>
-              <div class="adv-row">
-                <div class="field">
-                  <label for="ds-banner-mono-bg">Cor do fundo</label>
-                  <input type="color" id="ds-banner-mono-bg" value="#000000" />
-                </div>
-                <div class="slider-field">
-                  <div class="slider-field__head"><label for="ds-banner-mono-bg-alpha">Opacidade</label><output id="ds-banner-mono-bg-alpha-out">35%</output></div>
-                  <input type="range" id="ds-banner-mono-bg-alpha" min="0" max="100" value="35" />
-                </div>
-              </div>
-
-              <label class="adv-check">
-                <input type="checkbox" id="ds-banner-mono-border" checked />
-                <span>Borda no badge</span>
-              </label>
-              <div class="adv-row">
-                <div class="field">
-                  <label for="ds-banner-mono-border-color">Cor da borda</label>
-                  <input type="color" id="ds-banner-mono-border-color" value="#ffffff" />
-                </div>
-                <div class="slider-field">
-                  <div class="slider-field__head"><label for="ds-banner-mono-border-width">Espessura</label><output id="ds-banner-mono-border-width-out">2px</output></div>
-                  <input type="range" id="ds-banner-mono-border-width" min="0" max="8" value="2" />
-                </div>
-              </div>
-
-              <div class="slider-field">
-                <div class="slider-field__head"><label for="ds-banner-mono-radius">Cantos do badge</label><output id="ds-banner-mono-radius-out">12px</output></div>
-                <input type="range" id="ds-banner-mono-radius" min="0" max="24" value="12" />
+              <div id="ds-banner-img-wrap" hidden>
+                <label class="file-btn">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L6 21" /></svg>
+                  <span>Imagem de fundo do banner</span>
+                  <input type="file" id="ds-banner-image" accept="image/*" />
+                </label>
+                <button type="button" class="btn-remove btn-remove--block" id="ds-banner-image-clear" hidden>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" /><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><line x1="10" x2="10" y1="11" y2="17" /><line x1="14" x2="14" y1="11" y2="17" /></svg>
+                  <span>Remover imagem do banner</span>
+                </button>
               </div>
             </div>
 
@@ -2778,8 +2738,6 @@
 
               <div class="pv-banner header-banner-element" id="pvBanner">
                 <div class="pv-banner__scrim" id="pvScrim"></div>
-                <div class="pv-banner__monogram" id="pvMonogram">N</div>
-                <div class="pv-banner__brand" id="pvBrand">NOME</div>
               </div>
 
               <header class="pv-profile" id="pvProfile">
@@ -3175,15 +3133,26 @@
     }
 
     const designState = {
+      /* Fundo geral da página — NUNCA toca no banner. A cor base (visual.pageBg)
+         e a imagem (visual.bgImage) ficam em `visual`; aqui mora o gradiente
+         da página, injetado só em --bg-page-grad / --bg-page-blend. */
+      page: {
+        gradientOn: true,
+        angle: 180,
+        blend: 'normal',
+        stops: [
+          { color: '#e2e8f0', pos: 0, alpha: 100 },
+          { color: '#ffffff', pos: 100, alpha: 100 }
+        ]
+      },
       banner: {
         enabled: true,
         height: 132,
-        monogram: '',
-        brand: '',
+        bgType: 'gradient', /* 'solid' | 'gradient' | 'image' */
+        color: '#1e293b',
         image: null,
         blend: 'normal',
         angle: 135,
-        gradientScope: 'banner',
         stops: [
           { color: '#0f172a', pos: 0, alpha: 100 },
           { color: '#334155', pos: 55, alpha: 100 },
@@ -3191,23 +3160,6 @@
         ],
         glass: false,
         glassBlur: 18,
-        textColor: '#ffffff',
-        font: 'system',
-        monogramSize: 40,
-        brandSize: 11,
-        fontWeight: 800,
-        align: 'center',
-        textShadowOn: true,
-        textShadowBlur: 18,
-        textShadowColor: '#000000',
-        textShadowAlpha: 60,
-        monogramBadge: false,
-        monogramBg: '#000000',
-        monogramBgAlpha: 35,
-        monogramBorder: true,
-        monogramBorderColor: '#ffffff',
-        monogramBorderWidth: 2,
-        monogramRadius: 12,
         scrim: 'none',
         scrimOpacity: 45
       },
@@ -3247,24 +3199,34 @@
       };
     }
 
-    function gradientCSS() {
-      const b = designState.banner;
-      return 'linear-gradient(' + b.angle + 'deg, '
-        + b.stops.map((s) => toRgba(s.color, s.alpha) + ' ' + s.pos + '%').join(', ') + ')';
+    /* Constrói a string linear-gradient(...) a partir de pontos de cor.
+       Função pura: recebe os stops + ângulo de QUEM chama (página ou
+       banner) — nunca lê um estado compartilhado. */
+    function gradientCSS(stops, angle) {
+      return 'linear-gradient(' + angle + 'deg, '
+        + stops.map((s) => toRgba(s.color, s.alpha) + ' ' + s.pos + '%').join(', ') + ')';
     }
 
     /* ================================================================
-       FUNDO UNIFICADO DO CELULAR — gradiente por cima da imagem.
-       O fundo da página é SEMPRE renderizado no #preview-mobile-container
-       como camadas empilhadas em background-image: o gradiente vem
-       PRIMEIRO (fica na FRENTE, como uma película colorida) e a foto
-       carregada fica ATRÁS. Se só um dos dois existir, aplica isolado.
+       GRADIENTE DE FUNDO ISOLADO — injeta a string calculada SOMENTE na
+       variável --bg-page-grad do celular (#preview-mobile-container).
+       Nenhum condicional toca no banner: o bloco do topo tem o próprio
+       ecossistema (--bg-banner-main), calculado em computarFundoBanner().
        ================================================================ */
-    function obterStringGradienteDoPainel() {
-      const b = designState.banner;
-      const pontosDeCor = b.stops.map((s) => toRgba(s.color, s.alpha) + ' ' + s.pos + '%');
-      if (!(b.enabled && b.gradientScope === 'page') || pontosDeCor.length < 2) return '';
-      return 'linear-gradient(' + b.angle + 'deg, ' + pontosDeCor.join(', ') + ')';
+    function renderizarGradienteDeFundoIsolado() {
+      const containerCelular = el('preview-mobile-container');
+      if (!containerCelular) return;
+
+      const g = designState.page;
+      const pontosDeCor = g.stops.map((s) => toRgba(s.color, s.alpha) + ' ' + s.pos + '%');
+
+      containerCelular.style.setProperty('--bg-page-blend', g.blend || 'normal');
+      containerCelular.style.setProperty(
+        '--bg-page-grad',
+        (g.gradientOn && pontosDeCor.length >= 2)
+          ? gradientCSS(g.stops, g.angle)
+          : 'none'
+      );
     }
 
     function obterUrlImagemFundo() {
@@ -3272,52 +3234,23 @@
       return uploads.bgImage;
     }
 
+    /* Fundo da página completo (base + gradiente + imagem), montado no
+       #preview-mobile-container via variáveis dedicadas:
+       --bg-page-main (cor base, herda --page-bg), --bg-page-grad (camada
+       de gradiente, na frente) e --bg-page-img (imagem, atrás). Nada disso
+       alcança o banner — o isolamento é total. */
     function renderizarFundoUnificado() {
       const containerCelular = el('preview-mobile-container');
       if (!containerCelular) return;
 
-      const stringGradiente = obterStringGradienteDoPainel();
       const urlImagemFundo = obterUrlImagemFundo();
+      containerCelular.style.setProperty('--bg-page-main', 'var(--page-bg, #ffffff)');
+      containerCelular.style.setProperty(
+        '--bg-page-img',
+        urlImagemFundo ? "url('" + urlImagemFundo + "')" : 'none'
+      );
 
-      if (stringGradiente && urlImagemFundo) {
-        /* Gradiente na FRENTE (primeiro layer) sobre a imagem atrás.
-           background-size/position/repeat únicos valem para TODAS as
-           camadas (cover + center + no-repeat para as duas). */
-        containerCelular.style.backgroundImage =
-          stringGradiente + ", url('" + urlImagemFundo + "')";
-        containerCelular.style.backgroundSize = 'cover';
-        containerCelular.style.backgroundPosition = 'center';
-        containerCelular.style.backgroundRepeat = 'no-repeat';
-      } else if (stringGradiente) {
-        containerCelular.style.backgroundImage = stringGradiente;
-        containerCelular.style.backgroundSize = 'cover';
-        containerCelular.style.backgroundPosition = 'center';
-        containerCelular.style.backgroundRepeat = 'no-repeat';
-      } else if (urlImagemFundo) {
-        containerCelular.style.backgroundImage = "url('" + urlImagemFundo + "')";
-        containerCelular.style.backgroundSize = 'cover';
-        containerCelular.style.backgroundPosition = 'center';
-        containerCelular.style.backgroundRepeat = 'no-repeat';
-      } else {
-        containerCelular.style.backgroundImage = 'none';
-        containerCelular.style.backgroundSize = 'cover';
-        containerCelular.style.backgroundPosition = 'center';
-        containerCelular.style.backgroundRepeat = 'no-repeat';
-      }
-    }
-
-    function bannerFontCSS(font) {
-      switch (font) {
-        case 'serif':   return '"Georgia", "Times New Roman", serif';
-        case 'sans':    return '"Arial", "Helvetica Neue", sans-serif';
-        case 'mono':    return '"Courier New", Consolas, monospace';
-        case 'cursive': return '"Brush Script MT", "Segoe Script", cursive';
-        default:        return 'inherit';
-      }
-    }
-
-    function bannerAlignCSS(align) {
-      return align === 'left' ? 'flex-start' : align === 'right' ? 'flex-end' : 'center';
+      renderizarGradienteDeFundoIsolado();
     }
 
     function gradStopHTML(s, i) {
@@ -3336,8 +3269,15 @@
         + '</div>';
     }
 
-    function renderGradStops() {
-      el('ds-grad-stops').innerHTML = designState.banner.stops.map(gradStopHTML).join('');
+    function renderGradStops(containerId, stops) {
+      const container = el(containerId);
+      if (!container) return;
+      container.innerHTML = stops.map(gradStopHTML).join('');
+    }
+
+    function renderTodosGradStops() {
+      renderGradStops('ds-page-grad-stops', designState.page.stops);
+      renderGradStops('ds-banner-grad-stops', designState.banner.stops);
     }
 
     function updateRangeFill(input) {
@@ -3349,20 +3289,14 @@
 
     function updateDesignOutputs() {
       const b = designState.banner;
+      const g = designState.page;
       const p = designState.profile;
       const set = (id, txt) => { const o = el(id); if (o) o.textContent = txt; };
       set('ds-banner-height-out', b.height + 'px');
       set('ds-banner-angle-out', b.angle + '°');
       set('ds-banner-glass-blur-out', b.glassBlur + 'px');
-      set('ds-banner-monogram-size-out', b.monogramSize + 'px');
-      set('ds-banner-brand-size-out', b.brandSize + 'px');
-      set('ds-banner-weight-out', String(b.fontWeight));
-      set('ds-banner-text-shadow-blur-out', b.textShadowBlur + 'px');
-      set('ds-banner-text-shadow-alpha-out', b.textShadowAlpha + '%');
-      set('ds-banner-mono-bg-alpha-out', b.monogramBgAlpha + '%');
-      set('ds-banner-mono-border-width-out', b.monogramBorderWidth + 'px');
-      set('ds-banner-mono-radius-out', b.monogramRadius + 'px');
       set('ds-banner-scrim-opacity-out', b.scrimOpacity + '%');
+      set('ds-page-angle-out', g.angle + '°');
       set('ds-avatar-margin-out', p.marginTop + 'px');
       set('ds-avatar-z-out', String(p.zIndex));
       DS_SLIDERS.forEach((id) => updateRangeFill(el(id)));
@@ -3379,62 +3313,6 @@
       set('ds-avatar-shadow-alpha-out', p.shadowAlpha + '%');
       set('ds-avatar-glass-blur-out', p.glassBlur + 'px');
     }
-
-    /* Sombra do texto do banner — sombra suave e "esfumaçada" de verdade:
-       converte a cor para RGBA com a opacidade do slider e limita o
-       desfoque para a sombra nunca "explodir" como um bloco escuro. */
-    function atualizarSombraTexto() {
-      const b = designState.banner;
-      const elBanner = el('pvBanner');
-      if (!elBanner) return;
-      const blur = Math.min(b.textShadowBlur, 24);
-      const rgba = toRgba(b.textShadowColor, b.textShadowAlpha);
-      elBanner.style.setProperty('--pv-banner-shadow',
-        b.textShadowOn ? '2px 2px ' + blur + 'px ' + rgba : 'none');
-    }
-
-    /* ================================================================
-       TEXTOS (MONOGRAMA E MARCA) — motor reativo dedicado do preview.
-       Injeta variáveis CSS próprias (--monograma-text-* / --marca-text-*)
-       diretamente no banner, isoladas das cores globais dos botões.
-       Cada controle escuta `input` E `change` para reagir em tempo real.
-       ================================================================ */
-    const BANNER_TEXT_CONTROLS = [
-      'ds-banner-text-color', 'ds-banner-font',
-      'ds-banner-monogram-size', 'ds-banner-brand-size',
-      'ds-banner-weight', 'ds-banner-align',
-      'ds-banner-text-shadow', 'ds-banner-text-shadow-blur',
-      'ds-banner-text-shadow-color', 'ds-banner-text-shadow-alpha'
-    ];
-
-    function atualizarTextosEMarca() {
-      const b = designState.banner;
-      const elBanner = el('pvBanner');
-      if (!elBanner) return;
-
-      elBanner.style.setProperty('--monograma-text-color', b.textColor);
-      elBanner.style.setProperty('--monograma-text-size', b.monogramSize + 'px');
-      elBanner.style.setProperty('--marca-text-color', b.textColor);
-      elBanner.style.setProperty('--marca-text-size', b.brandSize + 'px');
-      elBanner.style.setProperty('--marca-text-weight', String(b.fontWeight));
-      elBanner.style.setProperty('--marca-text-align', bannerAlignCSS(b.align));
-      elBanner.style.setProperty('--pv-banner-font', bannerFontCSS(b.font));
-
-      atualizarSombraTexto();
-    }
-
-    BANNER_TEXT_CONTROLS.forEach((id) => {
-      const control = el(id);
-      if (!control) return;
-      const handler = () => {
-        controlsToDesign();
-        updateDesignOutputs();
-        atualizarTextosEMarca();
-        applyDesign();
-      };
-      control.addEventListener('input', handler);
-      control.addEventListener('change', handler);
-    });
 
     /* ================================================================
        BORDA + SOMBRA DO AVATAR — estilos independentes e coexistentes.
@@ -3479,12 +3357,35 @@
       }
     }
 
+    /* Calcula a string de fundo do BANNER (--bg-banner-main) — isolada da
+       página. Prioridade: vidro > tipo escolhido (cor sólida, gradiente
+       próprio ou imagem). Nunca lê designState.page. */
+    function computarFundoBanner(b) {
+      const fallback = 'linear-gradient(135deg, #0f172a 0%, #334155 55%, #64748b 100%)';
+      if (!b) return fallback;
+
+      /* 🧊 Vidro ativo: fundo RGBA branco-fosco translúcido — obrigatório
+         para o backdrop-filter ficar visível (hex opaco esconderia o blur). */
+      if (b.glass) return 'rgba(255, 255, 255, 0.2)';
+
+      if (b.bgType === 'solid') return b.color || '#1e293b';
+
+      /* Só a url: o .pv-banner já anexa "center / cover no-repeat" ao
+         var(--bg-banner-main) no shorthand de background. */
+      if (b.bgType === 'image' && b.image) return "url('" + b.image + "')";
+
+      if (Array.isArray(b.stops) && b.stops.length >= 2) return gradientCSS(b.stops, b.angle);
+
+      return b.color || '#1e293b';
+    }
+
     /* 🧊 Vidro no banner (backdrop blur) — atualização reativa.
        Sincroniza o banner do mockup com a checkbox de ativação e o slider
        de desfoque: atualiza o indicador numérico ("18px"), injeta o blur
-       via variável CSS + inline direto (defesa contra cache de CSS) e
-       garante o fundo semi-transparente do vidro. Sem um fundo RGBA o
-       backdrop-filter roda mas fica escondido atrás do hex opaco. */
+       via variável CSS + inline direto (defesa contra cache de CSS). O
+       fundo RGBA translúcido do vidro é garantido por computarFundoBanner()
+       — sem um fundo translúcido o backdrop-filter roda mas fica escondido
+       atrás do hex opaco. */
     function sincronizarEfeitoVidroBanner(banner, b) {
       if (!banner || !b) return;
 
@@ -3501,15 +3402,6 @@
       /* 3. Filtro inline direto para aplicação imediata */
       banner.style.backdropFilter = vidroAtivo ? 'blur(' + valorPx + ')' : 'none';
       banner.style.webkitBackdropFilter = banner.style.backdropFilter;
-
-      /* 4. Fundo do vidro: quando ativo, RGBA branco-fosco (20%). O
-            restauro da cor sólida opaca fica a cargo dos branches de
-            gradientScope em applyDesign (vidro desligado). */
-      if (vidroAtivo) {
-        banner.style.background = 'none';
-        banner.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
-        banner.style.backgroundImage = 'none';
-      }
     }
 
     /* Aplica o designState no mockup (estilos inline calculados) */
@@ -3528,52 +3420,13 @@
       if (b.enabled) {
         banner.style.height = b.height + 'px';
 
-        if (b.glass) {
-          /* 🧊 Vidro ativo: o fundo do banner vira um RGBA branco-fosco
-             (20% de opacidade) e a imagem/gradiente próprios são zerados.
-             O backdrop-filter embaça o que fica ATRÁS (o fundo unificado
-             do celular e o conteúdo) — o efeito só aparece porque o fundo
-             do banner deixou de ser opaco. */
-          banner.style.background = 'none';
-          banner.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
-          banner.style.backgroundImage = 'none';
-          banner.style.backgroundSize = 'auto';
-          banner.style.backgroundPosition = '0 0';
-          banner.style.backgroundRepeat = 'no-repeat';
-          banner.style.backgroundBlendMode = 'normal';
-        } else if (b.gradientScope === 'page') {
-          /* Isolamento rígido: no modo "Na Página Inteira" o banner NÃO
-             recebe o gradiente do fundo. Mantém apenas cor sólida própria
-             (--banner-bg) ou a imagem própria enviada, com blend neutro.
-             O gradiente vive exclusivamente no fundo unificado do
-             contêiner do celular, abaixo do banner. */
-          banner.style.background = 'none';
-          banner.style.backgroundColor = 'var(--banner-bg, #0F172A)';
-          banner.style.backgroundImage = b.image ? 'url(' + b.image + ')' : 'none';
-          banner.style.backgroundSize = b.image ? 'cover' : 'auto';
-          banner.style.backgroundPosition = b.image ? 'center' : '0 0';
-          banner.style.backgroundRepeat = 'no-repeat';
-          banner.style.backgroundBlendMode = 'normal';
-        } else {
-          /* Modo "Apenas no Banner do Topo": o gradiente pertence ao banner. */
-          banner.style.background = b.image
-            ? gradientCSS() + ', url(' + b.image + ')'
-            : gradientCSS();
-          banner.style.backgroundSize = b.image ? 'cover' : '';
-          banner.style.backgroundPosition = b.image ? 'center' : '';
-          banner.style.backgroundBlendMode = b.blend;
-        }
+        /* Fundo próprio do banner (cor sólida, gradiente próprio ou imagem),
+           aplicado SOMENTE na variável --bg-banner-main. Nenhum branch aqui
+           toca no fundo da página. */
+        banner.style.setProperty('--bg-banner-main', computarFundoBanner(b));
 
         /* Aplica (ou limpa) o desfoque reativo e o indicador "18px" */
         sincronizarEfeitoVidroBanner(banner, b);
-
-        banner.style.setProperty('--pv-banner-text', b.textColor);
-        banner.style.setProperty('--pv-banner-font', bannerFontCSS(b.font));
-        banner.style.setProperty('--pv-banner-weight', String(b.fontWeight));
-        banner.style.setProperty('--pv-banner-mono-size', b.monogramSize + 'px');
-        banner.style.setProperty('--pv-banner-brand-size', b.brandSize + 'px');
-        banner.style.setProperty('--pv-banner-align', bannerAlignCSS(b.align));
-        atualizarTextosEMarca();
 
         const scrim = el('pvScrim');
         scrim.style.display = (b.scrim === 'none') ? 'none' : 'block';
@@ -3582,31 +3435,14 @@
           : (b.scrim === 'light')
             ? 'rgba(255, 255, 255, ' + (b.scrimOpacity / 100) + ')'
             : 'none';
-
-        const monogram = el('pvMonogram');
-        monogram.style.background = b.monogramBadge ? toRgba(b.monogramBg, b.monogramBgAlpha) : 'none';
-        monogram.style.border = (b.monogramBadge && b.monogramBorder && b.monogramBorderWidth > 0)
-          ? b.monogramBorderWidth + 'px solid ' + b.monogramBorderColor
-          : 'none';
-        monogram.style.borderRadius = b.monogramBadge ? b.monogramRadius + 'px' : '0';
-        monogram.style.padding = b.monogramBadge ? '0.3em 0.6em' : '0';
       }
 
-      /* Fundo unificado: o gradiente é empilhado NA FRENTE da imagem de
-         fundo (película colorida) no #preview-mobile-container via
-         renderizarFundoUnificado(). O contêiner de conteúdo (.preview)
-         fica transparente para revelar a camada. Nenhum background-blend
-         no banner do topo: ele permanece opaco e isolado. */
+      /* Fundo da página (base + gradiente + imagem) montado no
+         #preview-mobile-container via variáveis próprias (--bg-page-*).
+         O contêiner de conteúdo (.preview) fica transparente para revelar
+         a camada. O banner do topo permanece opaco e isolado. */
       preview.style.background = 'transparent';
       renderizarFundoUnificado();
-
-      const hideText = !!b.image;
-      el('pvMonogram').hidden = hideText;
-      el('pvBrand').hidden = hideText;
-
-      const profileName = (el('profileName').value || '').trim();
-      el('pvMonogram').textContent = b.monogram || (profileName ? profileName.charAt(0).toUpperCase() : 'N');
-      el('pvBrand').textContent = (b.brand || (profileName ? profileName.toUpperCase() : 'NOME')).slice(0, 30);
 
       profile.style.marginTop = (b.enabled ? p.marginTop : 0) + 'px';
       profile.style.zIndex = p.zIndex;
@@ -3648,37 +3484,37 @@
     }
 
     /* Popula os controles a partir do designState */
+    function sincronizarVisibilidadeBgBanner() {
+      const tipo = (designState.banner.bgType || 'gradient');
+      const solidWrap = el('ds-banner-solid-wrap');
+      const gradWrap = el('ds-banner-grad-wrap');
+      const imgWrap = el('ds-banner-img-wrap');
+      if (solidWrap) solidWrap.hidden = tipo !== 'solid';
+      if (gradWrap) gradWrap.hidden = tipo !== 'gradient';
+      if (imgWrap) imgWrap.hidden = tipo !== 'image';
+    }
+
+    function sincronizarVisibilidadeFundoPagina() {
+      const pageGradWrap = el('ds-page-grad-wrap');
+      if (pageGradWrap) pageGradWrap.hidden = !designState.page.gradientOn;
+    }
+
     function designToControls() {
       const b = designState.banner;
+      const g = designState.page;
       const p = designState.profile;
       el('ds-banner-enable').checked = b.enabled;
       el('ds-banner-height').value = b.height;
-      el('ds-banner-monogram').value = b.monogram;
-      el('ds-banner-brand').value = b.brand;
+      el('ds-banner-bgtype').value = b.bgType || 'gradient';
+      el('ds-banner-color').value = b.color || '#1e293b';
       el('ds-banner-angle').value = b.angle;
-      el('ds-banner-blend').value = b.blend;
-      el('ds-banner-gradient-scope').value = b.gradientScope || 'banner';
       el('ds-banner-glass').checked = b.glass;
       el('ds-banner-glass-blur').value = b.glassBlur;
-      el('ds-banner-text-color').value = b.textColor;
-      el('ds-banner-font').value = b.font;
-      el('ds-banner-monogram-size').value = b.monogramSize;
-      el('ds-banner-brand-size').value = b.brandSize;
-      el('ds-banner-weight').value = b.fontWeight;
-      el('ds-banner-align').value = b.align;
-      el('ds-banner-text-shadow').checked = b.textShadowOn;
-      el('ds-banner-text-shadow-blur').value = b.textShadowBlur;
-      el('ds-banner-text-shadow-color').value = b.textShadowColor;
-      el('ds-banner-text-shadow-alpha').value = b.textShadowAlpha;
-      el('ds-banner-mono-badge').checked = b.monogramBadge;
-      el('ds-banner-mono-bg').value = b.monogramBg;
-      el('ds-banner-mono-bg-alpha').value = b.monogramBgAlpha;
-      el('ds-banner-mono-border').checked = b.monogramBorder;
-      el('ds-banner-mono-border-color').value = b.monogramBorderColor;
-      el('ds-banner-mono-border-width').value = b.monogramBorderWidth;
-      el('ds-banner-mono-radius').value = b.monogramRadius;
       el('ds-banner-scrim').value = b.scrim;
       el('ds-banner-scrim-opacity').value = b.scrimOpacity;
+      el('ds-page-gradient-on').checked = g.gradientOn;
+      el('ds-page-angle').value = g.angle;
+      el('ds-page-blend').value = g.blend;
       el('ds-avatar-margin').value = p.marginTop;
       el('ds-avatar-z').value = p.zIndex;
       el('ds-avatar-radius-tl').value = p.radius.tl;
@@ -3698,8 +3534,10 @@
       el('ds-avatar-glass').checked = p.glass;
       el('ds-avatar-glass-blur').value = p.glassBlur;
       el('ds-banner-image-clear').hidden = !b.image;
-      renderGradStops();
+      renderTodosGradStops();
       updateDesignOutputs();
+      sincronizarVisibilidadeBgBanner();
+      sincronizarVisibilidadeFundoPagina();
 
       /* Restaura a estilização avançada de texto do perfil */
       const pre = { name: 'profile-name', bio: 'profile-bio', address: 'profile-address' };
@@ -3722,35 +3560,20 @@
     /* Lê os controles para o designState */
     function controlsToDesign() {
       const b = designState.banner;
+      const g = designState.page;
       const p = designState.profile;
       b.enabled = el('ds-banner-enable').checked;
       b.height = +el('ds-banner-height').value;
-      b.monogram = el('ds-banner-monogram').value.trim();
-      b.brand = el('ds-banner-brand').value.trim();
+      b.bgType = el('ds-banner-bgtype').value;
+      b.color = el('ds-banner-color').value;
       b.angle = +el('ds-banner-angle').value;
-      b.blend = el('ds-banner-blend').value;
-      b.gradientScope = el('ds-banner-gradient-scope').value;
       b.glass = el('ds-banner-glass').checked;
       b.glassBlur = +el('ds-banner-glass-blur').value;
-      b.textColor = el('ds-banner-text-color').value;
-      b.font = el('ds-banner-font').value;
-      b.monogramSize = +el('ds-banner-monogram-size').value;
-      b.brandSize = +el('ds-banner-brand-size').value;
-      b.fontWeight = +el('ds-banner-weight').value;
-      b.align = el('ds-banner-align').value;
-      b.textShadowOn = el('ds-banner-text-shadow').checked;
-      b.textShadowBlur = +el('ds-banner-text-shadow-blur').value;
-      b.textShadowColor = el('ds-banner-text-shadow-color').value;
-      b.textShadowAlpha = +el('ds-banner-text-shadow-alpha').value;
-      b.monogramBadge = el('ds-banner-mono-badge').checked;
-      b.monogramBg = el('ds-banner-mono-bg').value;
-      b.monogramBgAlpha = +el('ds-banner-mono-bg-alpha').value;
-      b.monogramBorder = el('ds-banner-mono-border').checked;
-      b.monogramBorderColor = el('ds-banner-mono-border-color').value;
-      b.monogramBorderWidth = +el('ds-banner-mono-border-width').value;
-      b.monogramRadius = +el('ds-banner-mono-radius').value;
       b.scrim = el('ds-banner-scrim').value;
       b.scrimOpacity = +el('ds-banner-scrim-opacity').value;
+      g.gradientOn = el('ds-page-gradient-on').checked;
+      g.angle = +el('ds-page-angle').value;
+      g.blend = el('ds-page-blend').value;
       p.marginTop = +el('ds-avatar-margin').value;
       p.zIndex = +el('ds-avatar-z').value;
       p.radius.tl = +el('ds-avatar-radius-tl').value;
@@ -3779,6 +3602,19 @@
         if (Array.isArray(saved.banner.stops) && saved.banner.stops.length >= 2) {
           designState.banner.stops = saved.banner.stops;
         }
+        /* Migração do seletor antigo "Escopo do gradiente": o antigo
+           'page' (Na Página Inteira) vira o fundo próprio do banner
+           colorido default; o 'banner' (Só no topo) vira gradiente. */
+        if (saved.banner.gradientScope === 'page' && !saved.banner.bgType) {
+          designState.banner.bgType = 'gradient';
+        }
+        delete designState.banner.gradientScope;
+      }
+      if (saved.page) {
+        Object.assign(designState.page, saved.page);
+        if (Array.isArray(saved.page.stops) && saved.page.stops.length >= 2) {
+          designState.page.stops = saved.page.stops;
+        }
       }
       if (saved.profile) {
         const textDefaults = designState.profile.text;
@@ -3798,10 +3634,8 @@
 
     const DS_SLIDERS = [
       'ds-banner-height', 'ds-banner-angle',
-      'ds-banner-monogram-size', 'ds-banner-brand-size', 'ds-banner-weight',
-      'ds-banner-text-shadow-blur', 'ds-banner-text-shadow-alpha',
-      'ds-banner-mono-bg-alpha', 'ds-banner-mono-border-width', 'ds-banner-mono-radius',
       'ds-banner-scrim-opacity',
+      'ds-page-angle',
       'ds-avatar-margin',
       'ds-avatar-radius-tl', 'ds-avatar-radius-tr', 'ds-avatar-radius-br', 'ds-avatar-radius-bl',
       'ds-avatar-border-width',
@@ -3921,45 +3755,94 @@
       applyDesign();
     });
 
-    el('ds-engine').addEventListener('input', (e) => {
-      if (e.target.id === 'ds-banner-monogram' || e.target.id === 'ds-banner-brand') {
-        controlsToDesign();
+    /* ================================================================
+       EDITORES DE GRADIENTE — dois independentes (página e banner).
+       O listener delegado é compartilhado (target 0 = página, 1 = banner)
+       para não duplicar a lógica de edição de pontos.
+       ================================================================ */
+    function gradStopsConfig(target) {
+      return {
+        stops: target === 0 ? designState.page.stops : designState.banner.stops,
+        containerId: target === 0 ? 'ds-page-grad-stops' : 'ds-banner-grad-stops',
+        addId: target === 0 ? 'ds-page-grad-add' : 'ds-banner-grad-add'
+      };
+    }
+
+    ['ds-page-grad-stops', 'ds-banner-grad-stops'].forEach((containerId, target) => {
+      const container = el(containerId);
+      if (!container) return;
+
+      container.addEventListener('input', (e) => {
+        const t = e.target;
+        const cfg = gradStopsConfig(target);
+        const s = cfg.stops[+t.dataset.i];
+        if (!s) return;
+        if (t.classList.contains('gs-color')) {
+          s.color = t.value;
+        } else if (t.classList.contains('gs-pos')) {
+          s.pos = +t.value;
+          t.parentElement.querySelector('.gs-pos-out').textContent = s.pos + '%';
+        } else if (t.classList.contains('gs-alpha')) {
+          s.alpha = +t.value;
+          t.parentElement.querySelector('.gs-alpha-out').textContent = s.alpha + '%';
+        }
         applyDesign();
+      });
+
+      container.addEventListener('click', (e) => {
+        const rm = e.target.closest('.grad-stop__remove');
+        if (!rm) return;
+        const cfg = gradStopsConfig(target);
+        if (cfg.stops.length <= 2) return;
+        cfg.stops.splice(+rm.dataset.i, 1);
+        renderGradStops(cfg.containerId, cfg.stops);
+        applyDesign();
+      });
+
+      const addBtn = el(gradStopsConfig(target).addId);
+      if (addBtn) {
+        addBtn.addEventListener('click', () => {
+          const cfg = gradStopsConfig(target);
+          cfg.stops.push({ color: '#4f46e5', pos: 50, alpha: 100 });
+          renderGradStops(cfg.containerId, cfg.stops);
+          applyDesign();
+        });
       }
     });
 
-    /* Editor de pontos do gradiente */
-    el('ds-grad-stops').addEventListener('input', (e) => {
-      const t = e.target;
-      const s = designState.banner.stops[+t.dataset.i];
-      if (!s) return;
-      if (t.classList.contains('gs-color')) {
-        s.color = t.value;
-      } else if (t.classList.contains('gs-pos')) {
-        s.pos = +t.value;
-        t.parentElement.querySelector('.gs-pos-out').textContent = s.pos + '%';
-      } else if (t.classList.contains('gs-alpha')) {
-        s.alpha = +t.value;
-        t.parentElement.querySelector('.gs-alpha-out').textContent = s.alpha + '%';
-      }
-      applyDesign();
-    });
+    /* Tipo de fundo do banner (cor sólida / gradiente / imagem) — o
+       'change' do select já cai no catch-all do motor (controlsToDesign +
+       applyDesign); aqui só re-sincronizamos a visibilidade dos painéis. */
+    const selectBgTypeBanner = el('ds-banner-bgtype');
+    if (selectBgTypeBanner) {
+      selectBgTypeBanner.addEventListener('change', () => {
+        controlsToDesign();
+        sincronizarVisibilidadeBgBanner();
+        updateDesignOutputs();
+        applyDesign();
+      });
+    }
 
-    el('ds-grad-stops').addEventListener('click', (e) => {
-      const rm = e.target.closest('.grad-stop__remove');
-      if (!rm) return;
-      const stops = designState.banner.stops;
-      if (stops.length <= 2) return;
-      stops.splice(+rm.dataset.i, 1);
-      renderGradStops();
-      applyDesign();
-    });
+    /* Cor sólida do banner — color picker (input = arrastar no seletor). */
+    const colorBanner = el('ds-banner-color');
+    if (colorBanner) {
+      colorBanner.addEventListener('input', () => {
+        controlsToDesign();
+        const hexEl = el('ds-banner-colorHex');
+        if (hexEl) hexEl.textContent = colorBanner.value;
+        applyDesign();
+      });
+    }
 
-    el('ds-grad-add').addEventListener('click', () => {
-      designState.banner.stops.push({ color: '#4f46e5', pos: 50, alpha: 100 });
-      renderGradStops();
-      applyDesign();
-    });
+    /* Ligar/desligar o gradiente da página — checkbox dedicada. */
+    const checkboxGradientePagina = el('ds-page-gradient-on');
+    if (checkboxGradientePagina) {
+      checkboxGradientePagina.addEventListener('change', () => {
+        controlsToDesign();
+        sincronizarVisibilidadeFundoPagina();
+        applyDesign();
+      });
+    }
 
     el('ds-banner-image').addEventListener('change', () => {
       const file = el('ds-banner-image').files[0];
@@ -4793,13 +4676,16 @@
       });
     }
 
-    /* Modo de exibição da lista no mockup (list | grid2 | carousel | hidden) */
+    /* Modo de exibição da lista no mockup (list | grid2 | carousel | hidden).
+       Remove as classes de modo ANTES de aplicar a atual — evita acúmulo
+       de classes conflitantes que desalinhavam o layout (ex.: .pv-links--grid
+       somada ao .mode-carrossel). */
     function applyLinkListMode() {
       const mode = el('cards-layout').value;
-      previewLinksList.classList.toggle('pv-strip', mode === 'carousel');
-      previewLinksList.classList.toggle('pv-links--grid', mode === 'grid2');
-      previewLinksList.classList.toggle('mode-carrossel', mode === 'carousel');
-      previewLinksList.classList.toggle('mode-lista-vertical', mode === 'list');
+      previewLinksList.classList.remove('pv-strip', 'pv-links--grid', 'mode-carrossel', 'mode-lista-vertical');
+      if (mode === 'carousel') previewLinksList.classList.add('pv-strip', 'mode-carrossel');
+      else if (mode === 'grid2') previewLinksList.classList.add('pv-links--grid');
+      else if (mode === 'list') previewLinksList.classList.add('mode-lista-vertical');
       previewLinksList.style.display = (mode === 'hidden') ? 'none' : 'flex';
     }
 
