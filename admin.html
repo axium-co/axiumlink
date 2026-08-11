@@ -18,10 +18,13 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 
-  <!-- Fontes: Plus Jakarta Sans (painel) + fontes disponíveis para o cliente -->
+  <!-- Fontes: Plus Jakarta Sans (painel) + fontes disponíveis para o cliente.
+       TODOS os pesos 300-700 são importados para cada família — sem isso o
+       navegador sintetiza 300/500 a partir do 400 e o Live Preview ignora
+       as opções Fina/Normal/Média. -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;600;700&family=Roboto:wght@400;500;700&family=Open+Sans:wght@400;600;700&family=Poppins:wght@400;500;700&family=Montserrat:wght@400;600;700&family=Lato:wght@400;700&family=Merriweather:wght@400;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;600;700&family=Lato:wght@300;400;500;600;700&family=Merriweather:wght@300;400;500;600;700&family=Playfair+Display:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
   <!-- Configuração atual do cliente (fonte de verdade compartilhada) -->
   <script src="config.js"></script>
@@ -1346,7 +1349,7 @@
       --transition: 0.2s ease;
 
       font-family: var(--font-main);
-      background: var(--page-bg);
+      background: transparent; /* revela o fundo unificado do celular */
       color: var(--text-title);
       min-height: 100%;
       padding: 2.75rem 1rem 1.5rem;
@@ -1370,13 +1373,15 @@
     }
 
     /* O contêiner do celular é a ÚNICA fonte de verdade do fundo da página.
-       A cor vem de --page-bg (color picker) e o gradiente gerado pelo JS
-       é injetado ESTRITAMENTE em --bg-page-gradient. O banner do topo nunca
-       recebe nada disso: ele usa as próprias variáveis (--banner-bg /
-       --banner-bg-image) e permanece totalmente opaco e isolado. */
+       A cor base vem de --page-bg (color picker) e as camadas de
+       gradiente/imagem são montadas pelo JS em renderizarFundoUnificado():
+       o gradiente entra NA FRENTE da foto (película colorida). O banner do
+       topo nunca recebe nada disso: ele usa as próprias variáveis
+       (--banner-bg / --banner-bg-image) e permanece totalmente opaco e
+       isolado. */
     #preview-mobile-container {
       background-color: var(--page-bg, #ffffff);
-      background-image: var(--bg-page-gradient, none);
+      background-image: none;
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
@@ -2088,6 +2093,7 @@
                     <select id="profile-name-weight">
                       <option value="300">Fina</option>
                       <option value="400">Normal</option>
+                      <option value="500">Média</option>
                       <option value="600">Semi-Bold</option>
                       <option value="700" selected>Bold</option>
                     </select>
@@ -2133,6 +2139,7 @@
                     <select id="profile-bio-weight">
                       <option value="300">Fina</option>
                       <option value="400" selected>Normal</option>
+                      <option value="500">Média</option>
                       <option value="600">Semi-Bold</option>
                       <option value="700">Bold</option>
                     </select>
@@ -3200,26 +3207,55 @@
     }
 
     /* ================================================================
-       GRADIENTE DE FUNDO — gerador dedicado e isolado.
-       Varre os pontos de cor dinâmicos (cor + posição + opacidade) do
-       designState e injeta a string final ESTRITAMENTE na variável
-       --bg-page-gradient do contêiner do celular (#preview-mobile-container).
-       O banner do topo NUNCA recebe esta string: ele usa as próprias
-       variáveis --banner-bg / --banner-bg-image e fica 100% isolado.
+       FUNDO UNIFICADO DO CELULAR — gradiente por cima da imagem.
+       O fundo da página é SEMPRE renderizado no #preview-mobile-container
+       como camadas empilhadas em background-image: o gradiente vem
+       PRIMEIRO (fica na FRENTE, como uma película colorida) e a foto
+       carregada fica ATRÁS. Se só um dos dois existir, aplica isolado.
        ================================================================ */
-    function gerarGradienteFundoResponsivo() {
+    function obterStringGradienteDoPainel() {
+      const b = designState.banner;
+      const pontosDeCor = b.stops.map((s) => toRgba(s.color, s.alpha) + ' ' + s.pos + '%');
+      if (!(b.enabled && b.gradientScope === 'page') || pontosDeCor.length < 2) return '';
+      return 'linear-gradient(' + b.angle + 'deg, ' + pontosDeCor.join(', ') + ')';
+    }
+
+    function obterUrlImagemFundo() {
+      if (typeof uploads === 'undefined' || !uploads || !uploads.bgImage) return '';
+      return uploads.bgImage;
+    }
+
+    function renderizarFundoUnificado() {
       const containerCelular = el('preview-mobile-container');
       if (!containerCelular) return;
 
-      const b = designState.banner;
-      const pontosDeCor = b.stops.map((s) => toRgba(s.color, s.alpha) + ' ' + s.pos + '%');
+      const stringGradiente = obterStringGradienteDoPainel();
+      const urlImagemFundo = obterUrlImagemFundo();
 
-      if (b.enabled && b.gradientScope === 'page' && pontosDeCor.length >= 2) {
-        const stringGradienteFinal = 'linear-gradient(' + b.angle + 'deg, ' + pontosDeCor.join(', ') + ')';
-        containerCelular.style.setProperty('--bg-page-gradient', stringGradienteFinal);
+      if (stringGradiente && urlImagemFundo) {
+        /* Gradiente na FRENTE (primeiro layer) sobre a imagem atrás.
+           background-size/position/repeat únicos valem para TODAS as
+           camadas (cover + center + no-repeat para as duas). */
+        containerCelular.style.backgroundImage =
+          stringGradiente + ", url('" + urlImagemFundo + "')";
+        containerCelular.style.backgroundSize = 'cover';
+        containerCelular.style.backgroundPosition = 'center';
+        containerCelular.style.backgroundRepeat = 'no-repeat';
+      } else if (stringGradiente) {
+        containerCelular.style.backgroundImage = stringGradiente;
+        containerCelular.style.backgroundSize = 'cover';
+        containerCelular.style.backgroundPosition = 'center';
+        containerCelular.style.backgroundRepeat = 'no-repeat';
+      } else if (urlImagemFundo) {
+        containerCelular.style.backgroundImage = "url('" + urlImagemFundo + "')";
+        containerCelular.style.backgroundSize = 'cover';
+        containerCelular.style.backgroundPosition = 'center';
+        containerCelular.style.backgroundRepeat = 'no-repeat';
       } else {
-        /* Sem gradiente no fundo: a página volta à cor própria (--page-bg). */
-        containerCelular.style.setProperty('--bg-page-gradient', 'none');
+        containerCelular.style.backgroundImage = 'none';
+        containerCelular.style.backgroundSize = 'cover';
+        containerCelular.style.backgroundPosition = 'center';
+        containerCelular.style.backgroundRepeat = 'no-repeat';
       }
     }
 
@@ -3448,8 +3484,8 @@
         if (b.glass) {
           /* 🧊 Vidro ativo: o fundo do banner vira um RGBA branco-fosco
              (20% de opacidade) e a imagem/gradiente próprios são zerados.
-             O backdrop-filter embaça o que fica ATRÁS (--bg-page-gradient
-             e conteúdo do celular) — o efeito só aparece porque o fundo
+             O backdrop-filter embaça o que fica ATRÁS (o fundo unificado
+             do celular e o conteúdo) — o efeito só aparece porque o fundo
              do banner deixou de ser opaco. */
           banner.style.background = 'none';
           banner.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
@@ -3462,7 +3498,7 @@
           /* Isolamento rígido: no modo "Na Página Inteira" o banner NÃO
              recebe o gradiente do fundo. Mantém apenas cor sólida própria
              (--banner-bg) ou a imagem própria enviada, com blend neutro.
-             O gradiente vive exclusivamente no --bg-page-gradient do
+             O gradiente vive exclusivamente no fundo unificado do
              contêiner do celular, abaixo do banner. */
           banner.style.background = 'none';
           banner.style.backgroundColor = 'var(--banner-bg, #0F172A)';
@@ -3509,20 +3545,13 @@
         monogram.style.padding = b.monogramBadge ? '0.3em 0.6em' : '0';
       }
 
-      /* Escopo do gradiente: no modo "Na Página Inteira" o gradiente é
-         injetado ESTRITAMENTE em --bg-page-gradient (fundo do celular) e o
-         contêiner de conteúdo (.preview) fica transparente para revelar o
-         fundo. Nenhum background-blend-mode é aplicado no contêiner: o
-         banner do topo permanece opaco e isolado com as próprias cores. */
-      const phoneScreen = el('preview-mobile-container');
-      gerarGradienteFundoResponsivo();
-      if (b.enabled && b.gradientScope === 'page') {
-        phoneScreen.style.backgroundColor = el('input-bg-page').value;
-        preview.style.background = 'transparent';
-      } else {
-        phoneScreen.style.backgroundColor = '';
-        preview.style.background = '';
-      }
+      /* Fundo unificado: o gradiente é empilhado NA FRENTE da imagem de
+         fundo (película colorida) no #preview-mobile-container via
+         renderizarFundoUnificado(). O contêiner de conteúdo (.preview)
+         fica transparente para revelar a camada. Nenhum background-blend
+         no banner do topo: ele permanece opaco e isolado. */
+      preview.style.background = 'transparent';
+      renderizarFundoUnificado();
 
       const hideText = !!b.image;
       el('pvMonogram').hidden = hideText;
@@ -4084,9 +4113,7 @@
       const reader = new FileReader();
       reader.onload = (e) => {
         uploads.bgImage = e.target.result;
-        preview.style.backgroundImage = 'url(' + uploads.bgImage + ')';
-        preview.style.backgroundSize = 'cover';
-        preview.style.backgroundPosition = 'center';
+        renderizarFundoUnificado();
         el('btn-remove-bg').hidden = false;
       };
       reader.readAsDataURL(file);
@@ -4927,9 +4954,7 @@
     el('btn-remove-bg').addEventListener('click', () => {
       el('input-bg-image').value = '';
       uploads.bgImage = null;
-      preview.style.backgroundImage = 'none';
-      preview.style.backgroundSize = '';
-      preview.style.backgroundPosition = '';
+      renderizarFundoUnificado();
       el('btn-remove-bg').hidden = true;
     });
 
@@ -5141,9 +5166,7 @@
         el('global-btn-border').dispatchEvent(new Event('change'));
         if (saved.visual.bgImage) {
           uploads.bgImage = saved.visual.bgImage;
-          preview.style.backgroundImage = 'url(' + uploads.bgImage + ')';
-          preview.style.backgroundSize = 'cover';
-          preview.style.backgroundPosition = 'center';
+          renderizarFundoUnificado();
           el('btn-remove-bg').hidden = false;
         }
       }
