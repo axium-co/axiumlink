@@ -433,12 +433,28 @@
       will-change: transform;
     }
 
-    .quick__item svg { width: 16px; height: 16px; flex-shrink: 0; }
+    /* Ícones internos das Ações Rápidas: ampliados (32px) e centralizados
+       acima do rótulo — mesmo padrão do Painel. */
+    .quick__item svg {
+      width: 32px;
+      height: 32px;
+      margin-bottom: 6px;
+      flex-shrink: 0;
+      transition: all 0.2s ease;
+    }
 
     .quick-grid .quick__item:only-child { grid-column: 1 / -1; }
 
     /* ---- Ações Rápidas: largura individual, imagem própria e modo Beacons ---- */
-    .quick__item__img { width: 20px; height: 20px; object-fit: contain; flex-shrink: 0; }
+    .quick__item__img {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto 6px;
+      flex-shrink: 0;
+      transition: all 0.2s ease;
+    }
 
     .quick__item--full { grid-column: 1 / -1; width: 100%; }
     .quick__item--compact { justify-self: center; width: auto; min-width: 7.5rem; }
@@ -455,7 +471,7 @@
       border-radius: var(--global-radius);
     }
 
-    .quick__item--banner img { width: 100%; height: 100%; object-fit: cover; display: block; flex-shrink: 0; }
+    .quick__item--banner img { width: 100%; height: 100%; object-fit: cover; display: block; margin: 0; flex-shrink: 0; }
     .quick__item--banner span { display: none; }
 
     /* ---- Animações de Destaque (por bloco) ---- */
@@ -516,7 +532,8 @@
       overflow: hidden;
     }
 
-    .featured__icon svg { width: 28px; height: 28px; }
+    /* Ícone do card ampliado (34px) para leitura clara — mesmo padrão do Painel. */
+    .featured__icon svg { width: 34px; height: 34px; transition: all 0.2s ease; }
     .featured__icon-img { width: 100%; height: 100%; object-fit: cover; }
 
     .featured__body {

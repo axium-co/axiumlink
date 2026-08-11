@@ -1544,7 +1544,16 @@
     .btn-quick-compact:hover { transform: scale(1.02); filter: brightness(1.06); }
     .btn-quick-compact:active { transform: scale(0.98); }
 
-    .btn-quick-compact svg { width: 16px; height: 16px; flex-shrink: 0; }
+    /* Ícones internos das Ações Rápidas: ampliados (32px) para leitura
+       clara e centralizados acima do rótulo — sem distorcer (SVG escala
+       via viewBox 24). */
+    .btn-quick-compact svg {
+      width: 32px;
+      height: 32px;
+      margin-bottom: 6px;
+      flex-shrink: 0;
+      transition: all 0.2s ease;
+    }
 
     /* ---- Grid de Ações Rápidas (mockup) — adapta-se à quantidade de botões ---- */
     .quick-actions-grid {
@@ -1689,9 +1698,29 @@
       transition: transform var(--transition), filter var(--transition);
     }
 
-    .pv-link svg { width: 18px; height: 18px; flex-shrink: 0; }
-    .pv-link__img { width: 20px; height: 20px; object-fit: cover; border-radius: 4px; flex-shrink: 0; }
-    .pv-link__icon { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    /* Ícones internos dos cards de links: ampliados (34px), proporcionais ao
+       rótulo. Imagem própria usa object-fit: contain (sem cortes). */
+    .pv-link svg {
+      width: 34px;
+      height: 34px;
+      flex-shrink: 0;
+      transition: all 0.2s ease;
+    }
+    .pv-link__img {
+      width: 34px;
+      height: 34px;
+      object-fit: contain;
+      border-radius: 6px;
+      flex-shrink: 0;
+      transition: all 0.2s ease;
+    }
+    .pv-link__icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      flex-shrink: 0;
+    }
 
     .pv-link:hover { transform: scale(1.02); filter: brightness(1.06); }
     .pv-link:active { transform: scale(0.98); }
@@ -1739,6 +1768,9 @@
       flex-shrink: 0;
     }
 
+    /* Em modo "Imagem completa" o rótulo não é exibido */
+    .pv-link--banner .action-text-span { display: none; }
+
     /* ---- Largura individual (Ações Rápidas) ---- */
     .btn-quick-compact--full { grid-column: 1 / -1; width: 100%; }
     .btn-quick-compact--compact { justify-self: center; width: auto; min-width: 130px; }
@@ -1746,7 +1778,15 @@
     .quick-actions-grid--list .btn-quick-compact--half { width: calc(50% - 4px); }
     .quick-actions-grid--list .btn-quick-compact--compact { align-self: flex-start; }
 
-    .btn-quick-compact__img { width: 20px; height: 20px; object-fit: contain; flex-shrink: 0; }
+    .btn-quick-compact__img {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto 6px;
+      flex-shrink: 0;
+      transition: all 0.2s ease;
+    }
 
     /* ---- Ação Rápida em modo "Imagem completa" (estilo Beacons) ---- */
     .btn-quick-compact--banner {
@@ -1764,6 +1804,7 @@
       height: 100%;
       object-fit: cover;
       display: block;
+      margin: 0;
       flex-shrink: 0;
     }
 
@@ -3077,11 +3118,17 @@
       if (radius === 'quadrado') radiusValue = '0px';
       else if (radius === 'totalmente-oval') radiusValue = '50px';
 
+      /* 'Outline Transparente': fundo vazado + contorno na cor do texto,
+         garantindo leitura do ícone/rótulo sobre qualquer fundo (gradiente
+         ou imagem). A transparência flui pela variável (--btn-bg-universal),
+         então o background-color !important do CSS não bloqueia o efeito. */
+      const isOutline = border === 'outline';
+
       let borderValue = 'none';
       if (border === 'borda-fina') borderValue = '1px solid ' + computeBtnBorderColor();
-      else if (border === 'outline') borderValue = '1px solid transparent';
+      else if (isOutline) borderValue = '2px solid ' + text;
 
-      mobileContainer.style.setProperty('--btn-bg-universal', bg);
+      mobileContainer.style.setProperty('--btn-bg-universal', isOutline ? 'transparent' : bg);
       mobileContainer.style.setProperty('--btn-text-universal', text);
       mobileContainer.style.setProperty('--btn-radius-universal', radiusValue);
       mobileContainer.style.setProperty('--btn-border-universal', borderValue);
@@ -4275,10 +4322,197 @@
       container.addEventListener('pointercancel', end);
     }
 
+    /* ================================================================
+       MOTOR DE IDS ÚNICOS — sincronização cirúrgica por data-id
+       Cada bloco recebe um ID exclusivo (timestamp + sufixo aleatório).
+       Esse ID amarra o formulário da esquerda ao botão do celular via
+       id="preview-btn-<id>", impedindo escrita cruzada entre blocos
+       (escrever na Ação 2 nunca toca no botão da Ação 1).
+       ================================================================ */
+
+    function gerarIdUnico(prefixo) {
+      return (prefixo || 'componente') + '_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+    }
+
+    /* Lê os valores do formulário DESTE bloco apenas. */
+    function lerDadosDoBlock(block, tipo) {
+      const quick = tipo === 'quick';
+      return {
+        title: (block.querySelector(quick ? '.quick-title' : '.link-title').value || '').trim(),
+        url: (block.querySelector(quick ? '.quick-url' : '.link-url').value || '').trim(),
+        icon: block.querySelector(quick ? '.quick-icon' : '.link-icon').value,
+        image: block.dataset.image || null,
+        width: block.querySelector('.btn-width').value,
+        animation: block.querySelector('.btn-animation').value,
+        style: block.querySelector('.link-style').value
+      };
+    }
+
+    /* Atualiza APENAS a entrada do array que compartilha o mesmo ID. */
+    function atualizarDadoDoBlock(block, tipo) {
+      const uid = block.dataset.id;
+      const dados = lerDadosDoBlock(block, tipo);
+      const arr = tipo === 'quick' ? quickActionsData : mainLinksData;
+      const chave = tipo === 'quick' ? 'uid' : 'id';
+      dados[chave] = uid;
+      const idx = arr.findIndex((it) => it[chave] === uid);
+      if (idx >= 0) arr[idx] = dados;
+      else arr.push(dados);
+      return dados;
+    }
+
+    /* ---- Botão de Ação Rápida: monta/atualiza o conteúdo completo ---- */
+    function montarBotaoAcaoCompleto(btn, dados) {
+      btn.className = 'btn-quick-compact';
+      if (dados.width === 'full') btn.classList.add('btn-quick-compact--full');
+      else if (dados.width === 'half') btn.classList.add('btn-quick-compact--half');
+      else if (dados.width === 'compact') btn.classList.add('btn-quick-compact--compact');
+      if (dados.animation && dados.animation !== 'none') btn.classList.add('anim-' + dados.animation);
+      if (dados.style === 'banner') btn.classList.add('btn-quick-compact--banner');
+
+      btn.href = normalizeHref(dados.url, dados.icon);
+      if (/^(tel:|mailto:|sms:|#)/i.test(btn.href)) {
+        btn.removeAttribute('target');
+        btn.removeAttribute('rel');
+      } else {
+        btn.target = '_blank';
+        btn.rel = 'noopener';
+      }
+
+      /* Remove o ícone/imagem anterior SEM tocar no rótulo */
+      btn.querySelectorAll('svg, img').forEach((n) => n.remove());
+
+      let rotulo = btn.querySelector('.action-text-span');
+      if (!rotulo) {
+        rotulo = document.createElement('span');
+        rotulo.className = 'action-text-span';
+        btn.appendChild(rotulo);
+      }
+      rotulo.textContent = dados.title || 'Nova Ação';
+
+      if (dados.image) {
+        const img = document.createElement('img');
+        img.className = 'btn-quick-compact__img';
+        img.src = dados.image;
+        img.alt = '';
+        btn.insertBefore(img, rotulo);
+      } else {
+        btn.insertAdjacentHTML('afterbegin', QUICK_ICONS[dados.icon] || QUICK_ICONS.link);
+      }
+      return btn;
+    }
+
+    /* ---- Card de Link: monta/atualiza o conteúdo completo ---- */
+    function montarBotaoLinkCompleto(btn, dados) {
+      btn.className = 'pv-link';
+      if (dados.width === 'full') btn.classList.add('pv-link--full');
+      else if (dados.width === 'half') btn.classList.add('pv-link--half');
+      else if (dados.width === 'compact') btn.classList.add('pv-link--compact');
+      if (dados.animation && dados.animation !== 'none') btn.classList.add('anim-' + dados.animation);
+
+      const isBanner = dados.style === 'banner' && !!dados.image;
+      if (isBanner) btn.classList.add('pv-link--banner');
+
+      btn.href = normalizeHref(dados.url, dados.icon);
+      btn.target = '_blank';
+      btn.rel = 'noopener';
+
+      /* Remove ícone/imagem anterior, preservando o rótulo */
+      btn.querySelectorAll('svg, img, .pv-link__icon').forEach((n) => n.remove());
+
+      let rotulo = btn.querySelector('.action-text-span');
+      if (!rotulo) {
+        rotulo = document.createElement('span');
+        rotulo.className = 'action-text-span';
+        btn.appendChild(rotulo);
+      }
+      rotulo.textContent = dados.title || 'Novo Link';
+
+      if (isBanner) {
+        const img = document.createElement('img');
+        img.className = 'pv-link__banner';
+        img.src = dados.image;
+        img.alt = dados.title || '';
+        img.loading = 'lazy';
+        btn.appendChild(img);
+      } else if (dados.image) {
+        const img = document.createElement('img');
+        img.className = 'pv-link__img';
+        img.src = dados.image;
+        img.alt = '';
+        btn.insertBefore(img, rotulo);
+      } else {
+        const visual = buildLinkIcon(dados);
+        if (visual) btn.insertBefore(visual, rotulo);
+      }
+      return btn;
+    }
+
+    /* Atualiza APENAS o botão que compartilha o ID do bloco. */
+    function atualizarBotaoAcaoPreview(block) {
+      const btn = document.getElementById('preview-btn-' + block.dataset.id);
+      if (btn) montarBotaoAcaoCompleto(btn, lerDadosDoBlock(block, 'quick'));
+    }
+
+    function atualizarBotaoLinkPreview(block) {
+      const btn = document.getElementById('preview-btn-' + block.dataset.id);
+      if (btn) montarBotaoLinkCompleto(btn, lerDadosDoBlock(block, 'link'));
+    }
+
+    /* Injeta um botão NOVO (mesmo ID) no preview, na hora da criação. */
+    function injetarBotaoNovo(tipo, uid) {
+      const arr = tipo === 'quick' ? quickActionsData : mainLinksData;
+      const chave = tipo === 'quick' ? 'uid' : 'id';
+      const dados = arr.find((it) => it[chave] === uid);
+      if (!dados) return;
+
+      const a = document.createElement('a');
+      a.id = 'preview-btn-' + uid;
+
+      if (tipo === 'quick') {
+        const mode = el('quick-layout').value;
+        previewQuickGrid.className = 'quick-actions-grid';
+        previewQuickGrid.hidden = (mode === 'hidden');
+        if (mode === 'list') previewQuickGrid.classList.add('quick-actions-grid--list');
+        else if (mode === 'scroll') previewQuickGrid.classList.add('quick-actions-grid--scroll');
+        montarBotaoAcaoCompleto(a, dados);
+        previewQuickGrid.appendChild(a);
+      } else {
+        montarBotaoLinkCompleto(a, dados);
+        previewLinksList.appendChild(a);
+        applyLinkListMode();
+      }
+      atualizarDesignDosBotoes();
+    }
+
+    /* Reaplica a ordem dos botões do preview conforme a ordem dos blocos,
+       movendo os nós existentes (preserva a identidade de cada botão). */
+    function reaplicarOrdemPreview(tipo) {
+      const container = tipo === 'quick' ? previewQuickGrid : previewLinksList;
+      const seletor = tipo === 'quick' ? '.quick-action-block' : '.link-block';
+      const origem = tipo === 'quick' ? quickActionsContainer : linksContainer;
+      Array.from(origem.querySelectorAll(seletor)).forEach((block) => {
+        const btn = document.getElementById('preview-btn-' + block.dataset.id);
+        if (btn) container.appendChild(btn);
+      });
+    }
+
+    /* Handler único para campos de texto/select: atualiza o array E o botão
+       correspondente, tudo amarrado pelo mesmo ID. */
+    function onBlocoEditado(e, tipo) {
+      const block = e.target.closest(tipo === 'quick' ? '.quick-action-block' : '.link-block');
+      if (!block) return;
+      atualizarDadoDoBlock(block, tipo);
+      if (tipo === 'quick') atualizarBotaoAcaoPreview(block);
+      else atualizarBotaoLinkPreview(block);
+    }
+
     function createQuickActionBlock(data) {
       const d = data || {};
+      const uid = gerarIdUnico('qa');
       const block = document.createElement('div');
       block.className = 'block quick-action-block';
+      block.dataset.id = uid;
       if (d.image) block.dataset.image = d.image;
 
       const iconOptions = QUICK_ICON_OPTIONS.map(([value, label]) =>
@@ -4296,15 +4530,15 @@
         + '</div>'
         + '<div class="field">'
         +   '<label>Nome do Botão</label>'
-        +   '<input type="text" class="quick-title" placeholder="Ex: WhatsApp, PIX, Chame Agora" value="' + escapeAttr(d.title) + '" />'
+        +   '<input type="text" class="quick-title" data-id="' + uid + '" placeholder="Ex: WhatsApp, PIX, Chame Agora" value="' + escapeAttr(d.title) + '" />'
         + '</div>'
         + '<div class="field">'
         +   '<label>Link / Ação</label>'
-        +   '<input type="text" class="quick-url" placeholder="https://... · tel:... · mailto:..." value="' + escapeAttr(d.url) + '" />'
+        +   '<input type="text" class="quick-url" data-id="' + uid + '" placeholder="https://... · tel:... · mailto:..." value="' + escapeAttr(d.url) + '" />'
         + '</div>'
         + '<div class="field">'
         +   '<label>Ícone</label>'
-        +   '<select class="quick-icon">' + iconOptions + '</select>'
+        +   '<select class="quick-icon" data-id="' + uid + '">' + iconOptions + '</select>'
         + '</div>'
         + customizeSectionHTML(d);
 
@@ -4322,7 +4556,7 @@
     function syncQuickActionsAfterReorder() {
       syncQuickActionsData();
       renumberQuickActionBlocks();
-      renderQuickActions();
+      reaplicarOrdemPreview('quick');
     }
 
     /* Sincroniza o Array 1 a partir dos formulários do painel.
@@ -4330,6 +4564,7 @@
     function syncQuickActionsData() {
       quickActionsData = Array.from(quickActionsContainer.querySelectorAll('.quick-action-block')).map((block) => {
         return {
+          uid: block.dataset.id,
           title: (block.querySelector('.quick-title').value || '').trim(),
           url: (block.querySelector('.quick-url').value || '').trim(),
           icon: block.querySelector('.quick-icon').value,
@@ -4342,7 +4577,9 @@
       return quickActionsData;
     }
 
-    /* Renderiza a grade compacta superior EXCLUSIVAMENTE a partir do Array 1 */
+    /* Renderiza a grade compacta superior EXCLUSIVAMENTE a partir do Array 1.
+       Cada botão recebe id="preview-btn-<uid>" para permitir atualizações
+       cirúrgicas por ID (sem reconstruir a grade a cada tecla). */
     function renderQuickActions() {
       const mode = el('quick-layout').value;
       const actions = quickActionsData;
@@ -4361,42 +4598,8 @@
 
       actions.forEach((action) => {
         const a = document.createElement('a');
-        a.className = 'btn-quick-compact';
-        a.href = normalizeHref(action.url, action.icon);
-
-        if (/^(tel:|mailto:|sms:|#)/i.test(a.href)) {
-          a.removeAttribute('target');
-          a.removeAttribute('rel');
-        } else {
-          a.target = '_blank';
-          a.rel = 'noopener';
-        }
-
-        /* Largura individual */
-        if (action.width === 'full') a.classList.add('btn-quick-compact--full');
-        else if (action.width === 'half') a.classList.add('btn-quick-compact--half');
-        else if (action.width === 'compact') a.classList.add('btn-quick-compact--compact');
-
-        /* Animação de destaque */
-        if (action.animation && action.animation !== 'none') a.classList.add('anim-' + action.animation);
-
-        /* Estilo "Imagem completa" (estilo Beacons) */
-        if (action.style === 'banner') a.classList.add('btn-quick-compact--banner');
-
-        if (action.image) {
-          const img = document.createElement('img');
-          img.className = 'btn-quick-compact__img';
-          img.src = action.image;
-          img.alt = '';
-          a.appendChild(img);
-        } else {
-          a.insertAdjacentHTML('afterbegin', QUICK_ICONS[action.icon] || QUICK_ICONS.link);
-        }
-
-        const label = document.createElement('span');
-        label.textContent = action.title || 'Nova Ação';
-        a.appendChild(label);
-
+        a.id = 'preview-btn-' + action.uid;
+        montarBotaoAcaoCompleto(a, action);
         previewQuickGrid.appendChild(a);
       });
 
@@ -4408,7 +4611,7 @@
       quickActionsContainer.appendChild(block);
       syncQuickActionsData();
       renumberQuickActionBlocks();
-      renderQuickActions();
+      injetarBotaoNovo('quick', block.dataset.id);
     }
 
     el('btn-add-quick-action').addEventListener('click', () => addQuickActionBlock());
@@ -4417,10 +4620,13 @@
     quickActionsContainer.addEventListener('click', (e) => {
       const deleteBtn = e.target.closest('.btn-delete-action');
       if (deleteBtn) {
-        deleteBtn.closest('.quick-action-block').remove();
+        const block = deleteBtn.closest('.quick-action-block');
+        const previewBtn = document.getElementById('preview-btn-' + block.dataset.id);
+        if (previewBtn) previewBtn.remove();
+        block.remove();
         syncQuickActionsData();
         renumberQuickActionBlocks();
-        renderQuickActions();
+        if (!quickActionsContainer.querySelector('.quick-action-block')) previewQuickGrid.hidden = true;
         return;
       }
 
@@ -4431,8 +4637,7 @@
         const upload = block.querySelector('.icon-upload');
         if (upload) upload.value = '';
         clearBtn.hidden = true;
-        syncQuickActionsData();
-        renderQuickActions();
+        onBlocoEditado({ target: block }, 'quick');
         return;
       }
 
@@ -4447,21 +4652,16 @@
 
     quickActionsContainer.addEventListener('input', (e) => {
       if (e.target.matches('.quick-title, .quick-url')) {
-        syncQuickActionsData();
-        renderQuickActions();
-        return;
+        onBlocoEditado(e, 'quick');
       }
     });
 
     quickActionsContainer.addEventListener('change', (e) => {
-      if (e.target.classList.contains('quick-icon')) {
-        syncQuickActionsData();
-        renderQuickActions();
-        return;
-      }
-      if (e.target.classList.contains('btn-width') || e.target.classList.contains('btn-animation')) {
-        syncQuickActionsData();
-        renderQuickActions();
+      if (e.target.classList.contains('quick-icon') ||
+          e.target.classList.contains('btn-width') ||
+          e.target.classList.contains('btn-animation') ||
+          e.target.classList.contains('link-style')) {
+        onBlocoEditado(e, 'quick');
         return;
       }
       if (e.target.classList.contains('icon-upload')) {
@@ -4473,8 +4673,7 @@
           block.dataset.image = ev.target.result;
           const clearBtn = block.querySelector('.icon-clear');
           if (clearBtn) clearBtn.hidden = false;
-          syncQuickActionsData();
-          renderQuickActions();
+          onBlocoEditado({ target: block }, 'quick');
         };
         reader.readAsDataURL(file);
       }
@@ -4548,13 +4747,12 @@
       return 'https://' + v;
     }
 
-    let linkSeq = 0;
-
     function createLinkBlock(data) {
       const d = data || {};
+      const uid = gerarIdUnico('link');
       const block = document.createElement('div');
       block.className = 'block link-block';
-      block.dataset.id = 'link-' + (++linkSeq);
+      block.dataset.id = uid;
       if (d.image) block.dataset.image = d.image;
 
       const iconOptions = LINK_ICON_OPTIONS.map(([value, label]) =>
@@ -4572,15 +4770,15 @@
         + '</div>'
         + '<div class="field">'
         +   '<label>Título do Botão</label>'
-        +   '<input type="text" class="link-title" placeholder="Ex: Meu Catálogo" value="' + escapeAttr(d.title) + '" />'
+        +   '<input type="text" class="link-title" data-id="' + uid + '" placeholder="Ex: Meu Catálogo" value="' + escapeAttr(d.title) + '" />'
         + '</div>'
         + '<div class="field">'
         +   '<label>URL / Link de Destino</label>'
-        +   '<input type="url" class="link-url" placeholder="https://..." value="' + escapeAttr(d.url) + '" />'
+        +   '<input type="url" class="link-url" data-id="' + uid + '" placeholder="https://..." value="' + escapeAttr(d.url) + '" />'
         + '</div>'
         + '<div class="field">'
         +   '<label>Ícone</label>'
-        +   '<select class="link-icon">' + iconOptions + '</select>'
+        +   '<select class="link-icon" data-id="' + uid + '">' + iconOptions + '</select>'
         + '</div>'
         + customizeSectionHTML(d);
 
@@ -4593,12 +4791,6 @@
         const num = b.querySelector('.link-block__num');
         if (num) num.textContent = 'Link #' + (i + 1);
       });
-    }
-
-    function syncLinksAfterReorder() {
-      syncLinksData();
-      renumberLinkBlocks();
-      renderPreviewLinks();
     }
 
     /* Modo de exibição da lista no mockup (list | grid2 | carousel | hidden) */
@@ -4652,48 +4844,15 @@
     }
 
     /* Reconstrói a lista de cards maiores EXCLUSIVAMENTE a partir do Array 2.
-       Cada card é criado limpo (sem classes acumuladas) e recebe os
-       modificadores de largura e do modo "Imagem completa" de forma isolada. */
+       Cada card é criado limpo (sem classes acumuladas) e recebe o
+       id="preview-btn-<id>" para atualizações cirúrgicas por ID. */
     function renderPreviewLinks() {
       previewLinksList.innerHTML = '';
 
       mainLinksData.forEach((link) => {
         const a = document.createElement('a');
-        a.className = 'pv-link';
-        a.href = normalizeHref(link.url, link.icon);
-        a.target = '_blank';
-        a.rel = 'noopener';
-
-        /* Largura individual: 'full' | 'half' | 'compact' | 'auto' */
-        if (link.width === 'full') a.classList.add('pv-link--full');
-        else if (link.width === 'half') a.classList.add('pv-link--half');
-        else if (link.width === 'compact') a.classList.add('pv-link--compact');
-
-        /* Animação de destaque */
-        if (link.animation && link.animation !== 'none') a.classList.add('anim-' + link.animation);
-
-        /* Imagem completa (estilo Beacons): exige imagem própria. A classe
-           pv-link--banner trava aspect-ratio + object-fit: cover no CSS,
-           então a imagem preenche o card exato sem distorcer ou estourar. */
-        const isImagemCompleta = link.style === 'banner' && !!link.image;
-        if (isImagemCompleta) {
-          a.classList.add('pv-link--banner');
-          const img = document.createElement('img');
-          img.className = 'pv-link__banner';
-          img.src = link.image;
-          img.alt = link.title || '';
-          img.loading = 'lazy';
-          a.appendChild(img);
-        } else {
-          /* Ícone do dropdown (ou imagem própria pequena) + rótulo centralizado */
-          const visual = buildLinkIcon(link);
-          if (visual) a.appendChild(visual);
-
-          const label = document.createElement('span');
-          label.textContent = link.title || 'Novo Link';
-          a.appendChild(label);
-        }
-
+        a.id = 'preview-btn-' + link.id;
+        montarBotaoLinkCompleto(a, link);
         previewLinksList.appendChild(a);
       });
 
@@ -4701,12 +4860,18 @@
       atualizarDesignDosBotoes();
     }
 
+    function syncLinksAfterReorder() {
+      syncLinksData();
+      renumberLinkBlocks();
+      reaplicarOrdemPreview('link');
+    }
+
     function addLinkBlock(data) {
       const block = createLinkBlock(data);
       linksContainer.appendChild(block);
       syncLinksData();
       renumberLinkBlocks();
-      renderPreviewLinks();
+      injetarBotaoNovo('link', block.dataset.id);
     }
 
     el('btn-add-new-link').addEventListener('click', () => addLinkBlock());
@@ -4716,10 +4881,12 @@
     linksContainer.addEventListener('click', (e) => {
       const deleteBtn = e.target.closest('.btn-delete-link');
       if (deleteBtn) {
-        deleteBtn.closest('.link-block').remove();
+        const block = deleteBtn.closest('.link-block');
+        const previewBtn = document.getElementById('preview-btn-' + block.dataset.id);
+        if (previewBtn) previewBtn.remove();
+        block.remove();
         syncLinksData();
         renumberLinkBlocks();
-        renderPreviewLinks();
         return;
       }
 
@@ -4730,8 +4897,7 @@
         const upload = block.querySelector('.icon-upload');
         if (upload) upload.value = '';
         clearBtn.hidden = true;
-        syncLinksData();
-        renderPreviewLinks();
+        onBlocoEditado({ target: block }, 'link');
         return;
       }
 
@@ -4746,21 +4912,16 @@
 
     linksContainer.addEventListener('input', (e) => {
       if (e.target.matches('.link-title, .link-url')) {
-        syncLinksData();
-        renderPreviewLinks();
-        return;
+        onBlocoEditado(e, 'link');
       }
     });
 
     linksContainer.addEventListener('change', (e) => {
-      if (e.target.classList.contains('link-icon')) {
-        syncLinksData();
-        renderPreviewLinks();
-        return;
-      }
-      if (e.target.classList.contains('btn-width') || e.target.classList.contains('btn-animation') || e.target.classList.contains('link-style')) {
-        syncLinksData();
-        renderPreviewLinks();
+      if (e.target.classList.contains('link-icon') ||
+          e.target.classList.contains('btn-width') ||
+          e.target.classList.contains('btn-animation') ||
+          e.target.classList.contains('link-style')) {
+        onBlocoEditado(e, 'link');
         return;
       }
       if (e.target.classList.contains('icon-upload')) {
@@ -4772,8 +4933,7 @@
           block.dataset.image = ev.target.result;
           const clearBtn = block.querySelector('.icon-clear');
           if (clearBtn) clearBtn.hidden = false;
-          syncLinksData();
-          renderPreviewLinks();
+          onBlocoEditado({ target: block }, 'link');
         };
         reader.readAsDataURL(file);
       }
@@ -4978,7 +5138,7 @@
           bio: el('profileBio').value,
           address: el('profileAddress').value
         },
-        quickActions: syncQuickActionsData(),
+        quickActions: syncQuickActionsData().map(({ uid, ...rest }) => rest),
         links: syncLinksData(),
         visual: {
           pageBg: el('input-bg-page').value,
