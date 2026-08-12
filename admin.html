@@ -2458,7 +2458,7 @@
               </p>
 
               <label class="adv-check">
-                <input type="checkbox" id="ds-page-gradient-on" checked />
+                <input type="checkbox" id="ds-page-gradient-on" />
                 <span>Usar gradiente no fundo da página</span>
               </label>
 
@@ -3143,12 +3143,12 @@
          e a imagem (visual.bgImage) ficam em `visual`; aqui mora o gradiente
          da página, injetado só em --bg-page-grad / --bg-page-blend. */
       page: {
-        gradientOn: true,
+        gradientOn: false,
         angle: 180,
         blend: 'normal',
         stops: [
-          { color: '#e2e8f0', pos: 0, alpha: 100 },
-          { color: '#ffffff', pos: 100, alpha: 100 }
+          { color: '#e2e8f0', pos: 0, alpha: 35 },
+          { color: '#ffffff', pos: 100, alpha: 35 }
         ]
       },
       banner: {
@@ -3620,6 +3620,20 @@
         Object.assign(designState.page, saved.page);
         if (Array.isArray(saved.page.stops) && saved.page.stops.length >= 2) {
           designState.page.stops = saved.page.stops;
+        }
+        /* Migração do gradiente opaco padrão: versões antigas gravavam os
+           dois stops iniciais com 100% de opacidade e mesclagem 'normal',
+           o que cobria por completo a cor/imagem de fundo da página. Se o
+           gradiente salvo for exatamente o padrão intocado, reduz a
+           opacidade para virar uma película translúcida — a cor e a imagem
+           voltam a aparecer por baixo dele. */
+        const gPag = designState.page;
+        const stopsPadraoOpacos =
+          Array.isArray(gPag.stops) && gPag.stops.length === 2
+          && gPag.stops[0].color === '#e2e8f0' && (gPag.stops[0].pos == null ? 0 : gPag.stops[0].pos) === 0 && (gPag.stops[0].alpha == null ? 100 : gPag.stops[0].alpha) >= 99
+          && gPag.stops[1].color === '#ffffff' && (gPag.stops[1].pos == null ? 0 : gPag.stops[1].pos) === 100 && (gPag.stops[1].alpha == null ? 100 : gPag.stops[1].alpha) >= 99;
+        if (gPag.gradientOn !== false && stopsPadraoOpacos && (!gPag.blend || gPag.blend === 'normal')) {
+          gPag.stops = gPag.stops.map((s) => Object.assign({}, s, { alpha: 35 }));
         }
       }
       if (saved.profile) {

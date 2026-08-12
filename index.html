@@ -1218,6 +1218,23 @@
       function applyConfig(cfg) {
         if (!cfg) return;
 
+        /* ---- Migração do gradiente opaco padrão (bug do fundo) ----
+           Versões antigas do painel gravavam os dois stops iniciais do
+           gradiente de página com 100% de opacidade e mesclagem 'normal'.
+           Como o gradiente é a camada de cima do <body>, ele cobria por
+           completo a cor e a imagem de fundo escolhidas. Se o gradiente
+           salvo for exatamente o padrão intocado, reduz a opacidade para
+           virar uma película translúcida — a cor e a imagem voltam a
+           aparecer por baixo dele. */
+        const pagMig = (cfg.design && cfg.design.page) || {};
+        const ehPadraoOpaco =
+          Array.isArray(pagMig.stops) && pagMig.stops.length === 2
+          && pagMig.stops[0].color === '#e2e8f0' && (pagMig.stops[0].pos == null ? 0 : pagMig.stops[0].pos) === 0 && (pagMig.stops[0].alpha == null ? 100 : pagMig.stops[0].alpha) >= 99
+          && pagMig.stops[1].color === '#ffffff' && (pagMig.stops[1].pos == null ? 0 : pagMig.stops[1].pos) === 100 && (pagMig.stops[1].alpha == null ? 100 : pagMig.stops[1].alpha) >= 99;
+        if (pagMig.gradientOn !== false && ehPadraoOpaco && (!pagMig.blend || pagMig.blend === 'normal')) {
+          pagMig.stops = pagMig.stops.map((s) => Object.assign({}, s, { alpha: 35 }));
+        }
+
       /* ---- achatando a config para mapear diretamente nos elementos ---- */
       const p = cfg.profile || {};
       const v = cfg.visual || {};
