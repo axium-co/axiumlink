@@ -1122,6 +1122,7 @@
       const iosSteps = document.getElementById('pwa-ios-steps');
       const installBtn = document.getElementById('pwa-install');
       let deferredPrompt = null;
+      let promptSupported = false;
 
       const showSheet = () => { if (sheet) sheet.hidden = false; };
       const hideSheet = () => { if (sheet) sheet.hidden = true; };
@@ -1135,6 +1136,7 @@
       window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e;
+        promptSupported = true;
       });
 
       window.addEventListener('appinstalled', () => {
@@ -1154,7 +1156,7 @@
             deferredPrompt = null;
             if (pwaBtn) pwaBtn.style.display = 'none';
           } else {
-            const hasPrompt = !!deferredPrompt;
+            const hasPrompt = promptSupported;
             if (iosSteps) iosSteps.hidden = !isIOS;
             if (installBtn) installBtn.hidden = isIOS || !hasPrompt;
             if (sheetText) {
@@ -1256,16 +1258,14 @@
         : '';
       const bgImageUrl = v.bgImage ? 'url(' + v.bgImage + ')' : '';
 
-      document.body.style.backgroundColor = pageBg || '#ffffff';
-      if (pageGrad && bgImageUrl) {
-        document.body.style.backgroundImage = pageGrad + ', ' + bgImageUrl;
-      } else if (pageGrad) {
-        document.body.style.backgroundImage = pageGrad;
-      } else if (bgImageUrl) {
-        document.body.style.backgroundImage = bgImageUrl;
-      } else {
-        document.body.style.backgroundImage = '';
-      }
+      /* `background-color` não aceita gradiente: se pageBg for um
+         gradiente CSS, ele precisa ir para background-image, não para
+         background-color (senão o navegador ignora o valor em silêncio). */
+      document.body.style.backgroundColor = isGradient ? '' : (pageBg || '#ffffff');
+
+      const pageBgGradient = isGradient ? pageBg : '';
+      const bgLayers = [pageGrad, pageBgGradient, bgImageUrl].filter(Boolean);
+      document.body.style.backgroundImage = bgLayers.length ? bgLayers.join(', ') : '';
       document.body.style.backgroundSize = 'cover';
       document.body.style.backgroundPosition = 'center';
       document.body.style.backgroundBlendMode = pageGrad
@@ -1475,7 +1475,7 @@
         const seed = map
           .map((m) => {
             const url = String(obj[m.key] || '').trim();
-            return url ? { title: m.title, url: m.icon === 'pix' ? '#' : url, icon: m.icon } : null;
+            return url ? { title: m.title, url, icon: m.icon } : null;
           })
           .filter(Boolean);
         return seed.length ? seed : null;
