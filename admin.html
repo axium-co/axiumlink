@@ -290,7 +290,7 @@
       cursor: pointer;
     }
 
-    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    .row-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr)); gap: 0.75rem; }
 
     /* ---- Bloco configurável (cada botão/card do cliente) ---- */
     .block {
@@ -329,7 +329,7 @@
     /* ---- Grade de color pickers (2 colunas) ---- */
     .color-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr));
       gap: 0.75rem;
       margin-bottom: 0.9375rem;
     }
@@ -438,6 +438,7 @@
     .btn-remove svg { width: 14px; height: 14px; flex-shrink: 0; }
 
     .btn-remove--block { width: 100%; }
+    .btn-remove[hidden] { display: none; }
 
     /* ---- Botão de arquivo (ícones dos cards / imagem de fundo) ---- */
     .file-btn {
@@ -756,7 +757,7 @@
 
     .adv-row {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr));
       gap: 0.75rem;
     }
 
@@ -1665,6 +1666,7 @@
       flex: 1 1 calc(50% - 6px);
       min-width: 0;
       max-width: 100%;
+      flex-direction: column;
     }
 
     /* ---- Modo Carrossel Lateral (Cards lado a lado com deslize horizontal) ---- */
@@ -1954,6 +1956,7 @@
     @media (max-width: 480px) {
       .topbar__name { display: none; }
       .btn { padding: 0 0.75rem; font-size: 0.8125rem; }
+      .section { padding: 1.125rem 1rem; }
     }
 
     /* ================================================================
