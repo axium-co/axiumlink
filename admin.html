@@ -1387,6 +1387,8 @@
       color: var(--btn-text-universal) !important;
       border-radius: var(--btn-radius-universal) !important;
       border: var(--btn-border-universal) !important;
+      -webkit-backdrop-filter: var(--btn-glass-blur, none);
+      backdrop-filter: var(--btn-glass-blur, none);
       transition: all 0.2s ease;
     }
 
@@ -2453,7 +2455,10 @@
                 <select id="global-btn-border">
                   <option value="sem-borda">Sem Borda</option>
                   <option value="borda-fina" selected>Borda Fina</option>
+                  <option value="borda-media">Borda Média</option>
+                  <option value="borda-grossa">Borda Grossa</option>
                   <option value="outline">Outline Transparente</option>
+                  <option value="vidro">Vidro</option>
                 </select>
               </div>
             </div>
@@ -3082,18 +3087,35 @@
 
       /* 'Outline Transparente': fundo vazado + contorno na cor do texto,
          garantindo leitura do ícone/rótulo sobre qualquer fundo (gradiente
-         ou imagem). A transparência flui pela variável (--btn-bg-universal),
-         então o background-color !important do CSS não bloqueia o efeito. */
+         ou imagem). 'Vidro': fundo translúcido + desfoque (frosted glass)
+         com contorno branco-fosco. A transparência flui pela variável
+         (--btn-bg-universal), então o background-color !important do CSS
+         não bloqueia o efeito. */
       const isOutline = border === 'outline';
+      const isGlass = border === 'vidro';
+
+      /* Espessuras: Borda Fina 1px / Média 2px / Grossa 4px */
+      const espessura =
+        border === 'borda-media' ? '2px'
+        : border === 'borda-grossa' ? '4px'
+        : '1px';
 
       let borderValue = 'none';
-      if (border === 'borda-fina') borderValue = '1px solid ' + computeBtnBorderColor();
-      else if (isOutline) borderValue = '2px solid ' + text;
+      if (border === 'borda-fina' || border === 'borda-media' || border === 'borda-grossa') {
+        borderValue = espessura + ' solid ' + computeBtnBorderColor();
+      } else if (isOutline) {
+        borderValue = '2px solid ' + text;
+      } else if (isGlass) {
+        borderValue = '1px solid rgba(255, 255, 255, 0.35)';
+      }
 
-      mobileContainer.style.setProperty('--btn-bg-universal', isOutline ? 'transparent' : bg);
+      const bgUniversal = isOutline ? 'transparent' : isGlass ? 'rgba(255, 255, 255, 0.18)' : bg;
+
+      mobileContainer.style.setProperty('--btn-bg-universal', bgUniversal);
       mobileContainer.style.setProperty('--btn-text-universal', text);
       mobileContainer.style.setProperty('--btn-radius-universal', radiusValue);
       mobileContainer.style.setProperty('--btn-border-universal', borderValue);
+      mobileContainer.style.setProperty('--btn-glass-blur', isGlass ? 'blur(10px) saturate(150%)' : 'none');
 
       /* Mantém as variáveis legadas sincronizadas (avatar, ícones internos
          e a mesma estética na página pública index.html). */

@@ -1716,9 +1716,32 @@
         });
       }
 
+      /* ---- Estilo do contorno (visual.btnBorder) aplicado aos botões/cards ---- */
+      const estiloContorno = v.btnBorder || 'borda-fina';
+      const corBorda = v.borderColor || '#000000';
+      const corTexto = v.textColor || '#ffffff';
+      let bordaBotao = 'none';
+      let fundoBotao = null;
+      let desfoqueBotao = '';
+
+      if (estiloContorno === 'borda-media') bordaBotao = '2px solid ' + corBorda;
+      else if (estiloContorno === 'borda-grossa') bordaBotao = '4px solid ' + corBorda;
+      else if (estiloContorno === 'outline') {
+        bordaBotao = '2px solid ' + corTexto;
+        fundoBotao = 'transparent';
+      } else if (estiloContorno === 'vidro') {
+        bordaBotao = '1px solid rgba(255, 255, 255, 0.35)';
+        fundoBotao = 'rgba(255, 255, 255, 0.18)';
+        desfoqueBotao = 'blur(10px) saturate(150%)';
+      } else if (estiloContorno === 'sem-borda') bordaBotao = 'none';
+      else bordaBotao = '1px solid ' + corBorda;
+
       document.querySelectorAll('.quick__item, .featured__card').forEach((t) => {
-        t.style.border = radiusOpt.extras.border || '';
+        t.style.border = radiusOpt.extras.border || bordaBotao;
         t.style.boxShadow = radiusOpt.extras.boxShadow || '';
+        t.style.backdropFilter = desfoqueBotao;
+        t.style.webkitBackdropFilter = desfoqueBotao;
+        if (fundoBotao) t.style.backgroundColor = fundoBotao;
       });
 
       function clampOrder(value, fallback) {
