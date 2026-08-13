@@ -1245,14 +1245,21 @@
       top: calc(var(--topbar-h) + var(--safe-top));
       height: calc(100vh - var(--topbar-h) - var(--safe-top));
       overflow: hidden;
-      background: #0F172A;
+      /* Fundo claro (mesmo tom do painel) — a casca escura do celular
+         (#1E293B) já é o elemento de destaque. Evita a "parede preta"
+         que sobrava ao redor do mockup em telas largas. */
+      background: var(--ds-bg);
       min-height: 0;
     }
 
-    /* ---- Casca do smartphone (realista) ---- */
+    /* ---- Casca do smartphone (realista) ----
+       Largura adaptável à altura disponível (telas baixas não cortam o
+       aparelho) e travada em 360px nas alturas normais. A proporção
+       1:2 é mantida por aspect-ratio em qualquer tamanho. */
     .phone-mockup {
-      width: 360px;
-      height: 720px;
+      width: min(360px, calc((100vh - var(--topbar-h) - var(--safe-top) - 2rem) * 0.5));
+      aspect-ratio: 1 / 2;
+      height: auto;
       position: relative;
       flex-shrink: 0;
       border: 12px solid #1E293B;
@@ -1949,13 +1956,8 @@
         padding: 2rem 1rem;
       }
 
-      .phone-mockup { width: 316px; height: 640px; }
+      .phone-mockup { width: 316px; }
       .topbar { padding: 0 1rem; }
-    }
-
-    /* Telas de pouca altura — reduz o mockup para não cortar o aparelho */
-    @media (max-height: 800px) and (min-width: 981px) {
-      .phone-mockup { width: 320px; height: 640px; }
     }
 
     @media (max-width: 480px) {
@@ -2018,7 +2020,7 @@
         min-height: 0;
         overflow: hidden;
         padding: 0;
-        background: #0f172a;
+        background: var(--ds-bg);
       }
 
       body.show-preview .preview-zone .phone-mockup {
