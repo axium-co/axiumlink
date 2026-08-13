@@ -897,15 +897,18 @@
     @media (min-width: 768px) {
       .profile__avatar { width: 112px; height: 112px; }
 
-      /* Cards de destaque centralizados no desktop */
-      .featured__card {
+      /* Em grade/faixa os cards empilham (ícone em cima, centralizado).
+         Na lista seguem horizontais (ícone à esquerda, texto, seta). */
+      .pg-links--grid .featured__card,
+      .pg-links--scroll .featured__card {
         flex-direction: column;
         text-align: center;
         padding: 1.5rem 1.125rem;
         gap: 0.75rem;
       }
 
-      .featured__arrow { display: none; }
+      .pg-links--grid .featured__arrow,
+      .pg-links--scroll .featured__arrow { display: none; }
     }
 
     /* Grade de links no mobile: cada card vira coluna (ícone em cima) para
@@ -921,6 +924,43 @@
       .pg-links--grid .featured__icon { width: 44px; height: 44px; }
       .pg-links--grid .featured__icon svg { width: 26px; height: 26px; }
       .pg-links--grid .featured__arrow { display: none; }
+    }
+
+    /* ================================================================
+       DESKTOP (PC WEB e PWA em janela) — usa a largura da tela
+       ================================================================ */
+    @media (min-width: 980px) {
+      .page {
+        max-width: 1160px;
+        padding: 4rem 2rem 3rem;
+      }
+
+      .page-flow { gap: 1.5rem; }
+
+      /* Perfil e ações rápidas seguem centralizados e compactos
+         (ações rápidas mantêm o comportamento atual). */
+      .profile { max-width: 720px; margin: 0 auto; }
+      .quick-grid { max-width: 520px; margin: 0 auto; }
+
+      /* Cards de destaque aproveitam a largura em 3 colunas */
+      .pg-links--grid { grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+
+      /* Lista em modo desktop: linhas largas mais confortáveis */
+      .pg-links:not(.pg-links--grid):not(.pg-links--scroll) .featured__card {
+        padding: 1.25rem 1.5rem;
+        gap: 1.25rem;
+      }
+      .pg-links:not(.pg-links--grid):not(.pg-links--scroll) .featured__icon {
+        width: 56px;
+        height: 56px;
+      }
+      .pg-links:not(.pg-links--grid):not(.pg-links--scroll) .featured__icon svg {
+        width: 36px;
+        height: 36px;
+      }
+      .pg-links:not(.pg-links--grid):not(.pg-links--scroll) .featured__body strong {
+        font-size: 1rem;
+      }
     }
   </style>
 
