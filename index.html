@@ -1691,10 +1691,8 @@
             body.className = 'featured__body';
             const strong = document.createElement('strong');
             strong.textContent = link.title || 'Novo Link';
-            const desc = document.createElement('span');
-            desc.textContent = link.url || '';
             body.appendChild(strong);
-            body.appendChild(desc);
+            if (link.url) a.title = link.url;
             a.appendChild(body);
 
             const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
