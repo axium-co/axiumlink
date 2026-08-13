@@ -2452,17 +2452,27 @@
               </div>
               <div class="field">
                 <label for="global-btn-border">Estilo do Contorno</label>
-                <select id="global-btn-border">
-                  <option value="sem-borda">Sem Borda</option>
-                  <option value="borda-fina" selected>Borda Fina</option>
-                  <option value="borda-media">Borda Média</option>
-                  <option value="borda-grossa">Borda Grossa</option>
-                  <option value="outline">Outline Transparente</option>
-                  <option value="vidro">Vidro</option>
-                </select>
+                  <select id="global-btn-border">
+                    <option value="sem-borda">Sem Borda</option>
+                    <option value="borda-fina" selected>Borda Fina</option>
+                    <option value="borda-media">Borda Média</option>
+                    <option value="borda-grossa">Borda Grossa</option>
+                    <option value="outline">Outline Transparente</option>
+                    <option value="vidro">Vidro</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="row-2">
+                <div class="field color-field">
+                  <label for="global-btn-border-color">Cor do Contorno</label>
+                  <div class="color-field__control">
+                    <input type="color" id="global-btn-border-color" value="#737373" />
+                    <span id="global-btn-border-colorHex">#737373</span>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
 
           <div class="field">
             <label for="input-font">Fonte</label>
@@ -3062,6 +3072,7 @@
        ================================================================ */
     const inputBtnBg     = el('global-btn-bg');
     const inputBtnText   = el('global-btn-text');
+    const inputBtnBorderColor = el('global-btn-border-color');
     const selectRadius   = el('global-btn-radius');
     const selectBorder   = el('global-btn-border');
 
@@ -3100,9 +3111,13 @@
         : border === 'borda-grossa' ? '4px'
         : '1px';
 
+      /* Cor do contorno: escolhida pelo usuário (picker) ou derivada
+         automaticamente do fundo do botão quando não configurada. */
+      const corContorno = inputBtnBorderColor.value || computeBtnBorderColor();
+
       let borderValue = 'none';
       if (border === 'borda-fina' || border === 'borda-media' || border === 'borda-grossa') {
-        borderValue = espessura + ' solid ' + computeBtnBorderColor();
+        borderValue = espessura + ' solid ' + corContorno;
       } else if (isOutline) {
         borderValue = '2px solid ' + text;
       } else if (isGlass) {
@@ -3124,7 +3139,7 @@
       setVar('--card-destaque-bg', bg);
       setVar('--card-destaque-text', text);
       setVar('--global-radius', radiusValue);
-      setVar('--btn-border-color', computeBtnBorderColor());
+      setVar('--btn-border-color', corContorno);
     }
 
     [inputBtnBg, inputBtnText].forEach((input) => {
@@ -3133,6 +3148,12 @@
         if (hex) hex.textContent = input.value;
         atualizarDesignDosBotoes();
       });
+    });
+
+    inputBtnBorderColor.addEventListener('input', () => {
+      const hex = el('global-btn-border-colorHex');
+      if (hex) hex.textContent = inputBtnBorderColor.value;
+      atualizarDesignDosBotoes();
     });
 
     [selectRadius, selectBorder].forEach((select) => {
@@ -4454,6 +4475,22 @@
       else atualizarBotaoLinkPreview(block);
     }
 
+    /* Atualização LIGHT ao digitar título/URL: mexe só no rótulo e no href
+       do botão do preview, sem reconstruir o ícone/imagem (evita o lag
+       percebido a cada tecla em telas/equipamentos fracos). */
+    function atualizarTextoRapidoPreview(e, tipo) {
+      const block = e.target.closest(tipo === 'quick' ? '.quick-action-block' : '.link-block');
+      if (!block) return;
+      const dados = atualizarDadoDoBlock(block, tipo);
+      const btn = document.getElementById('preview-btn-' + block.dataset.id);
+      if (!btn) return;
+      const rotulo = btn.querySelector('.action-text-span');
+      if (rotulo) rotulo.textContent = dados.title || (tipo === 'quick' ? 'Nova Ação' : 'Novo Link');
+      btn.href = normalizeHref(dados.url, dados.icon);
+      if (dados.url) btn.title = dados.url;
+      else btn.removeAttribute('title');
+    }
+
     function createQuickActionBlock(data) {
       const d = data || {};
       const uid = gerarIdUnico('qa');
@@ -4599,7 +4636,7 @@
 
     quickActionsContainer.addEventListener('input', (e) => {
       if (e.target.matches('.quick-title, .quick-url')) {
-        onBlocoEditado(e, 'quick');
+        atualizarTextoRapidoPreview(e, 'quick');
       }
     });
 
@@ -4862,7 +4899,7 @@
 
     linksContainer.addEventListener('input', (e) => {
       if (e.target.matches('.link-title, .link-url')) {
-        onBlocoEditado(e, 'link');
+        atualizarTextoRapidoPreview(e, 'link');
       }
     });
 
@@ -5095,7 +5132,7 @@
         visual: {
           pageBg: el('input-bg-page').value,
           textColor: el('global-btn-text').value,
-          borderColor: computeBtnBorderColor(),
+          borderColor: el('global-btn-border-color').value || computeBtnBorderColor(),
           quickBg: el('global-btn-bg').value,
           quickText: el('global-btn-text').value,
           cardBg: el('global-btn-bg').value,
@@ -5179,6 +5216,7 @@
         'global-btn-text': v.textColor || v.quickText || '#ffffff',
         'global-btn-radius': toRadiusEnum(v.radius),
         'global-btn-border': v.btnBorder || 'borda-fina',
+        'global-btn-border-color': v.borderColor || computeBtnBorderColor(),
         'input-font': v.font,
         'quick-layout': lay.quickMode, 'cards-layout': lay.cardsMode,
         'info-layout': (layInfo.hidden === true) ? 'ocultar' : ((layInfo.hidden === false) ? 'exibir' : undefined)
@@ -5235,6 +5273,7 @@
         'global-btn-text': 'visual.textColor',
         'global-btn-radius': 'visual.radius',
         'global-btn-border': 'visual.btnBorder',
+        'global-btn-border-color': 'visual.borderColor',
         'input-font': 'visual.font',
         'quick-layout': 'layout.quickMode', 'cards-layout': 'layout.cardsMode'
       };
@@ -5258,6 +5297,10 @@
         el('global-btn-border').value = 'borda-fina';
         el('global-btn-border').dispatchEvent(new Event('change'));
       }
+      if (!saved.visual || !saved.visual.borderColor) {
+        el('global-btn-border-color').value = computeBtnBorderColor();
+        el('global-btn-border-colorHex').textContent = computeBtnBorderColor();
+      }
 
       if (saved.layout) {
         const layItems = saved.layout.items;
@@ -5276,6 +5319,7 @@
       if (saved.visual) {
         el('global-btn-radius').dispatchEvent(new Event('change'));
         el('global-btn-border').dispatchEvent(new Event('change'));
+        el('global-btn-border-color').dispatchEvent(new Event('input'));
         if (saved.visual.bgImage) {
           uploads.bgImage = saved.visual.bgImage;
           renderizarFundoUnificado();

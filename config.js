@@ -46,7 +46,7 @@ window.AXIUMLINK_CONFIG = {
   visual: {
     pageBg: "#ffffff",
     textColor: "#ffffff",
-    borderColor: "#000000",
+    borderColor: "#737373",
     quickBg: "#000000",
     quickText: "#ffffff",
     cardBg: "#000000",
