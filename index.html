@@ -65,8 +65,12 @@
       --btn-border-color: #000000;   /* Cor do contorno dos botões e cards de destaque */
       --global-border: 2px solid var(--btn-border-color); /* Borda isolada do cor do texto */
 
-      /* == Tokens de apoio (avançado) == */
-      --max-width: 560px;
+      /* == Tokens de apoio (avançado) ==
+         Largura MÁXIMA do container de conteúdo (não da aplicação):
+         o body/background ocupam 100% do viewport; esta coluna cresce
+         fluidamente com a tela e trava em 1160px só para manter a
+         legibilidade em monitores largos. */
+      --max-width: 1160px;
       --spacing: 1.0625rem;
       --shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
       --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -147,6 +151,14 @@
 
     /* ================================================================
        LAYOUT GERAL
+       ----------------------------------------------------------------
+       Container de CONTEÚDO (legibilidade): width 100% + max-width.
+       O container da APLICAÇÃO é o <body> (background cobre 100vw).
+       Antes a coluna ficava TRAVADA em 560px (base) e saltava para
+       1160px só em >=980px — em tablets/notebooks médios (768–979px)
+       sobrava muito espaço vazio nas laterais e a página não usava a
+       largura disponível. Agora a coluna cresce de forma contínua com
+       o viewport, limitada apenas por --max-width (legibilidade).
        ================================================================ */
     .page {
       width: 100%;
@@ -897,6 +909,12 @@
     @media (min-width: 768px) {
       .profile__avatar { width: 112px; height: 112px; }
 
+      /* Perfil e ações rápidas seguem centralizados e compactos a partir
+         do tablet (ações rápidas mantêm o comportamento atual). A coluna
+         de links, por sua vez, aproveita a largura fluida do viewport. */
+      .profile { max-width: 720px; margin: 0 auto; }
+      .quick-grid { max-width: 520px; margin: 0 auto; }
+
       /* Em grade/faixa os cards empilham (ícone em cima, centralizado).
          Na lista seguem horizontais (ícone à esquerda, texto, seta). */
       .pg-links--grid .featured__card,
@@ -928,19 +946,15 @@
 
     /* ================================================================
        DESKTOP (PC WEB e PWA em janela) — usa a largura da tela
+       Obs.: a largura máxima da coluna já vem de --max-width (1160px),
+       aplicada na base; aqui ficam apenas ajustes de espaçamento e a
+       reorganização dos cards de destaque (3 colunas). Nada trava a
+       página em larguras fixas.
        ================================================================ */
     @media (min-width: 980px) {
-      .page {
-        max-width: 1160px;
-        padding: 4rem 2rem 3rem;
-      }
+      .page { padding: 4rem 2rem 3rem; }
 
       .page-flow { gap: 1.5rem; }
-
-      /* Perfil e ações rápidas seguem centralizados e compactos
-         (ações rápidas mantêm o comportamento atual). */
-      .profile { max-width: 720px; margin: 0 auto; }
-      .quick-grid { max-width: 520px; margin: 0 auto; }
 
       /* Cards de destaque aproveitam a largura em 3 colunas */
       .pg-links--grid { grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
