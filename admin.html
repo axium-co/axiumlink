@@ -2348,16 +2348,75 @@
         <section class="section">
           <h2 class="section__title">Personalização Visual</h2>
 
-          <div class="color-grid">
+          <div class="btn-global-style">
+            <h3 class="section__subtitle">Fundo da Página</h3>
 
-            <div class="field color-field">
-              <label for="input-bg-page">Fundo da Página</label>
-              <div class="color-field__control">
-                <input type="color" id="input-bg-page" data-key="colorPageBg" value="#ffffff" />
-                <span id="input-bg-pageHex">#ffffff</span>
+            <div class="color-grid">
+              <div class="field color-field">
+                <label for="input-bg-page">Cor de Fundo</label>
+                <div class="color-field__control">
+                  <input type="color" id="input-bg-page" data-key="colorPageBg" value="#ffffff" />
+                  <span id="input-bg-pageHex">#ffffff</span>
+                </div>
               </div>
             </div>
 
+            <div class="field">
+              <label>Imagem de Fundo (opcional)</label>
+              <label class="file-btn" for="input-bg-image">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="3" y="3" width="18" height="18" rx="2" />
+                  <circle cx="9" cy="9" r="2" />
+                  <path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L6 21" />
+                </svg>
+                <span>Enviar imagem de fundo</span>
+                <input type="file" id="input-bg-image" accept="image/*" />
+              </label>
+              <button type="button" class="btn-remove btn-remove--block" id="btn-remove-bg" hidden>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M3 6h18" />
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+                  <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                  <line x1="10" x2="10" y1="11" y2="17" />
+                  <line x1="14" x2="14" y1="11" y2="17" />
+                </svg>
+                <span>Remover Fundo</span>
+              </button>
+            </div>
+
+            <div class="adv-group">
+              <p class="adv-subtitle adv-subtitle--sm">Gradiente de Fundo</p>
+              <p class="panel__hint">
+                Camada opcional acima da cor e da imagem. Com opacidade 100% e mesclagem Normal, o gradiente cobre o que está abaixo.
+              </p>
+
+              <label class="adv-check">
+                <input type="checkbox" id="ds-page-gradient-on" />
+                <span>Usar gradiente no fundo da página</span>
+              </label>
+
+              <div id="ds-page-grad-wrap">
+                <div class="slider-field">
+                  <div class="slider-field__head"><label for="ds-page-angle">Ângulo</label><output id="ds-page-angle-out">180°</output></div>
+                  <input type="range" id="ds-page-angle" min="0" max="360" value="180" />
+                </div>
+
+                <div class="field">
+                  <label for="ds-page-blend">Mesclar</label>
+                  <select id="ds-page-blend">
+                    <option value="normal" selected>Normal</option>
+                    <option value="multiply">Multiplicar</option>
+                    <option value="screen">Tela</option>
+                    <option value="overlay">Sobrepor</option>
+                    <option value="darken">Escurecer</option>
+                    <option value="lighten">Clarear</option>
+                  </select>
+                </div>
+
+                <div class="grad-stops" id="ds-page-grad-stops"></div>
+                <button type="button" class="grad-add" id="ds-page-grad-add">➕ Adicionar cor</button>
+              </div>
+            </div>
           </div>
 
           <div class="btn-global-style">
@@ -2401,29 +2460,6 @@
           </div>
 
           <div class="field">
-            <label>Imagem de Fundo (opcional)</label>
-            <label class="file-btn" for="input-bg-image">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <rect x="3" y="3" width="18" height="18" rx="2" />
-                <circle cx="9" cy="9" r="2" />
-                <path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L6 21" />
-              </svg>
-              <span>Enviar imagem de fundo</span>
-              <input type="file" id="input-bg-image" accept="image/*" />
-            </label>
-            <button type="button" class="btn-remove btn-remove--block" id="btn-remove-bg" hidden>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M3 6h18" />
-                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
-                <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                <line x1="10" x2="10" y1="11" y2="17" />
-                <line x1="14" x2="14" y1="11" y2="17" />
-              </svg>
-              <span>Remover Fundo</span>
-            </button>
-          </div>
-
-          <div class="field">
             <label for="input-font">Fonte</label>
             <select id="input-font" data-key="input-font">
               <optgroup label="Sem Serifa (Sans)">
@@ -2448,50 +2484,6 @@
           <p class="panel__hint">
             Banner, perfil e avatar com propriedades calculadas em tempo real no preview.
           </p>
-
-          <button type="button" class="adv-toggle" id="ds-toggle-page" aria-expanded="false">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L6 21" /></svg>
-            <span>Fundo da Página</span>
-            <svg class="adv-toggle__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
-          </button>
-          <div class="adv-body" id="ds-page-body" hidden>
-
-            <div class="adv-group">
-              <p class="adv-subtitle adv-subtitle--sm">Gradiente de Fundo</p>
-              <p class="panel__hint">
-                Configura SOMENTE o fundo geral da página (abaixo do banner).
-                A cor base e a imagem de fundo ficam em "Personalização Visual".
-              </p>
-
-              <label class="adv-check">
-                <input type="checkbox" id="ds-page-gradient-on" />
-                <span>Usar gradiente no fundo da página</span>
-              </label>
-
-              <div id="ds-page-grad-wrap">
-                <div class="slider-field">
-                  <div class="slider-field__head"><label for="ds-page-angle">Ângulo</label><output id="ds-page-angle-out">180°</output></div>
-                  <input type="range" id="ds-page-angle" min="0" max="360" value="180" />
-                </div>
-
-                <div class="field">
-                  <label for="ds-page-blend">Mesclar</label>
-                  <select id="ds-page-blend">
-                    <option value="normal" selected>Normal</option>
-                    <option value="multiply">Multiplicar</option>
-                    <option value="screen">Tela</option>
-                    <option value="overlay">Sobrepor</option>
-                    <option value="darken">Escurecer</option>
-                    <option value="lighten">Clarear</option>
-                  </select>
-                </div>
-
-                <div class="grad-stops" id="ds-page-grad-stops"></div>
-                <button type="button" class="grad-add" id="ds-page-grad-add">➕ Adicionar cor</button>
-              </div>
-            </div>
-
-          </div>
 
           <button type="button" class="adv-toggle" id="ds-toggle" aria-expanded="false">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -3880,6 +3872,16 @@
       checkboxGradientePagina.addEventListener('change', () => {
         controlsToDesign();
         sincronizarVisibilidadeFundoPagina();
+        applyDesign();
+      });
+    }
+
+    /* Mesclagem do gradiente da página — select vive fora do #ds-engine,
+       então o listener delegado do motor não o alcança. */
+    const selectMesclaPagina = el('ds-page-blend');
+    if (selectMesclaPagina) {
+      selectMesclaPagina.addEventListener('change', () => {
+        controlsToDesign();
         applyDesign();
       });
     }
