@@ -1668,11 +1668,17 @@
       overflow-x: auto;
       overscroll-behavior-x: contain;
       scroll-snap-type: x proximity;
-      scrollbar-width: none;
-      padding-bottom: 4px;
+      scrollbar-width: thin;
+      scrollbar-color: color-mix(in srgb, var(--card-destaque-text) 35%, transparent) transparent;
+      padding-bottom: 6px;
     }
 
-    #preview-quick-grid.quick-actions-grid--scroll::-webkit-scrollbar { display: none; }
+    #preview-quick-grid.quick-actions-grid--scroll::-webkit-scrollbar { height: 6px; }
+    #preview-quick-grid.quick-actions-grid--scroll::-webkit-scrollbar-thumb {
+      background: color-mix(in srgb, var(--card-destaque-text) 35%, transparent);
+      border-radius: 999px;
+    }
+    #preview-quick-grid.quick-actions-grid--scroll::-webkit-scrollbar-track { background: transparent; }
 
     #preview-quick-grid.quick-actions-grid--scroll .btn-quick-compact { flex: 0 0 auto; width: auto; }
 
@@ -1742,14 +1748,24 @@
       overflow-x: auto !important;
       overscroll-behavior-x: contain;
       scroll-snap-type: x proximity;
-      scrollbar-width: none;
+      scrollbar-width: thin;
+      scrollbar-color: color-mix(in srgb, var(--card-destaque-text) 35%, transparent) transparent;
       gap: 12px;
       padding: 4px 16px 10px;
     }
 
     #preview-links-list.mode-carrossel::-webkit-scrollbar,
     #preview-links-list.pv-strip::-webkit-scrollbar {
-      display: none;
+      height: 6px;
+    }
+    #preview-links-list.mode-carrossel::-webkit-scrollbar-thumb,
+    #preview-links-list.pv-strip::-webkit-scrollbar-thumb {
+      background: color-mix(in srgb, var(--card-destaque-text) 35%, transparent);
+      border-radius: 999px;
+    }
+    #preview-links-list.mode-carrossel::-webkit-scrollbar-track,
+    #preview-links-list.pv-strip::-webkit-scrollbar-track {
+      background: transparent;
     }
 
     #preview-links-list.mode-carrossel .pv-link,
@@ -5469,6 +5485,72 @@
         navigator.serviceWorker.register('./sw.js').catch(function () {});
       });
     }
+  </script>
+
+  <script>
+    /* ================================================================
+       ROLAGEM HORIZONTAL COM O MOUSE (preview — linhas roláveis)
+       ----------------------------------------------------------------
+       O mockup do celular rola horizontalmente no toque, mas no desktop
+       não há barra visível nem gesto de mouse. Aqui:
+       1) a roda do mouse vira rolagem horizontal sobre a linha rolável;
+       2) arrastar com o botão pressionado percorre a linha como carrossel
+          (o clique só é disparado se não houve arrasto).
+       ================================================================ */
+    (function () {
+      function habilitarRolagemHorizontal(container) {
+        if (!container) return;
+
+        var podeRolar = function () {
+          return container.scrollWidth > container.clientWidth + 1;
+        };
+
+        container.addEventListener('wheel', function (e) {
+          if (!podeRolar()) return;
+          if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+            container.scrollLeft += e.deltaY;
+            e.preventDefault();
+          }
+        }, { passive: false });
+
+        var down = false;
+        var startX = 0;
+        var scrollStart = 0;
+        var moved = false;
+
+        container.addEventListener('pointerdown', function (e) {
+          if (e.pointerType === 'mouse' && e.button !== 0) return;
+          if (!podeRolar()) return;
+          down = true;
+          moved = false;
+          startX = e.clientX;
+          scrollStart = container.scrollLeft;
+          try { container.setPointerCapture(e.pointerId); } catch (err) {}
+        });
+
+        container.addEventListener('pointermove', function (e) {
+          if (!down) return;
+          var dx = e.clientX - startX;
+          if (!moved && Math.abs(dx) > 6) moved = true;
+          if (moved) container.scrollLeft = scrollStart - dx;
+        });
+
+        function parar() { down = false; }
+        container.addEventListener('pointerup', parar);
+        container.addEventListener('pointercancel', parar);
+
+        container.addEventListener('click', function (e) {
+          if (moved) {
+            moved = false;
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        }, true);
+      }
+
+      habilitarRolagemHorizontal(el('preview-quick-grid'));
+      habilitarRolagemHorizontal(el('preview-links-list'));
+    })();
   </script>
 </body>
 </html>

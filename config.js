@@ -60,7 +60,7 @@ window.AXIUMLINK_CONFIG = {
     bgImage: null
   },
   layout: {
-    quickMode: "list",
+    quickMode: "scroll",
     cardsMode: "list",
     items: {
       info: { order: 1, hidden: false },

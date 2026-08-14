@@ -453,16 +453,22 @@
     .pg-links--grid { justify-content: center; }
 
     .pg-links--scroll {
+      display: flex;
       flex-wrap: nowrap;
-      justify-content: flex-start;
       overflow-x: auto;
       overscroll-behavior-x: contain;
       scroll-snap-type: x proximity;
-      scrollbar-width: none;
-      padding-bottom: 4px;
+      scrollbar-width: thin;
+      scrollbar-color: color-mix(in srgb, var(--card-fg) 30%, transparent) transparent;
+      padding-bottom: 6px;
     }
 
-    .pg-links--scroll::-webkit-scrollbar { display: none; }
+    .pg-links--scroll::-webkit-scrollbar { height: 6px; }
+    .pg-links--scroll::-webkit-scrollbar-thumb {
+      background: color-mix(in srgb, var(--card-fg) 30%, transparent);
+      border-radius: 999px;
+    }
+    .pg-links--scroll::-webkit-scrollbar-track { background: transparent; }
 
     .social-icon {
       display: inline-flex;
@@ -545,11 +551,17 @@
       overflow-x: auto;
       overscroll-behavior-x: contain;
       scroll-snap-type: x proximity;
-      scrollbar-width: none;
-      padding-bottom: 4px;
+      scrollbar-width: thin;
+      scrollbar-color: color-mix(in srgb, var(--card-fg) 30%, transparent) transparent;
+      padding-bottom: 6px;
     }
 
-    .quick-grid--scroll::-webkit-scrollbar { display: none; }
+    .quick-grid--scroll::-webkit-scrollbar { height: 6px; }
+    .quick-grid--scroll::-webkit-scrollbar-thumb {
+      background: color-mix(in srgb, var(--card-fg) 30%, transparent);
+      border-radius: 999px;
+    }
+    .quick-grid--scroll::-webkit-scrollbar-track { background: transparent; }
 
     .quick-grid--scroll .featured__card { flex: 0 0 auto; width: auto; min-width: 15rem; }
 
@@ -2076,6 +2088,75 @@
         navigator.serviceWorker.register('./sw.js').catch(function () {});
       });
     }
+  </script>
+
+  <script>
+    /* ================================================================
+       ROLAGEM HORIZONTAL COM O MOUSE (linhas roláveis)
+       ----------------------------------------------------------------
+       Linhas horizontais (Ações Rápidas em "Linha Horizontal Rolável" e
+       Lista de Links em "Carrossel Lateral") rolam com o dedo no toque,
+       mas no desktop não há barra visível nem gesto de mouse. Aqui:
+       1) a roda do mouse (delta vertical) vira rolagem horizontal quando
+          o cursor passa sobre a linha rolável;
+       2) arrastar com o botão pressionado percorre a linha como um
+          carrossel (sem disparar o clique dos links no fim do arrasto).
+       Onde o conteúdo cabe (sem overflow), tudo vira no-op.
+       ================================================================ */
+    (function () {
+      function habilitarRolagemHorizontal(container) {
+        if (!container) return;
+
+        var podeRolar = function () {
+          return container.scrollWidth > container.clientWidth + 1;
+        };
+
+        container.addEventListener('wheel', function (e) {
+          if (!podeRolar()) return;
+          if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+            container.scrollLeft += e.deltaY;
+            e.preventDefault();
+          }
+        }, { passive: false });
+
+        var down = false;
+        var startX = 0;
+        var scrollStart = 0;
+        var moved = false;
+
+        container.addEventListener('pointerdown', function (e) {
+          if (e.pointerType === 'mouse' && e.button !== 0) return;
+          if (!podeRolar()) return;
+          down = true;
+          moved = false;
+          startX = e.clientX;
+          scrollStart = container.scrollLeft;
+          try { container.setPointerCapture(e.pointerId); } catch (err) {}
+        });
+
+        container.addEventListener('pointermove', function (e) {
+          if (!down) return;
+          var dx = e.clientX - startX;
+          if (!moved && Math.abs(dx) > 6) moved = true;
+          if (moved) container.scrollLeft = scrollStart - dx;
+        });
+
+        function parar() { down = false; }
+        container.addEventListener('pointerup', parar);
+        container.addEventListener('pointercancel', parar);
+
+        container.addEventListener('click', function (e) {
+          if (moved) {
+            moved = false;
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        }, true);
+      }
+
+      habilitarRolagemHorizontal(document.getElementById('pgQuick'));
+      habilitarRolagemHorizontal(document.getElementById('pgLinks'));
+    })();
   </script>
 </body>
 </html>
