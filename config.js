@@ -10,6 +10,7 @@
 window.AXIUMLINK_CONFIG = {
   profile: {
     photo: null,
+    verified: false,
     name: "Nome do Cliente",
     bio: "Biografia curta, serviços ou tags separadas por • vírgulas.",
     address: "Rua Exemplo, 123 – Cidade/UF"
@@ -44,20 +45,22 @@ window.AXIUMLINK_CONFIG = {
     }
   ],
   visual: {
-    pageBg: "#ffffff",
-    textColor: "#ffffff",
-    borderColor: "#737373",
-    quickBg: "#000000",
-    quickText: "#ffffff",
-    cardBg: "#000000",
-    cardText: "#ffffff",
+    /* null/"" = tema padrão (light-dark). Texto em tinta escura para
+       o tema claro premium; no dark mode o CSS inverte automaticamente. */
+    pageBg: null,
+    textColor: "#0f172a",
+    borderColor: null,
+    quickBg: null,
+    quickText: "#0f172a",
+    cardBg: null,
+    cardText: "#0f172a",
     radius: "arredondado",
     radiusLabel: "Arredondado",
     font: "Inter",
     bgImage: null
   },
   layout: {
-    quickMode: "grid2x2",
+    quickMode: "list",
     cardsMode: "list",
     items: {
       info: { order: 1, hidden: false },
@@ -68,7 +71,7 @@ window.AXIUMLINK_CONFIG = {
   design: {
     banner: {
       enabled: true,
-      height: 132,
+      height: 190,
       bgType: "gradient",
       color: "#1e293b",
       image: null,
@@ -94,12 +97,12 @@ window.AXIUMLINK_CONFIG = {
       ]
     },
     profile: {
-      marginTop: -38,
+      marginTop: 0,
       zIndex: 20,
       radius: { tl: 14, tr: 14, br: 14, bl: 14 },
       borderStyle: "solid",
       borderWidth: 3,
-      borderColor: "#ffffff",
+      borderColor: "",
       shadowOn: true,
       shadowX: 0, shadowY: 12, shadowBlur: 24, shadowSpread: -10,
       shadowColor: "#000000",
