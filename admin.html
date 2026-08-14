@@ -1434,7 +1434,19 @@
       color: var(--profile-bio-color, var(--text-body, #555555));
     }
 
+    /* Endereço: texto branco sobre o badge escuro (ID vence .preview a) */
+    #preview-profile-address {
+      color: var(--profile-address-text, #ffffff);
+    }
+
     .pv-profile {
+      /* Tokens espelhando a página pública (padrão do layout de referência);
+         os controles de cor do Painel aplicam inline e sobrescrevem. */
+      --profile-name-color: #dc2626;
+      --profile-bio-color: #16a34a;
+      --profile-address-bg: rgba(12, 14, 22, 0.82);
+      --profile-address-text: #ffffff;
+      --profile-address-border: rgba(255, 255, 255, 0.16);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -1496,9 +1508,11 @@
       gap: 0.25rem;
       font-size: 0.66rem;
       font-weight: 500;
-      color: var(--text-body);
-      background: color-mix(in srgb, var(--card-destaque-text, #0f172a) 5%, var(--card-destaque-bg, #ffffff));
-      border: 1px solid var(--card-border, color-mix(in srgb, var(--card-destaque-text, #0f172a) 13%, transparent));
+      color: var(--profile-address-text, #ffffff);
+      background: var(--profile-address-bg, rgba(12, 14, 22, 0.82));
+      border: 1px solid var(--profile-address-border, rgba(255, 255, 255, 0.16));
+      -webkit-backdrop-filter: blur(6px);
+      backdrop-filter: blur(6px);
       box-shadow: var(--shadow-xs);
       padding: 0.3rem 0.7rem;
       border-radius: 999px;

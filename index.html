@@ -185,8 +185,15 @@
     #pgTitle {
       color: var(--profile-name-color, var(--text-title, #0f172a));
     }
-    #pgSubtitle, #pgAddress {
+
+    /* Bio usa o token próprio; o endereço é um badge escuro com texto
+       branco (veja .profile__address abaixo). */
+    #pgSubtitle {
       color: var(--profile-bio-color, var(--text-body, #475569));
+    }
+
+    #pgAddress {
+      color: var(--profile-address-text, #ffffff);
     }
 
     /* ================================================================
@@ -210,6 +217,16 @@
     .profile {
       --avatar-s: 96px;
       --banner-h: 150px;
+
+      /* Tokens do header (nome, bio e badge de endereço). Valores padrão
+         do layout de referência; o Painel sobrescreve por cliente através
+         de design.profile.text (estilos inline aplicados nos elementos). */
+      --profile-name-color: light-dark(#dc2626, #f87171);
+      --profile-bio-color: light-dark(#16a34a, #4ade80);
+      --profile-address-bg: rgba(12, 14, 22, 0.82);
+      --profile-address-text: #ffffff;
+      --profile-address-border: rgba(255, 255, 255, 0.16);
+
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -381,7 +398,9 @@
       overflow-wrap: anywhere;
     }
 
-    /* Endereço: pill informativo discreto (não ocupa a largura toda) */
+    /* Endereço: badge fosco escuro (padrão do layout de referência), com
+       pin e texto em branco. Tokens próprios — o Painel pode sobrescrever
+       via design.profile.text.address. */
     .profile__address {
       display: inline-flex;
       align-items: center;
@@ -392,16 +411,18 @@
       border-radius: 999px;
       font-size: 0.8125rem;
       font-weight: 500;
-      color: var(--text-body);
-      background: color-mix(in srgb, var(--card-fg) 5%, var(--card-bg));
-      border: 1px solid var(--card-border);
+      color: var(--profile-address-text, #ffffff);
+      background: var(--profile-address-bg, rgba(12, 14, 22, 0.82));
+      border: 1px solid var(--profile-address-border, rgba(255, 255, 255, 0.16));
+      -webkit-backdrop-filter: blur(6px);
+      backdrop-filter: blur(6px);
       box-shadow: var(--shadow-xs);
       overflow-wrap: anywhere;
       transition: border-color var(--transition), transform var(--transition), box-shadow var(--transition);
     }
 
     .profile__address:hover {
-      border-color: color-mix(in srgb, var(--card-fg) 26%, transparent);
+      border-color: color-mix(in srgb, var(--profile-address-text, #ffffff) 34%, transparent);
       transform: translateY(-1px);
       box-shadow: var(--shadow-sm);
     }
