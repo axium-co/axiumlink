@@ -718,7 +718,8 @@
 
     /* ---- Card com imagem completa (estilo Beacons) ----
        A imagem é recortada com object-fit: cover dentro do card,
-       sem distorcer nem estourar. */
+       sem distorcer nem estourar. Proporção fallback 16/9; o JS ajusta
+       para a proporção real da imagem (limitada a 4:3 .. 2:1). */
     .featured__card--banner {
       padding: 0;
       overflow: hidden;
@@ -726,6 +727,12 @@
       height: auto;
       min-height: 0;
     }
+
+    /* Nunca esticar o banner além da própria proporção em grade/faixa
+       (align-items: stretch herdaria a altura da linha); em lista vertical
+       mantém a largura total. */
+    .quick-grid .featured__card--banner { align-self: start; }
+    .quick-grid--list .featured__card--banner { align-self: stretch; }
 
     .featured__banner-img {
       position: absolute;
@@ -1791,6 +1798,25 @@
         return arrow;
       }
 
+      /* Define a proporção do card de "Imagem completa" pela proporção real
+         da imagem carregada, limitada a um intervalo seguro (4:3 .. 2:1)
+         para impedir que imagens extremas criem blocos gigantes. */
+      function ajustarProporcaoBanner(img, card) {
+        const aplicar = () => {
+          const nw = img.naturalWidth;
+          const nh = img.naturalHeight;
+          if (!nw || !nh) return;
+          let razao = nw / nh;
+          if (razao > 2) razao = 2;
+          else if (razao < 0.75) razao = 0.75;
+          card.style.aspectRatio = razao;
+        };
+        if (img.complete) {
+          try { aplicar(); } catch (e) {}
+        }
+        img.addEventListener('load', aplicar);
+      }
+
       if (quickContainer && Array.isArray(quickList) && quickList.length) {
         quickContainer.replaceChildren();
         quickContainer.hidden = false;
@@ -1838,6 +1864,7 @@
               img.src = action.image;
               img.alt = action.title || '';
               node.appendChild(img);
+              ajustarProporcaoBanner(img, node);
             } else {
               const icon = document.createElement('span');
               icon.className = 'featured__icon';

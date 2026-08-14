@@ -1848,7 +1848,7 @@
       border: none !important;
       border-radius: var(--global-radius) !important;
       overflow: hidden;
-      aspect-ratio: 16 / 9 !important;
+      aspect-ratio: 16 / 9;
       min-height: 0;
       min-width: 0;
       /* impede que align-items: stretch (modos grid/carrossel) estique o
@@ -1890,25 +1890,44 @@
       transition: all 0.2s ease;
     }
 
-    /* ---- Ação Rápida em modo "Imagem completa" (estilo Beacons) ---- */
+    /* ---- Ação Rápida em modo "Imagem completa" (estilo Beacons) ----
+       Proporção controlada: fallback 16/9; o JS ajusta para a proporção
+       real da imagem (limitada a 4:3 .. 2:1) e a imagem preenche o card
+       recortada com object-fit: cover. Nunca segue a altura natural da
+       imagem, então não vira bloco gigante. */
     .btn-quick-compact--banner {
       padding: 0 !important;
       background: transparent !important;
       border: none !important;
       overflow: hidden;
-      aspect-ratio: 1 / 1;
+      position: relative;
+      aspect-ratio: 16 / 9;
       min-height: 0;
       border-radius: var(--global-radius);
     }
 
     .btn-quick-compact--banner img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
+      position: absolute !important;
+      inset: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+      object-position: center;
       display: block;
       margin: 0;
       flex-shrink: 0;
+      max-width: none;
+      max-height: none;
     }
+
+    /* Em grade 2x2 e faixa, o banner nunca estica além da própria proporção
+       (align-items: stretch herdaria a altura da linha); em lista vertical
+       mantém a largura total. */
+    #preview-quick-grid .btn-quick-compact--banner { align-self: start; }
+    #preview-quick-grid.quick-actions-grid--list .btn-quick-compact--banner { align-self: stretch; }
+
+    /* Em lista, o padrão impõe min-height 3rem; o banner precisa ignorá-lo. */
+    #preview-quick-grid.quick-actions-grid--list .btn-quick-compact--banner { min-height: 0; }
 
     .btn-quick-compact--banner span { display: none; }
 
@@ -4405,8 +4424,29 @@
     }
 
     /* ---- Botão de Ação Rápida: monta/atualiza o conteúdo completo ---- */
+    /* Define a proporção do card de "Imagem completa" a partir da proporção
+       real da imagem carregada, limitada a um intervalo seguro (4:3 retrato
+       .. 2:1 paisagem) para impedir que imagens extremas criem blocos
+       gigantes. Sem imagem/erro, mantém o fallback 16/9 do CSS. */
+    function ajustarProporcaoBanner(img, card) {
+      const aplicar = () => {
+        const nw = img.naturalWidth;
+        const nh = img.naturalHeight;
+        if (!nw || !nh) return;
+        let razao = nw / nh;
+        if (razao > 2) razao = 2;
+        else if (razao < 0.75) razao = 0.75;
+        card.style.aspectRatio = razao;
+      };
+      if (img.complete) {
+        try { aplicar(); } catch (e) {}
+      }
+      img.addEventListener('load', aplicar);
+    }
+
     function montarBotaoAcaoCompleto(btn, dados) {
       btn.className = 'btn-quick-compact';
+      btn.style.aspectRatio = '';
       if (dados.width === 'full') btn.classList.add('btn-quick-compact--full');
       else if (dados.width === 'half') btn.classList.add('btn-quick-compact--half');
       else if (dados.width === 'compact') btn.classList.add('btn-quick-compact--compact');
@@ -4435,10 +4475,13 @@
 
       if (dados.image) {
         const img = document.createElement('img');
-        img.className = 'btn-quick-compact__img';
+        img.className = dados.style === 'banner'
+          ? 'btn-quick-compact__banner-img'
+          : 'btn-quick-compact__img';
         img.src = dados.image;
         img.alt = '';
         btn.insertBefore(img, rotulo);
+        if (dados.style === 'banner') ajustarProporcaoBanner(img, btn);
       } else {
         btn.insertAdjacentHTML('afterbegin', QUICK_ICONS[dados.icon] || QUICK_ICONS.link);
       }
@@ -4448,6 +4491,7 @@
     /* ---- Card de Link: monta/atualiza o conteúdo completo ---- */
     function montarBotaoLinkCompleto(btn, dados) {
       btn.className = 'pv-link';
+      btn.style.aspectRatio = '';
       if (dados.width === 'full') btn.classList.add('pv-link--full');
       else if (dados.width === 'half') btn.classList.add('pv-link--half');
       else if (dados.width === 'compact') btn.classList.add('pv-link--compact');
@@ -4478,6 +4522,7 @@
         img.alt = dados.title || '';
         img.loading = 'lazy';
         btn.appendChild(img);
+        ajustarProporcaoBanner(img, btn);
       } else if (dados.image) {
         const img = document.createElement('img');
         img.className = 'pv-link__img';
