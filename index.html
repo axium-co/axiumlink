@@ -1221,6 +1221,13 @@
     }
   </style>
 
+  <!-- Parse SDK (Back4App) -->
+  <script src="https://unpkg.com/parse@5.2.0/dist/parse.min.js"></script>
+  <script>
+    Parse.initialize('tIKKaJtLdDfZlxKtELzfe99gLOUy7umUCkowAkjK', 'unused');
+    Parse.serverURL = 'https://parseapi.back4app.com/';
+  </script>
+
   <!-- Configuração dinâmica do cliente (gerada pelo Painel Axiumlink) -->
   <script src="config.js"></script>
 </head>
@@ -1542,15 +1549,35 @@
     (function () {
       const STORAGE_KEY = 'axiumlink-preview-v1';
 
-      function readConfig() {
+      function getSlug() {
+        const params = new URLSearchParams(window.location.search);
+        return (params.get('s') || params.get('slug') || '').trim();
+      }
+
+      function readLocalConfig() {
         let saved = null;
         try { saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); } catch (e) {}
-
         const defaults = (typeof window.AXIUMLINK_CONFIG !== 'undefined' && window.AXIUMLINK_CONFIG)
           ? window.AXIUMLINK_CONFIG
           : null;
-
         return saved || defaults;
+      }
+
+      async function readConfig() {
+        const slug = getSlug();
+        if (slug && typeof Parse !== 'undefined') {
+          try {
+            const Client = Parse.Object.extend('Client');
+            const query = new Parse.Query(Client);
+            query.equalTo('slug', slug);
+            const result = await query.first();
+            if (result) {
+              const cfg = result.get('config');
+              if (cfg && typeof cfg === 'object') return cfg;
+            }
+          } catch (e) { /* Parse offline or error — fall through */ }
+        }
+        return readLocalConfig();
       }
 
       /* Motor reativo: lê o payload (ou o recebido por parâmetro) e
@@ -2221,11 +2248,11 @@
       }
 
       /* API pública — permite reaplicar um payload novo a qualquer momento */
-      window.applyAxiumlinkConfig = function (payload) {
-        return applyConfig(payload || readConfig());
+      window.applyAxiumlinkConfig = async function (payload) {
+        return applyConfig(payload || await readConfig());
       };
 
-      applyConfig(readConfig());
+      readConfig().then(applyConfig);
     })();
   </script>
 

@@ -26,6 +26,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;600;700&family=Lato:wght@300;400;500;600;700&family=Merriweather:wght@300;400;500;600;700&family=Playfair+Display:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
+  <!-- Parse SDK (Back4App) -->
+  <script src="https://unpkg.com/parse@5.2.0/dist/parse.min.js"></script>
+  <script>
+    Parse.initialize('tIKKaJtLdDfZlxKtELzfe99gLOUy7umUCkowAkjK', 'unused');
+    Parse.serverURL = 'https://parseapi.back4app.com/';
+  </script>
+
   <!-- Configuração atual do cliente (fonte de verdade compartilhada) -->
   <script src="config.js"></script>
 
@@ -2158,18 +2165,175 @@
       .drag-handle { min-width: 2.5rem; min-height: 2.5rem; }
       .btn-delete-link { width: 2.5rem; height: 2.5rem; }
     }
+
+    /* ---- Login / Cadastro Overlay ---- */
+    .auth-overlay {
+      position: fixed;
+      inset: 0;
+      background: #f8fafc;
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .auth-overlay[hidden] { display: none; }
+
+    .auth-card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(15,23,42,0.10);
+      padding: 2.5rem 2rem;
+      width: 100%;
+      max-width: 380px;
+      text-align: center;
+    }
+    .auth-card h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin: 0 0 0.25rem;
+    }
+    .auth-card p {
+      font-size: 0.875rem;
+      color: #64748b;
+      margin: 0 0 1.5rem;
+    }
+    .auth-card .field { text-align: left; margin-bottom: 0.875rem; }
+    .auth-card .field label { font-size: 0.8125rem; font-weight: 600; color: #334155; margin-bottom: 0.25rem; display: block; }
+    .auth-card .field input {
+      width: 100%;
+      padding: 0.625rem 0.75rem;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 0.9375rem;
+      outline: none;
+      transition: border-color 0.15s;
+      box-sizing: border-box;
+    }
+    .auth-card .field input:focus { border-color: #6366f1; }
+    .auth-card .auth-btn {
+      width: 100%;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 8px;
+      background: #6366f1;
+      color: #fff;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+      margin-top: 0.25rem;
+    }
+    .auth-card .auth-btn:hover { background: #4f46e5; }
+    .auth-card .auth-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .auth-card .auth-toggle {
+      display: inline-block;
+      margin-top: 1rem;
+      font-size: 0.8125rem;
+      color: #6366f1;
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-weight: 500;
+    }
+    .auth-card .auth-toggle:hover { text-decoration: underline; }
+    .auth-card .auth-error {
+      color: #ef4444;
+      font-size: 0.8125rem;
+      min-height: 1.2em;
+      margin-top: 0.5rem;
+    }
+
+    /* ---- Slug Editor no Topbar ---- */
+    .topbar__slug {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-size: 0.8125rem;
+      color: #64748b;
+      background: #f1f5f9;
+      border-radius: 6px;
+      padding: 0.3rem 0.6rem;
+      margin-right: 0.5rem;
+    }
+    .topbar__slug span { white-space: nowrap; }
+    .topbar__slug input {
+      border: 1px solid transparent;
+      background: transparent;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: #0f172a;
+      padding: 0.1rem 0.25rem;
+      border-radius: 4px;
+      width: 120px;
+      outline: none;
+    }
+    .topbar__slug input:focus { border-color: #6366f1; background: #fff; }
+
+    /* ---- Status de save ---- */
+    .topbar__status {
+      font-size: 0.75rem;
+      color: #94a3b8;
+      margin-right: 0.5rem;
+    }
+    .topbar__status--saving { color: #f59e0b; }
+    .topbar__status--saved { color: #22c55e; }
+    .topbar__status--error { color: #ef4444; }
+
+    /* ---- Botão Sair ---- */
+    .btn--logout {
+      font-size: 0.8125rem;
+      color: #64748b;
+      background: none;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 0.4rem 0.75rem;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.15s, color 0.15s;
+    }
+    .btn--logout:hover { background: #f1f5f9; color: #0f172a; }
   </style>
 </head>
 
 <body>
 
-  <header class="topbar">
+  <!-- Login / Cadastro Overlay -->
+  <div class="auth-overlay" id="authOverlay">
+    <div class="auth-card">
+      <h1>Axiumlink</h1>
+      <p id="authSubtitle">Entre na sua conta para gerenciar seus links</p>
+
+      <div class="field" id="authNameField" hidden>
+        <label for="authName">Nome</label>
+        <input type="text" id="authName" placeholder="Seu nome" />
+      </div>
+      <div class="field">
+        <label for="authEmail">E-mail</label>
+        <input type="email" id="authEmail" placeholder="seu@email.com" />
+      </div>
+      <div class="field">
+        <label for="authPass">Senha</label>
+        <input type="password" id="authPass" placeholder="Sua senha" />
+      </div>
+      <button class="auth-btn" id="authSubmitBtn" type="button">Entrar</button>
+      <div class="auth-error" id="authError"></div>
+      <button class="auth-toggle" id="authToggle" type="button">Criar conta gratuita</button>
+    </div>
+  </div>
+
+  <header class="topbar" id="appTopbar" hidden>
     <a class="topbar__brand" href="admin.html">
       <span class="topbar__logo">$</span>
       <span class="topbar__name">Axiumlink</span>
     </a>
     <div class="topbar__actions">
-      <a class="btn btn--ghost" href="index.html" target="_blank" rel="noopener">
+      <span class="topbar__status" id="saveStatus"></span>
+      <div class="topbar__slug" id="slugEditor" hidden>
+        <span>/?s=</span>
+        <input type="text" id="clientSlug" placeholder="meu-link" />
+      </div>
+      <a class="btn btn--ghost" id="viewPageBtn" href="index.html" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
           <polyline points="15 3 21 3 21 9" />
@@ -2183,16 +2347,17 @@
         </svg>
         Salvar Alterações
       </button>
+      <button class="btn--logout" id="btnLogout" type="button">Sair</button>
     </div>
   </header>
 
   <!-- Tabs móveis: alterna entre edição e pré-visualização em telas pequenas -->
-  <nav class="mobile-tabs" aria-label="Alternar entre edição e pré-visualização">
+  <nav class="mobile-tabs" id="mobileTabs" aria-label="Alternar entre edição e pré-visualização" hidden>
     <button type="button" class="mobile-tabs__btn is-active" data-view="edit">Editar</button>
     <button type="button" class="mobile-tabs__btn" data-view="preview">Prévia</button>
   </nav>
 
-  <main class="admin-layout">
+  <main class="admin-layout" hidden>
 
     <!-- ================================================================
          COLUNA ESQUERDA — PAINEL DE EDIÇÃO
@@ -2932,6 +3097,197 @@
 
   <script>
     /* ================================================================
+       AUTH + BACK4APP (Parse)
+       ================================================================ */
+    const ParseApp = {
+      currentUser: null,
+      currentClient: null,
+
+      async login(email, password) {
+        const user = await Parse.User.logIn(email, password);
+        this.currentUser = user;
+        return user;
+      },
+
+      async signup(name, email, password) {
+        const user = new Parse.User();
+        user.set('username', email);
+        user.set('email', email);
+        user.set('password', password);
+        user.set('name', name);
+        await user.signUp();
+        this.currentUser = user;
+        return user;
+      },
+
+      async logout() {
+        await Parse.User.logOut();
+        this.currentUser = null;
+        this.currentClient = null;
+      },
+
+      async loadOrCreateClient() {
+        if (!this.currentUser) return null;
+        const Client = Parse.Object.extend('Client');
+        const query = new Parse.Query(Client);
+        query.equalTo('owner', this.currentUser);
+        let client = await query.first();
+        if (!client) {
+          client = new Client();
+          client.set('owner', this.currentUser);
+          client.set('slug', 'axium-' + Date.now().toString(36));
+          client.set('config', null);
+          await client.save();
+        }
+        this.currentClient = client;
+        return client;
+      },
+
+      async saveClientConfig(payload) {
+        if (!this.currentClient) return;
+        this.currentClient.set('config', payload);
+        await this.currentClient.save();
+      },
+
+      async updateSlug(slug) {
+        if (!this.currentClient) return;
+        this.currentClient.set('slug', slug);
+        await this.currentClient.save();
+      }
+    };
+
+    /* ---- Auth Overlay Logic ---- */
+    (function initAuth() {
+      const overlay  = document.getElementById('authOverlay');
+      const topbar   = document.getElementById('appTopbar');
+      const nameField = document.getElementById('authNameField');
+      const emailEl  = document.getElementById('authEmail');
+      const passEl   = document.getElementById('authPass');
+      const nameEl   = document.getElementById('authName');
+      const submitBtn = document.getElementById('authSubmitBtn');
+      const errorEl  = document.getElementById('authError');
+      const toggleBtn = document.getElementById('authToggle');
+      const subtitle = document.getElementById('authSubtitle');
+
+      let isSignup = false;
+
+      toggleBtn.addEventListener('click', () => {
+        isSignup = !isSignup;
+        nameField.hidden = !isSignup;
+        submitBtn.textContent = isSignup ? 'Criar conta' : 'Entrar';
+        subtitle.textContent = isSignup
+          ? 'Crie sua conta para começar'
+          : 'Entre na sua conta para gerenciar seus links';
+        toggleBtn.textContent = isSignup
+          ? 'Já tenho conta'
+          : 'Criar conta gratuita';
+        errorEl.textContent = '';
+      });
+
+      async function handleSubmit() {
+        const email = emailEl.value.trim();
+        const pass = passEl.value;
+        const name = nameEl.value.trim();
+
+        if (!email || !pass) {
+          errorEl.textContent = 'Preencha e-mail e senha.';
+          return;
+        }
+        if (isSignup && !name) {
+          errorEl.textContent = 'Preencha seu nome.';
+          return;
+        }
+
+        submitBtn.disabled = true;
+        errorEl.textContent = '';
+        try {
+          if (isSignup) {
+            await ParseApp.signup(name, email, pass);
+          } else {
+            await ParseApp.login(email, pass);
+          }
+          overlay.hidden = true;
+          topbar.hidden = false;
+          var layout = document.querySelector('.admin-layout');
+          layout.removeAttribute('hidden');
+          document.getElementById('mobileTabs').hidden = false;
+          await onAuthReady();
+        } catch (err) {
+          errorEl.textContent = err.message || 'Erro ao autenticar.';
+        } finally {
+          submitBtn.disabled = false;
+        }
+      }
+
+      submitBtn.addEventListener('click', handleSubmit);
+      passEl.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSubmit(); });
+      emailEl.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSubmit(); });
+
+      /* Verifica sessão existente */
+      (async function checkSession() {
+        const user = Parse.User.current();
+        if (user) {
+          ParseApp.currentUser = user;
+          overlay.hidden = true;
+          topbar.hidden = false;
+          var layout = document.querySelector('.admin-layout');
+          layout.removeAttribute('hidden');
+          document.getElementById('mobileTabs').hidden = false;
+          await onAuthReady();
+        }
+      })();
+    })();
+
+    /* Callback chamado após auth — o resto do admin初始化依赖于此 */
+    let _authReadyResolve;
+    const _authReadyPromise = new Promise((r) => { _authReadyResolve = r; });
+
+    async function onAuthReady() {
+      try {
+        const client = await ParseApp.loadOrCreateClient();
+        if (client) {
+          const slugInput = document.getElementById('clientSlug');
+          const slugEditor = document.getElementById('slugEditor');
+          const viewBtn = document.getElementById('viewPageBtn');
+          slugEditor.hidden = false;
+          slugInput.value = client.get('slug') || '';
+          updatePublicLink(viewBtn, slugInput.value);
+
+          slugInput.addEventListener('change', async () => {
+            const val = slugInput.value.trim().replace(/[^a-zA-Z0-9_-]/g, '');
+            slugInput.value = val;
+            if (val) {
+              await ParseApp.updateSlug(val);
+              updatePublicLink(viewBtn, val);
+            }
+          });
+
+          /* Carrega config do Parse */
+          const cfg = client.get('config');
+          if (cfg && typeof cfg === 'object') {
+            _parseConfigToLoad = cfg;
+          }
+        }
+      } catch (err) {
+        console.warn('Parse connection failed, using local data:', err.message);
+      }
+      _authReadyResolve();
+    }
+
+    function updatePublicLink(btn, slug) {
+      const base = window.location.origin + window.location.pathname.replace(/admin\.html$/, 'index.html');
+      btn.href = slug ? (base + '?s=' + encodeURIComponent(slug)) : base;
+    }
+
+    let _parseConfigToLoad = null;
+
+    /* Logout */
+    document.getElementById('btnLogout').addEventListener('click', async () => {
+      await ParseApp.logout();
+      window.location.reload();
+    });
+
+    /* ================================================================
        HELPERS DE COR
        ================================================================ */
     function hexToRgb(hex) {
@@ -2996,12 +3352,20 @@
     const STORAGE_KEY = 'axiumlink-preview-v1';
 
     let _autoSaveTimer = null;
+    let _autoSaveParseTimer = null;
     function autoSaveToStorage() {
       clearTimeout(_autoSaveTimer);
       _autoSaveTimer = setTimeout(() => {
         try { localStorage.setItem(STORAGE_KEY, JSON.stringify(buildPayload())); }
         catch (err) { /* images too large — silent */ }
       }, 300);
+      /* Auto-save na nuvem com debounce maior (2s) */
+      clearTimeout(_autoSaveParseTimer);
+      _autoSaveParseTimer = setTimeout(async () => {
+        try {
+          await ParseApp.saveClientConfig(buildPayload());
+        } catch (err) { /* Parse offline or error — silent */ }
+      }, 2000);
     }
 
     /* ================================================================
@@ -5306,26 +5670,40 @@
       };
     }
 
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
+      const saveStatus = document.getElementById('saveStatus');
+      saveStatus.textContent = 'Salvando...';
+      saveStatus.className = 'topbar__status topbar__status--saving';
 
       const payload = buildPayload();
 
-      /* Conexão futura com o banco de dados */
       console.log('===== Axiumlink | Dados do cliente =====');
       console.log(JSON.stringify(payload, null, 2));
-      console.log('===== Axiumlink | Links (array p/ banco) =====');
-      console.log(JSON.stringify(payload.links, null, 2));
 
-      /* Persistência local — lida pela página pública (index.html) */
+      /* Persistência local */
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
       } catch (err) {
-        alert('Imagens grandes demais para o armazenamento local. Use o botão "Baixar config.js" e envie o arquivo para o deploy.');
+        /* images too large */
+      }
+
+      /* Persistência no Back4App */
+      try {
+        await ParseApp.saveClientConfig(payload);
+        saveStatus.textContent = 'Salvo na nuvem';
+        saveStatus.className = 'topbar__status topbar__status--saved';
+      } catch (err) {
+        saveStatus.textContent = 'Erro ao salvar na nuvem';
+        saveStatus.className = 'topbar__status topbar__status--error';
+        console.error('Parse save error:', err);
       }
 
       toast.classList.add('toast--show');
-      setTimeout(() => toast.classList.remove('toast--show'), 2200);
+      setTimeout(() => {
+        toast.classList.remove('toast--show');
+        setTimeout(() => { saveStatus.textContent = ''; }, 1500);
+      }, 2200);
     });
 
     /* ================================================================
@@ -5409,10 +5787,13 @@
 
     /* ================================================================
        RESTAURAR ÚLTIMA EDIÇÃO SALVA
+       Prioridade: Parse (via auth) > localStorage > config.js (defaults)
        ================================================================ */
-    (function restore() {
-      let saved;
-      try { saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); } catch { return; }
+    _authReadyPromise.then(function restore() {
+      let saved = _parseConfigToLoad;
+      if (!saved) {
+        try { saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); } catch { return; }
+      }
       if (!saved) return;
 
       const map = {
@@ -5520,7 +5901,7 @@
       renderPreviewLinks();
 
       renderLayout();
-    })();
+    });
 
     /* ================================================================
        MOBILE — alternância Editar / Prévia
