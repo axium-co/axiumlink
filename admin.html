@@ -2995,6 +2995,15 @@
 
     const STORAGE_KEY = 'axiumlink-preview-v1';
 
+    let _autoSaveTimer = null;
+    function autoSaveToStorage() {
+      clearTimeout(_autoSaveTimer);
+      _autoSaveTimer = setTimeout(() => {
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(buildPayload())); }
+        catch (err) { /* images too large — silent */ }
+      }, 300);
+    }
+
     /* ================================================================
        LAYOUT DINÂMICO — monta o fluxo do preview
        Perfil + grade de ações rápidas (dinâmica) + lista de links.
@@ -4675,6 +4684,7 @@
       syncQuickActionsData();
       renumberQuickActionBlocks();
       reaplicarOrdemPreview('quick');
+      autoSaveToStorage();
     }
 
     /* Sincroniza o Array 1 a partir dos formulários do painel.
@@ -4730,6 +4740,7 @@
       syncQuickActionsData();
       renumberQuickActionBlocks();
       injetarBotaoNovo('quick', block.dataset.id);
+      autoSaveToStorage();
     }
 
     el('btn-add-quick-action').addEventListener('click', () => addQuickActionBlock());
@@ -4745,6 +4756,7 @@
         syncQuickActionsData();
         renumberQuickActionBlocks();
         if (!quickActionsContainer.querySelector('.quick-action-block')) previewQuickGrid.hidden = true;
+        autoSaveToStorage();
         return;
       }
 
@@ -4756,6 +4768,7 @@
         if (upload) upload.value = '';
         clearBtn.hidden = true;
         onBlocoEditado({ target: block }, 'quick');
+        autoSaveToStorage();
         return;
       }
 
@@ -4771,6 +4784,7 @@
     quickActionsContainer.addEventListener('input', (e) => {
       if (e.target.matches('.quick-title, .quick-url')) {
         atualizarTextoRapidoPreview(e, 'quick');
+        autoSaveToStorage();
       }
     });
 
@@ -4780,6 +4794,7 @@
           e.target.classList.contains('btn-animation') ||
           e.target.classList.contains('link-style')) {
         onBlocoEditado(e, 'quick');
+        autoSaveToStorage();
         return;
       }
       if (e.target.classList.contains('icon-upload')) {
@@ -4792,6 +4807,7 @@
           const clearBtn = block.querySelector('.icon-clear');
           if (clearBtn) clearBtn.hidden = false;
           onBlocoEditado({ target: block }, 'quick');
+          autoSaveToStorage();
         };
         reader.readAsDataURL(file);
       }
