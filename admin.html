@@ -3140,12 +3140,25 @@
 
       async saveClientConfig(payload) {
         if (!this.currentClient) return;
+        const jsonStr = JSON.stringify(payload);
+        const sizeKB = new Blob([jsonStr]).size / 1024;
+        if (sizeKB > 80) {
+          throw new Error('Configuração muito grande (' + Math.round(sizeKB) + 'KB). Máximo permitido: 80KB. Reduza o tamanho das imagens.');
+        }
         this.currentClient.set('config', payload);
         await this.currentClient.save();
       },
 
       async updateSlug(slug) {
         if (!this.currentClient) return;
+        const Client = Parse.Object.extend('Client');
+        const query = new Parse.Query(Client);
+        query.equalTo('slug', slug);
+        query.notEqualTo('objectId', this.currentClient.id);
+        const existing = await query.first();
+        if (existing) {
+          throw new Error('Este slug já está em uso. Escolha outro.');
+        }
         this.currentClient.set('slug', slug);
         await this.currentClient.save();
       }
@@ -3244,8 +3257,13 @@
             const val = slugInput.value.trim().replace(/[^a-zA-Z0-9_-]/g, '');
             slugInput.value = val;
             if (val) {
-              await ParseApp.updateSlug(val);
-              updatePublicLink(viewBtn, val);
+              try {
+                await ParseApp.updateSlug(val);
+                updatePublicLink(viewBtn, val);
+              } catch (err) {
+                alert(err.message || 'Erro ao salvar slug.');
+                slugInput.value = client.get('slug') || '';
+              }
             }
           });
 
@@ -3257,6 +3275,11 @@
         }
       } catch (err) {
         console.warn('Parse connection failed, using local data:', err.message);
+        const saveStatus = document.getElementById('saveStatus');
+        if (saveStatus) {
+          saveStatus.textContent = 'Sem conexão com a nuvem — dados locais';
+          saveStatus.className = 'topbar__status topbar__status--error';
+        }
       }
       _authReadyResolve();
     }
@@ -3351,7 +3374,15 @@
       _autoSaveParseTimer = setTimeout(async () => {
         try {
           await ParseApp.saveClientConfig(buildPayload());
-        } catch (err) { /* Parse offline or error — silent */ }
+        } catch (err) {
+          if (err.message && err.message.includes('unauthorized')) {
+            saveStatus.textContent = 'Sessão expirada. Faça login novamente.';
+            saveStatus.className = 'topbar__status topbar__status--error';
+          } else if (err.message && err.message.includes('muito grande')) {
+            saveStatus.textContent = err.message;
+            saveStatus.className = 'topbar__status topbar__status--error';
+          }
+        }
       }, 2000);
     }
 
@@ -5681,7 +5712,13 @@
         saveStatus.textContent = 'Salvo na nuvem';
         saveStatus.className = 'topbar__status topbar__status--saved';
       } catch (err) {
-        saveStatus.textContent = 'Erro ao salvar na nuvem';
+        if (err.message && err.message.includes('unauthorized')) {
+          saveStatus.textContent = 'Sessão expirada. Faça login novamente.';
+        } else if (err.message && err.message.includes('muito grande')) {
+          saveStatus.textContent = err.message;
+        } else {
+          saveStatus.textContent = 'Erro ao salvar na nuvem';
+        }
         saveStatus.className = 'topbar__status topbar__status--error';
         console.error('Parse save error:', err);
       }
