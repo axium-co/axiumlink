@@ -134,7 +134,7 @@
       align-items: center;
       justify-content: center;
       gap: 0.5rem;
-      height: 40px;
+      height: 44px;
       padding: 0 1.125rem;
       border-radius: var(--ds-radius-sm);
       font-family: inherit;
@@ -190,7 +190,7 @@
       overscroll-behavior: contain;
       position: sticky;
       top: calc(var(--topbar-h) + var(--safe-top));
-      height: calc(100vh - var(--topbar-h) - var(--safe-top));
+      height: calc(100dvh - var(--topbar-h) - var(--safe-top));
     }
 
     .panel::-webkit-scrollbar { width: 8px; }
@@ -1055,8 +1055,8 @@
     .grad-stop__remove {
       display: grid;
       place-items: center;
-      width: 26px;
-      height: 26px;
+      width: 32px;
+      height: 32px;
       border-radius: 6px;
       font-size: 1rem;
       line-height: 1;
@@ -1267,7 +1267,7 @@
       align-items: center;
       position: sticky;
       top: calc(var(--topbar-h) + var(--safe-top));
-      height: calc(100vh - var(--topbar-h) - var(--safe-top));
+      height: calc(100dvh - var(--topbar-h) - var(--safe-top));
       overflow: hidden;
       /* Fundo claro (mesmo tom do painel) — a casca escura do celular
          (#1E293B) já é o elemento de destaque. Evita a "parede preta"
@@ -1281,7 +1281,7 @@
        aparelho) e travada em 360px nas alturas normais. A proporção
        1:2 é mantida por aspect-ratio em qualquer tamanho. */
     .phone-mockup {
-      width: min(360px, calc((100vh - var(--topbar-h) - var(--safe-top) - 2rem) * 0.5));
+      width: min(360px, calc((100dvh - var(--topbar-h) - var(--safe-top) - 2rem) * 0.5));
       aspect-ratio: 1 / 2;
       height: auto;
       position: relative;
@@ -2084,6 +2084,7 @@
       .section { padding: 1.125rem 1rem; }
       .phone-mockup { width: 100%; max-width: 316px; }
       .preview-zone { min-height: min(640px, 50vh); }
+      .topbar__slug input { width: 80px; }
     }
 
     /* ================================================================
