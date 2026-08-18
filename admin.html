@@ -3130,6 +3130,15 @@
       currentUser: null,
       currentClient: null,
 
+      _setOwnerACL(client) {
+        const acl = new Parse.ACL();
+        acl.setPublicReadAccess(true);
+        acl.setPublicWriteAccess(false);
+        acl.setReadAccess(Parse.User.current(), true);
+        acl.setWriteAccess(Parse.User.current(), true);
+        client.setACL(acl);
+      },
+
       async login(email, password) {
         const user = await Parse.User.logIn(email, password);
         this.currentUser = user;
@@ -3163,6 +3172,7 @@
           client.set('owner', this.currentUser);
           client.set('slug', 'axium-' + Date.now().toString(36));
           client.set('config', null);
+          this._setOwnerACL(client);
           await client.save();
         }
         this.currentClient = client;
@@ -3177,6 +3187,7 @@
           throw new Error('Configuração muito grande (' + Math.round(sizeKB) + 'KB). Máximo permitido: 80KB. Reduza o tamanho das imagens.');
         }
         this.currentClient.set('config', payload);
+        this._setOwnerACL(this.currentClient);
         await this.currentClient.save();
       },
 
@@ -3191,6 +3202,7 @@
           throw new Error('Este slug já está em uso. Escolha outro.');
         }
         this.currentClient.set('slug', slug);
+        this._setOwnerACL(this.currentClient);
         try {
           await this.currentClient.save();
         } catch (err) {

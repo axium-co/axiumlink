@@ -25,6 +25,22 @@
 | `owner == pointerToCurrentUser` | `owner` | Cada usuário só pode **ler e escrever** no seu próprio `Client` |
 | `owner exists` | `owner` | Todos os registros devem ter um `owner` |
 
+### ACL por Registro (programático)
+
+O código define automaticamente a ACL de cada registro `Client` ao salvar:
+
+```js
+const acl = new Parse.ACL();
+acl.setPublicReadAccess(true);    // Página pública pode ler (por slug)
+acl.setPublicWriteAccess(false);  // Ninguém escreve sem autenticação
+acl.setReadAccess(Parse.User.current(), true);   // Dono pode ler
+acl.setWriteAccess(Parse.User.current(), true);  // Dono pode escrever
+client.setACL(acl);
+```
+
+- **Leitura pública** é necessária para que `index.html` busque o `Client` pelo slug na URL
+- **Escrita é restrita** ao dono do registro (autenticado)
+
 ### Campos da Classe
 
 | Campo | Tipo | Obrigatório | Observação |
