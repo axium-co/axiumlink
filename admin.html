@@ -1496,11 +1496,12 @@
       letter-spacing: -0.02em;
       line-height: 1.2;
       color: var(--text-title);
+      width: 100%;
       max-width: 100%;
       overflow-wrap: break-word;
     }
 
-    .pv-name-row { display: flex; align-items: center; gap: 6px; }
+    .pv-name-row { display: flex; align-items: center; gap: 6px; width: 100%; }
 
     .pv-verified {
       display: inline-flex;
@@ -1520,14 +1521,16 @@
       line-height: 1.55;
       color: var(--text-body);
       max-width: 38ch;
+      width: 100%;
       overflow-wrap: break-word;
     }
 
     .pv-address {
-      display: inline-flex;
+      display: flex;
       align-items: center;
       justify-content: center;
       gap: 0.25rem;
+      width: 100%;
       font-size: 0.66rem;
       font-weight: 500;
       color: var(--profile-address-text, #ffffff);
@@ -2538,6 +2541,48 @@
                     <option value="500">Média</option>
                     <option value="600">Semi-Bold</option>
                     <option value="700">Negrito</option>
+                  </select>
+                </div>
+              </div>
+              <div class="adv-group" style="margin-top: 14px; padding-top: 14px; border-top: 1px solid #E2E8F0;">
+                <label style="font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; display: block;">Estilo do Bloco</label>
+                <div class="field">
+                  <label for="address-block-radius">Formato do Bloco</label>
+                  <select id="address-block-radius" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #E2E8F0;">
+                    <option value="999px">Pílula (Arredondado)</option>
+                    <option value="0px">Retangular</option>
+                    <option value="8px">Bordas Leves</option>
+                  </select>
+                </div>
+                <div class="field color-field" style="margin-top: 10px;">
+                  <label for="address-block-bg">Cor do Fundo do Bloco</label>
+                  <div class="color-field__control">
+                    <input type="color" id="address-block-bg" value="#0f172a" />
+                    <span id="address-block-bgHex">#0F172A</span>
+                  </div>
+                </div>
+                <div class="field color-field" style="margin-top: 10px;">
+                  <label for="address-block-border-color">Cor da Borda</label>
+                  <div class="color-field__control">
+                    <input type="color" id="address-block-border-color" value="#ffffff" />
+                    <span id="address-block-border-colorHex">#FFFFFF</span>
+                  </div>
+                </div>
+                <div class="slider-field" style="margin-top: 10px;">
+                  <div class="slider-field__head"><label for="address-block-border-width">Espessura da Borda</label><output id="address-block-border-width-out">1px</output></div>
+                  <input type="range" id="address-block-border-width" min="0" max="5" value="1" />
+                </div>
+                <div class="field" style="margin-top: 10px;">
+                  <label for="address-block-font">Fonte do Endereço</label>
+                  <select id="address-block-font" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #E2E8F0;">
+                    <option value="Inter, sans-serif">Inter</option>
+                    <option value="Arial, sans-serif">Arial</option>
+                    <option value="'Roboto', sans-serif">Roboto</option>
+                    <option value="'Montserrat', sans-serif">Montserrat</option>
+                    <option value="'Poppins', sans-serif">Poppins</option>
+                    <option value="'Open Sans', sans-serif">Open Sans</option>
+                    <option value="'Lato', sans-serif">Lato</option>
+                    <option value="system-ui, sans-serif">Sistema</option>
                   </select>
                 </div>
               </div>
@@ -3783,7 +3828,14 @@
         text: {
           name: { color: '', size: 0, weight: 0, align: '' },
           bio: { color: '', size: 0, weight: 0, align: '' },
-          address: { color: '', size: 0, weight: 0 }
+          address: {
+            color: '', size: 0, weight: 0,
+            blockRadius: '999px',
+            blockBg: '#0f172a',
+            blockBorderColor: '#ffffff',
+            blockBorderWidth: 1,
+            blockFont: 'Inter, sans-serif'
+          }
         }
       }
     };
@@ -4090,11 +4142,30 @@
         if (cfg.color) t.style.color = cfg.color;
         if (cfg.size) t.style.fontSize = cfg.size + 'px';
         if (cfg.weight) t.style.fontWeight = cfg.weight;
-        if (cfg.align) t.style.textAlign = cfg.align;
+        if (cfg.align) {
+          t.style.textAlign = cfg.align;
+          const isFlex = getComputedStyle(t).display === 'flex';
+          if (isFlex) {
+            const justifyMap = { left: 'flex-start', center: 'center', right: 'flex-end' };
+            t.style.justifyContent = justifyMap[cfg.align] || 'center';
+          }
+        }
       };
       applyTextCSS('preview-profile-name', p.text.name);
       applyTextCSS('preview-profile-bio', p.text.bio);
       applyTextCSS('preview-profile-address', p.text.address);
+
+      /* Estilos do bloco endereço */
+      const addrEl = el('preview-profile-address');
+      const addr = p.text.address;
+      if (addrEl && addr) {
+        if (addr.blockRadius) addrEl.style.borderRadius = addr.blockRadius;
+        if (addr.blockBg) addrEl.style.background = addr.blockBg;
+        if (addr.blockBorderColor != null && addr.blockBorderWidth != null) {
+          addrEl.style.border = addr.blockBorderWidth + 'px solid ' + addr.blockBorderColor;
+        }
+        if (addr.blockFont) addrEl.style.fontFamily = addr.blockFont;
+      }
     }
 
     /* Popula os controles a partir do designState */
@@ -4169,6 +4240,28 @@
         const out = el(prefix + '-size-out');
         if (out && t.size) out.textContent = t.size + 'px';
       });
+
+      /* Restaura estilos do bloco endereço */
+      const addr = p.text.address;
+      if (addr) {
+        if (addr.blockRadius && el('address-block-radius')) el('address-block-radius').value = addr.blockRadius;
+        if (addr.blockBg && el('address-block-bg')) {
+          el('address-block-bg').value = addr.blockBg;
+          const h = el('address-block-bgHex');
+          if (h) h.textContent = addr.blockBg.toUpperCase();
+        }
+        if (addr.blockBorderColor && el('address-block-border-color')) {
+          el('address-block-border-color').value = addr.blockBorderColor;
+          const h = el('address-block-border-colorHex');
+          if (h) h.textContent = addr.blockBorderColor.toUpperCase();
+        }
+        if (addr.blockBorderWidth != null && el('address-block-border-width')) {
+          el('address-block-border-width').value = addr.blockBorderWidth;
+          const o = el('address-block-border-width-out');
+          if (o) o.textContent = addr.blockBorderWidth + 'px';
+        }
+        if (addr.blockFont && el('address-block-font')) el('address-block-font').value = addr.blockFont;
+      }
     }
 
     /* Lê os controles para o designState */
@@ -4629,6 +4722,11 @@
     const inputAddressColor = document.getElementById('profile-address-color');
     const inputAddressSize = document.getElementById('profile-address-size');
     const selectAddressWeight = document.getElementById('address-weight');
+    const selectAddressBlockRadius = document.getElementById('address-block-radius');
+    const inputAddressBlockBg = document.getElementById('address-block-bg');
+    const inputAddressBlockBorderColor = document.getElementById('address-block-border-color');
+    const inputAddressBlockBorderWidth = document.getElementById('address-block-border-width');
+    const selectAddressBlockFont = document.getElementById('address-block-font');
     const previewAddressElement = document.getElementById('preview-profile-address');
 
     function atualizarEstiloAddress() {
@@ -4651,10 +4749,40 @@
         previewAddressElement.style.setProperty('--address-font-weight', selectAddressWeight.value);
         previewAddressElement.style.fontWeight = selectAddressWeight.value;
       }
+      if (selectAddressBlockRadius) {
+        cfg.blockRadius = selectAddressBlockRadius.value;
+        previewAddressElement.style.borderRadius = selectAddressBlockRadius.value;
+      }
+      if (inputAddressBlockBg) {
+        cfg.blockBg = inputAddressBlockBg.value;
+        previewAddressElement.style.background = inputAddressBlockBg.value;
+        const hex = document.getElementById('address-block-bgHex');
+        if (hex) hex.textContent = inputAddressBlockBg.value.toUpperCase();
+      }
+      if (inputAddressBlockBorderColor) {
+        cfg.blockBorderColor = inputAddressBlockBorderColor.value;
+        const w = inputAddressBlockBorderWidth ? inputAddressBlockBorderWidth.value : cfg.blockBorderWidth;
+        previewAddressElement.style.border = w + 'px solid ' + inputAddressBlockBorderColor.value;
+        const hex = document.getElementById('address-block-border-colorHex');
+        if (hex) hex.textContent = inputAddressBlockBorderColor.value.toUpperCase();
+      }
+      if (inputAddressBlockBorderWidth) {
+        cfg.blockBorderWidth = +inputAddressBlockBorderWidth.value;
+        const c = inputAddressBlockBorderColor ? inputAddressBlockBorderColor.value : cfg.blockBorderColor;
+        previewAddressElement.style.border = inputAddressBlockBorderWidth.value + 'px solid ' + c;
+        const out = document.getElementById('address-block-border-width-out');
+        if (out) out.textContent = inputAddressBlockBorderWidth.value + 'px';
+      }
+      if (selectAddressBlockFont) {
+        cfg.blockFont = selectAddressBlockFont.value;
+        previewAddressElement.style.fontFamily = selectAddressBlockFont.value;
+      }
       applyDesign();
     }
 
-    [inputAddressColor, inputAddressSize, selectAddressWeight].forEach((input) => {
+    [inputAddressColor, inputAddressSize, selectAddressWeight,
+     selectAddressBlockRadius, inputAddressBlockBg, inputAddressBlockBorderColor,
+     inputAddressBlockBorderWidth, selectAddressBlockFont].forEach((input) => {
       input?.addEventListener('input', atualizarEstiloAddress);
       input?.addEventListener('change', atualizarEstiloAddress);
     });

@@ -112,7 +112,14 @@ window.AXIUMLINK_CONFIG = {
       text: {
         name: { color: "", size: 0, weight: 0, align: "" },
         bio: { color: "", size: 0, weight: 0, align: "" },
-        address: { color: "", size: 0, weight: 0 }
+        address: {
+          color: "", size: 0, weight: 0,
+          blockRadius: "999px",
+          blockBg: "#0f172a",
+          blockBorderColor: "#ffffff",
+          blockBorderWidth: 1,
+          blockFont: "Inter, sans-serif"
+        }
       }
     }
   }

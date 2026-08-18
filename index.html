@@ -1805,6 +1805,18 @@
       applyPubText('pgSubtitle', ptext.bio);
       applyPubText('pgAddress', ptext.address);
 
+      /* Estilos do bloco endereço */
+      const addrEl = document.getElementById('pgAddress');
+      const addr = ptext.address;
+      if (addrEl && addr) {
+        if (addr.blockRadius) addrEl.style.borderRadius = addr.blockRadius;
+        if (addr.blockBg) addrEl.style.background = addr.blockBg;
+        if (addr.blockBorderColor != null && addr.blockBorderWidth != null) {
+          addrEl.style.border = addr.blockBorderWidth + 'px solid ' + addr.blockBorderColor;
+        }
+        if (addr.blockFont) addrEl.style.fontFamily = addr.blockFont;
+      }
+
       /* Alinhamento do nome também rege a linha do selo de verificado */
       const nameRow = document.querySelector('.profile__name-row');
       if (nameRow) {
