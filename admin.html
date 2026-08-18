@@ -29,7 +29,7 @@
   <!-- Parse SDK (Back4App) -->
   <script src="https://unpkg.com/parse@5.2.0/dist/parse.min.js"></script>
   <script>
-    Parse.initialize('tIKKaJtLdDfZlxKtELzfe99gLOUy7umUCkowAkjK', 'unused');
+    Parse.initialize('tIKKaJtLdDfZlxKtELzfe99gLOUy7umUCkowAkjK', 'vV29v2zDHmrEmwRglUnOyjm0krtAt4MHtRnkHrFE');
     Parse.serverURL = 'https://parseapi.back4app.com/';
   </script>
 
@@ -2304,10 +2304,6 @@
       <h1>Axiumlink</h1>
       <p id="authSubtitle">Entre na sua conta para gerenciar seus links</p>
 
-      <div class="field" id="authNameField" hidden>
-        <label for="authName">Nome</label>
-        <input type="text" id="authName" placeholder="Seu nome" />
-      </div>
       <div class="field">
         <label for="authEmail">E-mail</label>
         <input type="email" id="authEmail" placeholder="seu@email.com" />
@@ -3109,12 +3105,11 @@
         return user;
       },
 
-      async signup(name, email, password) {
+      async signup(email, password) {
         const user = new Parse.User();
         user.set('username', email);
         user.set('email', email);
         user.set('password', password);
-        user.set('name', name);
         await user.signUp();
         this.currentUser = user;
         return user;
@@ -3160,10 +3155,8 @@
     (function initAuth() {
       const overlay  = document.getElementById('authOverlay');
       const topbar   = document.getElementById('appTopbar');
-      const nameField = document.getElementById('authNameField');
       const emailEl  = document.getElementById('authEmail');
       const passEl   = document.getElementById('authPass');
-      const nameEl   = document.getElementById('authName');
       const submitBtn = document.getElementById('authSubmitBtn');
       const errorEl  = document.getElementById('authError');
       const toggleBtn = document.getElementById('authToggle');
@@ -3173,7 +3166,6 @@
 
       toggleBtn.addEventListener('click', () => {
         isSignup = !isSignup;
-        nameField.hidden = !isSignup;
         submitBtn.textContent = isSignup ? 'Criar conta' : 'Entrar';
         subtitle.textContent = isSignup
           ? 'Crie sua conta para começar'
@@ -3187,14 +3179,9 @@
       async function handleSubmit() {
         const email = emailEl.value.trim();
         const pass = passEl.value;
-        const name = nameEl.value.trim();
 
         if (!email || !pass) {
           errorEl.textContent = 'Preencha e-mail e senha.';
-          return;
-        }
-        if (isSignup && !name) {
-          errorEl.textContent = 'Preencha seu nome.';
           return;
         }
 
@@ -3202,7 +3189,7 @@
         errorEl.textContent = '';
         try {
           if (isSignup) {
-            await ParseApp.signup(name, email, pass);
+            await ParseApp.signup(email, pass);
           } else {
             await ParseApp.login(email, pass);
           }
