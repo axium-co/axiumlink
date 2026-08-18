@@ -1180,6 +1180,10 @@
       .quick-grid:not(.quick-grid--list) .featured__arrow { display: none; }
     }
 
+    @media (max-width: 360px) {
+      .site-footer__pwa { width: 100%; justify-content: center; }
+    }
+
     @media (min-width: 980px) {
       .page { padding: 4rem 2rem 3rem; }
 
@@ -2253,6 +2257,21 @@
       };
 
       readConfig().then(applyConfig);
+
+      /* Re-busca do Parse a cada 30s para refletir edições do admin */
+      setInterval(async () => {
+        try {
+          const fresh = await readConfig();
+          if (fresh) applyConfig(fresh);
+        } catch (e) { /* silent */ }
+      }, 30000);
+
+      /* Sincronização entre abas via storage event */
+      window.addEventListener('storage', (e) => {
+        if (e.key === STORAGE_KEY && e.newValue) {
+          try { applyConfig(JSON.parse(e.newValue)); } catch (err) {}
+        }
+      });
     })();
   </script>
 

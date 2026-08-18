@@ -1500,6 +1500,21 @@
       overflow-wrap: break-word;
     }
 
+    .pv-name-row { display: flex; align-items: center; gap: 6px; }
+
+    .pv-verified {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+      border-radius: 999px;
+      background: #6366f1;
+      color: #ffffff;
+    }
+    .pv-verified svg { width: 11px; height: 11px; }
+
     .pv-subtitle {
       font-size: 0.72rem;
       line-height: 1.55;
@@ -2054,7 +2069,7 @@
         position: relative;
         top: auto;
         height: auto;
-        min-height: 640px;
+        min-height: min(640px, 50vh);
         overflow: visible;
         padding: 2rem 1rem;
       }
@@ -2067,6 +2082,8 @@
       .topbar__name { display: none; }
       .btn { padding: 0 0.75rem; font-size: 0.8125rem; }
       .section { padding: 1.125rem 1rem; }
+      .phone-mockup { width: 100%; max-width: 316px; }
+      .preview-zone { min-height: min(640px, 50vh); }
     }
 
     /* ================================================================
@@ -2524,6 +2541,14 @@
                 </div>
               </div>
             </div>
+          </div>
+
+          <div class="field" style="margin-top: 12px;">
+            <label for="profileVerified" style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+              <input type="checkbox" id="profileVerified" style="width:18px; height:18px; accent-color:#6366f1;" />
+              Selo de verificado
+            </label>
+            <span style="font-size:12px; color:#94a3b8; margin-top:4px; display:block;">Exibe um selo de verificação ao lado do nome no perfil público.</span>
           </div>
         </section>
 
@@ -3019,7 +3044,12 @@
                     <img class="pv-avatar__img" id="pvAvatarImg" alt="" hidden />
                   </div>
                 </div>
-                <h1 class="pv-title" id="preview-profile-name" data-bind="profileName" data-default="Nome do Cliente">Nome do Cliente</h1>
+                <div class="pv-name-row">
+                  <h1 class="pv-title" id="preview-profile-name" data-bind="profileName" data-default="Nome do Cliente">Nome do Cliente</h1>
+                  <span class="pv-verified" id="preview-profile-verified" title="Perfil verificado" hidden>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>
+                  </span>
+                </div>
                 <p class="pv-subtitle" id="preview-profile-bio" data-bind="profileBio" data-default="Biografia curta, serviços ou tags.">Biografia curta, serviços ou tags.</p>
                 <a class="pv-address" id="preview-profile-address" href="https://www.google.com/maps" target="_blank" rel="noopener">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -3160,7 +3190,17 @@
           throw new Error('Este slug já está em uso. Escolha outro.');
         }
         this.currentClient.set('slug', slug);
-        await this.currentClient.save();
+        try {
+          await this.currentClient.save();
+        } catch (err) {
+          /* Trata race condition: outro usuário pode ter registrado o slug entre a query e o save.
+             Se o erro for de conflito (anchor O-be), refaz a query para informar o usuário. */
+          if (err.code === 137 || (err.message && err.message.includes('duplicate'))) {
+            const retry = await new Parse.Query(Client).equalTo('slug', slug).first();
+            if (retry) throw new Error('Este slug acabou de ser escolhido por outro usuário. Escolha outro.');
+          }
+          throw err;
+        }
       }
     };
 
@@ -3373,7 +3413,13 @@
       clearTimeout(_autoSaveParseTimer);
       _autoSaveParseTimer = setTimeout(async () => {
         try {
-          await ParseApp.saveClientConfig(buildPayload());
+          const payload = buildPayload();
+          await ParseApp.saveClientConfig(payload);
+          /* Sincroniza com a página pública via storage event */
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+            localStorage.removeItem(STORAGE_KEY);
+          } catch (e) { /* silent */ }
         } catch (err) {
           if (err.message && err.message.includes('unauthorized')) {
             saveStatus.textContent = 'Sessão expirada. Faça login novamente.';
@@ -3521,6 +3567,15 @@
         });
       }
     });
+
+    /* Selo de verificado — sincroniza checkbox ↔ preview */
+    const verifiedCheckbox = el('profileVerified');
+    const previewVerified  = document.getElementById('preview-profile-verified');
+    if (verifiedCheckbox && previewVerified) {
+      const syncVerified = () => { previewVerified.hidden = !verifiedCheckbox.checked; };
+      verifiedCheckbox.addEventListener('change', syncVerified);
+      syncVerified();
+    }
 
         /* ================================================================
        CORES — atualiza as CSS Variables do preview em tempo real
@@ -5657,7 +5712,8 @@
           photo: uploads.avatarImage,
           name: el('profileName').value,
           bio: el('profileBio').value,
-          address: el('profileAddress').value
+          address: el('profileAddress').value,
+          verified: el('profileVerified')?.checked || false
         },
         quickActions: syncQuickActionsData().map(({ uid, ...rest }) => rest),
         links: syncLinksData(),
@@ -5711,6 +5767,11 @@
         await ParseApp.saveClientConfig(payload);
         saveStatus.textContent = 'Salvo na nuvem';
         saveStatus.className = 'topbar__status topbar__status--saved';
+        /* Sincroniza com a página pública via storage event */
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+          localStorage.removeItem(STORAGE_KEY);
+        } catch (e) { /* silent */ }
       } catch (err) {
         if (err.message && err.message.includes('unauthorized')) {
           saveStatus.textContent = 'Sessão expirada. Faça login novamente.';
@@ -5780,6 +5841,9 @@
         input.value = value;
         input.dispatchEvent(new Event('input'));
       });
+      /* Restaura o checkbox de verificado a partir do config.js */
+      const verifiedEl = el('profileVerified');
+      if (verifiedEl && p.verified != null) verifiedEl.checked = !!p.verified;
 
       sectionOrder.info = clampOrder(layItems.info && layItems.info.order != null ? layItems.info.order : layInfo.order, sectionOrder.info);
       if (layItems.quick) sectionOrder.quick = clampOrder(layItems.quick.order, sectionOrder.quick);
@@ -5848,6 +5912,9 @@
         }
         input.dispatchEvent(new Event('input'));
       });
+      /* Restaura o checkbox de verificado (campo booleano — requer .checked, não .value) */
+      const verifiedEl = el('profileVerified');
+      if (verifiedEl && saved.profile) verifiedEl.checked = !!saved.profile.verified;
       if (saved.visual && !saved.visual.btnBorder) {
         el('global-btn-border').value = 'borda-fina';
         el('global-btn-border').dispatchEvent(new Event('change'));
