@@ -773,6 +773,57 @@
 
     .adv-row .field { margin-bottom: 0; }
 
+    /* ---- Seletor de cor inline (input + botão limpar) ---- */
+    .color-swatch-input {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      background: var(--ds-card);
+      border: 1px solid var(--ds-border);
+      border-radius: 8px;
+      padding: 0.25rem 0.5rem;
+      transition: border-color 0.15s;
+    }
+    .color-swatch-input:focus-within { border-color: var(--ds-accent); }
+    .color-swatch-input input[type="color"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 28px;
+      height: 28px;
+      border: 2px solid var(--ds-border);
+      border-radius: 6px;
+      padding: 0;
+      cursor: pointer;
+      background: none;
+    }
+    .color-swatch-input input[type="color"]::-webkit-color-swatch-wrapper { padding: 1px; }
+    .color-swatch-input input[type="color"]::-webkit-color-swatch { border-radius: 4px; border: none; }
+    .color-swatch-input input.color-input--inactive { opacity: 0.35; }
+    .btn-color-clear {
+      background: none;
+      border: 1px solid var(--ds-border);
+      border-radius: 4px;
+      width: 22px;
+      height: 22px;
+      font-size: 0.625rem;
+      line-height: 1;
+      cursor: pointer;
+      color: var(--ds-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .btn-color-clear:hover { color: var(--ds-danger); border-color: var(--ds-danger); }
+
+    .adv-group__title {
+      font-size: 0.7813rem;
+      font-weight: 600;
+      color: var(--ds-body);
+      margin-bottom: 0.25rem;
+    }
+
     .form-group-weight label {
       display: block;
       font-size: 0.7813rem;
@@ -1761,27 +1812,94 @@
     .pv-card__body strong { font-size: 0.8rem; font-weight: 700; line-height: 1.3; }
     .pv-card__body span { font-size: 0.68rem; opacity: 0.8; }
 
-    /* ---- Lista de Links (mockup) — ícones de redes sociais ----
-       Faixa centralizada de botões circulares. Em modo carrossel/scroll
-       vira uma linha rolável horizontal (nunca explode o aparelho). */
-    #preview-links-list,
-    #preview-links-list.mode-lista-vertical,
-    #preview-links-list.pv-links--grid {
+    /* ---- Lista de Links (mockup) ----
+       Modo padrão = lista vertical com botões cheios. */
+    #preview-links-list {
       display: flex;
-      flex-direction: row !important;
-      flex-wrap: wrap !important;
-      justify-content: center !important;
-      align-items: center !important;
-      gap: 12px !important;
-      width: 100% !important;
-      max-width: 100% !important;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+      max-width: 100%;
       min-width: 0;
-      box-sizing: border-box !important;
+      box-sizing: border-box;
+      overflow: visible;
+    }
+
+    /* ---- Modo Lista Vertical (padrão) ---- */
+    #preview-links-list.mode-lista-vertical {
+      flex-direction: column;
+      flex-wrap: nowrap;
+    }
+    #preview-links-list.mode-lista-vertical .pv-link {
+      width: 100%;
+      height: auto;
+      min-height: 48px;
+      padding: 10px 14px;
+      border-radius: var(--btn-radius-universal, 12px);
+      justify-content: flex-start;
+      gap: 10px;
+    }
+    /* Largura individual — modos lista/grid precisam de especificidade maior */
+    #preview-links-list.mode-lista-vertical .pv-link--full { width: 100%; max-width: 100%; }
+    #preview-links-list.mode-lista-vertical .pv-link--half { width: calc(50% - 6px); max-width: calc(50% - 6px); }
+    #preview-links-list.mode-lista-vertical .pv-link--compact { width: auto; min-width: 9rem; max-width: 100%; }
+
+    #preview-links-list.mode-lista-vertical .pv-link .action-text-span {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    #preview-links-list.mode-lista-vertical .pv-link svg { width: 20px; height: 20px; }
+    #preview-links-list.mode-lista-vertical .pv-link .pv-link__icon { font-size: 20px; }
+    #preview-links-list.mode-lista-vertical .pv-link .pv-link__img {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+    }
+
+    /* ---- Modo Grid de 2 Colunas ---- */
+    #preview-links-list.pv-links--grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      flex-wrap: nowrap;
+    }
+    #preview-links-list.pv-links--grid .pv-link {
+      width: 100%;
+      height: auto;
+      min-height: 48px;
+      padding: 10px 10px;
+      border-radius: var(--btn-radius-universal, 12px);
+      justify-content: flex-start;
+      gap: 8px;
+    }
+    /* Largura individual no grid */
+    #preview-links-list.pv-links--grid .pv-link--full { grid-column: 1 / -1; width: 100%; }
+    #preview-links-list.pv-links--grid .pv-link--half { width: 100%; }
+    #preview-links-list.pv-links--grid .pv-link--compact { width: 100%; }
+
+    #preview-links-list.pv-links--grid .pv-link .action-text-span {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    #preview-links-list.pv-links--grid .pv-link svg { width: 18px; height: 18px; }
+    #preview-links-list.pv-links--grid .pv-link .pv-link__icon { font-size: 18px; }
+    #preview-links-list.pv-links--grid .pv-link .pv-link__img {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
     }
 
     /* ---- Modo Carrossel Lateral (linha com deslize horizontal) ---- */
     #preview-links-list.mode-carrossel,
     #preview-links-list.pv-strip {
+      flex-direction: row !important;
       flex-wrap: nowrap !important;
       justify-content: flex-start !important;
       overflow-x: auto !important;
@@ -1837,7 +1955,7 @@
       transition: transform var(--transition), box-shadow var(--transition), filter var(--transition);
     }
 
-    /* Rótulo escondido: os links são ícones (aria-label no HTML) */
+    /* Rótulo: oculto no modo ícone (carrossel), visível nos modos lista/grid */
     .pv-link .action-text-span { display: none; }
 
     /* Ícones internos dos links */
@@ -1860,19 +1978,10 @@
     .pv-link:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
     .pv-link:active { transform: scale(0.96); }
 
-    /* ---- Largura individual (Links Principais) ----
-       "Metade da Tela (50%)": trava o card em exatamente metade do
-       container, descontando metade do gap (12px) para os botões
-       ficarem lado a lado sem quebrar linha. */
+    /* ---- Largura individual (base — vale no carrossel/ícones) ----
+       Nos modos lista/grid, regras mais específicas acima sobrescrevem. */
     .pv-link--half { width: calc(50% - 6px); }
     .pv-link--compact { width: auto; min-width: 9rem; }
-
-    #preview-links-list.pv-links--grid .pv-link--full { flex: 1 1 100%; }
-    #preview-links-list.pv-links--grid .pv-link--half {
-      flex: 0 0 calc(50% - 6px);
-      max-width: calc(50% - 6px);
-    }
-    #preview-links-list.pv-links--grid .pv-link--compact { flex: 0 0 auto; width: auto; }
 
     /* ---- Modo Imagem Completa (estilo Beacons) ----
        Trava de proporção profissional: o card fixa um aspect-ratio rígido
@@ -4880,6 +4989,46 @@
         '<option value="' + value + '"' + (animation === value ? ' selected' : '') + '>' + label + '</option>'
       ).join('');
 
+      const btnBg = dd.btnBg || '';
+        const btnColor = dd.btnColor || '';
+        const btnRadius = dd.btnRadius || 'global';
+        const btnBorderColor = dd.btnBorderColor || '';
+        const btnBorderWidth = dd.btnBorderWidth || '';
+        const btnFontSize = dd.btnFontSize || 'global';
+        const btnFontWeight = dd.btnFontWeight || 'global';
+
+      const radiusOptions = [
+        ['global', 'Usar configuração global'],
+        ['none', 'Sem bordas (quadrado)'],
+        ['sm', 'Levemente arredondado'],
+        ['md', 'Arredondado'],
+        ['lg', 'Muito arredondado'],
+        ['full', 'Pílula']
+      ].map(([value, label]) =>
+        '<option value="' + value + '"' + (btnRadius === value ? ' selected' : '') + '>' + label + '</option>'
+      ).join('');
+
+      const fontSizeOptions = [
+        ['global', 'Usar configuração global'],
+        ['xs', 'Muito pequeno'],
+        ['sm', 'Pequeno'],
+        ['md', 'Médio (padrão)'],
+        ['lg', 'Grande'],
+        ['xl', 'Muito grande']
+      ].map(([value, label]) =>
+        '<option value="' + value + '"' + (btnFontSize === value ? ' selected' : '') + '>' + label + '</option>'
+      ).join('');
+
+      const fontWeightOptions = [
+        ['global', 'Usar configuração global'],
+        ['thin', 'Fino (300)'],
+        ['normal', 'Normal (400)'],
+        ['medium', 'Médio (500)'],
+        ['bold', 'Negrito (700)']
+      ].map(([value, label]) =>
+        '<option value="' + value + '"' + (btnFontWeight === value ? ' selected' : '') + '>' + label + '</option>'
+      ).join('');
+
       return ''
         + '<button type="button" class="adv-toggle" aria-expanded="false">'
         +   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>'
@@ -4918,6 +5067,67 @@
         +       '<label>Animação de Destaque</label>'
         +       '<select class="btn-animation">' + animationOptions + '</select>'
         +     '</div>'
+        +   '</div>'
+
+        +   '<div class="adv-group adv-visual">'
+        +     '<label class="adv-group__title">Visual Individual do Botão</label>'
+        +     '<p class="panel__hint">Personalize cores, bordas e tipografia deste botão. Deixe "global" para usar a configuração da seção.</p>'
+
+        +     '<div class="adv-row">'
+        +       '<div class="field">'
+        +         '<label>Cor de Fundo</label>'
+        +         '<div class="color-swatch-input">'
+        +           '<input type="color" class="btn-bg-color" value="' + (btnBg || '#ffffff') + '" />'
+        +           '<button type="button" class="btn-color-clear" data-target="btn-bg-color" title="Limpar (usar global)">✕</button>'
+        +         '</div>'
+        +       '</div>'
+        +       '<div class="field">'
+        +         '<label>Cor do Texto / Ícone</label>'
+        +         '<div class="color-swatch-input">'
+        +           '<input type="color" class="btn-text-color" value="' + (btnColor || '#000000') + '" />'
+        +           '<button type="button" class="btn-color-clear" data-target="btn-text-color" title="Limpar (usar global)">✕</button>'
+        +         '</div>'
+        +       '</div>'
+        +     '</div>'
+
+        +     '<div class="adv-row">'
+        +       '<div class="field">'
+        +         '<label>Cor da Borda</label>'
+        +         '<div class="color-swatch-input">'
+        +           '<input type="color" class="btn-border-color" value="' + (btnBorderColor || '#000000') + '" />'
+        +           '<button type="button" class="btn-color-clear" data-target="btn-border-color" title="Limpar (usar global)">✕</button>'
+        +         '</div>'
+        +       '</div>'
+        +       '<div class="field">'
+        +         '<label>Espessura da Borda</label>'
+        +         '<select class="btn-border-width">'
+        +           '<option value=""' + (btnBorderWidth === '' ? ' selected' : '') + '>Usar configuração global</option>'
+        +           '<option value="0"' + (btnBorderWidth === '0' ? ' selected' : '') + '>Sem borda</option>'
+        +           '<option value="1"' + (btnBorderWidth === '1' ? ' selected' : '') + '>Fina (1px)</option>'
+        +           '<option value="2"' + (btnBorderWidth === '2' ? ' selected' : '') + '>Média (2px)</option>'
+        +           '<option value="3"' + (btnBorderWidth === '3' ? ' selected' : '') + '>Forte (3px)</option>'
+        +         '</select>'
+        +       '</div>'
+        +     '</div>'
+
+        +     '<div class="adv-row">'
+        +       '<div class="field">'
+        +         '<label>Bordas (Arredondamento)</label>'
+        +         '<select class="btn-radius">' + radiusOptions + '</select>'
+        +       '</div>'
+        +     '</div>'
+
+        +     '<div class="adv-row">'
+        +       '<div class="field">'
+        +         '<label>Tamanho da Fonte</label>'
+        +         '<select class="btn-font-size">' + fontSizeOptions + '</select>'
+        +       '</div>'
+        +       '<div class="field">'
+        +         '<label>Peso da Fonte</label>'
+        +         '<select class="btn-font-weight">' + fontWeightOptions + '</select>'
+        +       '</div>'
+        +     '</div>'
+
         +   '</div>'
 
         + '</div>'
@@ -5000,6 +5210,9 @@
     /* Lê os valores do formulário DESTE bloco apenas. */
     function lerDadosDoBlock(block, tipo) {
       const quick = tipo === 'quick';
+      const bgEl = block.querySelector('.btn-bg-color');
+      const textEl = block.querySelector('.btn-text-color');
+      const bdrClrEl = block.querySelector('.btn-border-color');
       return {
         title: (block.querySelector(quick ? '.quick-title' : '.link-title').value || '').trim(),
         url: (block.querySelector(quick ? '.quick-url' : '.link-url').value || '').trim(),
@@ -5007,7 +5220,14 @@
         image: block.dataset.image || null,
         width: block.querySelector('.btn-width').value,
         animation: block.querySelector('.btn-animation').value,
-        style: block.querySelector('.link-style').value
+        style: block.querySelector('.link-style').value,
+        btnBg: bgEl && bgEl.dataset.active !== '0' ? bgEl.value : '',
+        btnColor: textEl && textEl.dataset.active !== '0' ? textEl.value : '',
+        btnRadius: block.querySelector('.btn-radius').value,
+        btnBorderColor: bdrClrEl && bdrClrEl.dataset.active !== '0' ? bdrClrEl.value : '',
+        btnBorderWidth: block.querySelector('.btn-border-width').value,
+        btnFontSize: block.querySelector('.btn-font-size').value,
+        btnFontWeight: block.querySelector('.btn-font-weight').value
       };
     }
 
@@ -5043,6 +5263,50 @@
         try { aplicar(); } catch (e) {}
       }
       img.addEventListener('load', aplicar);
+    }
+
+    /* Aplica estilos visuais individuais de um botão (cores, bordas, fonte).
+       Chama-se em montarBotaoAcaoCompleto e montarBotaoLinkCompleto. */
+    function aplicarEstiloIndividual(btn, dados) {
+      /* Limpa estilos inline anteriores */
+      btn.style.removeProperty('--btn-bg');
+      btn.style.removeProperty('--btn-color');
+      btn.style.removeProperty('--btn-border-color');
+      btn.style.removeProperty('--btn-border-width');
+      btn.style.removeProperty('border-radius');
+      btn.style.removeProperty('font-size');
+      btn.style.removeProperty('font-weight');
+      btn.style.removeProperty('border-color');
+      btn.style.removeProperty('border-width');
+      btn.style.removeProperty('background');
+      btn.style.removeProperty('color');
+
+      const RADIUS_MAP = { none: '0', sm: '6px', md: '12px', lg: '20px', full: '9999px' };
+      const FONT_SIZE_MAP = { xs: '0.7rem', sm: '0.8rem', md: '0.9rem', lg: '1rem', xl: '1.15rem' };
+      const FONT_WEIGHT_MAP = { thin: '300', normal: '400', medium: '500', bold: '700' };
+
+      if (dados.btnBg) {
+        btn.style.background = dados.btnBg;
+      }
+      if (dados.btnColor) {
+        btn.style.color = dados.btnColor;
+      }
+      if (dados.btnRadius && dados.btnRadius !== 'global' && RADIUS_MAP[dados.btnRadius]) {
+        btn.style.borderRadius = RADIUS_MAP[dados.btnRadius];
+      }
+      if (dados.btnBorderColor) {
+        btn.style.borderColor = dados.btnBorderColor;
+      }
+      if (dados.btnBorderWidth !== undefined && dados.btnBorderWidth !== '') {
+        btn.style.borderWidth = dados.btnBorderWidth + 'px';
+        btn.style.borderStyle = 'solid';
+      }
+      if (dados.btnFontSize && dados.btnFontSize !== 'global' && FONT_SIZE_MAP[dados.btnFontSize]) {
+        btn.style.fontSize = FONT_SIZE_MAP[dados.btnFontSize];
+      }
+      if (dados.btnFontWeight && dados.btnFontWeight !== 'global' && FONT_WEIGHT_MAP[dados.btnFontWeight]) {
+        btn.style.fontWeight = FONT_WEIGHT_MAP[dados.btnFontWeight];
+      }
     }
 
     function montarBotaoAcaoCompleto(btn, dados) {
@@ -5086,6 +5350,7 @@
       } else {
         btn.insertAdjacentHTML('afterbegin', QUICK_ICONS[dados.icon] || QUICK_ICONS.link);
       }
+      aplicarEstiloIndividual(btn, dados);
       return btn;
     }
 
@@ -5134,6 +5399,7 @@
         const visual = buildLinkIcon(dados);
         if (visual) btn.insertBefore(visual, rotulo);
       }
+      aplicarEstiloIndividual(btn, dados);
       return btn;
     }
 
@@ -5269,6 +5535,9 @@
        ÚNICA fonte que alimenta #preview-quick-grid. */
     function syncQuickActionsData() {
       quickActionsData = Array.from(quickActionsContainer.querySelectorAll('.quick-action-block')).map((block) => {
+        const bgEl = block.querySelector('.btn-bg-color');
+        const textEl = block.querySelector('.btn-text-color');
+        const bdrClrEl = block.querySelector('.btn-border-color');
         return {
           uid: block.dataset.id,
           title: (block.querySelector('.quick-title').value || '').trim(),
@@ -5277,7 +5546,14 @@
           image: block.dataset.image || null,
           width: block.querySelector('.btn-width').value,
           animation: block.querySelector('.btn-animation').value,
-          style: block.querySelector('.link-style').value
+          style: block.querySelector('.link-style').value,
+          btnBg: bgEl && bgEl.dataset.active !== '0' ? bgEl.value : '',
+          btnColor: textEl && textEl.dataset.active !== '0' ? textEl.value : '',
+          btnRadius: block.querySelector('.btn-radius').value,
+          btnBorderColor: bdrClrEl && bdrClrEl.dataset.active !== '0' ? bdrClrEl.value : '',
+          btnBorderWidth: block.querySelector('.btn-border-width').value,
+          btnFontSize: block.querySelector('.btn-font-size').value,
+          btnFontWeight: block.querySelector('.btn-font-weight').value
         };
       });
       return quickActionsData;
@@ -5364,14 +5640,38 @@
         atualizarTextoRapidoPreview(e, 'quick');
         autoSaveToStorage();
       }
+      if (e.target.classList.contains('btn-bg-color') ||
+          e.target.classList.contains('btn-text-color') ||
+          e.target.classList.contains('btn-border-color')) {
+        e.target.dataset.active = '1';
+        e.target.classList.remove('color-input--inactive');
+        onBlocoEditado(e, 'quick');
+        autoSaveToStorage();
+      }
     });
 
     quickActionsContainer.addEventListener('change', (e) => {
       if (e.target.classList.contains('quick-icon') ||
           e.target.classList.contains('btn-width') ||
           e.target.classList.contains('btn-animation') ||
-          e.target.classList.contains('link-style')) {
+          e.target.classList.contains('link-style') ||
+          e.target.classList.contains('btn-radius') ||
+          e.target.classList.contains('btn-border-width') ||
+          e.target.classList.contains('btn-font-size') ||
+          e.target.classList.contains('btn-font-weight')) {
         onBlocoEditado(e, 'quick');
+        autoSaveToStorage();
+        return;
+      }
+      if (e.target.classList.contains('btn-color-clear')) {
+        const targetSel = e.target.dataset.target;
+        const colorInput = e.target.closest('.quick-action-block').querySelector('.' + targetSel);
+        if (colorInput) {
+          colorInput.dataset.active = '0';
+          colorInput.classList.add('color-input--inactive');
+        }
+        const block = e.target.closest('.quick-action-block');
+        onBlocoEditado({ target: block }, 'quick');
         autoSaveToStorage();
         return;
       }
@@ -5515,13 +5815,20 @@
       if (mode === 'carousel') previewLinksList.classList.add('pv-strip', 'mode-carrossel');
       else if (mode === 'grid2') previewLinksList.classList.add('pv-links--grid');
       else if (mode === 'list') previewLinksList.classList.add('mode-lista-vertical');
-      previewLinksList.style.display = (mode === 'hidden') ? 'none' : 'flex';
+      if (mode === 'hidden') {
+        previewLinksList.style.display = 'none';
+      } else {
+        previewLinksList.style.removeProperty('display');
+      }
     }
 
     /* Sincroniza o Array 2 a partir dos formulários do painel.
        ÚNICA fonte que alimenta #preview-links-list. */
     function syncLinksData() {
       mainLinksData = Array.from(linksContainer.querySelectorAll('.link-block')).map((block) => {
+        const bgEl = block.querySelector('.btn-bg-color');
+        const textEl = block.querySelector('.btn-text-color');
+        const bdrClrEl = block.querySelector('.btn-border-color');
         return {
           id: block.dataset.id,
           title: (block.querySelector('.link-title').value || '').trim(),
@@ -5530,7 +5837,14 @@
           image: block.dataset.image || null,
           style: block.querySelector('.link-style').value,
           width: block.querySelector('.btn-width').value,
-          animation: block.querySelector('.btn-animation').value
+          animation: block.querySelector('.btn-animation').value,
+          btnBg: bgEl && bgEl.dataset.active !== '0' ? bgEl.value : '',
+          btnColor: textEl && textEl.dataset.active !== '0' ? textEl.value : '',
+          btnRadius: block.querySelector('.btn-radius').value,
+          btnBorderColor: bdrClrEl && bdrClrEl.dataset.active !== '0' ? bdrClrEl.value : '',
+          btnBorderWidth: block.querySelector('.btn-border-width').value,
+          btnFontSize: block.querySelector('.btn-font-size').value,
+          btnFontWeight: block.querySelector('.btn-font-weight').value
         };
       });
       return mainLinksData;
@@ -5629,14 +5943,36 @@
       if (e.target.matches('.link-title, .link-url')) {
         atualizarTextoRapidoPreview(e, 'link');
       }
+      if (e.target.classList.contains('btn-bg-color') ||
+          e.target.classList.contains('btn-text-color') ||
+          e.target.classList.contains('btn-border-color')) {
+        e.target.dataset.active = '1';
+        e.target.classList.remove('color-input--inactive');
+        onBlocoEditado(e, 'link');
+      }
     });
 
     linksContainer.addEventListener('change', (e) => {
       if (e.target.classList.contains('link-icon') ||
           e.target.classList.contains('btn-width') ||
           e.target.classList.contains('btn-animation') ||
-          e.target.classList.contains('link-style')) {
+          e.target.classList.contains('link-style') ||
+          e.target.classList.contains('btn-radius') ||
+          e.target.classList.contains('btn-border-width') ||
+          e.target.classList.contains('btn-font-size') ||
+          e.target.classList.contains('btn-font-weight')) {
         onBlocoEditado(e, 'link');
+        return;
+      }
+      if (e.target.classList.contains('btn-color-clear')) {
+        const targetSel = e.target.dataset.target;
+        const colorInput = e.target.closest('.link-block').querySelector('.' + targetSel);
+        if (colorInput) {
+          colorInput.dataset.active = '0';
+          colorInput.classList.add('color-input--inactive');
+        }
+        const block = e.target.closest('.link-block');
+        onBlocoEditado({ target: block }, 'link');
         return;
       }
       if (e.target.classList.contains('icon-upload')) {
