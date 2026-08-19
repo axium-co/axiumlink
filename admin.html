@@ -3451,10 +3451,10 @@
         if (!this.currentClient) return;
         const jsonStr = JSON.stringify(payload);
         const sizeKB = new Blob([jsonStr]).size / 1024;
-        if (sizeKB > 80) {
-          throw new Error('Configuração muito grande (' + Math.round(sizeKB) + 'KB). Máximo permitido: 80KB. Reduza o tamanho das imagens.');
+        if (sizeKB > 500) {
+          throw new Error('Configuração muito grande (' + Math.round(sizeKB) + 'KB). Máximo permitido: 500KB. Reduza o tamanho das imagens.');
         }
-        this.currentClient.set('config', payload);
+        this.currentClient.set('config', jsonStr);
         this._setOwnerACL(this.currentClient);
         await this.currentClient.save();
       },
@@ -3591,9 +3591,10 @@
           });
 
           /* Carrega config do Parse */
-          const cfg = client.get('config');
-          if (cfg && typeof cfg === 'object') {
-            _parseConfigToLoad = cfg;
+          const raw = client.get('config');
+          if (raw) {
+            const cfg = typeof raw === 'string' ? JSON.parse(raw) : raw;
+            if (cfg && typeof cfg === 'object') _parseConfigToLoad = cfg;
           }
         }
       } catch (err) {

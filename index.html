@@ -1587,8 +1587,11 @@
           }
           const result = await query.first();
           if (result) {
-            const cfg = result.get('config');
-            if (cfg && typeof cfg === 'object') return cfg;
+            const raw = result.get('config');
+            if (raw) {
+              const cfg = typeof raw === 'string' ? JSON.parse(raw) : raw;
+              if (cfg && typeof cfg === 'object') return cfg;
+            }
           }
         } catch (e) { console.error('[Axiumlink] Erro ao buscar config:', e); }
         return readLocalConfig();
