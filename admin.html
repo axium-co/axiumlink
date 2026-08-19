@@ -1551,12 +1551,15 @@
       letter-spacing: -0.02em;
       line-height: 1.2;
       color: var(--text-title);
-      width: 100%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
       max-width: 100%;
       overflow-wrap: break-word;
     }
 
-    .pv-name-row { display: flex; align-items: center; gap: 6px; width: 100%; }
+    .pv-name-row { display: flex; justify-content: center; width: 100%; }
 
     .pv-verified {
       display: inline-flex;
@@ -3309,10 +3312,12 @@
                   </div>
                 </div>
                 <div class="pv-name-row">
-                  <h1 class="pv-title" id="preview-profile-name" data-bind="profileName" data-default="Nome do Cliente">Nome do Cliente</h1>
-                  <span class="pv-verified" id="preview-profile-verified" title="Perfil verificado" hidden>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>
-                  </span>
+                  <h1 class="pv-title" id="preview-profile-name" data-bind="profileName" data-default="Nome do Cliente">
+                    Nome do Cliente
+                    <span class="pv-verified" id="preview-profile-verified" title="Perfil verificado" hidden>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>
+                    </span>
+                  </h1>
                 </div>
                 <p class="pv-subtitle" id="preview-profile-bio" data-bind="profileBio" data-default="Biografia curta, serviços ou tags.">Biografia curta, serviços ou tags.</p>
                 <a class="pv-address" id="preview-profile-address" href="https://www.google.com/maps" target="_blank" rel="noopener">
@@ -4395,7 +4400,7 @@
         if (cfg.weight) t.style.fontWeight = cfg.weight;
         if (cfg.align) {
           t.style.textAlign = cfg.align;
-          const isFlex = getComputedStyle(t).display === 'flex';
+          const isFlex = getComputedStyle(t).display === 'flex' || getComputedStyle(t).display === 'inline-flex';
           if (isFlex) {
             const justifyMap = { left: 'flex-start', center: 'center', right: 'flex-end' };
             t.style.justifyContent = justifyMap[cfg.align] || 'center';
@@ -4922,6 +4927,8 @@
       if (inputNameAlign) {
         cfg.align = inputNameAlign.value;
         previewNameElement.style.textAlign = inputNameAlign.value;
+        const justifyMap = { left: 'flex-start', center: 'center', right: 'flex-end' };
+        previewNameElement.style.justifyContent = justifyMap[inputNameAlign.value] || 'center';
       }
       applyDesign();
     }

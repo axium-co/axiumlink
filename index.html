@@ -1575,18 +1575,22 @@
 
       async function readConfig() {
         const slug = getSlug();
-        if (slug && typeof Parse !== 'undefined') {
-          try {
-            const Client = Parse.Object.extend('Client');
-            const query = new Parse.Query(Client);
+        if (typeof Parse === 'undefined') return readLocalConfig();
+        try {
+          const Client = Parse.Object.extend('Client');
+          const query = new Parse.Query(Client);
+          if (slug) {
             query.equalTo('slug', slug);
-            const result = await query.first();
-            if (result) {
-              const cfg = result.get('config');
-              if (cfg && typeof cfg === 'object') return cfg;
-            }
-          } catch (e) { /* Parse offline or error — fall through */ }
-        }
+          } else {
+            query.descending('updatedAt');
+            query.limit(1);
+          }
+          const result = await query.first();
+          if (result) {
+            const cfg = result.get('config');
+            if (cfg && typeof cfg === 'object') return cfg;
+          }
+        } catch (e) { console.error('[Axiumlink] Erro ao buscar config:', e); }
         return readLocalConfig();
       }
 
@@ -2312,7 +2316,9 @@
         return applyConfig(payload || await readConfig());
       };
 
-      readConfig().then(applyConfig);
+      readConfig().then(applyConfig).catch(function (err) {
+        console.error('[Axiumlink] Erro ao aplicar configurações:', err);
+      });
 
       /* Re-busca do Parse a cada 30s para refletir edições do admin */
       setInterval(async () => {
