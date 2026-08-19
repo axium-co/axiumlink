@@ -2227,7 +2227,12 @@
 
       if (flow && profile) {
         const infoCfg = layItems.info || lay.info || {};
-        const infoHidden = (infoCfg.hidden === true || (infoCfg.hidden == null && lay.info && lay.info.hidden));
+        /* Se o formato novo (layout.items.info) existe, ele é a fonte
+           de verdade — ignora layout.info legado. Caso contrário, usa o
+           formato antigo. Sem hidden explícito → seção visível (default). */
+        const infoHidden = layItems.info
+          ? (layItems.info.hidden === true)
+          : !!(lay.info && lay.info.hidden === true);
         profile.style.order = clampOrder(infoCfg.order, 1);
 
         /* "Ocultar Bloco de Informações" esconde APENAS o bloco de
@@ -2319,6 +2324,19 @@
           try { applyConfig(JSON.parse(e.newValue)); } catch (err) {}
         }
       });
+
+      /* Sincronização via BroadcastChannel — mais confiável que storage
+         event em PWAs e mobile Safari. Recebe o payload completo do admin
+         assim que ele salva (debounce de 300ms no localStorage + 2s no
+         Parse). */
+      try {
+        const syncChannel = new BroadcastChannel('axiumlink-sync');
+        syncChannel.onmessage = (e) => {
+          if (e.data && e.data.key === STORAGE_KEY && e.data.config) {
+            try { applyConfig(e.data.config); } catch (err) {}
+          }
+        };
+      } catch (e) { /* BroadcastChannel não suportado — storage event continua ativo */ }
     })();
   </script>
 
