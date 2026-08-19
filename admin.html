@@ -3561,6 +3561,7 @@
     async function onAuthReady() {
       try {
         const client = await ParseApp.loadOrCreateClient();
+        _openSyncChannel(); /* Abre canal namespaced pelo slug */
         if (client) {
           const slugInput = document.getElementById('clientSlug');
           const slugEditor = document.getElementById('slugEditor');
@@ -3576,6 +3577,7 @@
               try {
                 await ParseApp.updateSlug(val);
                 updatePublicLink(viewBtn, val);
+                _openSyncChannel(); /* Reconecta no novo canal */
               } catch (err) {
                 alert(err.message || 'Erro ao salvar slug.');
                 slugInput.value = client.get('slug') || '';
@@ -3609,6 +3611,7 @@
 
     /* Logout */
     document.getElementById('btnLogout').addEventListener('click', async () => {
+      if (_syncChannel) { try { _syncChannel.close(); } catch (e) {} _syncChannel = null; }
       await ParseApp.logout();
       window.location.reload();
     });
@@ -3675,31 +3678,44 @@
     let quickActionsData = [];
     let mainLinksData = [];
 
-    const STORAGE_KEY = 'axiumlink-preview-v1';
+    /* STORAGE_KEY namespaced por usuário — impede que dados de clientes
+       diferentes se misturem no mesmo browser. */
+    function getStorageKey() {
+      const uid = ParseApp.currentUser?.id || 'anon';
+      return 'axiumlink-preview-v1-' + uid;
+    }
 
     let _autoSaveTimer = null;
     let _autoSaveParseTimer = null;
 
     /* BroadcastChannel para sync instantâneo entre abas (admin ↔ viewer).
+       Nome do canal é namespaced pelo slug do cliente, para que editores
+       de clientes diferentes no mesmo browser não se interfiram.
        Fallback: se o navegador não suporta, usa apenas o storage event. */
     let _syncChannel = null;
-    try { _syncChannel = new BroadcastChannel('axiumlink-sync'); } catch (e) {}
+
+    function _openSyncChannel() {
+      const slug = document.getElementById('clientSlug')?.value || 'default';
+      if (_syncChannel) { try { _syncChannel.close(); } catch (e) {} }
+      try { _syncChannel = new BroadcastChannel('axiumlink-sync-' + slug); } catch (e) { _syncChannel = null; }
+    }
 
     function notifyViewerTab(payload) {
+      const key = getStorageKey();
       /* Storage event (cross-tab, funciona na maioria dos browsers) */
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+        localStorage.setItem(key, JSON.stringify(payload));
       } catch (e) { /* images too large — silent */ }
       /* BroadcastChannel (mais confiável em PWAs/mobile, sem remover o item) */
       if (_syncChannel) {
-        try { _syncChannel.postMessage({ key: STORAGE_KEY, config: payload }); } catch (e) {}
+        try { _syncChannel.postMessage({ key: key, config: payload }); } catch (e) {}
       }
     }
 
     function autoSaveToStorage() {
       clearTimeout(_autoSaveTimer);
       _autoSaveTimer = setTimeout(() => {
-        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(buildPayload())); }
+        try { localStorage.setItem(getStorageKey(), JSON.stringify(buildPayload())); }
         catch (err) { /* images too large — silent */ }
       }, 300);
       /* Auto-save na nuvem com debounce maior (2s) */
@@ -6360,7 +6376,7 @@
 
       /* Persistência local */
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+        localStorage.setItem(getStorageKey(), JSON.stringify(payload));
       } catch (err) {
         /* images too large */
       }
@@ -6480,7 +6496,7 @@
     _authReadyPromise.then(function restore() {
       let saved = _parseConfigToLoad;
       if (!saved) {
-        try { saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); } catch { return; }
+        try { saved = JSON.parse(localStorage.getItem(getStorageKey()) || 'null'); } catch { return; }
       }
       if (!saved) return;
 

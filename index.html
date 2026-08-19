@@ -1553,7 +1553,11 @@
        Atualiza as CSS Variables (:root) e os textos/links da página.
        ================================================================ */
     (function () {
-      const STORAGE_KEY = 'axiumlink-preview-v1';
+      /* STORAGE_KEY namespaced por slug — impede que dados de clientes
+         diferentes se misturem no mesmo browser. */
+      function getStorageKey() {
+        return 'axiumlink-preview-v1-' + (getSlug() || 'default');
+      }
 
       function getSlug() {
         const params = new URLSearchParams(window.location.search);
@@ -1562,7 +1566,7 @@
 
       function readLocalConfig() {
         let saved = null;
-        try { saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); } catch (e) {}
+        try { saved = JSON.parse(localStorage.getItem(getStorageKey()) || 'null'); } catch (e) {}
         const defaults = (typeof window.AXIUMLINK_CONFIG !== 'undefined' && window.AXIUMLINK_CONFIG)
           ? window.AXIUMLINK_CONFIG
           : null;
@@ -2320,7 +2324,7 @@
 
       /* Sincronização entre abas via storage event */
       window.addEventListener('storage', (e) => {
-        if (e.key === STORAGE_KEY && e.newValue) {
+        if (e.key === getStorageKey() && e.newValue) {
           try { applyConfig(JSON.parse(e.newValue)); } catch (err) {}
         }
       });
@@ -2328,11 +2332,11 @@
       /* Sincronização via BroadcastChannel — mais confiável que storage
          event em PWAs e mobile Safari. Recebe o payload completo do admin
          assim que ele salva (debounce de 300ms no localStorage + 2s no
-         Parse). */
+         Parse). Canal é namespaced pelo slug para isolar clientes. */
       try {
-        const syncChannel = new BroadcastChannel('axiumlink-sync');
+        const syncChannel = new BroadcastChannel('axiumlink-sync-' + (getSlug() || 'default'));
         syncChannel.onmessage = (e) => {
-          if (e.data && e.data.key === STORAGE_KEY && e.data.config) {
+          if (e.data && e.data.config) {
             try { applyConfig(e.data.config); } catch (err) {}
           }
         };
