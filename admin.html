@@ -3407,6 +3407,16 @@
         client.setACL(acl);
       },
 
+      _freshClient(objectId) {
+        const Client = Parse.Object.extend('Client');
+        if (objectId) {
+          const obj = new Client();
+          obj.id = objectId;
+          return obj;
+        }
+        return new Client();
+      },
+
       async login(email, password) {
         const user = await Parse.User.logIn(email, password);
         this.currentUser = user;
@@ -3436,15 +3446,12 @@
         query.equalTo('owner', this.currentUser);
         let client = await query.first();
         if (!client) {
-          client = new Client();
-          client.set('owner', this.currentUser);
-          client.set('slug', 'axium-' + Date.now().toString(36));
-          client.set('config', null);
+          client = this._freshClient();
           this._setOwnerACL(client);
-          await client.save();
+          await client.save({ owner: this.currentUser, slug: 'axium-' + Date.now().toString(36), config: null });
         }
-        this.currentClient = client;
-        return client;
+        this.currentClient = { id: client.id, slug: client.get('slug'), config: client.get('config') };
+        return this.currentClient;
       },
 
       async saveClientConfig(payload) {
@@ -3454,9 +3461,9 @@
         if (sizeKB > 500) {
           throw new Error('Configuração muito grande (' + Math.round(sizeKB) + 'KB). Máximo permitido: 500KB. Reduza o tamanho das imagens.');
         }
-        this.currentClient.set('config', jsonStr);
-        this._setOwnerACL(this.currentClient);
-        await this.currentClient.save();
+        const clientToSave = this._freshClient(this.currentClient.id);
+        this._setOwnerACL(clientToSave);
+        await clientToSave.save({ config: jsonStr });
       },
 
       async updateSlug(slug) {
@@ -3469,10 +3476,11 @@
         if (existing) {
           throw new Error('Este slug já está em uso. Escolha outro.');
         }
-        this.currentClient.set('slug', slug);
-        this._setOwnerACL(this.currentClient);
+        const clientToSave = this._freshClient(this.currentClient.id);
+        this._setOwnerACL(clientToSave);
         try {
-          await this.currentClient.save();
+          await clientToSave.save({ slug: slug });
+          this.currentClient.slug = slug;
         } catch (err) {
           /* Trata race condition: outro usuário pode ter registrado o slug entre a query e o save.
              Se o erro for de conflito (anchor O-be), refaz a query para informar o usuário. */
@@ -3572,7 +3580,7 @@
           const slugEditor = document.getElementById('slugEditor');
           const viewBtn = document.getElementById('viewPageBtn');
           slugEditor.hidden = false;
-          slugInput.value = client.get('slug') || '';
+          slugInput.value = client.slug || '';
           updatePublicLink(viewBtn, slugInput.value);
 
           slugInput.addEventListener('change', async () => {
@@ -3585,13 +3593,13 @@
                 _openSyncChannel(); /* Reconecta no novo canal */
               } catch (err) {
                 alert(err.message || 'Erro ao salvar slug.');
-                slugInput.value = client.get('slug') || '';
+                slugInput.value = client.slug || '';
               }
             }
           });
 
           /* Carrega config do Parse */
-          const raw = client.get('config');
+          const raw = client.config;
           if (raw) {
             const cfg = typeof raw === 'string' ? JSON.parse(raw) : raw;
             if (cfg && typeof cfg === 'object') _parseConfigToLoad = cfg;
