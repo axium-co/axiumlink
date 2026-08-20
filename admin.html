@@ -3440,18 +3440,42 @@
       },
 
       async loadOrCreateClient() {
-        if (!this.currentUser) return null;
-        const Client = Parse.Object.extend('Client');
-        const query = new Parse.Query(Client);
-        query.equalTo('owner', this.currentUser);
-        let client = await query.first();
-        if (!client) {
-          client = this._freshClient();
-          this._setOwnerACL(client);
-          await client.save({ owner: this.currentUser, slug: 'axium-' + Date.now().toString(36), config: null });
+        const currentUser = Parse.User.current();
+        if (!currentUser) {
+          console.warn('[Axiumlink] Nenhum usuário logado para carregar o cliente.');
+          return null;
         }
-        this.currentClient = { id: client.id, slug: client.get('slug'), config: client.get('config') };
-        return this.currentClient;
+        this.currentUser = currentUser;
+
+        const ClientClass = Parse.Object.extend("Client");
+        const query = new Parse.Query(ClientClass);
+        query.equalTo("owner", currentUser);
+
+        try {
+          let client = await query.first();
+
+          if (!client) {
+            client = new ClientClass();
+            this._setOwnerACL(client);
+            await client.save({
+              owner: currentUser,
+              slug: "axium-" + Date.now().toString(36)
+            });
+          }
+
+          this.currentClient = {
+            id: client.id,
+            slug: client.get("slug"),
+            config: client.get("config")
+          };
+          return this.currentClient;
+        } catch (err) {
+          console.error("[Axiumlink] Falha ao carregar/criar cliente:", err.code, err.message);
+          if (err.code === 101 || (err.message && err.message.includes("Permission"))) {
+            console.error("[Axiumlink] Verifique as CLPs da classe 'Client' no Back4App — Find e Create devem estar habilitados para usuários autenticados.");
+          }
+          return null;
+        }
       },
 
       async saveClientConfig(payload) {
