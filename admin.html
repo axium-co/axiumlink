@@ -3450,7 +3450,17 @@
       },
 
       async loadOrCreateClient() {
-        const currentUser = Parse.User.current();
+        /* Usa currentAsync() para validar a sessão NO SERVIDOR.
+           Parse.User.current() é síncrono — retorna do localStorage
+           mesmo com token expirado, causando erro 119 no query. */
+        let currentUser = null;
+        try {
+          currentUser = await Parse.User.currentAsync();
+        } catch (sessionErr) {
+          console.warn('[Axiumlink] Sessão expirada ou inválida:', sessionErr.message);
+          try { await Parse.User.logOut(); } catch (_) {}
+          return null;
+        }
         if (!currentUser) {
           console.warn('[Axiumlink] Nenhum usuário logado para carregar o cliente.');
           return null;
@@ -3481,8 +3491,16 @@
           return this.currentClient;
         } catch (err) {
           const code = err.code || 0;
-          console.error("[Axiumlink] Falha ao carregar/criar cliente (code " + code + "):", err.message);
-          if (code === 119 || (err.message && err.message.includes("Permission"))) {
+          const msg = err.message || String(err);
+          console.error("[Axiumlink] Falha ao carregar/criar cliente (code " + code + "):", msg);
+          if (err instanceof TypeError && msg.includes('Failed to fetch')) {
+            console.error(
+              "[Axiumlink] Rede indisponível ou CORS bloqueado.\n" +
+              "Verifique: 1) Conexão com a internet\n" +
+              "           2) parseapi.back4app.com não está bloqueado\n" +
+              "           3) App ID / JS Key estão corretos no Back4App"
+            );
+          } else if (code === 119 || msg.includes("Permission")) {
             console.error(
               "[Axiumlink] CLP da classe 'Client' bloqueia 'Find' para usuários autenticados.\n" +
               "No Back4App Dashboard → Database → Client → Class Permissions:\n" +
@@ -3499,6 +3517,11 @@
             console.error(
               "[Axiumlink] Campo 'owner' não existe na classe 'Client'.\n" +
               "No Back4App Dashboard → Database → Client → '+ Add Column' → nome: 'owner', tipo: 'Pointer', targetClass: '_User'"
+            );
+          } else if (code === 209 || msg.includes('session')) {
+            console.error(
+              "[Axiumlink] Sessão do usuário expirou no servidor.\n" +
+              "Faça login novamente."
             );
           }
           return null;
@@ -3619,9 +3642,19 @@
       passEl.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSubmit(); });
       emailEl.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSubmit(); });
 
-      /* Verifica sessão existente */
+      /* Verifica sessão existente — valida NO SERVIDOR, não só no localStorage.
+         Parse.User.current() é síncrono e retorna do cache local mesmo se o
+         token já expirou. Parse.User.currentAsync() valida com o servidor. */
       (async function checkSession() {
-        const user = Parse.User.current();
+        let user = null;
+        try {
+          user = await Parse.User.currentAsync();
+        } catch (sessionErr) {
+          /* Rede indisponível ou token corrompido — limpa sessão local */
+          console.warn('[Axiumlink] Sessão inválida ou rede indisponível:', sessionErr.message);
+          try { await Parse.User.logOut(); } catch (_) {}
+          user = null;
+        }
         if (user) {
           ParseApp.currentUser = user;
           overlay.hidden = true;
@@ -3686,21 +3719,43 @@
             }
           } catch (e) { /* migration best-effort */ }
         } else {
-          /* loadOrCreateClient retornou null — CLP ou conexão falhou.
-             Habilita o editor em modo local (salva só no localStorage). */
-          console.warn('[Axiumlink] Parse indisponível. Editor em modo local.');
+          /* loadOrCreateClient retornou null — sessão expirada, CLP, ou rede.
+             Verifica se o Parse está acessível para diagnosticar a causa. */
+          const isParseReachable = await _checkParseConnection();
           const saveStatus = document.getElementById('saveStatus');
-          if (saveStatus) {
-            saveStatus.textContent = 'Modo local — sem sincronização na nuvem';
-            saveStatus.className = 'topbar__status topbar__status--error';
-          }
-          const slugInput = document.getElementById('clientSlug');
           const slugEditor = document.getElementById('slugEditor');
-          const viewBtn = document.getElementById('viewPageBtn');
-          if (slugEditor) slugEditor.hidden = false;
-          if (slugInput && !slugInput.value) slugInput.value = 'local';
-          if (viewBtn) updatePublicLink(viewBtn, slugInput.value);
-          _openSyncChannel();
+
+          if (!isParseReachable) {
+            /* Parse inacessível — rede off ou CORS */
+            console.warn('[Axiumlink] Parse inacessível. Editor em modo local.');
+            if (saveStatus) {
+              saveStatus.textContent = 'Sem conexão com a nuvem — dados locais';
+              saveStatus.className = 'topbar__status topbar__status--error';
+            }
+            if (slugEditor) slugEditor.hidden = false;
+            const slugInput = document.getElementById('clientSlug');
+            const viewBtn = document.getElementById('viewPageBtn');
+            if (slugInput && !slugInput.value) slugInput.value = 'local';
+            if (viewBtn) updatePublicLink(viewBtn, slugInput.value);
+            _openSyncChannel();
+          } else {
+            /* Parse acessível mas loadOrCreateClient falhou → sessão expirada ou CLP.
+               Mostra overlay de auth para o usuário fazer login novamente. */
+            console.warn('[Axiumlink] Sessão expirada ou permissão negada. Exibindo login.');
+            if (saveStatus) {
+              saveStatus.textContent = 'Sessão expirada — faça login novamente';
+              saveStatus.className = 'topbar__status topbar__status--error';
+            }
+            /* Reexibe overlay de auth */
+            const overlay = document.getElementById('authOverlay');
+            const topbar = document.getElementById('appTopbar');
+            const layout = document.querySelector('.admin-layout');
+            if (overlay) overlay.hidden = false;
+            if (topbar) topbar.hidden = true;
+            if (layout) layout.setAttribute('hidden', '');
+            const authError = document.getElementById('authError');
+            if (authError) authError.textContent = 'Sessão expirada. Faça login novamente.';
+          }
         }
       } catch (err) {
         console.warn('Parse connection failed, using local data:', err.message);
@@ -3721,6 +3776,22 @@
         }
       }
       _authReadyResolve();
+    }
+
+    /** Verifica se o Parse server está acessível (ping leve, sem auth). */
+    async function _checkParseConnection() {
+      try {
+        const Client = Parse.Object.extend('Client');
+        const q = new Parse.Query(Client);
+        q.limit(0);
+        await q.first();
+        return true;
+      } catch (e) {
+        /* Qualquer erro = Parse inacessível ou CLP bloqueia.
+           Se for CORS/rede, o fetch falha com TypeError.
+           Se for CLP, retorna um erro Parse mas o servidor está acessível. */
+        return !(e instanceof TypeError);
+      }
     }
 
     function updatePublicLink(btn, slug) {
