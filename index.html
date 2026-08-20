@@ -1576,15 +1576,18 @@
       async function readConfig() {
         const slug = getSlug();
         if (typeof Parse === 'undefined') return readLocalConfig();
+        if (!slug) {
+          /* Sem slug na URL → não há como identificar qual Client buscar.
+             Busca sem filtro exige CLP "Find: public" no Back4App, o que
+             expõe todos os registros. Em vez disso, cai direto no fallback
+             local (localStorage/config.js). */
+          console.warn('[Axiumlink] Acesso sem slug (?s=). Use ?s=meu-slug para carregar dados da nuvem.');
+          return readLocalConfig();
+        }
         try {
           const Client = Parse.Object.extend('Client');
           const query = new Parse.Query(Client);
-          if (slug) {
-            query.equalTo('slug', slug);
-          } else {
-            query.descending('updatedAt');
-            query.limit(1);
-          }
+          query.equalTo('slug', slug);
           const result = await query.first();
           if (result) {
             const raw = result.get('config');
@@ -1592,8 +1595,17 @@
               const cfg = typeof raw === 'string' ? JSON.parse(raw) : raw;
               if (cfg && typeof cfg === 'object') return cfg;
             }
+            console.warn('[Axiumlink] Client encontrado mas campo "config" vazio.');
+          } else {
+            console.warn('[Axiumlink] Nenhum Client com slug "' + slug + '". Verifique se o slug está correto.');
           }
-        } catch (e) { console.error('[Axiumlink] Erro ao buscar config:', e); }
+        } catch (e) {
+          const code = e.code || 0;
+          console.error('[Axiumlink] Erro ao buscar config (code ' + code + '):', e.message || e);
+          if (code === 119 || (e.message && e.message.includes('Permission'))) {
+            console.error('[Axiumlink] CLP da classe "Client" não permite Find público. No Back4App Dashboard → Database → Client → Class Permissions → marque "Find" para "Public".');
+          }
+        }
         return readLocalConfig();
       }
 

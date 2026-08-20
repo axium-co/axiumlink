@@ -3417,6 +3417,16 @@
         return new Client();
       },
 
+      /** Busca o registro Client existente pelo objectId.
+          Necessário ANTES de save() parcial — sem o fetch, o Parse SDK
+          envia PUT (replace total) em vez de PATCH, apagando owner/slug. */
+      async _fetchClient(objectId) {
+        const Client = Parse.Object.extend('Client');
+        const obj = new Client();
+        obj.id = objectId;
+        return await obj.fetch();
+      },
+
       async login(email, password) {
         const user = await Parse.User.logIn(email, password);
         this.currentUser = user;
@@ -3470,9 +3480,26 @@
           };
           return this.currentClient;
         } catch (err) {
-          console.error("[Axiumlink] Falha ao carregar/criar cliente:", err.code, err.message);
-          if (err.code === 101 || (err.message && err.message.includes("Permission"))) {
-            console.error("[Axiumlink] Verifique as CLPs da classe 'Client' no Back4App — Find e Create devem estar habilitados para usuários autenticados.");
+          const code = err.code || 0;
+          console.error("[Axiumlink] Falha ao carregar/criar cliente (code " + code + "):", err.message);
+          if (code === 119 || (err.message && err.message.includes("Permission"))) {
+            console.error(
+              "[Axiumlink] CLP da classe 'Client' bloqueia 'Find' para usuários autenticados.\n" +
+              "No Back4App Dashboard → Database → Client → Class Permissions:\n" +
+              "  • Find  → marque 'Authenticated' (ou 'Public' se a página pública precisar)\n" +
+              "  • Create → marque 'Authenticated'\n" +
+              "  • Update → marque 'Authenticated'"
+            );
+          } else if (code === 101) {
+            console.error(
+              "[Axiumlink] Classe 'Client' não existe no Back4App.\n" +
+              "No Back4App Dashboard → Database → '+ Add Class' → nome: 'Client'"
+            );
+          } else if (code === 103) {
+            console.error(
+              "[Axiumlink] Campo 'owner' não existe na classe 'Client'.\n" +
+              "No Back4App Dashboard → Database → Client → '+ Add Column' → nome: 'owner', tipo: 'Pointer', targetClass: '_User'"
+            );
           }
           return null;
         }
@@ -3487,7 +3514,15 @@
         if (sizeKB > 500) {
           throw new Error('Configuração muito grande (' + Math.round(sizeKB) + 'KB). Máximo permitido: 500KB. Reduza o tamanho das imagens.');
         }
-        const clientToSave = this._freshClient(this.currentClient.id);
+        /* Fetch ANTES de save — garante que PUT inclui owner/slug existentes.
+           Sem fetch, _freshClient cria obj-only-id e PUT apaga owner + slug. */
+        let clientToSave;
+        try {
+          clientToSave = await this._fetchClient(this.currentClient.id);
+        } catch (fetchErr) {
+          console.warn('[Axiumlink] Fetch falhou, criando referência direta:', fetchErr.message);
+          clientToSave = this._freshClient(this.currentClient.id);
+        }
         this._setOwnerACL(clientToSave);
         await clientToSave.save({ config: jsonStr });
       },
@@ -3502,7 +3537,13 @@
         if (existing) {
           throw new Error('Este slug já está em uso. Escolha outro.');
         }
-        const clientToSave = this._freshClient(this.currentClient.id);
+        /* Fetch ANTES de save — sem isso, PUT apaga owner + config. */
+        let clientToSave;
+        try {
+          clientToSave = await this._fetchClient(this.currentClient.id);
+        } catch (fetchErr) {
+          clientToSave = this._freshClient(this.currentClient.id);
+        }
         this._setOwnerACL(clientToSave);
         try {
           await clientToSave.save({ slug: slug });
@@ -3644,6 +3685,22 @@
               if (oldData) localStorage.removeItem(oldKey);
             }
           } catch (e) { /* migration best-effort */ }
+        } else {
+          /* loadOrCreateClient retornou null — CLP ou conexão falhou.
+             Habilita o editor em modo local (salva só no localStorage). */
+          console.warn('[Axiumlink] Parse indisponível. Editor em modo local.');
+          const saveStatus = document.getElementById('saveStatus');
+          if (saveStatus) {
+            saveStatus.textContent = 'Modo local — sem sincronização na nuvem';
+            saveStatus.className = 'topbar__status topbar__status--error';
+          }
+          const slugInput = document.getElementById('clientSlug');
+          const slugEditor = document.getElementById('slugEditor');
+          const viewBtn = document.getElementById('viewPageBtn');
+          if (slugEditor) slugEditor.hidden = false;
+          if (slugInput && !slugInput.value) slugInput.value = 'local';
+          if (viewBtn) updatePublicLink(viewBtn, slugInput.value);
+          _openSyncChannel();
         }
       } catch (err) {
         console.warn('Parse connection failed, using local data:', err.message);
@@ -3658,7 +3715,9 @@
         const slugEditor = document.getElementById('slugEditor');
         if (slugInput && viewBtn) {
           if (slugEditor) slugEditor.hidden = false;
+          if (!slugInput.value) slugInput.value = 'local';
           updatePublicLink(viewBtn, slugInput.value);
+          _openSyncChannel();
         }
       }
       _authReadyResolve();
