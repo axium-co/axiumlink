@@ -1678,7 +1678,7 @@
       document.body.style.backgroundPosition = 'center';
       document.body.style.backgroundBlendMode = pageGrad
         ? ((pgd.blend && pgd.blend !== 'normal') ? pgd.blend : '')
-        : (v.bgBlend || '');
+        : '';
 
       /* Subtítulo/descrições = texto neutro misturado com o fundo (tom suave).
          Independe do "Cor dos Textos": o perfil tem as próprias opções. */
@@ -2096,21 +2096,13 @@
             const strong = document.createElement('strong');
             strong.textContent = action.title || 'Nova Ação';
             body.appendChild(strong);
-            if (action.desc) {
-              const desc = document.createElement('span');
-              desc.textContent = action.desc;
-              body.appendChild(desc);
-            }
+
             if (action.url) node.title = action.url;
             node.appendChild(body);
 
             node.appendChild(makeArrow());
           }
 
-          if (action.customColors) {
-            node.style.backgroundColor = action.customBg;
-            node.style.color = action.customText;
-          }
           aplicarEstiloIndividual(node, action);
 
           quickContainer.appendChild(node);
@@ -2193,10 +2185,6 @@
 
             a.appendChild(makeArrow());
 
-            if (link.customColors) {
-              a.style.backgroundColor = link.customBg;
-              a.style.color = link.customText;
-            }
             aplicarEstiloIndividual(a, link);
 
             linksContainer.appendChild(a);
@@ -2211,10 +2199,6 @@
 
             if (link.animation && link.animation !== 'none') a.classList.add('anim-' + link.animation);
 
-            if (link.customColors) {
-              a.style.backgroundColor = link.customBg;
-              a.style.color = link.customText;
-            }
             aplicarEstiloIndividual(a, link);
 
             const inner = document.createElement('span');
@@ -2275,8 +2259,8 @@
       /* ---- Aplica cores globais do tema em TODOS os botões/links ----
          Percorre cada botão/link e injeta a cor de fundo e de texto
          vindas do tema global (cfg.visual). Botões que já possuem cores
-         individuais (setadas por aplicarEstiloIndividual ou customColors)
-         são respeitados — o estilo individual sobrepõe o global. */
+          individuais (setadas por aplicarEstiloIndividual)
+          são respeitados — o estilo individual sobrepõe o global. */
       const globalBg = v.quickBg || v.cardBg || '';
       const globalTextColor = v.textColor || v.quickText || v.cardText || '';
       if (globalBg || globalTextColor) {
