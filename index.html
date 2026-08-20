@@ -1980,6 +1980,25 @@
           btn.style.fontWeight = FONT_WEIGHT_MAP[dados.btnFontWeight];
       }
 
+      function applyButtonWidth(btn, width) {
+        btn.style.width = '';
+        btn.style.maxWidth = '';
+        btn.style.flex = '';
+        btn.style.padding = '';
+        if (width === 'full') {
+          btn.style.width = '100%';
+          btn.style.maxWidth = '100%';
+          btn.style.flex = '0 0 100%';
+        } else if (width === 'half') {
+          btn.style.width = 'calc(50% - 6px)';
+          btn.style.flex = '0 0 calc(50% - 6px)';
+        } else if (width === 'compact') {
+          btn.style.width = 'max-content';
+          btn.style.flex = 'initial';
+          btn.style.padding = '10px 20px';
+        }
+      }
+
       if (quickContainer && Array.isArray(quickList) && quickList.length) {
         quickContainer.replaceChildren();
         quickContainer.hidden = false;
@@ -1996,9 +2015,7 @@
           node.type = 'button';
 
           if (action.style === 'banner') node.classList.add('featured__card--banner');
-          else if (action.width === 'full') node.classList.add('featured__card--full');
-          else if (action.width === 'half') node.classList.add('featured__card--half');
-          else if (action.width === 'compact') node.classList.add('featured__card--compact');
+          applyButtonWidth(node, action.width);
           if (action.animation && action.animation !== 'none') node.classList.add('anim-' + action.animation);
 
           /* Primeiro card (CTA) em modo lista ganha o destaque principal */
@@ -2126,6 +2143,7 @@
             a.title = link.url || link.title || '';
 
             if (link.animation && link.animation !== 'none') a.classList.add('anim-' + link.animation);
+            applyButtonWidth(a, link.width);
 
             const icon = document.createElement('span');
             icon.className = 'featured__icon';

@@ -5491,12 +5491,29 @@
       }
     }
 
+    function applyButtonWidth(btn, width) {
+      btn.style.width = '';
+      btn.style.maxWidth = '';
+      btn.style.flex = '';
+      btn.style.padding = '';
+      if (width === 'full') {
+        btn.style.width = '100%';
+        btn.style.maxWidth = '100%';
+        btn.style.flex = '0 0 100%';
+      } else if (width === 'half') {
+        btn.style.width = 'calc(50% - 6px)';
+        btn.style.flex = '0 0 calc(50% - 6px)';
+      } else if (width === 'compact') {
+        btn.style.width = 'max-content';
+        btn.style.flex = 'initial';
+        btn.style.padding = '10px 20px';
+      }
+    }
+
     function montarBotaoAcaoCompleto(btn, dados) {
       btn.className = 'btn-quick-compact';
       btn.style.aspectRatio = '';
-      if (dados.width === 'full') btn.classList.add('btn-quick-compact--full');
-      else if (dados.width === 'half') btn.classList.add('btn-quick-compact--half');
-      else if (dados.width === 'compact') btn.classList.add('btn-quick-compact--compact');
+      applyButtonWidth(btn, dados.width);
       if (dados.animation && dados.animation !== 'none') btn.classList.add('anim-' + dados.animation);
       if (dados.style === 'banner') btn.classList.add('btn-quick-compact--banner');
 
@@ -5540,9 +5557,7 @@
     function montarBotaoLinkCompleto(btn, dados) {
       btn.className = 'pv-link';
       btn.style.aspectRatio = '';
-      if (dados.width === 'full') btn.classList.add('pv-link--full');
-      else if (dados.width === 'half') btn.classList.add('pv-link--half');
-      else if (dados.width === 'compact') btn.classList.add('pv-link--compact');
+      applyButtonWidth(btn, dados.width);
       if (dados.animation && dados.animation !== 'none') btn.classList.add('anim-' + dados.animation);
 
       const isBanner = dados.style === 'banner' && !!dados.image;
