@@ -63,7 +63,7 @@
       --card-destaque-text: #0f172a; /* Texto/Ícone dos cards de link */
 
       /* == Modificadores de Formato (Bordas) == */
-      --global-radius: 16px;         /* 0px = quadrado | 16px = arredondado | 999px = oval */
+      --global-radius: 14px;         /* 0px = quadrado | 14px = arredondado | 999px = oval */
       --btn-border-color: #dbe3ee;   /* Cor do contorno dos botões e cards de destaque */
 
       /* == Dark mode (sistema pronto — ativa quando não há cores do cliente injetadas) == */
@@ -1954,6 +1954,25 @@
          Limpa TODOS os estilos inline individuais antes de reaplicar —
          garante que valores vazios/'global' retornem ao CSS padrão. */
       function aplicarEstiloIndividual(btn, dados) {
+        /* Limpa estilos inline anteriores */
+        btn.style.removeProperty('--btn-bg');
+        btn.style.removeProperty('--btn-color');
+        btn.style.removeProperty('--btn-border-color');
+        btn.style.removeProperty('--btn-border-width');
+        btn.style.removeProperty('border-radius');
+        btn.style.removeProperty('font-size');
+        btn.style.removeProperty('font-weight');
+        btn.style.removeProperty('border-color');
+        btn.style.removeProperty('border-width');
+        btn.style.removeProperty('background');
+        btn.style.removeProperty('color');
+
+        var RADIUS_MAP = { none: '0', sm: '6px', md: '12px', lg: '20px', full: '9999px' };
+        var FONT_SIZE_MAP = { xs: '0.7rem', sm: '0.8rem', md: '0.9rem', lg: '1rem', xl: '1.15rem' };
+        var FONT_WEIGHT_MAP = { thin: '300', normal: '400', medium: '500', bold: '700' };
+
+        /* Limpa TODOS os estilos inline individuais antes de reaplicar.
+           Sem isso, valores antigos persistem quando o campo é limpo. */
         btn.style.background = '';
         btn.style.color = '';
         btn.style.borderColor = '';
@@ -1962,10 +1981,6 @@
         btn.style.borderRadius = '';
         btn.style.fontSize = '';
         btn.style.fontWeight = '';
-
-        var RADIUS_MAP = { none: '0', sm: '6px', md: '12px', lg: '20px', full: '9999px' };
-        var FONT_SIZE_MAP = { xs: '0.7rem', sm: '0.8rem', md: '0.9rem', lg: '1rem', xl: '1.15rem' };
-        var FONT_WEIGHT_MAP = { thin: '300', normal: '400', medium: '500', bold: '700' };
 
         if (dados.btnBg) btn.style.background = dados.btnBg;
         if (dados.btnColor) btn.style.color = dados.btnColor;
