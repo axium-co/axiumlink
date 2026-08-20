@@ -1638,7 +1638,10 @@
 
       /* ---- CSS Variables (:root) ---- */
       const root = document.documentElement.style;
-      const set = (name, value) => { if (value != null) root.setProperty(name, value); };
+      const set = (name, value) => {
+        if (value != null && value !== '') root.setProperty(name, value);
+        else root.removeProperty(name);
+      };
 
       /* ---- Plano de fundo: cor sólida, gradiente ou imagem ---- */
       const pageBg = String(v.pageBg || '').trim();
@@ -2226,6 +2229,22 @@
         if (fundoBotao) t.style.setProperty('--ui-bg', fundoBotao);
         else t.style.removeProperty('--ui-bg');
       });
+
+      /* ---- Aplica cores globais do tema em TODOS os botões/links ----
+         Percorre cada botão/link e injeta a cor de fundo e de texto
+         vindas do tema global (cfg.visual). Botões que já possuem cores
+         individuais (setadas por aplicarEstiloIndividual ou customColors)
+         são respeitados — o estilo individual sobrepõe o global. */
+      const globalBg = v.quickBg || v.cardBg || '';
+      const globalTextColor = v.textColor || v.quickText || v.cardText || '';
+      if (globalBg || globalTextColor) {
+        document.querySelectorAll('.featured__card, .social-icon').forEach((btn) => {
+          const hasInlineBg = btn.style.background || btn.style.backgroundColor;
+          const hasInlineColor = btn.style.color;
+          if (globalBg && !hasInlineBg) btn.style.backgroundColor = globalBg;
+          if (globalTextColor && !hasInlineColor) btn.style.color = globalTextColor;
+        });
+      }
 
       function clampOrder(value, fallback) {
         const n = parseInt(value, 10);
