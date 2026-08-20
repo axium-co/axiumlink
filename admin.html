@@ -5463,29 +5463,38 @@
       btn.style.removeProperty('background');
       btn.style.removeProperty('color');
 
-      const RADIUS_MAP = { none: '0', sm: '6px', md: '12px', lg: '20px', full: '9999px' };
-      const FONT_SIZE_MAP = { xs: '0.7rem', sm: '0.8rem', md: '0.9rem', lg: '1rem', xl: '1.15rem' };
-      const FONT_WEIGHT_MAP = { thin: '300', normal: '400', medium: '500', bold: '700' };
+      var RADIUS_MAP = { none: '0', sm: '6px', md: '12px', lg: '20px', full: '9999px' };
+      var FONT_SIZE_MAP = { xs: '0.7rem', sm: '0.8rem', md: '0.9rem', lg: '1rem', xl: '1.15rem' };
+      var FONT_WEIGHT_MAP = { thin: '300', normal: '400', medium: '500', bold: '700' };
 
-      if (dados.btnBg) {
-        btn.style.background = dados.btnBg;
-      }
-      if (dados.btnColor) {
-        btn.style.color = dados.btnColor;
-      }
-      if (dados.btnRadius && dados.btnRadius !== 'global' && RADIUS_MAP[dados.btnRadius]) {
-        btn.style.borderRadius = RADIUS_MAP[dados.btnRadius];
-      }
-      if (dados.btnBorderColor) {
-        btn.style.borderColor = dados.btnBorderColor;
-      }
-      if (dados.btnBorderWidth !== undefined && dados.btnBorderWidth !== '') {
+      /* Limpa TODOS os estilos inline individuais antes de reaplicar.
+         Sem isso, valores antigos persistem quando o campo é limpo. */
+      btn.style.background = '';
+      btn.style.color = '';
+      btn.style.borderColor = '';
+      btn.style.borderWidth = '';
+      btn.style.borderStyle = '';
+      btn.style.borderRadius = '';
+      btn.style.fontSize = '';
+      btn.style.fontWeight = '';
+
+      if (dados.btnBg) btn.style.background = dados.btnBg;
+      if (dados.btnColor) btn.style.color = dados.btnColor;
+      if (dados.btnBorderColor) btn.style.borderColor = dados.btnBorderColor;
+
+      if (dados.btnBorderWidth !== undefined && dados.btnBorderWidth !== '' && dados.btnBorderWidth !== '0') {
         btn.style.borderWidth = dados.btnBorderWidth + 'px';
         btn.style.borderStyle = 'solid';
       }
+
+      if (dados.btnRadius && dados.btnRadius !== 'global' && RADIUS_MAP[dados.btnRadius]) {
+        btn.style.borderRadius = RADIUS_MAP[dados.btnRadius];
+      }
+
       if (dados.btnFontSize && dados.btnFontSize !== 'global' && FONT_SIZE_MAP[dados.btnFontSize]) {
         btn.style.fontSize = FONT_SIZE_MAP[dados.btnFontSize];
       }
+
       if (dados.btnFontWeight && dados.btnFontWeight !== 'global' && FONT_WEIGHT_MAP[dados.btnFontWeight]) {
         btn.style.fontWeight = FONT_WEIGHT_MAP[dados.btnFontWeight];
       }
