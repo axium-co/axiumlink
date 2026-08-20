@@ -3636,6 +3636,14 @@
           saveStatus.textContent = 'Sem conexão com a nuvem — dados locais';
           saveStatus.className = 'topbar__status topbar__status--error';
         }
+        /* Fallback: still set public link so "Ver Página" works with local data */
+        const slugInput = document.getElementById('clientSlug');
+        const viewBtn = document.getElementById('viewPageBtn');
+        const slugEditor = document.getElementById('slugEditor');
+        if (slugInput && viewBtn) {
+          if (slugEditor) slugEditor.hidden = false;
+          updatePublicLink(viewBtn, slugInput.value);
+        }
       }
       _authReadyResolve();
     }
@@ -3725,6 +3733,7 @@
 
     let _autoSaveTimer = null;
     let _autoSaveParseTimer = null;
+    let _savingInProgress = false;
 
     /* BroadcastChannel para sync instantâneo entre abas (admin ↔ viewer).
        Nome do canal é namespaced pelo slug do cliente, para que editores
@@ -3768,12 +3777,16 @@
              rápidas na mesma chave). */
           notifyViewerTab(payload);
         } catch (err) {
-          if (err.message && err.message.includes('unauthorized')) {
-            saveStatus.textContent = 'Sessão expirada. Faça login novamente.';
-            saveStatus.className = 'topbar__status topbar__status--error';
-          } else if (err.message && err.message.includes('muito grande')) {
-            saveStatus.textContent = err.message;
-            saveStatus.className = 'topbar__status topbar__status--error';
+          const el = document.getElementById('saveStatus');
+          if (el) {
+            if (err.message && err.message.includes('unauthorized')) {
+              el.textContent = 'Sessão expirada. Faça login novamente.';
+            } else if (err.message && err.message.includes('muito grande')) {
+              el.textContent = err.message;
+            } else {
+              el.textContent = 'Erro ao salvar na nuvem';
+            }
+            el.className = 'topbar__status topbar__status--error';
           }
         }
       }, 2000);
@@ -6429,6 +6442,8 @@
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
+      if (_savingInProgress) return;
+      _savingInProgress = true;
       const saveStatus = document.getElementById('saveStatus');
       saveStatus.textContent = 'Salvando...';
       saveStatus.className = 'topbar__status topbar__status--saving';
@@ -6468,6 +6483,7 @@
       setTimeout(() => {
         toast.classList.remove('toast--show');
         setTimeout(() => { saveStatus.textContent = ''; }, 1500);
+        _savingInProgress = false;
       }, 2200);
     });
 
