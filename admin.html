@@ -3479,7 +3479,9 @@
       },
 
       async saveClientConfig(payload) {
-        if (!this.currentClient) return;
+        if (!this.currentClient) {
+          throw new Error('Nenhum cliente carregado. Verifique a conexão com a nuvem.');
+        }
         const jsonStr = JSON.stringify(payload);
         const sizeKB = new Blob([jsonStr]).size / 1024;
         if (sizeKB > 500) {
@@ -3598,7 +3600,6 @@
     async function onAuthReady() {
       try {
         const client = await ParseApp.loadOrCreateClient();
-        _openSyncChannel(); /* Abre canal namespaced pelo slug */
         if (client) {
           const slugInput = document.getElementById('clientSlug');
           const slugEditor = document.getElementById('slugEditor');
@@ -3606,6 +3607,7 @@
           slugEditor.hidden = false;
           slugInput.value = client.slug || '';
           updatePublicLink(viewBtn, slugInput.value);
+          _openSyncChannel(); /* Abre canal namespaced pelo slug (DEPOIS de popular o slug) */
 
           slugInput.addEventListener('change', async () => {
             const val = slugInput.value.trim().replace(/[^a-zA-Z0-9_-]/g, '');
@@ -3628,6 +3630,20 @@
             const cfg = typeof raw === 'string' ? JSON.parse(raw) : raw;
             if (cfg && typeof cfg === 'object') _parseConfigToLoad = cfg;
           }
+
+          /* Migra dados do localStorage antigo (user-based key) para a nova key (slug-based).
+             Garante que alterações salvas antes da migração não sejam perdidas. */
+          try {
+            const oldKey = 'axiumlink-preview-v1-' + (ParseApp.currentUser?.id || 'anon');
+            const newKey = getStorageKey();
+            if (oldKey !== newKey) {
+              const oldData = localStorage.getItem(oldKey);
+              if (oldData && !localStorage.getItem(newKey)) {
+                localStorage.setItem(newKey, oldData);
+              }
+              if (oldData) localStorage.removeItem(oldKey);
+            }
+          } catch (e) { /* migration best-effort */ }
         }
       } catch (err) {
         console.warn('Parse connection failed, using local data:', err.message);
@@ -3727,8 +3743,8 @@
     /* STORAGE_KEY namespaced por usuário — impede que dados de clientes
        diferentes se misturem no mesmo browser. */
     function getStorageKey() {
-      const uid = ParseApp.currentUser?.id || 'anon';
-      return 'axiumlink-preview-v1-' + uid;
+      const slug = ParseApp.currentClient?.slug || 'default';
+      return 'axiumlink-preview-v1-' + slug;
     }
 
     let _autoSaveTimer = null;
