@@ -3795,7 +3795,7 @@
     }
 
     function updatePublicLink(btn, slug) {
-      const base = window.location.origin + window.location.pathname.replace(/admin\.html$/, 'index.html');
+      const base = window.location.pathname.replace(/admin(\.html)?\/?$/, 'index.html');
       btn.href = slug ? (base + '?s=' + encodeURIComponent(slug)) : base;
     }
 
