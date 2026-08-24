@@ -499,7 +499,10 @@
       width: 52px;
       height: 52px;
       flex-shrink: 0;
-      border-radius: 50%;
+      /* Formato Global dos Botões: só sobrescreve o círculo quando o
+         cliente escolheu um formato explicitamente anguloso
+         (--social-icon-radius é injetado via JS nesses casos). */
+      border-radius: var(--social-icon-radius, 50%);
       background: var(--ui-bg, var(--btn-quick-bg, var(--card-bg)));
       color: var(--btn-text-color-global, var(--btn-quick-text, var(--card-fg)));
       border: var(--ui-border, var(--card-border));
@@ -664,7 +667,7 @@
       padding: 0.625rem 0.875rem;
       border-radius: var(--global-radius);
       background: var(--ui-bg, var(--card-destaque-bg, var(--card-bg)));
-      color: var(--card-destaque-text, var(--card-fg));
+      color: var(--btn-text-color-global, var(--card-destaque-text, var(--card-fg)));
       border: var(--ui-border, var(--card-border));
       box-shadow: var(--ui-shadow, var(--shadow-sm));
       backdrop-filter: var(--ui-blur, none);
@@ -1664,7 +1667,7 @@
          cliente escolheu uma cor de fundo explícita. */
       if (pageBg) set('--page-bg', pageBg);
       else document.documentElement.style.removeProperty('--page-bg');
-      set('--btn-text-color-global', v.textColor);
+      set('--btn-text-color-global', v.textColor || v.quickText || v.cardText);
       set('--btn-border-color', v.borderColor);
 
       /* ---- Camadas do fundo da página no <body> ---- */
@@ -1872,6 +1875,13 @@
                         : v.radius;
       const radiusOpt = radiusMap[radiusValue] || radiusMap.arredondado;
       set('--global-radius', radiusOpt.css);
+
+      /* Ícones circulares: herdam o formato global apenas quando ele é
+         explicitamente anguloso. Padrão ('arredondado') e oval mantêm o
+         círculo — evita regressão visual em páginas já publicadas. */
+      const formatoAnguloso = ['quadrado', 'leve-arredondado', 'assimetrico'].includes(radiusValue);
+      if (formatoAnguloso) set('--social-icon-radius', radiusOpt.css);
+      else root.removeProperty('--social-icon-radius');
 
       set('--font-main', "'" + (v.font || 'Inter') + "', sans-serif");
 
@@ -2233,13 +2243,25 @@
         });
       }
 
-      /* ---- Estilo do contorno (visual.btnBorder) aplicado aos botões/cards ----
-         Injetamos CSS Variables em vez de estilo inline: assim os efeitos
-         (borda, sombra, vidro) coexistem com os temas claro/escuro e com
-         os estados de hover definidos no CSS. */
+      /* ================================================================
+         ESTILO GLOBAL DOS BOTÕES — motor único da página pública.
+         Precedência garantida por camada:
+           1. Individual  → inline styles (aplicarEstiloIndividual, na
+              renderização de cada botão; vence por cascata)
+           2. Global      → variáveis CSS (:root e --ui-* por elemento)
+           3. Padrão      → fallback declarado no próprio var()
+         Mapeamento do formulário (admin):
+           visual.quickBg/cardBg   -> backgroundColor (--btn-quick-bg /
+                                      --card-destaque-bg)
+           visual.textColor/
+           quickText/cardText      -> color (texto + ícones via currentColor)
+           visual.radius           -> border-radius (--global-radius)
+           visual.btnBorder +
+           visual.borderColor       -> border-style/width/color (--ui-border)
+         ================================================================ */
       const estiloContorno = v.btnBorder || 'borda-fina';
       const corBorda = v.borderColor || 'var(--ui-border-color)';
-      const corTexto = v.textColor || 'var(--card-fg)';
+      const corTexto = v.textColor || v.quickText || v.cardText || 'var(--card-fg)';
       let bordaBotao = 'none';
       let fundoBotao = null;
       let desfoqueBotao = '';
@@ -2267,22 +2289,6 @@
         if (fundoBotao) t.style.setProperty('--ui-bg', fundoBotao);
         else t.style.removeProperty('--ui-bg');
       });
-
-      /* ---- Aplica cores globais do tema em TODOS os botões/links ----
-         Percorre cada botão/link e injeta a cor de fundo e de texto
-         vindas do tema global (cfg.visual). Botões que já possuem cores
-          individuais (setadas por aplicarEstiloIndividual)
-          são respeitados — o estilo individual sobrepõe o global. */
-      const globalBg = v.quickBg || v.cardBg || '';
-      const globalTextColor = v.textColor || v.quickText || v.cardText || '';
-      if (globalBg || globalTextColor) {
-        document.querySelectorAll('.featured__card, .social-icon').forEach((btn) => {
-          const hasInlineBg = btn.style.background || btn.style.backgroundColor;
-          const hasInlineColor = btn.style.color;
-          if (globalBg && !hasInlineBg) btn.style.backgroundColor = globalBg;
-          if (globalTextColor && !hasInlineColor) btn.style.color = globalTextColor;
-        });
-      }
 
       function clampOrder(value, fallback) {
         const n = parseInt(value, 10);

@@ -5607,7 +5607,15 @@
     }
 
     /* Aplica estilos visuais individuais de um botão (cores, bordas, fonte).
-       Chama-se em montarBotaoAcaoCompleto e montarBotaoLinkCompleto. */
+       Chama-se em montarBotaoAcaoCompleto e montarBotaoLinkCompleto.
+
+       Precedência: individual > global > padrão. A regra CSS do preview
+       consome as variáveis universais com !important
+       (background-color: var(--btn-bg-universal) !important, etc.), então
+       o override individual é feito NO PRÓPRIO elemento via custom
+       properties — var() resolve primeiro no elemento antes de herdar do
+       container (#preview-mobile-container). Campos limpos removem o
+       override e o botão volta a herdar o estilo global. */
     function aplicarEstiloIndividual(btn, dados) {
       /* Limpa estilos inline anteriores */
       btn.style.removeProperty('--btn-bg');
@@ -5636,6 +5644,28 @@
       btn.style.borderRadius = '';
       btn.style.fontSize = '';
       btn.style.fontWeight = '';
+
+      /* Overrides por elemento das variáveis universais do preview:
+         presentes = usa o individual; ausentes = herda o global. */
+      var setUniversal = function (name, value) {
+        if (value) btn.style.setProperty(name, value);
+        else btn.style.removeProperty(name);
+      };
+      setUniversal('--btn-bg-universal', dados.btnBg || '');
+      setUniversal('--btn-text-universal', dados.btnColor || '');
+      setUniversal('--btn-radius-universal',
+        (dados.btnRadius && dados.btnRadius !== 'global' && RADIUS_MAP[dados.btnRadius]) ? RADIUS_MAP[dados.btnRadius] : '');
+
+      var temCorBorda = !!dados.btnBorderColor;
+      var larguraBorda = (dados.btnBorderWidth === undefined || dados.btnBorderWidth === null) ? '' : String(dados.btnBorderWidth);
+      if (larguraBorda === '0') {
+        setUniversal('--btn-border-universal', 'none');
+      } else if (temCorBorda || larguraBorda !== '') {
+        setUniversal('--btn-border-universal',
+          (larguraBorda !== '' ? larguraBorda + 'px' : '1px') + ' solid ' + (dados.btnBorderColor || 'currentColor'));
+      } else {
+        setUniversal('--btn-border-universal', '');
+      }
 
       if (dados.btnBg) btn.style.background = dados.btnBg;
       if (dados.btnColor) btn.style.color = dados.btnColor;
