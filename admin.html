@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
@@ -18,10 +18,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 
-  <!-- Fontes: Plus Jakarta Sans (painel) + fontes disponÃ­veis para o cliente.
-       TODOS os pesos 300-700 sÃ£o importados para cada famÃ­lia â€” sem isso o
+  <!-- Fontes: Plus Jakarta Sans (painel) + fontes disponíveis para o cliente.
+       TODOS os pesos 300-700 são importados para cada família — sem isso o
        navegador sintetiza 300/500 a partir do 400 e o Live Preview ignora
-       as opÃ§Ãµes Fina/Normal/MÃ©dia. -->
+       as opções Fina/Normal/Média. -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;600;700&family=Lato:wght@300;400;500;600;700&family=Merriweather:wght@300;400;500;600;700&family=Playfair+Display:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
@@ -33,15 +33,15 @@
     Parse.serverURL = 'https://parseapi.back4app.com/';
   </script>
 
-  <!-- ConfiguraÃ§Ã£o atual do cliente (fonte de verdade compartilhada) -->
+  <!-- Configuração atual do cliente (fonte de verdade compartilhada) -->
   <script src="config.js"></script>
 
   <style>
     /* ================================================================
-       ADMIN â€” DESIGN SYSTEM (painel SaaS premium)
-       Paleta: fundo #F8FAFC Â· superfÃ­cies #FFFFFF Â· bordas #E2E8F0
-       Textos: tÃ­tulos #0F172A Â· corpo #334155 Â· descriÃ§Ãµes #64748B
-       Accent: Ã­ndigo #4F46E5 Â· tipografia Plus Jakarta Sans / Inter
+       ADMIN — DESIGN SYSTEM (painel SaaS premium)
+       Paleta: fundo #F8FAFC · superfícies #FFFFFF · bordas #E2E8F0
+       Textos: títulos #0F172A · corpo #334155 · descrições #64748B
+       Accent: índigo #4F46E5 · tipografia Plus Jakarta Sans / Inter
        ================================================================ */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -82,7 +82,7 @@
     ::selection { background: rgba(99, 102, 241, 0.2); }
 
     /* ================================================================
-       NAVBAR â€” barra superior fixa
+       NAVBAR — barra superior fixa
        ================================================================ */
     .topbar {
       position: sticky;
@@ -171,7 +171,7 @@
     .btn--block { width: 100%; height: 42px; }
 
     /* ================================================================
-       LAYOUT SPLIT-SCREEN â€” esquerda rola, direita sticky/travada
+       LAYOUT SPLIT-SCREEN — esquerda rola, direita sticky/travada
        ================================================================ */
     .admin-layout {
       display: grid;
@@ -181,7 +181,7 @@
       min-height: 0;
     }
 
-    /* ---- Painel de EdiÃ§Ã£o (esquerda) â€” sticky e rolagem independente ---- */
+    /* ---- Painel de Edição (esquerda) — sticky e rolagem independente ---- */
     .panel {
       background: var(--ds-bg);
       border-right: 1px solid var(--ds-border);
@@ -302,7 +302,7 @@
 
     .row-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr)); gap: 0.75rem; }
 
-    /* ---- Bloco configurÃ¡vel (cada botÃ£o/card do cliente) ---- */
+    /* ---- Bloco configurável (cada botão/card do cliente) ---- */
     .block {
       background: var(--ds-bg);
       border: 1px solid #eef2f7;
@@ -426,7 +426,7 @@
     .upload__btn:active { transform: scale(0.98); }
     .upload__btn svg { width: 16px; height: 16px; flex-shrink: 0; }
 
-    /* ---- BotÃ£o remover upload ---- */
+    /* ---- Botão remover upload ---- */
     .btn-remove {
       display: inline-flex;
       align-items: center;
@@ -450,7 +450,7 @@
     .btn-remove--block { width: 100%; }
     .btn-remove[hidden] { display: none; }
 
-    /* ---- BotÃ£o de arquivo (Ã­cones dos cards / imagem de fundo) ---- */
+    /* ---- Botão de arquivo (ícones dos cards / imagem de fundo) ---- */
     .file-btn {
       position: relative;
       display: flex;
@@ -561,7 +561,7 @@
 
     .crop-modal__actions .crop-apply:hover { background: #4338ca; }
 
-    /* ---- Ordem de exibiÃ§Ã£o das seÃ§Ãµes (cards arrastÃ¡veis) ---- */
+    /* ---- Ordem de exibição das seções (cards arrastáveis) ---- */
     #global-sections-container {
       display: flex;
       flex-direction: column;
@@ -569,7 +569,7 @@
       margin-bottom: 1.125rem;
     }
 
-    /* ---- Ordem de ExibiÃ§Ã£o (reordenaÃ§Ã£o das seÃ§Ãµes) ---- */
+    /* ---- Ordem de Exibição (reordenação das seções) ---- */
     .drag-container {
       display: flex;
       flex-direction: column;
@@ -604,7 +604,7 @@
       -webkit-user-select: none;
     }
 
-    /* ---- Gerenciador de links dinÃ¢mico ---- */
+    /* ---- Gerenciador de links dinâmico ---- */
     #links-management-container {
       display: flex;
       flex-direction: column;
@@ -614,7 +614,7 @@
 
     #links-management-container .block { margin-bottom: 0; }
 
-    /* ---- Gerenciador de aÃ§Ãµes rÃ¡pidas dinÃ¢mico ---- */
+    /* ---- Gerenciador de ações rápidas dinâmico ---- */
     #quick-actions-management {
       display: flex;
       flex-direction: column;
@@ -706,7 +706,7 @@
     .btn-danger-block:active { transform: scale(0.98); }
     .btn-danger-block svg { width: 15px; height: 15px; }
 
-    /* ---- CustomizaÃ§Ã£o AvanÃ§ada (por bloco) ---- */
+    /* ---- Customização Avançada (por bloco) ---- */
     .adv-toggle {
       display: flex;
       align-items: center;
@@ -773,7 +773,7 @@
 
     .adv-row .field { margin-bottom: 0; }
 
-    /* ---- Seletor de cor inline (input + botÃ£o limpar) ---- */
+    /* ---- Seletor de cor inline (input + botão limpar) ---- */
     .color-swatch-input {
       display: flex;
       align-items: center;
@@ -972,11 +972,11 @@
       border-radius: 999px;
     }
 
-    /* ---- Controles de PosiÃ§Ã£o (Sobrepor / Z-index) â€” um slider por linha ---- */
+    /* ---- Controles de Posição (Sobrepor / Z-index) — um slider por linha ---- */
     .posicao-controls-grid {
       display: flex;
       flex-direction: column;
-      gap: 20px; /* EspaÃ§o vertical generoso para nÃ£o colar os sliders */
+      gap: 20px; /* Espaço vertical generoso para não colar os sliders */
       width: 100%;
       padding: 4px 0;
     }
@@ -1140,9 +1140,9 @@
 
     .bg-image-btn { margin-bottom: 0.5rem; }
 
-    /* ---- Banner superior do mockup (sobreposiÃ§Ã£o da foto) ----
-       A div do banner Ã© um contÃªiner TOTALMENTE independente do fundo da
-       pÃ¡gina: tem fundo prÃ³prio (--bg-banner-main) e a visibilidade Ã©
+    /* ---- Banner superior do mockup (sobreposição da foto) ----
+       A div do banner é um contêiner TOTALMENTE independente do fundo da
+       página: tem fundo próprio (--bg-banner-main) e a visibilidade é
        controlada apenas pela classe .banner-oculto. Nada aqui toca no
        background do celular (#preview-mobile-container). */
     .header-banner-element {
@@ -1158,15 +1158,15 @@
     }
 
     .pv-banner {
-      /* Controle 2 â€” Cobertura do Banner do Topo (ecossistema prÃ³prio).
-         Recebe cor sÃ³lida, gradiente prÃ³prio ou imagem via --bg-banner-main,
-         calculada pelo JS em computarFundoBanner(). Nunca lÃª --bg-page-*.
-         O banner reserva SEMPRE a prÃ³pria altura no fluxo (sem margem
-         negativa) â€” a sobreposiÃ§Ã£o da foto vem do margin-top do perfil. */
+      /* Controle 2 — Cobertura do Banner do Topo (ecossistema próprio).
+         Recebe cor sólida, gradiente próprio ou imagem via --bg-banner-main,
+         calculada pelo JS em computarFundoBanner(). Nunca lê --bg-page-*.
+         O banner reserva SEMPRE a própria altura no fluxo (sem margem
+         negativa) — a sobreposição da foto vem do margin-top do perfil. */
       --bg-banner-main: linear-gradient(135deg, #0f172a 0%, #334155 55%, #64748b 100%);
       --banner-blur-amount: 0px; /* recebe o valor (px) arrastado no slider de desfoque */
       position: relative;
-      z-index: 10; /* Camada base fixa: o avatar fica atrÃ¡s abaixo de 10 */
+      z-index: 10; /* Camada base fixa: o avatar fica atrás abaixo de 10 */
       width: 100%;
       height: 150px;
       border-radius: var(--radius-lg, 18px);
@@ -1179,7 +1179,7 @@
       transition: backdrop-filter 0.1s ease-out, background 0.2s ease, height 0.2s ease;
     }
 
-    /* Fade inferior: integra a capa ao fundo da pÃ¡gina */
+    /* Fade inferior: integra a capa ao fundo da página */
     .pv-banner::after {
       content: '';
       position: absolute;
@@ -1197,11 +1197,11 @@
     }
 
     /* Foto de perfil sobreposta ao banner com borda na cor do fundo.
-       `position` + `z-index` sÃ£o FUNDAMENTAIS para o controle de camadas:
+       `position` + `z-index` são FUNDAMENTAIS para o controle de camadas:
        o JS injeta o z-index inline via slider "Camada (z-index)".
-       O overlap padrÃ£o da foto sobre o cover Ã© aplicado por JS em
-       applyDesign() (margin-top do .pv-profile) â€” nunca pelo banner,
-       que reserva a prÃ³pria altura no fluxo. */
+       O overlap padrão da foto sobre o cover é aplicado por JS em
+       applyDesign() (margin-top do .pv-profile) — nunca pelo banner,
+       que reserva a própria altura no fluxo. */
     .pv-profile {
       --avatar-s: 72px;
       position: relative;
@@ -1213,9 +1213,9 @@
 
     /* ---- Container de vidro + sombra responsiva do avatar ----
        O backdrop-filter precisa de um container pai semi-transparente
-       (nÃ£o funciona direto em <img>/fundo sÃ³lido). As variÃ¡veis abaixo
-       sÃ£o alimentadas pelo JS em applyDesign() com escala proporcional
-       Ã  largura atual do mockup do celular. */
+       (não funciona direto em <img>/fundo sólido). As variáveis abaixo
+       são alimentadas pelo JS em applyDesign() com escala proporcional
+       à  largura atual do mockup do celular. */
     .avatar-glass-card {
       --glass-pad: 0;
       --glass-bg: transparent;
@@ -1310,7 +1310,7 @@
     }
 
     /* ================================================================
-       COLUNA DIREITA â€” preview sticky/travado com mockup de smartphone
+       COLUNA DIREITA — preview sticky/travado com mockup de smartphone
        ================================================================ */
     .preview-zone {
       display: flex;
@@ -1320,17 +1320,17 @@
       top: calc(var(--topbar-h) + var(--safe-top));
       height: calc(100dvh - var(--topbar-h) - var(--safe-top));
       overflow: hidden;
-      /* Fundo claro (mesmo tom do painel) â€” a casca escura do celular
-         (#1E293B) jÃ¡ Ã© o elemento de destaque. Evita a "parede preta"
+      /* Fundo claro (mesmo tom do painel) — a casca escura do celular
+         (#1E293B) já é o elemento de destaque. Evita a "parede preta"
          que sobrava ao redor do mockup em telas largas. */
       background: var(--ds-bg);
       min-height: 0;
     }
 
     /* ---- Casca do smartphone (realista) ----
-       Largura adaptÃ¡vel Ã  altura disponÃ­vel (telas baixas nÃ£o cortam o
-       aparelho) e travada em 360px nas alturas normais. A proporÃ§Ã£o
-       1:2 Ã© mantida por aspect-ratio em qualquer tamanho. */
+       Largura adaptável à  altura disponível (telas baixas não cortam o
+       aparelho) e travada em 360px nas alturas normais. A proporção
+       1:2 é mantida por aspect-ratio em qualquer tamanho. */
     .phone-mockup {
       width: min(360px, calc((100dvh - var(--topbar-h) - var(--safe-top) - 2rem) * 0.5));
       aspect-ratio: 1 / 2;
@@ -1364,15 +1364,15 @@
       scrollbar-width: none;
       background-color: var(--page-bg, #ffffff);
       /* Cria uma nova stacking context isolada para que backdrop-filter
-         (modo vidro) funcione corretamente dentro do container scrollÃ¡vel.
-         Sem isto, navegadores mobile podem nÃ£o renderizar o blur nos cards. */
+         (modo vidro) funcione corretamente dentro do container scrollável.
+         Sem isto, navegadores mobile podem não renderizar o blur nos cards. */
       isolation: isolate;
     }
 
     .phone-screen::-webkit-scrollbar { display: none; }
 
     /* ================================================================
-       PREVIEW â€” rÃ©plica do index.html (mesmas variÃ¡veis CSS)
+       PREVIEW — réplica do index.html (mesmas variáveis CSS)
        ================================================================ */
     .preview {
       --page-bg: #f4f6fb;
@@ -1416,20 +1416,20 @@
     .preview button { font-family: inherit; cursor: pointer; }
     .preview button:not(.btn-quick-compact) { background: none; border: none; color: inherit; }
 
-    /* ---- Estilo GLOBAL dos BotÃµes da PÃ¡gina ----
-       Uma Ãºnica fonte de verdade no celular (#preview-mobile-container).
-       AÃ§Ãµes RÃ¡pidas (superiores) e Lista de Links (inferiores) obedecem
-       estritamente Ã s mesmas variÃ¡veis, sem exceÃ§Ã£o nem override. */
+    /* ---- Estilo GLOBAL dos Botões da Página ----
+       Uma única fonte de verdade no celular (#preview-mobile-container).
+       Ações Rápidas (superiores) e Lista de Links (inferiores) obedecem
+       estritamente às mesmas variáveis, sem exceção nem override. */
     #preview-mobile-container {
       --btn-bg-universal: #ffffff;
       --btn-text-universal: #0f172a;
       --btn-radius-universal: 14px;
       --btn-border-universal: 1px solid #dbe3ee;
 
-      /* TRAVAS DE LAYOUT â€” a tela interna do celular nunca muda de forma,
+      /* TRAVAS DE LAYOUT — a tela interna do celular nunca muda de forma,
          nunca rola na horizontal e ganha respiro inferior para a lista.
          O display flex + column estabiliza o fluxo: banner, perfil, grade
-         de aÃ§Ãµes e lista de links empilham de cima para baixo. */
+         de ações e lista de links empilham de cima para baixo. */
       display: flex !important;
       flex-direction: column !important;
       width: 100% !important;
@@ -1441,20 +1441,20 @@
     }
 
     /* ==================================================================
-       ECOSSISTEMAS DE FUNDO SEPARADOS (PÃGINA Ã— BANNER).
+       ECOSSISTEMAS DE FUNDO SEPARADOS (PÁGINA × BANNER).
        O celular do preview tem DUAS fontes de fundo INDEPENDENTES, cada
-       uma com as prÃ³prias variÃ¡veis e NENHUM cruzamento entre elas:
+       uma com as próprias variáveis e NENHUM cruzamento entre elas:
 
-       Controle 1 â€” FUNDO GERAL DA PÃGINA (#preview-mobile-container):
-         --bg-page-main  cor base (vem do color picker "Fundo da PÃ¡gina")
-         --bg-page-grad  gradiente injetado pela seÃ§Ã£o "Gradiente de
+       Controle 1 — FUNDO GERAL DA PÁGINA (#preview-mobile-container):
+         --bg-page-main  cor base (vem do color picker "Fundo da Página")
+         --bg-page-grad  gradiente injetado pela seção "Gradiente de
                          Fundo" (renderizarGradienteDeFundoIsolado)
-         --bg-page-img   imagem enviada em "PersonalizaÃ§Ã£o Visual"
+         --bg-page-img   imagem enviada em "Personalização Visual"
          --bg-page-blend mesclagem da camada de gradiente sobre a imagem
 
-       Controle 2 â€” COBERTURA DO BANNER DO TOPO (.pv-banner):
-         --bg-banner-main  fundo calculado da capa (cor sÃ³lida, gradiente
-                           prÃ³prio ou imagem), definido pela seÃ§Ã£o
+       Controle 2 — COBERTURA DO BANNER DO TOPO (.pv-banner):
+         --bg-banner-main  fundo calculado da capa (cor sólida, gradiente
+                           próprio ou imagem), definido pela seção
                            "Estilo do Banner". Nunca toca em --bg-page-*.
        ================================================================== */
     #preview-mobile-container {
@@ -1488,7 +1488,7 @@
       transition: all 0.2s ease;
     }
 
-    /* ---- Textos do perfil permanecem isolados (variÃ¡veis prÃ³prias) ---- */
+    /* ---- Textos do perfil permanecem isolados (variáveis próprias) ---- */
     #preview-profile-name {
       color: var(--profile-name-color, #000000);
     }
@@ -1496,13 +1496,13 @@
       color: var(--profile-bio-color, var(--text-body, #555555));
     }
 
-    /* EndereÃ§o: texto branco sobre o badge escuro (ID vence .preview a) */
+    /* Endereço: texto branco sobre o badge escuro (ID vence .preview a) */
     #preview-profile-address {
       color: var(--profile-address-text, #ffffff);
     }
 
     .pv-profile {
-      /* Tokens espelhando a pÃ¡gina pÃºblica (padrÃ£o do layout de referÃªncia);
+      /* Tokens espelhando a página pública (padrão do layout de referência);
          os controles de cor do Painel aplicam inline e sobrescrevem. */
       --profile-name-color: #dc2626;
       --profile-bio-color: #16a34a;
@@ -1532,8 +1532,8 @@
       font-size: 1.625rem;
       font-weight: 800;
       letter-spacing: -0.02em;
-      /* Borda (estilo/espessura/cor) e sombra sÃ£o independentes: nenhuma
-         limpa a outra. box-sizing mantÃ©m a borda dentro das 72px. */
+      /* Borda (estilo/espessura/cor) e sombra são independentes: nenhuma
+         limpa a outra. box-sizing mantém a borda dentro das 72px. */
       transition: border 0.1s ease, box-shadow 0.1s ease;
       will-change: border, box-shadow;
     }
@@ -1616,7 +1616,7 @@
       min-width: 0;
     }
 
-    /* Nenhuma seÃ§Ã£o interna do preview pode estourar a largura do aparelho:
+    /* Nenhuma seção interna do preview pode estourar a largura do aparelho:
        grades e listas assumem min-width 0 e respeitam 100% da coluna. */
     #pvFlow > * {
       min-width: 0;
@@ -1626,10 +1626,10 @@
     .pv-profile { width: 100%; }
 
     /* ---- Alinhamento dos textos do perfil (largura total) ----
-       Dentro do flex column (align-items: center) os itens encolhem atÃ©
-       a largura do prÃ³prio texto, entÃ£o `text-align` nÃ£o tem espaÃ§o para
+       Dentro do flex column (align-items: center) os itens encolhem até
+       a largura do próprio texto, então `text-align` não tem espaço para
        atuar. Com largura total, Esquerda/Centro/Direita funcionam de fato
-       (apenas Nome e Biografia tÃªm seletor de alinhamento). */
+       (apenas Nome e Biografia têm seletor de alinhamento). */
     #preview-profile-name,
     #preview-profile-bio,
     #preview-profile-address {
@@ -1637,9 +1637,9 @@
       max-width: 100%;
     }
 
-    /* EndereÃ§o: pill discreto, sempre centralizado (sem seletor dinÃ¢mico).
-       O peso da fonte Ã© controlado pelo select "Espessura do Texto"
-       via variÃ¡vel --address-font-weight injetada pelo JS. */
+    /* Endereço: pill discreto, sempre centralizado (sem seletor dinâmico).
+       O peso da fonte é controlado pelo select "Espessura do Texto"
+       via variável --address-font-weight injetada pelo JS. */
     #preview-profile-address, .profile-address-text {
       display: inline-flex !important;
       align-items: center;
@@ -1650,7 +1650,7 @@
       transition: font-weight 0.1s ease;
     }
 
-    /* Linha horizontal rolÃ¡vel / carrossel lateral */
+    /* Linha horizontal rolável / carrossel lateral */
     .pv-strip {
       display: flex;
       flex-wrap: nowrap;
@@ -1664,9 +1664,9 @@
 
     .pv-strip::-webkit-scrollbar { display: none; }
 
-    /* ---- BotÃµes RÃ¡pidos (cards principais) ----
-       Grade 2x2: Ã­cone em cima, centralizado. Lista vertical: linha com
-       Ã­cone Ã  esquerda + rÃ³tulo + seta â€” mesma linguagem do index.html. */
+    /* ---- Botões Rápidos (cards principais) ----
+       Grade 2x2: ícone em cima, centralizado. Lista vertical: linha com
+       ícone à  esquerda + rótulo + seta — mesma linguagem do index.html. */
     .preview .btn-quick-compact {
       display: flex;
       flex-direction: column;
@@ -1693,13 +1693,13 @@
     .btn-quick-compact:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
     .btn-quick-compact:active { transform: scale(0.98); }
 
-    /* Primeira aÃ§Ã£o da lista vertical: destaque (CTA) */
+    /* Primeira ação da lista vertical: destaque (CTA) */
     #preview-quick-grid.quick-actions-grid--list .btn-quick-compact:first-child {
       border-color: var(--primary-border, #a5b4fc);
       background-image: linear-gradient(180deg, var(--primary-soft, rgba(99, 102, 241, 0.09)), transparent 92%);
     }
 
-    /* Ãcones internos das AÃ§Ãµes RÃ¡pidas */
+    /* Ícones internos das Ações Rápidas */
     .btn-quick-compact svg {
       width: 26px;
       height: 26px;
@@ -1707,10 +1707,10 @@
       transition: all 0.2s ease;
     }
 
-    /* ---- Grid de AÃ§Ãµes RÃ¡pidas (mockup) â€” grade rÃ­gida de 2 colunas ----
+    /* ---- Grid de Ações Rápidas (mockup) — grade rígida de 2 colunas ----
        Travas estruturais: a grade SEMPRE ocupa 100% da largura e nunca
        ultrapassa as bordas do aparelho. Os modificadores list/scroll trocam
-       apenas o display (flex) e a direÃ§Ã£o â€” nunca a largura. */
+       apenas o display (flex) e a direção — nunca a largura. */
     #preview-quick-grid {
       display: grid !important;
       grid-template-columns: repeat(2, 1fr) !important;
@@ -1726,8 +1726,8 @@
 
     #preview-quick-grid .btn-quick-compact:only-child { grid-column: 1 / -1; }
 
-    /* Itens nunca forÃ§am a grade alÃ©m do previsto (texto longo quebraria
-       as 2 colunas). Compact e scroll mantÃªm o min-width prÃ³prio. */
+    /* Itens nunca forçam a grade além do previsto (texto longo quebraria
+       as 2 colunas). Compact e scroll mantêm o min-width próprio. */
     #preview-quick-grid .btn-quick-compact { min-width: 0; }
     #preview-quick-grid .btn-quick-compact--compact,
     #preview-quick-grid.quick-actions-grid--scroll .btn-quick-compact {
@@ -1740,7 +1740,7 @@
       gap: 10px;
     }
 
-    /* Modo lista: cards horizontais (Ã­cone Ã  esquerda + rÃ³tulo) */
+    /* Modo lista: cards horizontais (ícone à  esquerda + rótulo) */
     #preview-quick-grid.quick-actions-grid--list .btn-quick-compact {
       flex-direction: row;
       justify-content: flex-start;
@@ -1757,7 +1757,7 @@
       flex-shrink: 0;
     }
 
-    /* Ãcone com caixa de fundo â€” espelha .featured__icon do index.html */
+    /* Ícone com caixa de fundo — espelha .featured__icon do index.html */
     #preview-quick-grid.quick-actions-grid--list .btn-quick-compact > svg:first-child,
     #preview-quick-grid.quick-actions-grid--list .btn-quick-compact > .btn-quick-compact__img:first-child {
       width: 30px;
@@ -1772,7 +1772,7 @@
       font-weight: 600;
     }
 
-    /* Seta Ã  direita â€” espelha .featured__arrow do index.html */
+    /* Seta à  direita — espelha .featured__arrow do index.html */
     #preview-quick-grid.quick-actions-grid--list .btn-quick-compact::after {
       content: '';
       flex-shrink: 0;
@@ -1849,7 +1849,7 @@
     .pv-card__body span { font-size: 0.68rem; opacity: 0.8; }
 
     /* ---- Lista de Links (mockup) ----
-       Modo padrÃ£o = lista vertical com botÃµes cheios. */
+       Modo padrão = lista vertical com botões cheios. */
     #preview-links-list {
       display: flex;
       flex-direction: column;
@@ -1861,7 +1861,7 @@
       overflow: visible;
     }
 
-    /* ---- Modo Lista Vertical (padrÃ£o) ---- */
+    /* ---- Modo Lista Vertical (padrão) ---- */
     #preview-links-list.mode-lista-vertical {
       flex-direction: column;
       flex-wrap: nowrap;
@@ -1876,12 +1876,12 @@
       gap: 0.625rem;
       overflow: hidden;
     }
-    /* Largura individual â€” modos lista/grid precisam de especificidade maior */
+    /* Largura individual — modos lista/grid precisam de especificidade maior */
     #preview-links-list.mode-lista-vertical .pv-link--full { width: 100%; max-width: 100%; }
     #preview-links-list.mode-lista-vertical .pv-link--half { width: calc(50% - 6px); max-width: calc(50% - 6px); }
     #preview-links-list.mode-lista-vertical .pv-link--compact { width: auto; min-width: 7rem; max-width: 100%; }
 
-    /* Ãcone com caixa de fundo â€” espelha .featured__icon do index.html */
+    /* Ícone com caixa de fundo — espelha .featured__icon do index.html */
     #preview-links-list.mode-lista-vertical .pv-link__icon {
       flex-shrink: 0;
       width: 32px;
@@ -1910,7 +1910,7 @@
       min-width: 0;
     }
 
-    /* Seta Ã  direita â€” espelha .featured__arrow do index.html */
+    /* Seta à  direita — espelha .featured__arrow do index.html */
     #preview-links-list.mode-lista-vertical .pv-link::after {
       content: '';
       flex-shrink: 0;
@@ -2041,10 +2041,10 @@
       transition: transform var(--transition), box-shadow var(--transition), filter var(--transition);
     }
 
-    /* RÃ³tulo: oculto no modo Ã­cone (carrossel), visÃ­vel nos modos lista/grid */
+    /* Rótulo: oculto no modo ícone (carrossel), visível nos modos lista/grid */
     .pv-link .action-text-span { display: none; }
 
-    /* Ãcones internos dos links */
+    /* Ícones internos dos links */
     .pv-link svg { width: 22px; height: 22px; flex-shrink: 0; }
     .pv-link__img {
       width: 100%;
@@ -2064,14 +2064,14 @@
     .pv-link:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
     .pv-link:active { transform: scale(0.96); }
 
-    /* ---- Largura individual (base â€” vale no carrossel/Ã­cones) ----
-       Nos modos lista/grid, regras mais especÃ­ficas acima sobrescrevem. */
+    /* ---- Largura individual (base — vale no carrossel/ícones) ----
+       Nos modos lista/grid, regras mais específicas acima sobrescrevem. */
     .pv-link--half { width: calc(50% - 6px); }
     .pv-link--compact { width: auto; min-width: 9rem; }
 
     /* ---- Modo Imagem Completa (estilo Beacons) ----
-       Trava de proporÃ§Ã£o profissional: o card fixa um aspect-ratio rÃ­gido
-       (16/9) e a imagem Ã© recortada com object-fit: cover â€” nunca estica
+       Trava de proporção profissional: o card fixa um aspect-ratio rígido
+       (16/9) e a imagem é recortada com object-fit: cover — nunca estica
        nem estoura, independente da largura escolhida (100% ou 50%). */
     .pv-link--banner {
       position: relative;
@@ -2086,7 +2086,7 @@
       min-height: 0;
       min-width: 0;
       /* impede que align-items: stretch (modos grid/carrossel) estique o
-         card na vertical e esmague a proporÃ§Ã£o 16/9 em um bloco gigante */
+         card na vertical e esmague a proporção 16/9 em um bloco gigante */
       align-self: flex-start !important;
     }
 
@@ -2104,10 +2104,10 @@
       flex-shrink: 0;
     }
 
-    /* Em modo "Imagem completa" o rÃ³tulo nÃ£o Ã© exibido */
+    /* Em modo "Imagem completa" o rótulo não é exibido */
     .pv-link--banner .action-text-span { display: none; }
 
-    /* ---- Largura individual (AÃ§Ãµes RÃ¡pidas) ---- */
+    /* ---- Largura individual (Ações Rápidas) ---- */
     .btn-quick-compact--full { grid-column: 1 / -1; width: 100%; }
     .btn-quick-compact--compact { justify-self: center; width: auto; min-width: 130px; }
 
@@ -2124,11 +2124,11 @@
       transition: all 0.2s ease;
     }
 
-    /* ---- AÃ§Ã£o RÃ¡pida em modo "Imagem completa" (estilo Beacons) ----
-       ProporÃ§Ã£o controlada: fallback 16/9; o JS ajusta para a proporÃ§Ã£o
+    /* ---- Ação Rápida em modo "Imagem completa" (estilo Beacons) ----
+       Proporção controlada: fallback 16/9; o JS ajusta para a proporção
        real da imagem (limitada a 4:3 .. 2:1) e a imagem preenche o card
        recortada com object-fit: cover. Nunca segue a altura natural da
-       imagem, entÃ£o nÃ£o vira bloco gigante. */
+       imagem, então não vira bloco gigante. */
     .btn-quick-compact--banner {
       padding: 0 !important;
       background: transparent !important;
@@ -2154,18 +2154,18 @@
       max-height: none;
     }
 
-    /* Em grade 2x2 e faixa, o banner nunca estica alÃ©m da prÃ³pria proporÃ§Ã£o
+    /* Em grade 2x2 e faixa, o banner nunca estica além da própria proporção
        (align-items: stretch herdaria a altura da linha); em lista vertical
-       mantÃ©m a largura total. */
+       mantém a largura total. */
     #preview-quick-grid .btn-quick-compact--banner { align-self: start; }
     #preview-quick-grid.quick-actions-grid--list .btn-quick-compact--banner { align-self: stretch; }
 
-    /* Em lista, o padrÃ£o impÃµe min-height 3rem; o banner precisa ignorÃ¡-lo. */
+    /* Em lista, o padrão impõe min-height 3rem; o banner precisa ignorá-lo. */
     #preview-quick-grid.quick-actions-grid--list .btn-quick-compact--banner { min-height: 0; }
 
     .btn-quick-compact--banner span { display: none; }
 
-    /* ---- AnimaÃ§Ãµes de Destaque (por bloco) ---- */
+    /* ---- Animações de Destaque (por bloco) ---- */
     .anim-pulse { animation: animPulse 2.2s ease-in-out infinite; }
     .anim-shake { animation: animShake 2.4s ease-in-out infinite; }
     .anim-shine { position: relative; overflow: hidden; }
@@ -2246,12 +2246,12 @@
     .offline-pill svg { width: 14px; height: 14px; }
 
     /* ================================================================
-       RESPONSIVO DO PREVIEW â€” espelha as media queries do index.html
-       para que a prÃ©-visualizaÃ§Ã£o no celular do admin reflita fielmente
-       o que o visitante verÃ¡ em dispositivos mÃ³veis.
+       RESPONSIVO DO PREVIEW — espelha as media queries do index.html
+       para que a pré-visualização no celular do admin reflita fielmente
+       o que o visitante verá em dispositivos móveis.
        ================================================================ */
 
-    /* Grade 2x2 de AÃ§Ãµes RÃ¡pidas empilha verticalmente em telas estreitas
+    /* Grade 2x2 de Ações Rápidas empilha verticalmente em telas estreitas
        (espelha @media (max-width: 767px) do index.html) */
     @media (max-width: 767px) {
       #preview-quick-grid:not(.quick-actions-grid--list):not(.quick-actions-grid--scroll) {
@@ -2280,7 +2280,7 @@
     }
 
     /* ================================================================
-       RESPONSIVO â€” empilha colunas em telas menores
+       RESPONSIVO — empilha colunas em telas menores
        ================================================================ */
     @media (max-width: 980px) {
       .admin-layout {
@@ -2320,7 +2320,7 @@
     }
 
     /* ================================================================
-       MOBILE â€” tabs Editar/PrÃ©via, barra de salvar fixa e preview
+       MOBILE — tabs Editar/Prévia, barra de salvar fixa e preview
        em tela cheia (notch + barra de gestos respeitados)
        ================================================================ */
     .mobile-tabs { display: none; }
@@ -2530,7 +2530,7 @@
     .topbar__status--saved { color: #22c55e; }
     .topbar__status--error { color: #ef4444; }
 
-    /* ---- BotÃ£o Sair ---- */
+    /* ---- Botão Sair ---- */
     .btn--logout {
       font-size: 0.8125rem;
       color: #64748b;
@@ -2585,35 +2585,35 @@
           <polyline points="15 3 21 3 21 9" />
           <line x1="10" x2="21" y1="14" y2="3" />
         </svg>
-        Ver pÃ¡gina
+        Ver página
       </a>
       <button class="btn btn--primary" type="submit" form="admin-form">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <polyline points="20 6 9 17 4 12" />
         </svg>
-        Salvar AlteraÃ§Ãµes
+        Salvar Alterações
       </button>
       <button class="btn--logout" id="btnLogout" type="button">Sair</button>
     </div>
   </header>
 
-  <!-- Tabs mÃ³veis: alterna entre ediÃ§Ã£o e prÃ©-visualizaÃ§Ã£o em telas pequenas -->
-  <nav class="mobile-tabs" id="mobileTabs" aria-label="Alternar entre ediÃ§Ã£o e prÃ©-visualizaÃ§Ã£o" hidden>
+  <!-- Tabs móveis: alterna entre edição e pré-visualização em telas pequenas -->
+  <nav class="mobile-tabs" id="mobileTabs" aria-label="Alternar entre edição e pré-visualização" hidden>
     <button type="button" class="mobile-tabs__btn is-active" data-view="edit">Editar</button>
-    <button type="button" class="mobile-tabs__btn" data-view="preview">PrÃ©via</button>
+    <button type="button" class="mobile-tabs__btn" data-view="preview">Prévia</button>
   </nav>
 
   <main class="admin-layout" hidden>
 
     <!-- ================================================================
-         COLUNA ESQUERDA â€” PAINEL DE EDIÃ‡ÃƒO
+         COLUNA ESQUERDA — PAINEL DE EDIÇÃO
          ================================================================ -->
     <aside class="panel">
       <form id="admin-form" autocomplete="off">
 
-        <!-- ================= Fundo da PÃ¡gina ================= -->
+        <!-- ================= Fundo da Página ================= -->
         <section class="section">
-          <h2 class="section__title">Fundo da PÃ¡gina</h2>
+          <h2 class="section__title">Fundo da Página</h2>
 
           <div class="color-grid">
             <div class="field color-field">
@@ -2651,17 +2651,17 @@
           <div class="adv-group">
             <p class="adv-subtitle adv-subtitle--sm">Gradiente de Fundo</p>
             <p class="panel__hint">
-              Camada opcional acima da cor e da imagem. Com opacidade 100% e mesclagem Normal, o gradiente cobre o que estÃ¡ abaixo.
+              Camada opcional acima da cor e da imagem. Com opacidade 100% e mesclagem Normal, o gradiente cobre o que está abaixo.
             </p>
 
             <label class="adv-check">
               <input type="checkbox" id="ds-page-gradient-on" />
-              <span>Usar gradiente no fundo da pÃ¡gina</span>
+              <span>Usar gradiente no fundo da página</span>
             </label>
 
             <div id="ds-page-grad-wrap">
               <div class="slider-field">
-                <div class="slider-field__head"><label for="ds-page-angle">Ã‚ngulo</label><output id="ds-page-angle-out">180Â°</output></div>
+                <div class="slider-field__head"><label for="ds-page-angle">Ângulo</label><output id="ds-page-angle-out">180°</output></div>
                 <input type="range" id="ds-page-angle" min="0" max="360" value="180" />
               </div>
 
@@ -2678,14 +2678,14 @@
               </div>
 
               <div class="grad-stops" id="ds-page-grad-stops"></div>
-              <button type="button" class="grad-add" id="ds-page-grad-add">âž• Adicionar cor</button>
+              <button type="button" class="grad-add" id="ds-page-grad-add">➕ Adicionar cor</button>
             </div>
           </div>
         </section>
 
-        <!-- ================= InformaÃ§Ãµes do Perfil ================= -->
+        <!-- ================= Informações do Perfil ================= -->
         <section class="section">
-          <h2 class="section__title">InformaÃ§Ãµes do Perfil</h2>
+          <h2 class="section__title">Informações do Perfil</h2>
 
           <div class="field">
             <label>Foto / Logo</label>
@@ -2726,7 +2726,7 @@
 
             <button type="button" class="adv-toggle profile-text-toggle" aria-expanded="false">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
-              <span>âš™ï¸ Estilizar Texto</span>
+              <span>⚙️ Estilizar Texto</span>
               <svg class="adv-toggle__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
             </button>
             <div class="adv-body profile-text-controls" hidden>
@@ -2748,7 +2748,7 @@
                     <select id="profile-name-weight">
                       <option value="300">Fina</option>
                       <option value="400">Normal</option>
-                      <option value="500">MÃ©dia</option>
+                      <option value="500">Média</option>
                       <option value="600">Semi-Bold</option>
                       <option value="700" selected>Bold</option>
                     </select>
@@ -2768,11 +2768,11 @@
 
           <div class="field">
             <label for="profileBio">Biografia / Tags</label>
-            <textarea id="profileBio" data-key="profileBio">Biografia curta, serviÃ§os ou tags separadas por â€¢ vÃ­rgulas.</textarea>
+            <textarea id="profileBio" data-key="profileBio">Biografia curta, serviços ou tags separadas por • vírgulas.</textarea>
 
             <button type="button" class="adv-toggle profile-text-toggle" aria-expanded="false">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
-              <span>âš™ï¸ Estilizar Texto</span>
+              <span>⚙️ Estilizar Texto</span>
               <svg class="adv-toggle__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
             </button>
             <div class="adv-body profile-text-controls" hidden>
@@ -2794,7 +2794,7 @@
                     <select id="profile-bio-weight">
                       <option value="300">Fina</option>
                       <option value="400" selected>Normal</option>
-                      <option value="500">MÃ©dia</option>
+                      <option value="500">Média</option>
                       <option value="600">Semi-Bold</option>
                       <option value="700">Bold</option>
                     </select>
@@ -2813,12 +2813,12 @@
           </div>
 
           <div class="field">
-            <label for="profileAddress">EndereÃ§o</label>
-            <input type="text" id="profileAddress" data-key="profileAddress" value="Rua Exemplo, 123 â€“ Cidade/UF" />
+            <label for="profileAddress">Endereço</label>
+            <input type="text" id="profileAddress" data-key="profileAddress" value="Rua Exemplo, 123 – Cidade/UF" />
 
             <button type="button" class="adv-toggle profile-text-toggle" aria-expanded="false">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
-              <span>âš™ï¸ Estilizar Texto</span>
+              <span>⚙️ Estilizar Texto</span>
               <svg class="adv-toggle__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
             </button>
             <div class="adv-body profile-text-controls" hidden>
@@ -2839,7 +2839,7 @@
                   <select id="address-weight" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #E2E8F0;">
                     <option value="300">Fina</option>
                     <option value="400" selected>Normal</option>
-                    <option value="500">MÃ©dia</option>
+                    <option value="500">Média</option>
                     <option value="600">Semi-Bold</option>
                     <option value="700">Negrito</option>
                   </select>
@@ -2850,7 +2850,7 @@
                 <div class="field">
                   <label for="address-block-radius">Formato do Bloco</label>
                   <select id="address-block-radius" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #E2E8F0;">
-                    <option value="999px">PÃ­lula (Arredondado)</option>
+                    <option value="999px">Pílula (Arredondado)</option>
                     <option value="0px">Retangular</option>
                     <option value="8px">Bordas Leves</option>
                   </select>
@@ -2874,7 +2874,7 @@
                   <input type="range" id="address-block-border-width" min="0" max="5" value="1" />
                 </div>
                 <div class="field" style="margin-top: 10px;">
-                  <label for="address-block-font">Fonte do EndereÃ§o</label>
+                  <label for="address-block-font">Fonte do Endereço</label>
                   <select id="address-block-font" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #E2E8F0;">
                     <option value="Inter, sans-serif">Inter</option>
                     <option value="Arial, sans-serif">Arial</option>
@@ -2895,24 +2895,24 @@
               <input type="checkbox" id="profileVerified" style="width:18px; height:18px; accent-color:#6366f1;" />
               Selo de verificado
             </label>
-            <span style="font-size:12px; color:#94a3b8; margin-top:4px; display:block;">Exibe um selo de verificaÃ§Ã£o ao lado do nome no perfil pÃºblico.</span>
+            <span style="font-size:12px; color:#94a3b8; margin-top:4px; display:block;">Exibe um selo de verificação ao lado do nome no perfil público.</span>
           </div>
         </section>
 
-        <!-- ================= Estilo Global dos BotÃµes ================= -->
+        <!-- ================= Estilo Global dos Botões ================= -->
         <section class="section">
-          <h2 class="section__title">Estilo Global dos BotÃµes</h2>
+          <h2 class="section__title">Estilo Global dos Botões</h2>
 
           <div class="row-2">
             <div class="field color-field">
-              <label for="global-btn-bg">Cor de Fundo dos BotÃµes</label>
+              <label for="global-btn-bg">Cor de Fundo dos Botões</label>
               <div class="color-field__control">
                 <input type="color" id="global-btn-bg" value="#ffffff" />
                 <span id="global-btn-bgHex">#ffffff</span>
               </div>
             </div>
             <div class="field color-field">
-              <label for="global-btn-text">Cor do Texto/Ãcone dos BotÃµes</label>
+              <label for="global-btn-text">Cor do Texto/Ícone dos Botões</label>
               <div class="color-field__control">
                 <input type="color" id="global-btn-text" value="#0f172a" />
                 <span id="global-btn-textHex">#0f172a</span>
@@ -2922,7 +2922,7 @@
 
           <div class="row-2">
             <div class="field">
-              <label for="global-btn-radius">Formato dos BotÃµes</label>
+              <label for="global-btn-radius">Formato dos Botões</label>
               <select id="global-btn-radius">
                 <option value="quadrado">Quadrado</option>
                 <option value="arredondado" selected>Arredondado</option>
@@ -2934,7 +2934,7 @@
                 <select id="global-btn-border">
                   <option value="sem-borda">Sem Borda</option>
                   <option value="borda-fina" selected>Borda Fina</option>
-                  <option value="borda-media">Borda MÃ©dia</option>
+                  <option value="borda-media">Borda Média</option>
                   <option value="borda-grossa">Borda Grossa</option>
                   <option value="outline">Outline Transparente</option>
                   <option value="vidro">Vidro</option>
@@ -2971,13 +2971,13 @@
           </div>
         </section>
 
-        <!-- ================= ConteÃºdo ================= -->
+        <!-- ================= Conteúdo ================= -->
         <section class="section">
-          <h2 class="section__title">ConteÃºdo</h2>
+          <h2 class="section__title">Conteúdo</h2>
 
           <div class="row-2">
             <div class="field">
-              <label for="info-layout">Bloco de InformaÃ§Ãµes</label>
+              <label for="info-layout">Bloco de Informações</label>
               <select id="info-layout">
                 <option value="exibir" selected>Exibir</option>
                 <option value="ocultar">Ocultar</option>
@@ -2986,7 +2986,7 @@
           </div>
 
           <div class="field">
-            <label>Ordem de ExibiÃ§Ã£o</label>
+            <label>Ordem de Exibição</label>
             <div class="drag-container" id="blocks-drag-container">
               <div class="drag-item" data-block="perfil">
                 <div class="drag-handle" title="Arraste para reordenar" aria-label="Arraste para reordenar">
@@ -2998,7 +2998,7 @@
                 <div class="drag-handle" title="Arraste para reordenar" aria-label="Arraste para reordenar">
                   <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="9" cy="5" r="1.7"/><circle cx="15" cy="5" r="1.7"/><circle cx="9" cy="12" r="1.7"/><circle cx="15" cy="12" r="1.7"/><circle cx="9" cy="19" r="1.7"/><circle cx="15" cy="19" r="1.7"/></svg>
                 </div>
-                <span class="drag-text">AÃ§Ãµes RÃ¡pidas</span>
+                <span class="drag-text">Ações Rápidas</span>
               </div>
               <div class="drag-item" data-block="lista-links">
                 <div class="drag-handle" title="Arraste para reordenar" aria-label="Arraste para reordenar">
@@ -3007,15 +3007,15 @@
                 <span class="drag-text">Lista de Links</span>
               </div>
             </div>
-            <p class="panel__hint">Arraste os blocos para definir a posiÃ§Ã£o (de cima para baixo).</p>
+            <p class="panel__hint">Arraste os blocos para definir a posição (de cima para baixo).</p>
           </div>
 
           <div class="field">
-            <label for="quick-layout">AÃ§Ãµes RÃ¡pidas</label>
+            <label for="quick-layout">Ações Rápidas</label>
             <select id="quick-layout">
               <option value="grid2x2">Grid 2x2</option>
               <option value="list" selected>Lista Vertical (Empilhado)</option>
-              <option value="scroll">Linha Horizontal RolÃ¡vel</option>
+              <option value="scroll">Linha Horizontal Rolável</option>
               <option value="hidden">Ocultar</option>
             </select>
           </div>
@@ -3031,17 +3031,17 @@
           </div>
 
           <p class="panel__hint">
-            Os <strong>BotÃµes RÃ¡pidos</strong> e a <strong>Lista de Links</strong> sÃ£o ilimitados
-            e se combinam livremente no preview. Cada botÃ£o adicionado vira um link na pÃ¡gina pÃºblica.
+            Os <strong>Botões Rápidos</strong> e a <strong>Lista de Links</strong> são ilimitados
+            e se combinam livremente no preview. Cada botão adicionado vira um link na página pública.
           </p>
 
           <div id="quick-actions-management"></div>
 
-          <button type="button" id="btn-add-quick-action" class="btn-secondary-action">âž• Adicionar AÃ§Ã£o RÃ¡pida</button>
+          <button type="button" id="btn-add-quick-action" class="btn-secondary-action">➕ Adicionar Ação Rápida</button>
 
           <div id="links-management-container"></div>
 
-          <button type="button" id="btn-add-new-link" class="btn-premium-action">âž• Adicionar Novo Link</button>
+          <button type="button" id="btn-add-new-link" class="btn-premium-action">➕ Adicionar Novo Link</button>
         </section>
 
         <!-- ================= Motor de Estilos ================= -->
@@ -3073,14 +3073,14 @@
             <div class="adv-group">
               <p class="adv-subtitle adv-subtitle--sm">Estilo do Banner</p>
               <p class="panel__hint">
-                Controles prÃ³prios da capa do topo â€” nunca afetam o fundo da pÃ¡gina.
+                Controles próprios da capa do topo — nunca afetam o fundo da página.
               </p>
 
               <div class="field">
                 <label for="ds-banner-bgtype">Tipo de Fundo</label>
                 <select id="ds-banner-bgtype">
-                  <option value="solid">Cor sÃ³lida</option>
-                  <option value="gradient" selected>Gradiente prÃ³prio</option>
+                  <option value="solid">Cor sólida</option>
+                  <option value="gradient" selected>Gradiente próprio</option>
                   <option value="image">Imagem</option>
                 </select>
               </div>
@@ -3098,13 +3098,13 @@
               <div id="ds-banner-grad-wrap">
                 <div class="adv-row">
                   <div class="slider-field">
-                    <div class="slider-field__head"><label for="ds-banner-angle">Ã‚ngulo</label><output id="ds-banner-angle-out">135Â°</output></div>
+                    <div class="slider-field__head"><label for="ds-banner-angle">Ângulo</label><output id="ds-banner-angle-out">135°</output></div>
                     <input type="range" id="ds-banner-angle" min="0" max="360" value="135" />
                   </div>
                 </div>
 
                 <div class="grad-stops" id="ds-banner-grad-stops"></div>
-                <button type="button" class="grad-add" id="ds-banner-grad-add">âž• Adicionar cor</button>
+                <button type="button" class="grad-add" id="ds-banner-grad-add">➕ Adicionar cor</button>
               </div>
 
               <div id="ds-banner-img-wrap" hidden>
@@ -3124,7 +3124,7 @@
               <p class="adv-subtitle adv-subtitle--sm">Camada de legibilidade</p>
               <div class="adv-row">
                 <div class="field">
-                  <label for="ds-banner-scrim">SobreposiÃ§Ã£o</label>
+                  <label for="ds-banner-scrim">Sobreposição</label>
                   <select id="ds-banner-scrim">
                     <option value="none" selected>Nenhuma</option>
                     <option value="dark">Escura</option>
@@ -3142,7 +3142,7 @@
               <div class="form-group-glass">
                 <label class="adv-check">
                   <input type="checkbox" id="ds-banner-glass" />
-                  <span>ðŸ§Š Vidro no banner (backdrop blur)</span>
+                  <span>🧊 Vidro no banner (backdrop blur)</span>
                 </label>
                 <div class="blur-control-wrapper">
                   <div class="blur-control-header">
@@ -3164,7 +3164,7 @@
           <div class="adv-body" id="ds-profile-body" hidden>
 
             <div class="adv-group">
-              <p class="adv-subtitle adv-subtitle--sm">PosiÃ§Ã£o</p>
+              <p class="adv-subtitle adv-subtitle--sm">Posição</p>
               <div class="posicao-controls-grid">
                 <div class="property-control-item">
                   <div class="property-control-header">
@@ -3211,7 +3211,7 @@
                 <div class="field">
                   <label for="ds-avatar-border-style">Estilo</label>
                   <select id="ds-avatar-border-style">
-                    <option value="solid" selected>SÃ³lida</option>
+                    <option value="solid" selected>Sólida</option>
                     <option value="double">Dupla</option>
                     <option value="groove">Groove</option>
                     <option value="ridge">Ridge</option>
@@ -3235,7 +3235,7 @@
             <div class="adv-group">
               <label class="adv-check">
                 <input type="checkbox" id="ds-avatar-shadow" checked />
-                <span>Sombra (anel metÃ¡lico + queda)</span>
+                <span>Sombra (anel metálico + queda)</span>
               </label>
               <div class="ds-grid-2">
                 <div class="slider-field">
@@ -3271,7 +3271,7 @@
             <div class="adv-group">
               <label class="adv-check">
                 <input type="checkbox" id="ds-avatar-glass" />
-                <span>ðŸ§Š Vidro no avatar</span>
+                <span>🧊 Vidro no avatar</span>
               </label>
               <div class="slider-field">
                 <div class="slider-field__head"><label for="ds-avatar-glass-blur">Desfoque</label><output id="ds-avatar-glass-blur-out">14px</output></div>
@@ -3284,17 +3284,17 @@
 
         <button class="btn btn--block btn--ghost" type="button" id="exportBtn">Baixar config.js</button>
         <p class="panel__hint">
-          Salvar aplica na pÃ¡gina pÃºblica (mesmo navegador) e registra no <code>console.log</code>.
-          "Baixar config.js" gera o arquivo de configuraÃ§Ã£o para deploy/permanÃªncia.
+          Salvar aplica na página pública (mesmo navegador) e registra no <code>console.log</code>.
+          "Baixar config.js" gera o arquivo de configuração para deploy/permanência.
         </p>
       </form>
     </aside>
 
     <!-- ================================================================
-         COLUNA DIREITA â€” PREVIEW EM TEMPO REAL
+         COLUNA DIREITA — PREVIEW EM TEMPO REAL
          ================================================================ -->
     <section class="preview-zone">
-      <div class="phone-mockup" aria-label="PrÃ©-visualizaÃ§Ã£o em dispositivo mÃ³vel">
+      <div class="phone-mockup" aria-label="Pré-visualização em dispositivo móvel">
         <span class="phone-notch" aria-hidden="true"></span>
         <div class="phone-screen" id="preview-mobile-container">
           <div class="preview" id="preview">
@@ -3319,7 +3319,7 @@
                     </span>
                   </h1>
                 </div>
-                <p class="pv-subtitle" id="preview-profile-bio" data-bind="profileBio" data-default="Biografia curta, serviÃ§os ou tags.">Biografia curta, serviÃ§os ou tags.</p>
+                <p class="pv-subtitle" id="preview-profile-bio" data-bind="profileBio" data-default="Biografia curta, serviços ou tags.">Biografia curta, serviços ou tags.</p>
                 <a class="pv-address" id="preview-profile-address" href="https://www.google.com/maps" target="_blank" rel="noopener">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
@@ -3347,11 +3347,11 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <polyline points="20 6 9 17 4 12" />
       </svg>
-      <span>Salvar AlteraÃ§Ãµes</span>
+      <span>Salvar Alterações</span>
     </button>
   </div>
 
-  <!-- Aviso de conexÃ£o perdida -->
+  <!-- Aviso de conexão perdida -->
   <div class="offline-pill" id="offlinePill" hidden>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <path d="M1 1l22 22" />
@@ -3362,14 +3362,14 @@
       <path d="M8.53 16.11a6 6 0 0 1 6.95 0" />
       <line x1="12" x2="12.01" y1="20" y2="20" />
     </svg>
-    <span>VocÃª estÃ¡ offline</span>
+    <span>Você está offline</span>
   </div>
 
   <div class="toast" id="toast">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <polyline points="20 6 9 17 4 12" />
     </svg>
-    <span>AlteraÃ§Ãµes salvas!</span>
+    <span>Alterações salvas!</span>
   </div>
 
   <div class="crop-modal" id="cropModal" hidden>
@@ -3418,7 +3418,7 @@
       },
 
       /** Busca o registro Client existente pelo objectId.
-          NecessÃ¡rio ANTES de save() parcial â€” sem o fetch, o Parse SDK
+          Necessário ANTES de save() parcial — sem o fetch, o Parse SDK
           envia PUT (replace total) em vez de PATCH, apagando owner/slug. */
       async _fetchClient(objectId) {
         const Client = Parse.Object.extend('Client');
@@ -3450,19 +3450,19 @@
       },
 
       async loadOrCreateClient() {
-        /* Usa currentAsync() para validar a sessÃ£o NO SERVIDOR.
-           Parse.User.current() Ã© sÃ­ncrono â€” retorna do localStorage
+        /* Usa currentAsync() para validar a sessão NO SERVIDOR.
+           Parse.User.current() é síncrono — retorna do localStorage
            mesmo com token expirado, causando erro 119 no query. */
         let currentUser = null;
         try {
           currentUser = await Parse.User.currentAsync();
         } catch (sessionErr) {
-          console.warn('[Axiumlink] SessÃ£o expirada ou invÃ¡lida:', sessionErr.message);
+          console.warn('[Axiumlink] Sessão expirada ou inválida:', sessionErr.message);
           try { await Parse.User.logOut(); } catch (_) {}
           return null;
         }
         if (!currentUser) {
-          console.warn('[Axiumlink] Nenhum usuÃ¡rio logado para carregar o cliente.');
+          console.warn('[Axiumlink] Nenhum usuário logado para carregar o cliente.');
           return null;
         }
         this.currentUser = currentUser;
@@ -3495,33 +3495,33 @@
           console.error("[Axiumlink] Falha ao carregar/criar cliente (code " + code + "):", msg);
           if (err instanceof TypeError && msg.includes('Failed to fetch')) {
             console.error(
-              "[Axiumlink] Rede indisponÃ­vel ou CORS bloqueado.\n" +
-              "Verifique: 1) ConexÃ£o com a internet\n" +
-              "           2) parseapi.back4app.com nÃ£o estÃ¡ bloqueado\n" +
-              "           3) App ID / JS Key estÃ£o corretos no Back4App"
+              "[Axiumlink] Rede indisponível ou CORS bloqueado.\n" +
+              "Verifique: 1) Conexão com a internet\n" +
+              "           2) parseapi.back4app.com não está bloqueado\n" +
+              "           3) App ID / JS Key estão corretos no Back4App"
             );
           } else if (code === 119 || msg.includes("Permission")) {
             console.error(
-              "[Axiumlink] CLP da classe 'Client' bloqueia 'Find' para usuÃ¡rios autenticados.\n" +
-              "No Back4App Dashboard â†’ Database â†’ Client â†’ Class Permissions:\n" +
-              "  â€¢ Find  â†’ marque 'Authenticated' (ou 'Public' se a pÃ¡gina pÃºblica precisar)\n" +
-              "  â€¢ Create â†’ marque 'Authenticated'\n" +
-              "  â€¢ Update â†’ marque 'Authenticated'"
+              "[Axiumlink] CLP da classe 'Client' bloqueia 'Find' para usuários autenticados.\n" +
+              "No Back4App Dashboard → Database → Client → Class Permissions:\n" +
+              "  • Find  → marque 'Authenticated' (ou 'Public' se a página pública precisar)\n" +
+              "  • Create → marque 'Authenticated'\n" +
+              "  • Update → marque 'Authenticated'"
             );
           } else if (code === 101) {
             console.error(
-              "[Axiumlink] Classe 'Client' nÃ£o existe no Back4App.\n" +
-              "No Back4App Dashboard â†’ Database â†’ '+ Add Class' â†’ nome: 'Client'"
+              "[Axiumlink] Classe 'Client' não existe no Back4App.\n" +
+              "No Back4App Dashboard → Database → '+ Add Class' → nome: 'Client'"
             );
           } else if (code === 103) {
             console.error(
-              "[Axiumlink] Campo 'owner' nÃ£o existe na classe 'Client'.\n" +
-              "No Back4App Dashboard â†’ Database â†’ Client â†’ '+ Add Column' â†’ nome: 'owner', tipo: 'Pointer', targetClass: '_User'"
+              "[Axiumlink] Campo 'owner' não existe na classe 'Client'.\n" +
+              "No Back4App Dashboard → Database → Client → '+ Add Column' → nome: 'owner', tipo: 'Pointer', targetClass: '_User'"
             );
           } else if (code === 209 || msg.includes('session')) {
             console.error(
-              "[Axiumlink] SessÃ£o do usuÃ¡rio expirou no servidor.\n" +
-              "FaÃ§a login novamente."
+              "[Axiumlink] Sessão do usuário expirou no servidor.\n" +
+              "Faça login novamente."
             );
           }
           return null;
@@ -3530,20 +3530,20 @@
 
       async saveClientConfig(payload) {
         if (!this.currentClient) {
-          throw new Error('Nenhum cliente carregado. Verifique a conexÃ£o com a nuvem.');
+          throw new Error('Nenhum cliente carregado. Verifique a conexão com a nuvem.');
         }
         const jsonStr = JSON.stringify(payload);
         const sizeKB = new Blob([jsonStr]).size / 1024;
         if (sizeKB > 500) {
-          throw new Error('ConfiguraÃ§Ã£o muito grande (' + Math.round(sizeKB) + 'KB). MÃ¡ximo permitido: 500KB. Reduza o tamanho das imagens.');
+          throw new Error('Configuração muito grande (' + Math.round(sizeKB) + 'KB). Máximo permitido: 500KB. Reduza o tamanho das imagens.');
         }
-        /* Fetch ANTES de save â€” garante que PUT inclui owner/slug existentes.
+        /* Fetch ANTES de save — garante que PUT inclui owner/slug existentes.
            Sem fetch, _freshClient cria obj-only-id e PUT apaga owner + slug. */
         let clientToSave;
         try {
           clientToSave = await this._fetchClient(this.currentClient.id);
         } catch (fetchErr) {
-          console.warn('[Axiumlink] Fetch falhou, criando referÃªncia direta:', fetchErr.message);
+          console.warn('[Axiumlink] Fetch falhou, criando referência direta:', fetchErr.message);
           clientToSave = this._freshClient(this.currentClient.id);
         }
         this._setOwnerACL(clientToSave);
@@ -3558,9 +3558,9 @@
         query.notEqualTo('objectId', this.currentClient.id);
         const existing = await query.first();
         if (existing) {
-          throw new Error('Este slug jÃ¡ estÃ¡ em uso. Escolha outro.');
+          throw new Error('Este slug já está em uso. Escolha outro.');
         }
-        /* Fetch ANTES de save â€” sem isso, PUT apaga owner + config. */
+        /* Fetch ANTES de save — sem isso, PUT apaga owner + config. */
         let clientToSave;
         try {
           clientToSave = await this._fetchClient(this.currentClient.id);
@@ -3572,11 +3572,11 @@
           await clientToSave.save({ slug: slug });
           this.currentClient.slug = slug;
         } catch (err) {
-          /* Trata race condition: outro usuÃ¡rio pode ter registrado o slug entre a query e o save.
-             Se o erro for de conflito (anchor O-be), refaz a query para informar o usuÃ¡rio. */
+          /* Trata race condition: outro usuário pode ter registrado o slug entre a query e o save.
+             Se o erro for de conflito (anchor O-be), refaz a query para informar o usuário. */
           if (err.code === 137 || (err.message && err.message.includes('duplicate'))) {
             const retry = await new Parse.Query(Client).equalTo('slug', slug).first();
-            if (retry) throw new Error('Este slug acabou de ser escolhido por outro usuÃ¡rio. Escolha outro.');
+            if (retry) throw new Error('Este slug acabou de ser escolhido por outro usuário. Escolha outro.');
           }
           throw err;
         }
@@ -3600,10 +3600,10 @@
         isSignup = !isSignup;
         submitBtn.textContent = isSignup ? 'Criar conta' : 'Entrar';
         subtitle.textContent = isSignup
-          ? 'Crie sua conta para comeÃ§ar'
+          ? 'Crie sua conta para começar'
           : 'Entre na sua conta para gerenciar seus links';
         toggleBtn.textContent = isSignup
-          ? 'JÃ¡ tenho conta'
+          ? 'Já tenho conta'
           : 'Criar conta gratuita';
         errorEl.textContent = '';
       });
@@ -3642,16 +3642,16 @@
       passEl.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSubmit(); });
       emailEl.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSubmit(); });
 
-      /* Verifica sessÃ£o existente â€” valida NO SERVIDOR, nÃ£o sÃ³ no localStorage.
-         Parse.User.current() Ã© sÃ­ncrono e retorna do cache local mesmo se o
-         token jÃ¡ expirou. Parse.User.currentAsync() valida com o servidor. */
+      /* Verifica sessão existente — valida NO SERVIDOR, não só no localStorage.
+         Parse.User.current() é síncrono e retorna do cache local mesmo se o
+         token já expirou. Parse.User.currentAsync() valida com o servidor. */
       (async function checkSession() {
         let user = null;
         try {
           user = await Parse.User.currentAsync();
         } catch (sessionErr) {
-          /* Rede indisponÃ­vel ou token corrompido â€” limpa sessÃ£o local */
-          console.warn('[Axiumlink] SessÃ£o invÃ¡lida ou rede indisponÃ­vel:', sessionErr.message);
+          /* Rede indisponível ou token corrompido — limpa sessão local */
+          console.warn('[Axiumlink] Sessão inválida ou rede indisponível:', sessionErr.message);
           try { await Parse.User.logOut(); } catch (_) {}
           user = null;
         }
@@ -3667,7 +3667,7 @@
       })();
     })();
 
-    /* Callback chamado apÃ³s auth â€” o resto do adminåˆå§‹åŒ–ä¾èµ–äºŽæ­¤ */
+    /* Callback chamado após auth — o resto da inicialização depende deste bloco */
     let _authReadyResolve;
     const _authReadyPromise = new Promise((r) => { _authReadyResolve = r; });
 
@@ -3711,7 +3711,7 @@
           }
 
           /* Migra dados do localStorage antigo (user-based key) para a nova key (slug-based).
-             Garante que alteraÃ§Ãµes salvas antes da migraÃ§Ã£o nÃ£o sejam perdidas. */
+             Garante que alterações salvas antes da migração não sejam perdidas. */
           try {
             const oldKey = 'axiumlink-preview-v1-' + (ParseApp.currentUser?.id || 'anon');
             const newKey = getStorageKey();
@@ -3724,17 +3724,17 @@
             }
           } catch (e) { /* migration best-effort */ }
         } else {
-          /* loadOrCreateClient retornou null â€” sessÃ£o expirada, CLP, ou rede.
-             Verifica se o Parse estÃ¡ acessÃ­vel para diagnosticar a causa. */
+          /* loadOrCreateClient retornou null — sessão expirada, CLP, ou rede.
+             Verifica se o Parse está acessível para diagnosticar a causa. */
           const isParseReachable = await _checkParseConnection();
           const saveStatus = document.getElementById('saveStatus');
           const slugEditor = document.getElementById('slugEditor');
 
           if (!isParseReachable) {
-            /* Parse inacessÃ­vel â€” rede off ou CORS */
-            console.warn('[Axiumlink] Parse inacessÃ­vel. Editor em modo local.');
+            /* Parse inacessível — rede off ou CORS */
+            console.warn('[Axiumlink] Parse inacessível. Editor em modo local.');
             if (saveStatus) {
-              saveStatus.textContent = 'Sem conexÃ£o com a nuvem â€” dados locais';
+              saveStatus.textContent = 'Sem conexão com a nuvem — dados locais';
               saveStatus.className = 'topbar__status topbar__status--error';
             }
             if (slugEditor) slugEditor.hidden = false;
@@ -3744,11 +3744,11 @@
             if (viewBtn) updatePublicLink(viewBtn, slugInput.value);
             _openSyncChannel();
           } else {
-            /* Parse acessÃ­vel mas loadOrCreateClient falhou â†’ sessÃ£o expirada ou CLP.
-               Mostra overlay de auth para o usuÃ¡rio fazer login novamente. */
-            console.warn('[Axiumlink] SessÃ£o expirada ou permissÃ£o negada. Exibindo login.');
+            /* Parse acessível mas loadOrCreateClient falhou → sessão expirada ou CLP.
+               Mostra overlay de auth para o usuário fazer login novamente. */
+            console.warn('[Axiumlink] Sessão expirada ou permissão negada. Exibindo login.');
             if (saveStatus) {
-              saveStatus.textContent = 'SessÃ£o expirada â€” faÃ§a login novamente';
+              saveStatus.textContent = 'Sessão expirada — faça login novamente';
               saveStatus.className = 'topbar__status topbar__status--error';
             }
             /* Reexibe overlay de auth */
@@ -3759,17 +3759,17 @@
             if (topbar) topbar.hidden = true;
             if (layout) layout.setAttribute('hidden', '');
             const authError = document.getElementById('authError');
-            if (authError) authError.textContent = 'SessÃ£o expirada. FaÃ§a login novamente.';
+            if (authError) authError.textContent = 'Sessão expirada. Faça login novamente.';
           }
         }
       } catch (err) {
         console.warn('Parse connection failed, using local data:', err.message);
         const saveStatus = document.getElementById('saveStatus');
         if (saveStatus) {
-          saveStatus.textContent = 'Sem conexÃ£o com a nuvem â€” dados locais';
+          saveStatus.textContent = 'Sem conexão com a nuvem — dados locais';
           saveStatus.className = 'topbar__status topbar__status--error';
         }
-        /* Fallback: still set public link so "Ver PÃ¡gina" works with local data */
+        /* Fallback: still set public link so "Ver Página" works with local data */
         const slugInput = document.getElementById('clientSlug');
         const viewBtn = document.getElementById('viewPageBtn');
         const slugEditor = document.getElementById('slugEditor');
@@ -3783,7 +3783,7 @@
       _authReadyResolve();
     }
 
-    /** Verifica se o Parse server estÃ¡ acessÃ­vel (ping leve, sem auth). */
+    /** Verifica se o Parse server está acessível (ping leve, sem auth). */
     async function _checkParseConnection() {
       try {
         const Client = Parse.Object.extend('Client');
@@ -3795,9 +3795,9 @@
         ]);
         return true;
       } catch (e) {
-        /* Qualquer erro = Parse inacessÃ­vel ou CLP bloqueia.
+        /* Qualquer erro = Parse inacessível ou CLP bloqueia.
            Se for CORS/rede, o fetch falha com TypeError.
-           Se for CLP, retorna um erro Parse mas o servidor estÃ¡ acessÃ­vel. */
+           Se for CLP, retorna um erro Parse mas o servidor está acessível. */
         return !(e instanceof TypeError);
       }
     }
@@ -3841,7 +3841,7 @@
       return rgbToHex(...a.map((v, i) => Math.round(v + (b[i] - v) * t)));
     }
 
-    /* Texto legÃ­vel sobre um fundo: escuro -> branco | claro -> preto */
+    /* Texto legível sobre um fundo: escuro -> branco | claro -> preto */
     function contrastText(bgHex) {
       const [r, g, b] = hexToRgb(bgHex);
       const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
@@ -3849,7 +3849,7 @@
     }
 
     /* ================================================================
-       REFERÃŠNCIAS
+       REFERÊNCIAS
        ================================================================ */
     const form     = document.getElementById('admin-form');
     const preview  = document.getElementById('preview');
@@ -3857,10 +3857,10 @@
 
     const el = (id) => document.getElementById(id);
 
-    /* Container do celular â€” onde a cor global do texto dos botÃµes Ã© injetada */
+    /* Container do celular — onde a cor global do texto dos botões é injetada */
     const mobileContainer = el('preview-mobile-container');
 
-    /* Mockup do celular â€” usado como base da escala proporcional da sombra */
+    /* Mockup do celular — usado como base da escala proporcional da sombra */
     const phoneMockup = document.querySelector('.phone-mockup');
 
     const avLetter = el('pvAvatarLetter');
@@ -3873,12 +3873,12 @@
     const previewQuickGrid = el('preview-quick-grid');
 
     /* Escopos de dados totalmente independentes:
-       Array 1 â†’ AÃ§Ãµes RÃ¡pidas (grade compacta superior)
-       Array 2 â†’ Lista de Links (cards maiores inferiores) */
+       Array 1 → Ações Rápidas (grade compacta superior)
+       Array 2 → Lista de Links (cards maiores inferiores) */
     let quickActionsData = [];
     let mainLinksData = [];
 
-    /* STORAGE_KEY namespaced por usuÃ¡rio â€” impede que dados de clientes
+    /* STORAGE_KEY namespaced por usuário — impede que dados de clientes
        diferentes se misturem no mesmo browser. */
     function getStorageKey() {
       const slug = ParseApp.currentClient?.slug || 'default';
@@ -3889,10 +3889,10 @@
     let _autoSaveParseTimer = null;
     let _savingInProgress = false;
 
-    /* BroadcastChannel para sync instantÃ¢neo entre abas (admin â†” viewer).
-       Nome do canal Ã© namespaced pelo slug do cliente, para que editores
-       de clientes diferentes no mesmo browser nÃ£o se interfiram.
-       Fallback: se o navegador nÃ£o suporta, usa apenas o storage event. */
+    /* BroadcastChannel para sync instantâneo entre abas (admin ↔ viewer).
+       Nome do canal é namespaced pelo slug do cliente, para que editores
+       de clientes diferentes no mesmo browser não se interfiram.
+       Fallback: se o navegador não suporta, usa apenas o storage event. */
     let _syncChannel = null;
 
     function _openSyncChannel() {
@@ -3906,8 +3906,8 @@
       /* Storage event (cross-tab, funciona na maioria dos browsers) */
       try {
         localStorage.setItem(key, JSON.stringify(payload));
-      } catch (e) { /* images too large â€” silent */ }
-      /* BroadcastChannel (mais confiÃ¡vel em PWAs/mobile, sem remover o item) */
+      } catch (e) { /* images too large — silent */ }
+      /* BroadcastChannel (mais confiável em PWAs/mobile, sem remover o item) */
       if (_syncChannel) {
         try { _syncChannel.postMessage({ key: key, config: payload }); } catch (e) {}
       }
@@ -3917,7 +3917,7 @@
       clearTimeout(_autoSaveTimer);
       _autoSaveTimer = setTimeout(() => {
         try { localStorage.setItem(getStorageKey(), JSON.stringify(buildPayload())); }
-        catch (err) { /* images too large â€” silent */ }
+        catch (err) { /* images too large — silent */ }
       }, 300);
       /* Auto-save na nuvem com debounce maior (2s) */
       clearTimeout(_autoSaveParseTimer);
@@ -3925,16 +3925,16 @@
         try {
           const payload = buildPayload();
           await ParseApp.saveClientConfig(payload);
-          /* Sincroniza com a pÃ¡gina pÃºblica via storage + BroadcastChannel.
-             NÃƒO remove o item do localStorage â€” a remoÃ§Ã£o impedia o viewer
-             de receber o storage event (navegadores coalescem mudanÃ§as
-             rÃ¡pidas na mesma chave). */
+          /* Sincroniza com a página pública via storage + BroadcastChannel.
+             NÃO remove o item do localStorage — a remoção impedia o viewer
+             de receber o storage event (navegadores coalescem mudanças
+             rápidas na mesma chave). */
           notifyViewerTab(payload);
         } catch (err) {
           const el = document.getElementById('saveStatus');
           if (el) {
             if (err.message && err.message.includes('unauthorized')) {
-              el.textContent = 'SessÃ£o expirada. FaÃ§a login novamente.';
+              el.textContent = 'Sessão expirada. Faça login novamente.';
             } else if (err.message && err.message.includes('muito grande')) {
               el.textContent = err.message;
             } else {
@@ -3947,8 +3947,8 @@
     }
 
     /* ================================================================
-       LAYOUT DINÃ‚MICO â€” monta o fluxo do preview
-       Perfil + grade de aÃ§Ãµes rÃ¡pidas (dinÃ¢mica) + lista de links.
+       LAYOUT DINÂMICO — monta o fluxo do preview
+       Perfil + grade de ações rápidas (dinâmica) + lista de links.
        ================================================================ */
     function clampOrder(value, fallback) {
       const n = parseInt(value, 10);
@@ -3956,13 +3956,13 @@
       return Math.min(10, Math.max(1, n));
     }
 
-    /* Ordem de exibiÃ§Ã£o das seÃ§Ãµes: info (Perfil) / quick (AÃ§Ãµes RÃ¡pidas) / links */
+    /* Ordem de exibição das seções: info (Perfil) / quick (Ações Rápidas) / links */
     const sectionOrder = { info: 1, quick: 2, links: 3 };
 
     const sectionBlockMap = { perfil: 'info', 'acoes-rapidas': 'quick', 'lista-links': 'links' };
 
-    /* LÃª a ordem fÃ­sica dos cartÃµes (#blocks-drag-container) e sincroniza
-       seÃ§Ãµes + mockup do celular imediatamente. */
+    /* Lê a ordem física dos cartões (#blocks-drag-container) e sincroniza
+       seções + mockup do celular imediatamente. */
     function atualizarOrdemNoPreview() {
       const list = el('blocks-drag-container');
       if (!list) return;
@@ -3973,7 +3973,7 @@
       renderLayout();
     }
 
-    /* Reordena os cartÃµes na esquerda conforme o sectionOrder salvo/restaurado */
+    /* Reordena os cartões na esquerda conforme o sectionOrder salvo/restaurado */
     function orderRender() {
       const list = el('blocks-drag-container');
       if (!list) return;
@@ -3989,7 +3989,7 @@
       return Object.keys(sectionBlockMap).find((b) => sectionBlockMap[b] === key);
     }
 
-    /* ReordenaÃ§Ã£o por Pointer Events â€” funciona com mouse e toque.
+    /* Reordenação por Pointer Events — funciona com mouse e toque.
        Compartilha o helper getDropTarget usado pelos blocos. */
     (function initSectionDrag() {
       const container = el('blocks-drag-container');
@@ -4031,7 +4031,7 @@
       container.addEventListener('pointercancel', end);
     })();
 
-    /* ReconstrÃ³i o fluxo do preview conforme os controles de layout. */
+    /* Reconstrói o fluxo do preview conforme os controles de layout. */
     function renderLayout() {
       const flow = el('pvFlow');
       const profile = el('pvProfile');
@@ -4060,7 +4060,7 @@
     el('info-layout').addEventListener('change', renderLayout);
 
     /* ================================================================
-       TEXTO (nome, biografia, endereÃ§o, tÃ­tulos e descriÃ§Ãµes)
+       TEXTO (nome, biografia, endereço, títulos e descrições)
        ================================================================ */
     document.querySelectorAll('[data-bind]').forEach((target) => {
       const field = el(target.dataset.bind);
@@ -4072,7 +4072,7 @@
 
       field.addEventListener('input', apply);
 
-      /* Se nÃ£o hÃ¡ foto, o avatar usa a inicial do nome */
+      /* Se não há foto, o avatar usa a inicial do nome */
       if (field.id === 'profileName') {
         field.addEventListener('input', () => {
           if (!avImg.src || avImg.hidden) {
@@ -4082,7 +4082,7 @@
       }
     });
 
-    /* Selo de verificado â€” sincroniza checkbox â†” preview */
+    /* Selo de verificado — sincroniza checkbox ↔ preview */
     const verifiedCheckbox = el('profileVerified');
     const previewVerified  = document.getElementById('preview-profile-verified');
     if (verifiedCheckbox && previewVerified) {
@@ -4092,22 +4092,22 @@
     }
 
         /* ================================================================
-       CORES â€” atualiza as CSS Variables do preview em tempo real
+       CORES — atualiza as CSS Variables do preview em tempo real
        ================================================================ */
     const setVar = (name, value) => preview.style.setProperty(name, value);
 
     const colorFields = {
       'input-bg-page': (v) => {
         setVar('--page-bg', v);
-        /* O fundo do celular deve refletir a cor da pÃ¡gina (e nunca a do
-           banner). Sincroniza a variÃ¡vel tambÃ©m no contÃªiner do mockup. */
+        /* O fundo do celular deve refletir a cor da página (e nunca a do
+           banner). Sincroniza a variável também no contêiner do mockup. */
         if (mobileContainer) mobileContainer.style.setProperty('--page-bg', v);
         refreshBodyText();
       }
     };
 
-    /* Cor de subtÃ­tulo/descriÃ§Ãµes = texto neutro misturado com o fundo.
-       Independe da cor dos botÃµes (o perfil tem as prÃ³prias opÃ§Ãµes). */
+    /* Cor de subtítulo/descrições = texto neutro misturado com o fundo.
+       Independe da cor dos botões (o perfil tem as próprias opções). */
     function refreshBodyText() {
       const pageBg = el('input-bg-page').value;
       setVar('--text-body', mixHex('#000000', pageBg, 0.72));
@@ -4123,10 +4123,10 @@
     });
 
     /* ================================================================
-       ESTILO GLOBAL DOS BOTÃ•ES â€” motor unificado do live preview.
-       Injeta as variÃ¡veis universais na raiz do celular
-       (#preview-mobile-container). AÃ§Ãµes RÃ¡pidas e Lista de Links
-       obedecem estritamente aos mesmos valores, sem exceÃ§Ã£o.
+       ESTILO GLOBAL DOS BOTÕES — motor unificado do live preview.
+       Injeta as variáveis universais na raiz do celular
+       (#preview-mobile-container). Ações Rápidas e Lista de Links
+       obedecem estritamente aos mesmos valores, sem exceção.
        ================================================================ */
     const inputBtnBg     = el('global-btn-bg');
     const inputBtnText   = el('global-btn-text');
@@ -4135,7 +4135,7 @@
     const selectBorder   = el('global-btn-border');
 
     /* Cor do contorno adaptativa: deriva um tom sutil da cor de fundo
-       do botÃ£o (claro sobre fundo escuro / escuro sobre fundo claro). */
+       do botão (claro sobre fundo escuro / escuro sobre fundo claro). */
     function computeBtnBorderColor() {
       const bg = inputBtnBg.value;
       const isDark = contrastText(bg) === '#ffffff';
@@ -4144,7 +4144,7 @@
 
     function atualizarDesignDosBotoes() {
       if (!mobileContainer) {
-        console.warn('[Axiumlink] #preview-mobile-container nao encontrado â€” estilo global dos botoes inativo.');
+        console.warn('[Axiumlink] #preview-mobile-container nao encontrado — estilo global dos botoes inativo.');
         return;
       }
 
@@ -4159,22 +4159,22 @@
       else if (radius === 'totalmente-oval') radiusValue = '50px';
 
       /* 'Outline Transparente': fundo vazado + contorno na cor do texto,
-         garantindo leitura do Ã­cone/rÃ³tulo sobre qualquer fundo (gradiente
-         ou imagem). 'Vidro': fundo translÃºcido + desfoque (frosted glass)
-         com contorno branco-fosco. A transparÃªncia flui pela variÃ¡vel
-         (--btn-bg-universal), entÃ£o o background-color !important do CSS
-         nÃ£o bloqueia o efeito. */
+         garantindo leitura do ícone/rótulo sobre qualquer fundo (gradiente
+         ou imagem). 'Vidro': fundo translúcido + desfoque (frosted glass)
+         com contorno branco-fosco. A transparência flui pela variável
+         (--btn-bg-universal), então o background-color !important do CSS
+         não bloqueia o efeito. */
       const isOutline = border === 'outline';
       const isGlass = border === 'vidro';
 
-      /* Espessuras: Borda Fina 1px / MÃ©dia 2px / Grossa 4px */
+      /* Espessuras: Borda Fina 1px / Média 2px / Grossa 4px */
       const espessura =
         border === 'borda-media' ? '2px'
         : border === 'borda-grossa' ? '4px'
         : '1px';
 
-      /* Cor do contorno: escolhida pelo usuÃ¡rio (picker) ou derivada
-         automaticamente do fundo do botÃ£o quando nÃ£o configurada. */
+      /* Cor do contorno: escolhida pelo usuário (picker) ou derivada
+         automaticamente do fundo do botão quando não configurada. */
       const corContorno = inputBtnBorderColor.value || computeBtnBorderColor();
 
       let borderValue = 'none';
@@ -4194,8 +4194,8 @@
       mobileContainer.style.setProperty('--btn-border-universal', borderValue);
       mobileContainer.style.setProperty('--btn-glass-blur', isGlass ? 'blur(10px) saturate(150%)' : 'none');
 
-      /* MantÃ©m as variÃ¡veis legadas sincronizadas (avatar, Ã­cones internos
-         e a mesma estÃ©tica na pÃ¡gina pÃºblica index.html). */
+      /* Mantém as variáveis legadas sincronizadas (avatar, ícones internos
+         e a mesma estética na página pública index.html). */
       setVar('--btn-quick-bg', bg);
       setVar('--btn-quick-text', text);
       setVar('--card-destaque-bg', bg);
@@ -4203,7 +4203,7 @@
       setVar('--global-radius', radiusValue);
       setVar('--btn-border-color', corContorno);
       } catch (err) {
-        console.error('[Axiumlink] Falha ao aplicar o estilo global dos botÃµes:', err);
+        console.error('[Axiumlink] Falha ao aplicar o estilo global dos botões:', err);
       }
     }
 
@@ -4236,7 +4236,7 @@
     });
 
     /* ================================================================
-       MOTOR DE ESTILOS â€” banner, perfil e avatar (designState)
+       MOTOR DE ESTILOS — banner, perfil e avatar (designState)
        O preview recebe estilos inline calculados a partir do objeto.
        ================================================================ */
     function toRgba(hex, alpha) {
@@ -4245,9 +4245,9 @@
     }
 
     const designState = {
-      /* Fundo geral da pÃ¡gina â€” NUNCA toca no banner. A cor base (visual.pageBg)
+      /* Fundo geral da página — NUNCA toca no banner. A cor base (visual.pageBg)
          e a imagem (visual.bgImage) ficam em `visual`; aqui mora o gradiente
-         da pÃ¡gina, injetado sÃ³ em --bg-page-grad / --bg-page-blend. */
+         da página, injetado só em --bg-page-grad / --bg-page-blend. */
       page: {
         gradientOn: false,
         angle: 180,
@@ -4276,7 +4276,7 @@
         scrimOpacity: 45
       },
       profile: {
-        marginTop: null, /* null = overlap padrÃ£o da foto (CSS calc) */
+        marginTop: null, /* null = overlap padrão da foto (CSS calc) */
         zIndex: 20,
         radius: { tl: 14, tr: 14, br: 14, bl: 14 },
         borderStyle: 'solid',
@@ -4303,7 +4303,7 @@
       }
     };
 
-    /* Calcula a sombra do avatar com escala proporcional Ã  largura atual do
+    /* Calcula a sombra do avatar com escala proporcional à  largura atual do
        mockup (320/360px em telas baixas) para nunca estourar o frame. */
     function avatarShadowValues() {
       const p = designState.profile;
@@ -4318,18 +4318,18 @@
       };
     }
 
-    /* ConstrÃ³i a string linear-gradient(...) a partir de pontos de cor.
-       FunÃ§Ã£o pura: recebe os stops + Ã¢ngulo de QUEM chama (pÃ¡gina ou
-       banner) â€” nunca lÃª um estado compartilhado. */
+    /* Constrói a string linear-gradient(...) a partir de pontos de cor.
+       Função pura: recebe os stops + ângulo de QUEM chama (página ou
+       banner) — nunca lê um estado compartilhado. */
     function gradientCSS(stops, angle) {
       return 'linear-gradient(' + angle + 'deg, '
         + stops.map((s) => toRgba(s.color, s.alpha) + ' ' + s.pos + '%').join(', ') + ')';
     }
 
     /* ================================================================
-       GRADIENTE DE FUNDO ISOLADO â€” injeta a string calculada SOMENTE na
-       variÃ¡vel --bg-page-grad do celular (#preview-mobile-container).
-       Nenhum condicional toca no banner: o bloco do topo tem o prÃ³prio
+       GRADIENTE DE FUNDO ISOLADO — injeta a string calculada SOMENTE na
+       variável --bg-page-grad do celular (#preview-mobile-container).
+       Nenhum condicional toca no banner: o bloco do topo tem o próprio
        ecossistema (--bg-banner-main), calculado em computarFundoBanner().
        ================================================================ */
     function renderizarGradienteDeFundoIsolado() {
@@ -4353,11 +4353,11 @@
       return uploads.bgImage;
     }
 
-    /* Fundo da pÃ¡gina completo (base + gradiente + imagem), montado no
-       #preview-mobile-container via variÃ¡veis dedicadas:
+    /* Fundo da página completo (base + gradiente + imagem), montado no
+       #preview-mobile-container via variáveis dedicadas:
        --bg-page-main (cor base, herda --page-bg), --bg-page-grad (camada
-       de gradiente, na frente) e --bg-page-img (imagem, atrÃ¡s). Nada disso
-       alcanÃ§a o banner â€” o isolamento Ã© total. */
+       de gradiente, na frente) e --bg-page-img (imagem, atrás). Nada disso
+       alcança o banner — o isolamento é total. */
     function renderizarFundoUnificado() {
       const containerCelular = el('preview-mobile-container');
       if (!containerCelular) return;
@@ -4384,7 +4384,7 @@
         +     '<div class="slider-field__head"><label>Opac</label><output class="gs-alpha-out">' + s.alpha + '%</output></div>'
         +     '<input type="range" class="gs-alpha" min="0" max="100" value="' + s.alpha + '" data-i="' + i + '" />'
         +   '</div>'
-        +   '<button type="button" class="grad-stop__remove" data-i="' + i + '" title="Remover cor" aria-label="Remover cor">Ã—</button>'
+        +   '<button type="button" class="grad-stop__remove" data-i="' + i + '" title="Remover cor" aria-label="Remover cor">×</button>'
         + '</div>';
     }
 
@@ -4412,10 +4412,10 @@
       const p = designState.profile;
       const set = (id, txt) => { const o = el(id); if (o) o.textContent = txt; };
       set('ds-banner-height-out', b.height + 'px');
-      set('ds-banner-angle-out', b.angle + 'Â°');
+      set('ds-banner-angle-out', b.angle + '°');
       set('ds-banner-glass-blur-out', b.glassBlur + 'px');
       set('ds-banner-scrim-opacity-out', b.scrimOpacity + '%');
-      set('ds-page-angle-out', g.angle + 'Â°');
+      set('ds-page-angle-out', g.angle + '°');
       set('ds-avatar-margin-out', (p.marginTop == null ? -32 : p.marginTop) + 'px');
       set('ds-avatar-z-out', String(p.zIndex));
       DS_SLIDERS.forEach((id) => updateRangeFill(el(id)));
@@ -4434,8 +4434,8 @@
     }
 
     /* ================================================================
-       BORDA + SOMBRA DO AVATAR â€” estilos independentes e coexistentes.
-       A borda (estilo/espessura/cor do painel de cima) Ã© SEMPRE aplicada
+       BORDA + SOMBRA DO AVATAR — estilos independentes e coexistentes.
+       A borda (estilo/espessura/cor do painel de cima) é SEMPRE aplicada
        na div .pv-avatar, e a sombra (anel + queda) vive no card de vidro
        via box-shadow. Nenhuma propriedade zera a outra: antigamente a
        sombra ativa limpava a borda configurada por completo.
@@ -4446,7 +4446,7 @@
       const glassCard = el('pvAvatarCard');
       if (!avatar || !glassCard) return;
 
-      /* 1. BORDA â€” sempre ativa conforme os inputs do painel */
+      /* 1. BORDA — sempre ativa conforme os inputs do painel */
       const estilo = p.borderStyle || 'none';
       const espessura = +p.borderWidth || 0;
       const cor = p.borderColor || 'transparent';
@@ -4456,7 +4456,7 @@
           : espessura + 'px ' + estilo + ' ' + cor;
       avatar.style.outline = 'none';
 
-      /* 2. SOMBRA â€” condicional, aplicada no card (sem tocar na borda).
+      /* 2. SOMBRA — condicional, aplicada no card (sem tocar na borda).
          Valores escalados para o mockup + cor com opacidade (alpha). */
       if (p.shadowOn) {
         const s = avatarShadowValues();
@@ -4476,20 +4476,20 @@
       }
     }
 
-    /* Calcula a string de fundo do BANNER (--bg-banner-main) â€” isolada da
-       pÃ¡gina. Prioridade: vidro > tipo escolhido (cor sÃ³lida, gradiente
-       prÃ³prio ou imagem). Nunca lÃª designState.page. */
+    /* Calcula a string de fundo do BANNER (--bg-banner-main) — isolada da
+       página. Prioridade: vidro > tipo escolhido (cor sólida, gradiente
+       próprio ou imagem). Nunca lê designState.page. */
     function computarFundoBanner(b) {
       const fallback = 'linear-gradient(135deg, #0f172a 0%, #334155 55%, #64748b 100%)';
       if (!b) return fallback;
 
-      /* ðŸ§Š Vidro ativo: fundo RGBA branco-fosco translÃºcido â€” obrigatÃ³rio
-         para o backdrop-filter ficar visÃ­vel (hex opaco esconderia o blur). */
+      /* 🧊 Vidro ativo: fundo RGBA branco-fosco translúcido — obrigatório
+         para o backdrop-filter ficar visível (hex opaco esconderia o blur). */
       if (b.glass) return 'rgba(255, 255, 255, 0.2)';
 
       if (b.bgType === 'solid') return b.color || '#1e293b';
 
-      /* SÃ³ a url: o .pv-banner jÃ¡ anexa "center / cover no-repeat" ao
+      /* Só a url: o .pv-banner já anexa "center / cover no-repeat" ao
          var(--bg-banner-main) no shorthand de background. */
       if (b.bgType === 'image' && b.image) return "url('" + b.image + "')";
 
@@ -4498,27 +4498,27 @@
       return b.color || '#1e293b';
     }
 
-    /* ðŸ§Š Vidro no banner (backdrop blur) â€” atualizaÃ§Ã£o reativa.
-       Sincroniza o banner do mockup com a checkbox de ativaÃ§Ã£o e o slider
-       de desfoque: atualiza o indicador numÃ©rico ("18px"), injeta o blur
-       via variÃ¡vel CSS + inline direto (defesa contra cache de CSS). O
-       fundo RGBA translÃºcido do vidro Ã© garantido por computarFundoBanner()
-       â€” sem um fundo translÃºcido o backdrop-filter roda mas fica escondido
-       atrÃ¡s do hex opaco. */
+    /* 🧊 Vidro no banner (backdrop blur) — atualização reativa.
+       Sincroniza o banner do mockup com a checkbox de ativação e o slider
+       de desfoque: atualiza o indicador numérico ("18px"), injeta o blur
+       via variável CSS + inline direto (defesa contra cache de CSS). O
+       fundo RGBA translúcido do vidro é garantido por computarFundoBanner()
+       — sem um fundo translúcido o backdrop-filter roda mas fica escondido
+       atrás do hex opaco. */
     function sincronizarEfeitoVidroBanner(banner, b) {
       if (!banner || !b) return;
 
       const vidroAtivo = !!b.glass;
       const valorPx = (vidroAtivo ? (b.glassBlur || 0) : 0) + 'px';
 
-      /* 1. Indicador numÃ©rico na tela esquerda (ex: 36px) */
+      /* 1. Indicador numérico na tela esquerda (ex: 36px) */
       const label = el('ds-banner-glass-blur-out');
       if (label) label.textContent = valorPx;
 
-      /* 2. VariÃ¡vel CSS consumida no .pv-banner */
+      /* 2. Variável CSS consumida no .pv-banner */
       banner.style.setProperty('--banner-blur-amount', valorPx);
 
-      /* 3. Filtro inline direto para aplicaÃ§Ã£o imediata */
+      /* 3. Filtro inline direto para aplicação imediata */
       banner.style.backdropFilter = vidroAtivo ? 'blur(' + valorPx + ')' : 'none';
       banner.style.webkitBackdropFilter = banner.style.backdropFilter;
     }
@@ -4534,14 +4534,14 @@
       if (!banner || !profile || !avatar || !glassCard) return;
 
       /* Visibilidade do banner: classe dedicada (.banner-oculto) que afeta
-         ESTRITAMENTE a div #pvBanner â€” nunca o fundo da pÃ¡gina/celular. */
+         ESTRITAMENTE a div #pvBanner — nunca o fundo da página/celular. */
       banner.classList.toggle('banner-oculto', !b.enabled);
       if (b.enabled) {
         banner.style.height = b.height + 'px';
 
-        /* Fundo prÃ³prio do banner (cor sÃ³lida, gradiente prÃ³prio ou imagem),
-           aplicado SOMENTE na variÃ¡vel --bg-banner-main. Nenhum branch aqui
-           toca no fundo da pÃ¡gina. */
+        /* Fundo próprio do banner (cor sólida, gradiente próprio ou imagem),
+           aplicado SOMENTE na variável --bg-banner-main. Nenhum branch aqui
+           toca no fundo da página. */
         banner.style.setProperty('--bg-banner-main', computarFundoBanner(b));
 
         /* Aplica (ou limpa) o desfoque reativo e o indicador "18px" */
@@ -4556,20 +4556,20 @@
             : 'none';
       }
 
-      /* Fundo da pÃ¡gina (base + gradiente + imagem) montado no
-         #preview-mobile-container via variÃ¡veis prÃ³prias (--bg-page-*).
-         O contÃªiner de conteÃºdo (.preview) fica transparente para revelar
+      /* Fundo da página (base + gradiente + imagem) montado no
+         #preview-mobile-container via variáveis próprias (--bg-page-*).
+         O contêiner de conteúdo (.preview) fica transparente para revelar
          a camada. O banner do topo permanece opaco e isolado. */
       preview.style.background = 'transparent';
       renderizarFundoUnificado();
 
-      /* Overlap da foto sobre o banner â€” vive AQUI (no perfil), nunca no
-         banner: o banner reserva a prÃ³pria altura no fluxo, entÃ£o os
-         blocos abaixo nunca invadem a Ã¡rea do cover.
-         - banner desativado â†’ sem overlap (0).
-         - null (padrÃ£o)      â†’ overlap padrÃ£o (-32 = 0.45 Ã— avatar 72px),
+      /* Overlap da foto sobre o banner — vive AQUI (no perfil), nunca no
+         banner: o banner reserva a própria altura no fluxo, então os
+         blocos abaixo nunca invadem a área do cover.
+         - banner desativado → sem overlap (0).
+         - null (padrão)      → overlap padrão (-32 = 0.45 × avatar 72px),
                                 equivalente ao CSS calc do index.html.
-         - valor definido     â†’ respeita o slider "Sobrepor ao banner". */
+         - valor definido     → respeita o slider "Sobrepor ao banner". */
       const overlapPadraoAvatar = -32;
       profile.style.marginTop = b.enabled
         ? ((p.marginTop == null ? overlapPadraoAvatar : p.marginTop) + 'px')
@@ -4579,7 +4579,7 @@
       const radiusCSS = p.radius.tl + 'px ' + p.radius.tr + 'px ' + p.radius.br + 'px ' + p.radius.bl + 'px';
       avatar.style.borderRadius = radiusCSS;
 
-      /* Vidro: o backdrop-filter vive no container pai (nÃ£o no <img>/fundo sÃ³lido) */
+      /* Vidro: o backdrop-filter vive no container pai (não no <img>/fundo sólido) */
       glassCard.style.borderRadius = radiusCSS;
       if (p.glass) {
         glassCard.style.setProperty('--glass-pad', '6px');
@@ -4593,9 +4593,9 @@
         glassCard.style.setProperty('--glass-blur', '0px');
       }
 
-      /* Borda + sombra do avatar: a borda configurada no painel Ã© SEMPRE
+      /* Borda + sombra do avatar: a borda configurada no painel é SEMPRE
          aplicada na div .pv-avatar e a sombra (anel + queda) vive no card
-         de vidro via box-shadow. As duas coexistem â€” nenhuma limpa a outra. */
+         de vidro via box-shadow. As duas coexistem — nenhuma limpa a outra. */
       atualizarEstilosFinaisAvatar();
 
       /* Estilos de texto do perfil persistidos (cor, tamanho, peso, alinhamento) */
@@ -4618,7 +4618,7 @@
       applyTextCSS('preview-profile-bio', p.text.bio);
       applyTextCSS('preview-profile-address', p.text.address);
 
-      /* Estilos do bloco endereÃ§o */
+      /* Estilos do bloco endereço */
       const addrEl = el('preview-profile-address');
       const addr = p.text.address;
       if (addrEl && addr) {
@@ -4687,7 +4687,7 @@
       sincronizarVisibilidadeBgBanner();
       sincronizarVisibilidadeFundoPagina();
 
-      /* Restaura a estilizaÃ§Ã£o avanÃ§ada de texto do perfil */
+      /* Restaura a estilização avançada de texto do perfil */
       const pre = { name: 'profile-name', bio: 'profile-bio', address: 'profile-address' };
       const weightId = { name: 'profile-name-weight', bio: 'profile-bio-weight', address: 'address-weight' };
       ['name', 'bio', 'address'].forEach((k) => {
@@ -4704,7 +4704,7 @@
         if (out && t.size) out.textContent = t.size + 'px';
       });
 
-      /* Restaura estilos do bloco endereÃ§o */
+      /* Restaura estilos do bloco endereço */
       const addr = p.text.address;
       if (addr) {
         if (addr.blockRadius && el('address-block-radius')) el('address-block-radius').value = addr.blockRadius;
@@ -4727,7 +4727,7 @@
       }
     }
 
-    /* LÃª os controles para o designState */
+    /* Lê os controles para o designState */
     function controlsToDesign() {
       const b = designState.banner;
       const g = designState.page;
@@ -4772,9 +4772,9 @@
         if (Array.isArray(saved.banner.stops) && saved.banner.stops.length >= 2) {
           designState.banner.stops = saved.banner.stops;
         }
-        /* MigraÃ§Ã£o do seletor antigo "Escopo do gradiente": o antigo
-           'page' (Na PÃ¡gina Inteira) vira o fundo prÃ³prio do banner
-           colorido default; o 'banner' (SÃ³ no topo) vira gradiente. */
+        /* Migração do seletor antigo "Escopo do gradiente": o antigo
+           'page' (Na Página Inteira) vira o fundo próprio do banner
+           colorido default; o 'banner' (Só no topo) vira gradiente. */
         if (saved.banner.gradientScope === 'page' && !saved.banner.bgType) {
           designState.banner.bgType = 'gradient';
         }
@@ -4785,11 +4785,11 @@
         if (Array.isArray(saved.page.stops) && saved.page.stops.length >= 2) {
           designState.page.stops = saved.page.stops;
         }
-        /* MigraÃ§Ã£o do gradiente opaco padrÃ£o: versÃµes antigas gravavam os
+        /* Migração do gradiente opaco padrão: versões antigas gravavam os
            dois stops iniciais com 100% de opacidade e mesclagem 'normal',
-           o que cobria por completo a cor/imagem de fundo da pÃ¡gina. Se o
-           gradiente salvo for exatamente o padrÃ£o intocado, reduz a
-           opacidade para virar uma pelÃ­cula translÃºcida â€” a cor e a imagem
+           o que cobria por completo a cor/imagem de fundo da página. Se o
+           gradiente salvo for exatamente o padrão intocado, reduz a
+           opacidade para virar uma película translúcida — a cor e a imagem
            voltam a aparecer por baixo dele. */
         const gPag = designState.page;
         const stopsPadraoOpacos =
@@ -4803,7 +4803,7 @@
       if (saved.profile) {
         const textDefaults = designState.profile.text;
         Object.assign(designState.profile, saved.profile);
-        /* MigraÃ§Ã£o: o antigo default (2) sempre significava "na frente".
+        /* Migração: o antigo default (2) sempre significava "na frente".
            Com a base do banner em 10, converte 2 para o novo default (20). */
         if (designState.profile.zIndex === 2) designState.profile.zIndex = 20;
         if (saved.profile.radius) Object.assign(designState.profile.radius, saved.profile.radius);
@@ -4836,9 +4836,9 @@
       });
     });
 
-    /* Camada (z-index) do avatar â€” handler dedicado do live preview.
+    /* Camada (z-index) do avatar — handler dedicado do live preview.
        O banner tem z-index base 10 (ver CSS .pv-banner): valores abaixo
-       de 10 deixam o avatar ATRÃS do banner; acima de 10, na frente. */
+       de 10 deixam o avatar ATRÁS do banner; acima de 10, na frente. */
     const inputZIndex = el('ds-avatar-z');
     const labelZIndex = el('ds-avatar-z-out');
     const elementoAvatar = el('pvProfile');
@@ -4859,10 +4859,10 @@
     }
 
     /* ================================================================
-       VISIBILIDADE DO BANNER â€” toggle dedicado e isolado (checkbox
-       "Exibir banner superior"). A aÃ§Ã£o alterna a classe .banner-oculto
+       VISIBILIDADE DO BANNER — toggle dedicado e isolado (checkbox
+       "Exibir banner superior"). A ação alterna a classe .banner-oculto
        ESTRITAMENTE na div #pvBanner, sem tocar em nenhum outro elemento
-       nem no fundo da pÃ¡gina/celular.
+       nem no fundo da página/celular.
        ================================================================ */
     const checkboxMostrarBanner = el('ds-banner-enable');
     const divBannerPreview = el('pvBanner');
@@ -4882,9 +4882,9 @@
     }
 
     /* ================================================================
-       ðŸ§Š VIDRO NO BANNER (backdrop blur) â€” checkbox + slider dedicados.
-       A rotina reativa lÃª a checkbox de ativaÃ§Ã£o e o slider de desfoque,
-       sincroniza o designState e forÃ§a a aplicaÃ§Ã£o no mockup do celular
+       🧊 VIDRO NO BANNER (backdrop blur) — checkbox + slider dedicados.
+       A rotina reativa lê a checkbox de ativação e o slider de desfoque,
+       sincroniza o designState e força a aplicação no mockup do celular
        em tempo real (indicador "18px", --banner-blur-amount e o filtro
        inline). Tanto o 'input' (arrastar) quanto o 'change' (soltar) e a
        checkbox disparam o mesmo pipeline idempotente.
@@ -4908,10 +4908,10 @@
     }
 
     /* ================================================================
-       SOMBRA/ANEL DO AVATAR â€” checkbox dedicado e isolado.
+       SOMBRA/ANEL DO AVATAR — checkbox dedicado e isolado.
        Liga/desliga a sombra no card de vidro (box-shadow). A borda do
-       painel NÃƒO Ã© afetada: ela continua aplicada na div .pv-avatar via
-       atualizarEstilosFinaisAvatar â€” os dois estilos coexistem.
+       painel NÃO é afetada: ela continua aplicada na div .pv-avatar via
+       atualizarEstilosFinaisAvatar — os dois estilos coexistem.
        ================================================================ */
     const checkboxSombraAnel = el('ds-avatar-shadow');
 
@@ -4940,8 +4940,8 @@
       applyDesign();
     });
 
-    /* Cores de borda e sombra do avatar â€” atualizaÃ§Ã£o ao vivo no arrastar
-       (input), como o seletor de cor do banner. Antes sÃ³ reagiam no change. */
+    /* Cores de borda e sombra do avatar — atualização ao vivo no arrastar
+       (input), como o seletor de cor do banner. Antes só reagiam no change. */
     ['ds-avatar-border-color', 'ds-avatar-shadow-color'].forEach((id) => {
       const colorInput = el(id);
       if (!colorInput) return;
@@ -4954,9 +4954,9 @@
     });
 
     /* ================================================================
-       EDITORES DE GRADIENTE â€” dois independentes (pÃ¡gina e banner).
-       O listener delegado Ã© compartilhado (target 0 = pÃ¡gina, 1 = banner)
-       para nÃ£o duplicar a lÃ³gica de ediÃ§Ã£o de pontos.
+       EDITORES DE GRADIENTE — dois independentes (página e banner).
+       O listener delegado é compartilhado (target 0 = página, 1 = banner)
+       para não duplicar a lógica de edição de pontos.
        ================================================================ */
     function gradStopsConfig(target) {
       return {
@@ -5008,9 +5008,9 @@
       }
     });
 
-    /* Tipo de fundo do banner (cor sÃ³lida / gradiente / imagem) â€” o
-       'change' do select jÃ¡ cai no catch-all do motor (controlsToDesign +
-       applyDesign); aqui sÃ³ re-sincronizamos a visibilidade dos painÃ©is. */
+    /* Tipo de fundo do banner (cor sólida / gradiente / imagem) — o
+       'change' do select já cai no catch-all do motor (controlsToDesign +
+       applyDesign); aqui só re-sincronizamos a visibilidade dos painéis. */
     const selectBgTypeBanner = el('ds-banner-bgtype');
     if (selectBgTypeBanner) {
       selectBgTypeBanner.addEventListener('change', () => {
@@ -5021,7 +5021,7 @@
       });
     }
 
-    /* Cor sÃ³lida do banner â€” color picker (input = arrastar no seletor). */
+    /* Cor sólida do banner — color picker (input = arrastar no seletor). */
     const colorBanner = el('ds-banner-color');
     if (colorBanner) {
       colorBanner.addEventListener('input', () => {
@@ -5032,7 +5032,7 @@
       });
     }
 
-    /* Ligar/desligar o gradiente da pÃ¡gina â€” checkbox dedicada. */
+    /* Ligar/desligar o gradiente da página — checkbox dedicada. */
     const checkboxGradientePagina = el('ds-page-gradient-on');
     if (checkboxGradientePagina) {
       checkboxGradientePagina.addEventListener('change', () => {
@@ -5042,8 +5042,8 @@
       });
     }
 
-    /* Mesclagem do gradiente da pÃ¡gina â€” select vive fora do #ds-engine,
-       entÃ£o o listener delegado do motor nÃ£o o alcanÃ§a. */
+    /* Mesclagem do gradiente da página — select vive fora do #ds-engine,
+       então o listener delegado do motor não o alcança. */
     const selectMesclaPagina = el('ds-page-blend');
     if (selectMesclaPagina) {
       selectMesclaPagina.addEventListener('change', () => {
@@ -5071,7 +5071,7 @@
       applyDesign();
     });
 
-    /* AcordeÃµes do motor */
+    /* Acordeões do motor */
     function bindToggle(btnId, bodyId) {
       el(btnId).addEventListener('click', () => {
         const body = el(bodyId);
@@ -5084,8 +5084,8 @@
     bindToggle('ds-toggle-profile', 'ds-profile-body');
 
     /* ================================================================
-       ESTILIZAÃ‡ÃƒO AVANÃ‡ADA DE TEXTO DO PERFIL (colapsÃ¡veis + preview)
-       Cada campo (Nome, Biografia, EndereÃ§o) tem controles prÃ³prios de
+       ESTILIZAÇÃO AVANÇADA DE TEXTO DO PERFIL (colapsáveis + preview)
+       Cada campo (Nome, Biografia, Endereço) tem controles próprios de
        cor, tamanho, peso e alinhamento aplicados ao mockup em tempo real.
        ================================================================ */
     document.addEventListener('click', (e) => {
@@ -5183,7 +5183,7 @@
       input?.addEventListener('change', atualizarEstiloBio);
     });
 
-    /* ---- EndereÃ§o ---- */
+    /* ---- Endereço ---- */
     const inputAddressColor = document.getElementById('profile-address-color');
     const inputAddressSize = document.getElementById('profile-address-size');
     const selectAddressWeight = document.getElementById('address-weight');
@@ -5252,7 +5252,7 @@
       input?.addEventListener('change', atualizarEstiloAddress);
     });
 
-    /* Init: controles de cor refletem o tema atual do mockup (nÃ£o persiste) */
+    /* Init: controles de cor refletem o tema atual do mockup (não persiste) */
     [
       ['preview-profile-name', 'profile-name-color'],
       ['preview-profile-bio', 'profile-bio-color'],
@@ -5263,7 +5263,7 @@
       if (target && color && !target.style.color) color.value = toHexColor(getComputedStyle(target).color);
     });
 
-    /* Init: sincroniza rÃ³tulos (hex / tamanho) sem forÃ§ar estilos inline */
+    /* Init: sincroniza rótulos (hex / tamanho) sem forçar estilos inline */
     [
       ['profile-name-color', 'profile-name-colorHex', 'profile-name-size', 'profile-name-size-out'],
       ['profile-bio-color', 'profile-bio-colorHex', 'profile-bio-size', 'profile-bio-size-out'],
@@ -5278,7 +5278,7 @@
     });
 
     /* ================================================================
-       UPLOADS â€” imagem de fundo (dataURL p/ payload)
+       UPLOADS — imagem de fundo (dataURL p/ payload)
        ================================================================ */
     const uploads = { bgImage: null, avatarImage: null };
 
@@ -5295,17 +5295,17 @@
     });
 
     /* ================================================================
-       GERENCIADOR DE AÃ‡Ã•ES RÃPIDAS DINÃ‚MICO â€” botÃµes superiores
-       Cada bloco do formulÃ¡rio gera um botÃ£o no grid do mockup.
+       GERENCIADOR DE AÇÕES RÁPIDAS DINÂMICO — botões superiores
+       Cada bloco do formulário gera um botão no grid do mockup.
        ================================================================ */
     const QUICK_ICON_OPTIONS = [
-      ['mensagem', 'BalÃ£o de Mensagem'],
+      ['mensagem', 'Balão de Mensagem'],
       ['telefone', 'Telefone'],
       ['download', 'Download / Salvar'],
       ['pix', 'Dinheiro / PIX'],
       ['link', 'Link'],
       ['email', 'E-mail'],
-      ['localizacao', 'LocalizaÃ§Ã£o']
+      ['localizacao', 'Localização']
     ];
 
     const QUICK_ICONS = {
@@ -5318,8 +5318,8 @@
       localizacao: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>'
     };
 
-    /* HTML compartilhado da seÃ§Ã£o "CustomizaÃ§Ã£o AvanÃ§ada" de cada bloco.
-       Classes iguais para AÃ§Ãµes RÃ¡pidas e Links (queries escopadas no bloco). */
+    /* HTML compartilhado da seção "Customização Avançada" de cada bloco.
+       Classes iguais para Ações Rápidas e Links (queries escopadas no bloco). */
     function customizeSectionHTML(d) {
       const dd = d || {};
       const width = dd.width || 'auto';
@@ -5328,7 +5328,7 @@
       const hasImage = !!dd.image;
 
       const widthOptions = [
-        ['auto', 'Seguir o Layout da SeÃ§Ã£o'],
+        ['auto', 'Seguir o Layout da Seção'],
         ['full', 'Largura Total (100%)'],
         ['half', 'Metade da Tela (50% - Lado a Lado)'],
         ['compact', 'Compacto (Estilo Grade)']
@@ -5339,17 +5339,17 @@
       const animationOptions = [
         ['none', 'Nenhuma'],
         ['pulse', 'Pulsar Suavemente'],
-        ['shake', 'BalanÃ§ar (Shake)'],
+        ['shake', 'Balançar (Shake)'],
         ['shine', 'Brilho Passante']
       ].map(([value, label]) =>
         '<option value="' + value + '"' + (animation === value ? ' selected' : '') + '>' + label + '</option>'
       ).join('');
 
-      /* Auto-cura de configs salvas pela versÃ£o bugada: o template antigo
-         nÃ£o emitia data-active e o coletor tratava ausente como ativo,
+      /* Auto-cura de configs salvas pela versão bugada: o template antigo
+         não emitia data-active e o coletor tratava ausente como ativo,
          gravando o trio-fingerprint #ffffff/#000000/#000000 como se fosse
-         escolha individual em TODO botÃ£o (impedindo o estilo global de
-         aparecer). Trio exato = nunca foi uma escolha real â†’ descarta. */
+         escolha individual em TODO botão (impedindo o estilo global de
+         aparecer). Trio exato = nunca foi uma escolha real → descarta. */
       let btnBg = dd.btnBg || '';
       let btnColor = dd.btnColor || '';
       const btnRadius = dd.btnRadius || 'global';
@@ -5364,21 +5364,21 @@
       const btnFontWeight = dd.btnFontWeight || 'global';
 
       const radiusOptions = [
-        ['global', 'Usar configuraÃ§Ã£o global'],
+        ['global', 'Usar configuração global'],
         ['none', 'Sem bordas (quadrado)'],
         ['sm', 'Levemente arredondado'],
         ['md', 'Arredondado'],
         ['lg', 'Muito arredondado'],
-        ['full', 'PÃ­lula']
+        ['full', 'Pílula']
       ].map(([value, label]) =>
         '<option value="' + value + '"' + (btnRadius === value ? ' selected' : '') + '>' + label + '</option>'
       ).join('');
 
       const fontSizeOptions = [
-        ['global', 'Usar configuraÃ§Ã£o global'],
+        ['global', 'Usar configuração global'],
         ['xs', 'Muito pequeno'],
         ['sm', 'Pequeno'],
-        ['md', 'MÃ©dio (padrÃ£o)'],
+        ['md', 'Médio (padrão)'],
         ['lg', 'Grande'],
         ['xl', 'Muito grande']
       ].map(([value, label]) =>
@@ -5386,10 +5386,10 @@
       ).join('');
 
       const fontWeightOptions = [
-        ['global', 'Usar configuraÃ§Ã£o global'],
+        ['global', 'Usar configuração global'],
         ['thin', 'Fino (300)'],
         ['normal', 'Normal (400)'],
-        ['medium', 'MÃ©dio (500)'],
+        ['medium', 'Médio (500)'],
         ['bold', 'Negrito (700)']
       ].map(([value, label]) =>
         '<option value="' + value + '"' + (btnFontWeight === value ? ' selected' : '') + '>' + label + '</option>'
@@ -5398,7 +5398,7 @@
       return ''
         + '<button type="button" class="adv-toggle" aria-expanded="false">'
         +   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>'
-        +   '<span>CustomizaÃ§Ã£o AvanÃ§ada</span>'
+        +   '<span>Customização Avançada</span>'
         +   '<svg class="adv-toggle__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>'
         + '</button>'
         + '<div class="adv-body" hidden>'
@@ -5406,52 +5406,52 @@
         +   '<div class="adv-group">'
         +     '<label class="file-btn">'
         +       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>'
-        +       '<span>Enviar imagem / Ã­cone prÃ³prio</span>'
+        +       '<span>Enviar imagem / ícone próprio</span>'
         +       '<input type="file" class="icon-upload" accept="image/*" />'
         +     '</label>'
         +     '<button type="button" class="btn-remove btn-remove--block icon-clear"' + (hasImage ? '' : ' hidden') + '>'
         +       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>'
-        +       '<span>Remover imagem prÃ³pria</span>'
+        +       '<span>Remover imagem própria</span>'
         +     '</button>'
         +   '</div>'
 
         +   '<div class="adv-group">'
-        +     '<label>Estilo do BotÃ£o</label>'
+        +     '<label>Estilo do Botão</label>'
         +     '<select class="link-style">'
-        +       '<option value="icon"' + (style === 'icon' ? ' selected' : '') + '>Ãcone pequeno (padrÃ£o)</option>'
+        +       '<option value="icon"' + (style === 'icon' ? ' selected' : '') + '>Ícone pequeno (padrão)</option>'
         +       '<option value="banner"' + (style === 'banner' ? ' selected' : '') + '>Imagem completa (estilo Beacons)</option>'
         +     '</select>'
-        +     '<p class="panel__hint">"Imagem completa" transforma o botÃ£o inteiro na imagem enviada acima.</p>'
+        +     '<p class="panel__hint">"Imagem completa" transforma o botão inteiro na imagem enviada acima.</p>'
         +   '</div>'
 
         +   '<div class="adv-row">'
         +     '<div class="field">'
-        +       '<label>Largura do BotÃ£o</label>'
+        +       '<label>Largura do Botão</label>'
         +       '<select class="btn-width">' + widthOptions + '</select>'
         +     '</div>'
         +     '<div class="field">'
-        +       '<label>AnimaÃ§Ã£o de Destaque</label>'
+        +       '<label>Animação de Destaque</label>'
         +       '<select class="btn-animation">' + animationOptions + '</select>'
         +     '</div>'
         +   '</div>'
 
         +   '<div class="adv-group adv-visual">'
-        +     '<label class="adv-group__title">Visual Individual do BotÃ£o</label>'
-        +     '<p class="panel__hint">Personalize cores, bordas e tipografia deste botÃ£o. Deixe "global" para usar a configuraÃ§Ã£o da seÃ§Ã£o.</p>'
+        +     '<label class="adv-group__title">Visual Individual do Botão</label>'
+        +     '<p class="panel__hint">Personalize cores, bordas e tipografia deste botão. Deixe "global" para usar a configuração da seção.</p>'
 
         +     '<div class="adv-row">'
         +       '<div class="field">'
         +         '<label>Cor de Fundo</label>'
         +         '<div class="color-swatch-input">'
         +           '<input type="color" class="btn-bg-color" data-active="' + (btnBg ? '1' : '0') + '" value="' + (btnBg || '#ffffff') + '" />'
-        +           '<button type="button" class="btn-color-clear" data-target="btn-bg-color" title="Limpar (usar global)">âœ•</button>'
+        +           '<button type="button" class="btn-color-clear" data-target="btn-bg-color" title="Limpar (usar global)">✕</button>'
         +         '</div>'
         +       '</div>'
         +       '<div class="field">'
-        +         '<label>Cor do Texto / Ãcone</label>'
+        +         '<label>Cor do Texto / Ícone</label>'
         +         '<div class="color-swatch-input">'
         +           '<input type="color" class="btn-text-color" data-active="' + (btnColor ? '1' : '0') + '" value="' + (btnColor || '#000000') + '" />'
-        +           '<button type="button" class="btn-color-clear" data-target="btn-text-color" title="Limpar (usar global)">âœ•</button>'
+        +           '<button type="button" class="btn-color-clear" data-target="btn-text-color" title="Limpar (usar global)">✕</button>'
         +         '</div>'
         +       '</div>'
         +     '</div>'
@@ -5461,16 +5461,16 @@
         +         '<label>Cor da Borda</label>'
         +         '<div class="color-swatch-input">'
         +           '<input type="color" class="btn-border-color" data-active="' + (btnBorderColor ? '1' : '0') + '" value="' + (btnBorderColor || '#000000') + '" />'
-        +           '<button type="button" class="btn-color-clear" data-target="btn-border-color" title="Limpar (usar global)">âœ•</button>'
+        +           '<button type="button" class="btn-color-clear" data-target="btn-border-color" title="Limpar (usar global)">✕</button>'
         +         '</div>'
         +       '</div>'
         +       '<div class="field">'
         +         '<label>Espessura da Borda</label>'
         +         '<select class="btn-border-width">'
-        +           '<option value=""' + (btnBorderWidth === '' ? ' selected' : '') + '>Usar configuraÃ§Ã£o global</option>'
+        +           '<option value=""' + (btnBorderWidth === '' ? ' selected' : '') + '>Usar configuração global</option>'
         +           '<option value="0"' + (btnBorderWidth === '0' ? ' selected' : '') + '>Sem borda</option>'
         +           '<option value="1"' + (btnBorderWidth === '1' ? ' selected' : '') + '>Fina (1px)</option>'
-        +           '<option value="2"' + (btnBorderWidth === '2' ? ' selected' : '') + '>MÃ©dia (2px)</option>'
+        +           '<option value="2"' + (btnBorderWidth === '2' ? ' selected' : '') + '>Média (2px)</option>'
         +           '<option value="3"' + (btnBorderWidth === '3' ? ' selected' : '') + '>Forte (3px)</option>'
         +         '</select>'
         +       '</div>'
@@ -5497,14 +5497,14 @@
         +   '</div>'
 
         + '</div>'
-        + '<button type="button" class="btn-danger-block btn-delete-link btn-delete-action" title="Excluir este botÃ£o">'
+        + '<button type="button" class="btn-danger-block btn-delete-link btn-delete-action" title="Excluir este botão">'
         +   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>'
-        +   '<span>Excluir este botÃ£o</span>'
+        +   '<span>Excluir este botão</span>'
         + '</button>';
     }
 
     /* ================================================================
-       DRAG & DROP â€” reordenaÃ§Ã£o livre dos blocos (AÃ§Ãµes RÃ¡pidas e Links)
+       DRAG & DROP — reordenação livre dos blocos (Ações Rápidas e Links)
        Por Pointer Events: funciona com mouse e toque.
        ================================================================ */
     function getDropTarget(items, y, item) {
@@ -5562,18 +5562,18 @@
     }
 
     /* ================================================================
-       MOTOR DE IDS ÃšNICOS â€” sincronizaÃ§Ã£o cirÃºrgica por data-id
-       Cada bloco recebe um ID exclusivo (timestamp + sufixo aleatÃ³rio).
-       Esse ID amarra o formulÃ¡rio da esquerda ao botÃ£o do celular via
+       MOTOR DE IDS ÚNICOS — sincronização cirúrgica por data-id
+       Cada bloco recebe um ID exclusivo (timestamp + sufixo aleatório).
+       Esse ID amarra o formulário da esquerda ao botão do celular via
        id="preview-btn-<id>", impedindo escrita cruzada entre blocos
-       (escrever na AÃ§Ã£o 2 nunca toca no botÃ£o da AÃ§Ã£o 1).
+       (escrever na Ação 2 nunca toca no botão da Ação 1).
        ================================================================ */
 
     function gerarIdUnico(prefixo) {
       return (prefixo || 'componente') + '_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
     }
 
-    /* LÃª os valores do formulÃ¡rio DESTE bloco apenas. */
+    /* Lê os valores do formulário DESTE bloco apenas. */
     function lerDadosDoBlock(block, tipo) {
       const quick = tipo === 'quick';
       const bgEl = block.querySelector('.btn-bg-color');
@@ -5610,11 +5610,11 @@
       return dados;
     }
 
-    /* ---- BotÃ£o de AÃ§Ã£o RÃ¡pida: monta/atualiza o conteÃºdo completo ---- */
-    /* Define a proporÃ§Ã£o do card de "Imagem completa" a partir da proporÃ§Ã£o
+    /* ---- Botão de Ação Rápida: monta/atualiza o conteúdo completo ---- */
+    /* Define a proporção do card de "Imagem completa" a partir da proporção
        real da imagem carregada, limitada a um intervalo seguro (4:3 retrato
        .. 2:1 paisagem) para impedir que imagens extremas criem blocos
-       gigantes. Sem imagem/erro, mantÃ©m o fallback 16/9 do CSS. */
+       gigantes. Sem imagem/erro, mantém o fallback 16/9 do CSS. */
     function ajustarProporcaoBanner(img, card) {
       const aplicar = () => {
         const nw = img.naturalWidth;
@@ -5631,16 +5631,16 @@
       img.addEventListener('load', aplicar);
     }
 
-    /* Aplica estilos visuais individuais de um botÃ£o (cores, bordas, fonte).
+    /* Aplica estilos visuais individuais de um botão (cores, bordas, fonte).
        Chama-se em montarBotaoAcaoCompleto e montarBotaoLinkCompleto.
 
-       PrecedÃªncia: individual > global > padrÃ£o. A regra CSS do preview
-       consome as variÃ¡veis universais com !important
-       (background-color: var(--btn-bg-universal) !important, etc.), entÃ£o
-       o override individual Ã© feito NO PRÃ“PRIO elemento via custom
-       properties â€” var() resolve primeiro no elemento antes de herdar do
+       Precedência: individual > global > padrão. A regra CSS do preview
+       consome as variáveis universais com !important
+       (background-color: var(--btn-bg-universal) !important, etc.), então
+       o override individual é feito NO PRÓPRIO elemento via custom
+       properties — var() resolve primeiro no elemento antes de herdar do
        container (#preview-mobile-container). Campos limpos removem o
-       override e o botÃ£o volta a herdar o estilo global. */
+       override e o botão volta a herdar o estilo global. */
     function aplicarEstiloIndividual(btn, dados) {
       /* Limpa estilos inline anteriores */
       btn.style.removeProperty('--btn-bg');
@@ -5660,7 +5660,7 @@
       var FONT_WEIGHT_MAP = { thin: '300', normal: '400', medium: '500', bold: '700' };
 
       /* Limpa TODOS os estilos inline individuais antes de reaplicar.
-         Sem isso, valores antigos persistem quando o campo Ã© limpo. */
+         Sem isso, valores antigos persistem quando o campo é limpo. */
       btn.style.background = '';
       btn.style.color = '';
       btn.style.borderColor = '';
@@ -5670,7 +5670,7 @@
       btn.style.fontSize = '';
       btn.style.fontWeight = '';
 
-      /* Overrides por elemento das variÃ¡veis universais do preview:
+      /* Overrides por elemento das variáveis universais do preview:
          presentes = usa o individual; ausentes = herda o global. */
       var setUniversal = function (name, value) {
         if (value) btn.style.setProperty(name, value);
@@ -5749,7 +5749,7 @@
         btn.rel = 'noopener';
       }
 
-      /* Remove o Ã­cone/imagem anterior SEM tocar no rÃ³tulo */
+      /* Remove o ícone/imagem anterior SEM tocar no rótulo */
       btn.querySelectorAll('svg, img').forEach((n) => n.remove());
 
       let rotulo = btn.querySelector('.action-text-span');
@@ -5758,7 +5758,7 @@
         rotulo.className = 'action-text-span';
         btn.appendChild(rotulo);
       }
-      rotulo.textContent = dados.title || 'Nova AÃ§Ã£o';
+      rotulo.textContent = dados.title || 'Nova Ação';
 
       if (dados.image) {
         const img = document.createElement('img');
@@ -5776,7 +5776,7 @@
       return btn;
     }
 
-    /* ---- Card de Link: monta/atualiza o conteÃºdo completo ---- */
+    /* ---- Card de Link: monta/atualiza o conteúdo completo ---- */
     function montarBotaoLinkCompleto(btn, dados) {
       btn.className = 'pv-link';
       btn.style.aspectRatio = '';
@@ -5790,7 +5790,7 @@
       btn.target = '_blank';
       btn.rel = 'noopener';
 
-      /* Remove Ã­cone/imagem anterior, preservando o rÃ³tulo */
+      /* Remove ícone/imagem anterior, preservando o rótulo */
       btn.querySelectorAll('svg, img, .pv-link__icon').forEach((n) => n.remove());
 
       let rotulo = btn.querySelector('.action-text-span');
@@ -5823,7 +5823,7 @@
       return btn;
     }
 
-    /* Atualiza APENAS o botÃ£o que compartilha o ID do bloco. */
+    /* Atualiza APENAS o botão que compartilha o ID do bloco. */
     function atualizarBotaoAcaoPreview(block) {
       const btn = document.getElementById('preview-btn-' + block.dataset.id);
       if (btn) montarBotaoAcaoCompleto(btn, lerDadosDoBlock(block, 'quick'));
@@ -5834,7 +5834,7 @@
       if (btn) montarBotaoLinkCompleto(btn, lerDadosDoBlock(block, 'link'));
     }
 
-    /* Injeta um botÃ£o NOVO (mesmo ID) no preview, na hora da criaÃ§Ã£o. */
+    /* Injeta um botão NOVO (mesmo ID) no preview, na hora da criação. */
     function injetarBotaoNovo(tipo, uid) {
       const arr = tipo === 'quick' ? quickActionsData : mainLinksData;
       const chave = tipo === 'quick' ? 'uid' : 'id';
@@ -5860,8 +5860,8 @@
       atualizarDesignDosBotoes();
     }
 
-    /* Reaplica a ordem dos botÃµes do preview conforme a ordem dos blocos,
-       movendo os nÃ³s existentes (preserva a identidade de cada botÃ£o). */
+    /* Reaplica a ordem dos botões do preview conforme a ordem dos blocos,
+       movendo os nós existentes (preserva a identidade de cada botão). */
     function reaplicarOrdemPreview(tipo) {
       const container = tipo === 'quick' ? previewQuickGrid : previewLinksList;
       const seletor = tipo === 'quick' ? '.quick-action-block' : '.link-block';
@@ -5872,7 +5872,7 @@
       });
     }
 
-    /* Handler Ãºnico para campos de texto/select: atualiza o array E o botÃ£o
+    /* Handler único para campos de texto/select: atualiza o array E o botão
        correspondente, tudo amarrado pelo mesmo ID. */
     function onBlocoEditado(e, tipo) {
       const block = e.target.closest(tipo === 'quick' ? '.quick-action-block' : '.link-block');
@@ -5882,8 +5882,8 @@
       else atualizarBotaoLinkPreview(block);
     }
 
-    /* AtualizaÃ§Ã£o LIGHT ao digitar tÃ­tulo/URL: mexe sÃ³ no rÃ³tulo e no href
-       do botÃ£o do preview, sem reconstruir o Ã­cone/imagem (evita o lag
+    /* Atualização LIGHT ao digitar título/URL: mexe só no rótulo e no href
+       do botão do preview, sem reconstruir o ícone/imagem (evita o lag
        percebido a cada tecla em telas/equipamentos fracos). */
     function atualizarTextoRapidoPreview(e, tipo) {
       const block = e.target.closest(tipo === 'quick' ? '.quick-action-block' : '.link-block');
@@ -5892,7 +5892,7 @@
       const btn = document.getElementById('preview-btn-' + block.dataset.id);
       if (!btn) return;
       const rotulo = btn.querySelector('.action-text-span');
-      if (rotulo) rotulo.textContent = dados.title || (tipo === 'quick' ? 'Nova AÃ§Ã£o' : 'Novo Link');
+      if (rotulo) rotulo.textContent = dados.title || (tipo === 'quick' ? 'Nova Ação' : 'Novo Link');
       btn.href = normalizeHref(dados.url, dados.icon);
       if (dados.url) btn.title = dados.url;
       else btn.removeAttribute('title');
@@ -5912,7 +5912,7 @@
 
       block.innerHTML = ''
         + '<div class="link-block__head">'
-        +   '<h3 class="block__title"><span class="quick-action-block__num">AÃ§Ã£o #0</span> <span class="block__hint">AÃ§Ã£o RÃ¡pida</span></h3>'
+        +   '<h3 class="block__title"><span class="quick-action-block__num">Ação #0</span> <span class="block__hint">Ação Rápida</span></h3>'
         +   '<div class="block__head-controls">'
         +     '<span class="drag-handle" title="Arraste para reordenar" aria-label="Arraste para reordenar">'
         +       '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="9" cy="5" r="1.7"/><circle cx="15" cy="5" r="1.7"/><circle cx="9" cy="12" r="1.7"/><circle cx="15" cy="12" r="1.7"/><circle cx="9" cy="19" r="1.7"/><circle cx="15" cy="19" r="1.7"/></svg>'
@@ -5920,15 +5920,15 @@
         +   '</div>'
         + '</div>'
         + '<div class="field">'
-        +   '<label>Nome do BotÃ£o</label>'
+        +   '<label>Nome do Botão</label>'
         +   '<input type="text" class="quick-title" data-id="' + uid + '" placeholder="Ex: WhatsApp, PIX, Chame Agora" value="' + escapeAttr(d.title) + '" />'
         + '</div>'
         + '<div class="field">'
-        +   '<label>Link / AÃ§Ã£o</label>'
-        +   '<input type="text" class="quick-url" data-id="' + uid + '" placeholder="https://... Â· tel:... Â· mailto:..." value="' + escapeAttr(d.url) + '" />'
+        +   '<label>Link / Ação</label>'
+        +   '<input type="text" class="quick-url" data-id="' + uid + '" placeholder="https://... · tel:... · mailto:..." value="' + escapeAttr(d.url) + '" />'
         + '</div>'
         + '<div class="field">'
-        +   '<label>Ãcone</label>'
+        +   '<label>Ícone</label>'
         +   '<select class="quick-icon" data-id="' + uid + '">' + iconOptions + '</select>'
         + '</div>'
         + customizeSectionHTML(d);
@@ -5940,7 +5940,7 @@
       const blocks = Array.from(quickActionsContainer.querySelectorAll('.quick-action-block'));
       blocks.forEach((b, i) => {
         const num = b.querySelector('.quick-action-block__num');
-        if (num) num.textContent = 'AÃ§Ã£o #' + (i + 1);
+        if (num) num.textContent = 'Ação #' + (i + 1);
       });
     }
 
@@ -5951,8 +5951,8 @@
       autoSaveToStorage();
     }
 
-    /* Sincroniza o Array 1 a partir dos formulÃ¡rios do painel.
-       ÃšNICA fonte que alimenta #preview-quick-grid. */
+    /* Sincroniza o Array 1 a partir dos formulários do painel.
+       ÚNICA fonte que alimenta #preview-quick-grid. */
     function syncQuickActionsData() {
       quickActionsData = Array.from(quickActionsContainer.querySelectorAll('.quick-action-block')).map((block) => {
         const bgEl = block.querySelector('.btn-bg-color');
@@ -5980,8 +5980,8 @@
     }
 
     /* Renderiza a grade compacta superior EXCLUSIVAMENTE a partir do Array 1.
-       Cada botÃ£o recebe id="preview-btn-<uid>" para permitir atualizaÃ§Ãµes
-       cirÃºrgicas por ID (sem reconstruir a grade a cada tecla). */
+       Cada botão recebe id="preview-btn-<uid>" para permitir atualizações
+       cirúrgicas por ID (sem reconstruir a grade a cada tecla). */
     function renderQuickActions() {
       const mode = el('quick-layout').value;
       const actions = quickActionsData;
@@ -6111,7 +6111,7 @@
       }
     });
 
-    /* Migra o formato antigo (objeto fixo de 4 aÃ§Ãµes) para o novo array */
+    /* Migra o formato antigo (objeto fixo de 4 ações) para o novo array */
     function quickActionsFromLegacy(obj) {
       if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return null;
       const map = [
@@ -6138,15 +6138,15 @@
     }
 
     /* ================================================================
-       GERENCIADOR DE LINKS DINÃ‚MICO â€” blocos ilimitados (SaaS)
-       Cada bloco do formulÃ¡rio gera um botÃ£o no mockup em tempo real.
+       GERENCIADOR DE LINKS DINÂMICO — blocos ilimitados (SaaS)
+       Cada bloco do formulário gera um botão no mockup em tempo real.
        ================================================================ */
     const LINK_ICON_OPTIONS = [
       ['whatsapp', 'WhatsApp'],
       ['instagram', 'Instagram'],
       ['site', 'Site / Web'],
       ['telefone', 'Telefone'],
-      ['localizacao', 'LocalizaÃ§Ã£o'],
+      ['localizacao', 'Localização'],
       ['pix', 'PIX'],
       ['email', 'E-mail'],
       ['outro', 'Outro']
@@ -6193,7 +6193,7 @@
 
       block.innerHTML = ''
         + '<div class="link-block__head">'
-        +   '<h3 class="block__title"><span class="link-block__num">Link #0</span> <span class="block__hint">BotÃ£o / Link</span></h3>'
+        +   '<h3 class="block__title"><span class="link-block__num">Link #0</span> <span class="block__hint">Botão / Link</span></h3>'
         +   '<div class="block__head-controls">'
         +     '<span class="drag-handle" title="Arraste para reordenar" aria-label="Arraste para reordenar">'
         +       '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="9" cy="5" r="1.7"/><circle cx="15" cy="5" r="1.7"/><circle cx="9" cy="12" r="1.7"/><circle cx="15" cy="12" r="1.7"/><circle cx="9" cy="19" r="1.7"/><circle cx="15" cy="19" r="1.7"/></svg>'
@@ -6201,15 +6201,15 @@
         +   '</div>'
         + '</div>'
         + '<div class="field">'
-        +   '<label>TÃ­tulo do BotÃ£o</label>'
-        +   '<input type="text" class="link-title" data-id="' + uid + '" placeholder="Ex: Meu CatÃ¡logo" value="' + escapeAttr(d.title) + '" />'
+        +   '<label>Título do Botão</label>'
+        +   '<input type="text" class="link-title" data-id="' + uid + '" placeholder="Ex: Meu Catálogo" value="' + escapeAttr(d.title) + '" />'
         + '</div>'
         + '<div class="field">'
         +   '<label>URL / Link de Destino</label>'
         +   '<input type="url" class="link-url" data-id="' + uid + '" placeholder="https://..." value="' + escapeAttr(d.url) + '" />'
         + '</div>'
         + '<div class="field">'
-        +   '<label>Ãcone</label>'
+        +   '<label>Ícone</label>'
         +   '<select class="link-icon" data-id="' + uid + '">' + iconOptions + '</select>'
         + '</div>'
         + customizeSectionHTML(d);
@@ -6225,8 +6225,8 @@
       });
     }
 
-    /* Modo de exibiÃ§Ã£o da lista no mockup (list | grid2 | carousel | hidden).
-       Remove as classes de modo ANTES de aplicar a atual â€” evita acÃºmulo
+    /* Modo de exibição da lista no mockup (list | grid2 | carousel | hidden).
+       Remove as classes de modo ANTES de aplicar a atual — evita acúmulo
        de classes conflitantes que desalinhavam o layout (ex.: .pv-links--grid
        somada ao .mode-carrossel). */
     function applyLinkListMode() {
@@ -6242,8 +6242,8 @@
       }
     }
 
-    /* Sincroniza o Array 2 a partir dos formulÃ¡rios do painel.
-       ÃšNICA fonte que alimenta #preview-links-list. */
+    /* Sincroniza o Array 2 a partir dos formulários do painel.
+       ÚNICA fonte que alimenta #preview-links-list. */
     function syncLinksData() {
       mainLinksData = Array.from(linksContainer.querySelectorAll('.link-block')).map((block) => {
         const bgEl = block.querySelector('.btn-bg-color');
@@ -6270,9 +6270,9 @@
       return mainLinksData;
     }
 
-    /* Monta o conteÃºdo visual (Ã­cone ou imagem) de um card de link.
-       Prioridade limpa: 1) imagem prÃ³pria do cliente; 2) Ã­cone selecionado
-       no dropdown; 3) Ã­cone padrÃ£o (fallback). O SVG herda a cor do botÃ£o
+    /* Monta o conteúdo visual (ícone ou imagem) de um card de link.
+       Prioridade limpa: 1) imagem própria do cliente; 2) ícone selecionado
+       no dropdown; 3) ícone padrão (fallback). O SVG herda a cor do botão
        via `currentColor` (estilo global unificado). */
     function buildLinkIcon(link) {
       if (link.image) {
@@ -6292,9 +6292,9 @@
       return wrapper;
     }
 
-    /* ReconstrÃ³i a lista de cards maiores EXCLUSIVAMENTE a partir do Array 2.
-       Cada card Ã© criado limpo (sem classes acumuladas) e recebe o
-       id="preview-btn-<id>" para atualizaÃ§Ãµes cirÃºrgicas por ID. */
+    /* Reconstrói a lista de cards maiores EXCLUSIVAMENTE a partir do Array 2.
+       Cada card é criado limpo (sem classes acumuladas) e recebe o
+       id="preview-btn-<id>" para atualizações cirúrgicas por ID. */
     function renderPreviewLinks() {
       previewLinksList.innerHTML = '';
 
@@ -6326,7 +6326,7 @@
     el('btn-add-new-link').addEventListener('click', () => addLinkBlock());
     initBlockDrag(linksContainer, syncLinksAfterReorder);
 
-    /* DelegaÃ§Ã£o de eventos dentro do gerenciador (um listener por aÃ§Ã£o) */
+    /* Delegação de eventos dentro do gerenciador (um listener por ação) */
     linksContainer.addEventListener('click', (e) => {
       const deleteBtn = e.target.closest('.btn-delete-link');
       if (deleteBtn) {
@@ -6440,7 +6440,7 @@
        UPLOAD DE FOTO / LOGO
        ================================================================ */
     /* ================================================================
-       CROP DA FOTO DE PERFIL â€” recorte quadrado com zoom e arraste
+       CROP DA FOTO DE PERFIL — recorte quadrado com zoom e arraste
        ================================================================ */
     const cropModal = el('cropModal');
     const cropStage = el('cropStage');
@@ -6592,7 +6592,7 @@
     });
 
     /* ================================================================
-       SALVAR ALTERAÃ‡Ã•ES (simulaÃ§Ã£o + integraÃ§Ã£o futura com banco)
+       SALVAR ALTERAÇÕES (simulação + integração futura com banco)
        ================================================================ */
     /* Migra valores antigos ("0px"/"30px"/enums antigos) para os novos enums */
     function toRadiusEnum(value) {
@@ -6654,23 +6654,23 @@
       console.log('===== Axiumlink | Dados do cliente =====');
       console.log(JSON.stringify(payload, null, 2));
 
-      /* PersistÃªncia local */
+      /* Persistência local */
       try {
         localStorage.setItem(getStorageKey(), JSON.stringify(payload));
       } catch (err) {
         /* images too large */
       }
 
-      /* PersistÃªncia no Back4App */
+      /* Persistência no Back4App */
       try {
         await ParseApp.saveClientConfig(payload);
         saveStatus.textContent = 'Salvo na nuvem';
         saveStatus.className = 'topbar__status topbar__status--saved';
-        /* Sincroniza com a pÃ¡gina pÃºblica via storage + BroadcastChannel */
+        /* Sincroniza com a página pública via storage + BroadcastChannel */
         notifyViewerTab(payload);
       } catch (err) {
         if (err.message && err.message.includes('unauthorized')) {
-          saveStatus.textContent = 'SessÃ£o expirada. FaÃ§a login novamente.';
+          saveStatus.textContent = 'Sessão expirada. Faça login novamente.';
         } else if (err.message && err.message.includes('muito grande')) {
           saveStatus.textContent = err.message;
         } else {
@@ -6689,7 +6689,7 @@
     });
 
     /* ================================================================
-       EXPORTAR config.js (deploy / permanÃªncia)
+       EXPORTAR config.js (deploy / permanência)
        ================================================================ */
     el('exportBtn').addEventListener('click', () => {
       const payload = buildPayload();
@@ -6704,7 +6704,7 @@
     });
 
     /* ================================================================
-       DEFAULTS DO config.js â€” preenche o formulÃ¡rio antes do restore
+       DEFAULTS DO config.js — preenche o formulário antes do restore
        ================================================================ */
     (function fillDefaults() {
       const cfg = (typeof window.AXIUMLINK_CONFIG !== 'undefined' && window.AXIUMLINK_CONFIG)
@@ -6771,7 +6771,7 @@
     })();
 
     /* ================================================================
-       RESTAURAR ÃšLTIMA EDIÃ‡ÃƒO SALVA
+       RESTAURAR ÚLTIMA EDIÇÃO SALVA
        Prioridade: Parse (via auth) > localStorage > config.js (defaults)
        ================================================================ */
     _authReadyPromise.then(function restore() {
@@ -6809,7 +6809,7 @@
         }
         input.dispatchEvent(new Event('input'));
       });
-      /* Restaura o checkbox de verificado (campo booleano â€” requer .checked, nÃ£o .value) */
+      /* Restaura o checkbox de verificado (campo booleano — requer .checked, não .value) */
       const verifiedEl = el('profileVerified');
       if (verifiedEl && saved.profile) verifiedEl.checked = !!saved.profile.verified;
       if (saved.visual && !saved.visual.btnBorder) {
@@ -6863,7 +6863,7 @@
         el('btn-remove-avatar').hidden = false;
       }
 
-      /* Restaura as aÃ§Ãµes rÃ¡pidas dinÃ¢micas (ou migra o formato antigo) */
+      /* Restaura as ações rápidas dinâmicas (ou migra o formato antigo) */
       if (saved.quickActions) {
         quickActionsContainer.innerHTML = '';
         const quickSeed = Array.isArray(saved.quickActions)
@@ -6876,7 +6876,7 @@
         }
       }
 
-      /* Restaura os links dinÃ¢micos (ou migra os antigos cards) */
+      /* Restaura os links dinâmicos (ou migra os antigos cards) */
       if (Array.isArray(saved.links) || saved.cards) {
         linksContainer.innerHTML = '';
         const seed = Array.isArray(saved.links)
@@ -6892,7 +6892,7 @@
     });
 
     /* ================================================================
-       MOBILE â€” alternÃ¢ncia Editar / PrÃ©via
+       MOBILE — alternância Editar / Prévia
        ================================================================ */
     const tabButtons = Array.from(document.querySelectorAll('.mobile-tabs__btn'));
     tabButtons.forEach((btn) => {
@@ -6903,7 +6903,7 @@
       });
     });
 
-    /* Aviso de conexÃ£o perdida (offline) */
+    /* Aviso de conexão perdida (offline) */
     const offlinePill = el('offlinePill');
     const updateStatus = () => { if (offlinePill) offlinePill.hidden = navigator.onLine; };
     window.addEventListener('online', updateStatus);
@@ -6911,7 +6911,7 @@
     updateStatus();
 
     /* ================================================================
-       INIT â€” aplica contraste/texto padrÃ£o no carregamento
+       INIT — aplica contraste/texto padrão no carregamento
        ================================================================ */
     refreshBodyText();
     el('global-btn-radius').dispatchEvent(new Event('change'));
@@ -6933,13 +6933,13 @@
 
   <script>
     /* ================================================================
-       ROLAGEM HORIZONTAL COM O MOUSE (preview â€” linhas rolÃ¡veis)
+       ROLAGEM HORIZONTAL COM O MOUSE (preview — linhas roláveis)
        ----------------------------------------------------------------
        O mockup do celular rola horizontalmente no toque, mas no desktop
-       nÃ£o hÃ¡ barra visÃ­vel nem gesto de mouse. Aqui:
-       1) a roda do mouse vira rolagem horizontal sobre a linha rolÃ¡vel;
-       2) arrastar com o botÃ£o pressionado percorre a linha como carrossel
-          (o clique sÃ³ Ã© disparado se nÃ£o houve arrasto).
+       não há barra visível nem gesto de mouse. Aqui:
+       1) a roda do mouse vira rolagem horizontal sobre a linha rolável;
+       2) arrastar com o botão pressionado percorre a linha como carrossel
+          (o clique só é disparado se não houve arrasto).
        ================================================================ */
     (function () {
       function habilitarRolagemHorizontal(container) {
