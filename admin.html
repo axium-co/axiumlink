@@ -4135,12 +4135,16 @@
     }
 
     function atualizarDesignDosBotoes() {
-      if (!mobileContainer) return;
+      if (!mobileContainer) {
+        console.warn('[Axiumlink] #preview-mobile-container nao encontrado — estilo global dos botoes inativo.');
+        return;
+      }
 
-      const bg     = inputBtnBg.value;
-      const text   = inputBtnText.value;
-      const radius = selectRadius.value;
-      const border = selectBorder.value;
+      try {
+        const bg     = inputBtnBg.value;
+        const text   = inputBtnText.value;
+        const radius = selectRadius.value;
+        const border = selectBorder.value;
 
       let radiusValue = '14px';
       if (radius === 'quadrado') radiusValue = '0px';
@@ -4190,6 +4194,9 @@
       setVar('--card-destaque-text', text);
       setVar('--global-radius', radiusValue);
       setVar('--btn-border-color', corContorno);
+      } catch (err) {
+        console.error('[Axiumlink] Falha ao aplicar o estilo global dos botões:', err);
+      }
     }
 
     [inputBtnBg, inputBtnText].forEach((input) => {
