@@ -1618,6 +1618,24 @@
       function applyConfig(cfg) {
         if (!cfg) return;
 
+        /* ---- Auto-cura do trio acidental legado ----
+           Versões antigas do painel gravavam btnBg '#ffffff', btnColor
+           '#000000' e btnBorderColor '#000000' em TODO botão como se
+           fossem escolhas individuais (bug do data-active ausente).
+           O estilo individual vence o global, então os botões ficavam
+           brancos com texto preto eternamente. Trio exato = nunca foi
+           escolha real → descarta para herdar o estilo global. */
+        const curarEstiloIndividual = (o) => {
+          if (o && o.btnBg === '#ffffff' && o.btnColor === '#000000' && o.btnBorderColor === '#000000') {
+            o.btnBg = '';
+            o.btnColor = '';
+            o.btnBorderColor = '';
+          }
+          return o;
+        };
+        if (Array.isArray(cfg.quickActions)) cfg.quickActions.forEach(curarEstiloIndividual);
+        if (Array.isArray(cfg.links)) cfg.links.forEach(curarEstiloIndividual);
+
         /* ---- Migração do gradiente opaco padrão (bug do fundo) ----
            Versões antigas do painel gravavam os dois stops iniciais do
            gradiente de página com 100% de opacidade e mesclagem 'normal'.
