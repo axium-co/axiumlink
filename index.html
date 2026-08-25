@@ -244,7 +244,10 @@
       position: relative;
       z-index: 0;
       width: 100%;
-      height: min(var(--banner-h, 150px), 160px);
+      /* BUG 3: clamp() faz o banner escalar suavemente com a viewport
+         (min() travava em telas grandes e sumia em pequenas). */
+      height: clamp(120px, 20vw, 200px);
+      min-height: 100px;
       border-radius: var(--radius-lg);
       background: linear-gradient(135deg, #0f172a 0%, #334155 55%, #64748b 100%);
       box-shadow: var(--shadow-xs);
@@ -577,6 +580,14 @@
     .quick-grid .featured__arrow { display: none; }
     .quick-grid .featured__card:only-child { grid-column: 1 / -1; }
 
+    /* BUG 1: em telas muito pequenas, cards de 2 colunas ficam espremidos
+       com alturas irregulares — compacta padding/fonte e equaliza altura. */
+    @media (max-width: 400px) {
+      .quick-grid:not(.quick-grid--list) { grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+      .quick-grid:not(.quick-grid--list) .featured__card { padding: 0.625rem 0.375rem; min-height: 90px; }
+      .quick-grid:not(.quick-grid--list) .featured__body strong { font-size: 0.75rem; }
+    }
+
     .quick-grid--list {
       display: flex;
       flex-direction: column;
@@ -611,7 +622,22 @@
     }
     .quick-grid--scroll::-webkit-scrollbar-track { background: transparent; }
 
-    .quick-grid--scroll .featured__card { flex: 0 0 auto; width: auto; min-width: 15rem; }
+    /* BUG 2: largura fluida limitada evita scroll horizontal com textos
+       longos; o título trunca com ellipsis em vez de empurrar a faixa. */
+    .quick-grid--scroll .featured__card {
+      flex: 0 0 auto;
+      width: auto;
+      min-width: 150px;
+      max-width: 280px;
+    }
+
+    .quick-grid--scroll .featured__body strong {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 180px;
+      display: block;
+    }
 
     .quick-grid .featured__card--full { grid-column: 1 / -1; width: 100%; }
     .quick-grid--list .featured__card--half { width: calc(50% - 0.375rem); }
@@ -768,19 +794,30 @@
        A imagem é recortada com object-fit: cover dentro do card,
        sem distorcer nem estourar. Proporção fallback 16/9; o JS ajusta
        para a proporção real da imagem (limitada a 4:3 .. 2:1). */
+    /* BUG 6: position: relative ancora a imagem absoluta; min-height
+       garante proporção visível mesmo quando o flex pai comprime. */
     .featured__card--banner {
+      position: relative;
       padding: 0;
       overflow: hidden;
       aspect-ratio: 16 / 9;
       height: auto;
-      min-height: 0;
+      min-height: 140px;
     }
 
     /* Nunca esticar o banner além da própria proporção em grade/faixa
        (align-items: stretch herdaria a altura da linha); em lista vertical
        mantém a largura total. */
     .quick-grid .featured__card--banner { align-self: start; }
-    .quick-grid--list .featured__card--banner { align-self: stretch; }
+
+    /* BUG 6: força a proporção também no layout flex-column de lista,
+       onde o stretch herdava a altura da linha e quebrava o 16/9. */
+    .quick-grid--list .featured__card--banner {
+      align-self: stretch;
+      aspect-ratio: 16 / 9 !important;
+      min-height: 180px;
+      height: auto;
+    }
 
     .featured__banner-img {
       position: absolute;
@@ -981,14 +1018,25 @@
       line-height: 1;
     }
 
+    /* BUG 7: abaixo de 380px a chave PIX + botão copiar não cabem lado a
+       lado — empilha e centraliza para não vazar da tela. */
+    @media (max-width: 380px) {
+      .pix-modal { width: calc(100% - 1.5rem); padding: 1.25rem 1rem; }
+      .pix-modal__key { flex-wrap: wrap; justify-content: center; gap: 0.5rem; }
+      .pix-modal__copy { width: 100%; text-align: center; }
+    }
+
     /* ================================================================
        PWA — SAFE AREAS (notch e barra de gestos)
        ================================================================ */
     .page {
-      padding-top: max(2.75rem, calc(env(safe-area-inset-top) + 1rem));
-      padding-left: max(var(--spacing), env(safe-area-inset-left));
-      padding-right: max(var(--spacing), env(safe-area-inset-right));
-      padding-bottom: max(2rem, calc(env(safe-area-inset-bottom) + 1rem));
+      /* BUG 5: fórmulas max() agressivas somavam inset + padding fixo e
+         estouravam o layout em iPhones com notch — agora o maior dos dois
+         vence, sem acúmulo. */
+      padding-top: max(1.5rem, env(safe-area-inset-top));
+      padding-left: max(1rem, env(safe-area-inset-left));
+      padding-right: max(1rem, env(safe-area-inset-right));
+      padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
     }
 
     .site-footer {
@@ -1136,7 +1184,7 @@
         --banner-h: 200px;
       }
 
-      .profile__banner { height: var(--banner-h, 200px); }
+      .profile__banner { height: clamp(160px, 25vw, 260px); }
 
       .profile__name-row { margin-top: 1.75rem; }
 
@@ -1228,14 +1276,25 @@
       .quick-grid--list .featured__body strong { font-size: 1rem; }
       .pg-links--list .featured__body strong { font-size: 1rem; }
     }
+
+    /* ================================================================
+       BUG 4 — AVATAR EM TELAS MUITO PEQUENAS (<=420px)
+       Reduz o avatar e recalcula a sobreposição sobre o banner para o
+       novo tamanho, evitando que nome/bio desçam demais ou colidam.
+       Nota: mantém :not([hidden]) do seletor base — sem ele a regra
+       perderia a especificidade e nunca seria aplicada.
+       ================================================================ */
+    @media (max-width: 420px) {
+      .profile { --avatar-s: 76px; }
+      .profile__banner:not([hidden]) + .profile__info { margin-top: calc(var(--avatar-s) * -0.35); }
+      .profile__title { font-size: 1.25rem; }
+    }
   </style>
 
-  <!-- Parse SDK (Back4App) -->
-  <script src="https://unpkg.com/parse@5.2.0/dist/parse.min.js"></script>
-  <script>
-    Parse.initialize('tIKKaJtLdDfZlxKtELzfe99gLOUy7umUCkowAkjK', 'vV29v2zDHmrEmwRglUnOyjm0krtAt4MHtRnkHrFE');
-    Parse.serverURL = 'https://parseapi.back4app.com/';
-  </script>
+  <!-- Supabase SDK + inicialização -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/env.js"></script>
+  <script src="js/supabase-init.js"></script>
 
   <!-- Configuração dinâmica do cliente (gerada pelo Painel Axiumlink) -->
   <script src="config.js"></script>
@@ -1578,35 +1637,37 @@
 
       async function readConfig() {
         const slug = getSlug();
-        if (typeof Parse === 'undefined') return readLocalConfig();
+        if (typeof window.supabase === 'undefined' || !window.supabase.createClient) return readLocalConfig();
         if (!slug) {
           /* Sem slug na URL → não há como identificar qual Client buscar.
-             Busca sem filtro exige CLP "Find: public" no Back4App, o que
-             expõe todos os registros. Em vez disso, cai direto no fallback
-             local (localStorage/config.js). */
+             A policy RLS de leitura é por slug; sem slug, cai direto no
+             fallback local (localStorage/config.js). */
           console.warn('[Axiumlink] Acesso sem slug (?s=). Use ?s=meu-slug para carregar dados da nuvem.');
           return readLocalConfig();
         }
         try {
-          const Client = Parse.Object.extend('Client');
-          const query = new Parse.Query(Client);
-          query.equalTo('slug', slug);
-          const result = await query.first();
-          if (result) {
-            const raw = result.get('config');
-            if (raw) {
-              const cfg = typeof raw === 'string' ? JSON.parse(raw) : raw;
-              if (cfg && typeof cfg === 'object') return cfg;
-            }
+          /* Policy "Leitura publica" permite anon ler qualquer linha;
+             a busca é sempre filtrada por slug. */
+          const { data, error } = await supabase
+            .from('clients')
+            .select('config')
+            .eq('slug', slug)
+            .maybeSingle();
+          if (error) throw error;
+          if (data && data.config) {
+            /* Tolerância a legado: linhas migradas do Parse podem ter config-string */
+            const cfg = typeof data.config === 'string' ? JSON.parse(data.config) : data.config;
+            if (cfg && typeof cfg === 'object') return cfg;
             console.warn('[Axiumlink] Client encontrado mas campo "config" vazio.');
           } else {
             console.warn('[Axiumlink] Nenhum Client com slug "' + slug + '". Verifique se o slug está correto.');
           }
         } catch (e) {
-          const code = e.code || 0;
-          console.error('[Axiumlink] Erro ao buscar config (code ' + code + '):', e.message || e);
-          if (code === 119 || (e.message && e.message.includes('Permission'))) {
-            console.error('[Axiumlink] CLP da classe "Client" não permite Find público. No Back4App Dashboard → Database → Client → Class Permissions → marque "Find" para "Public".');
+          console.error('[Axiumlink] Erro ao buscar config:', e.message || e);
+          if (e instanceof TypeError && e.message.includes('Failed to fetch')) {
+            console.error('[Axiumlink] Rede indisponível ou CORS bloqueado. Verifique js/env.js e o SDK Supabase.');
+          } else if (e.code === '42P01') {
+            console.error('[Axiumlink] Tabela public.clients não existe. Rode o script DDL no SQL Editor do Supabase.');
           }
         }
         return readLocalConfig();
@@ -2404,7 +2465,7 @@
         console.error('[Axiumlink] Erro ao aplicar configurações:', err);
       });
 
-      /* Re-busca do Parse a cada 30s para refletir edições do admin */
+      /* Re-busca do Supabase a cada 30s para refletir edições do admin */
       setInterval(async () => {
         try {
           const fresh = await readConfig();
@@ -2422,7 +2483,7 @@
       /* Sincronização via BroadcastChannel — mais confiável que storage
          event em PWAs e mobile Safari. Recebe o payload completo do admin
          assim que ele salva (debounce de 300ms no localStorage + 2s no
-         Parse). Canal é namespaced pelo slug para isolar clientes. */
+         Supabase). Canal é namespaced pelo slug para isolar clientes. */
       try {
         const syncChannel = new BroadcastChannel('axiumlink-sync-' + (getSlug() || 'default'));
         syncChannel.onmessage = (e) => {
