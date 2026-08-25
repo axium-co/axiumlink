@@ -1032,11 +1032,12 @@
       }
       await onAuthReady();
     } catch (err) {
+      console.error('[Supabase Auth Error]', err);
       msgEl.style.color = 'var(--danger)';
       if (err.message && err.message.includes('Invalid login credentials')) {
         msgEl.textContent = 'E-mail ou senha incorretos.';
       } else if (err.message && err.message.includes('Email not confirmed')) {
-        msgEl.textContent = 'Confirme seu e-mail antes de entrar (verifique a caixa de spam).';
+        msgEl.textContent = 'Acesso bloqueado: Seu e-mail ainda não foi confirmado. Por favor, verifique sua caixa de entrada e spam para ativar a conta antes de tentar o login.';
       } else if (err.message && err.message.includes('at least 6')) {
         msgEl.textContent = 'A senha precisa de pelo menos 6 caracteres.';
       } else {
@@ -1046,6 +1047,23 @@
       btn.disabled = false;
     }
   });
+
+  /* Limpa mensagem de erro ao usuário começar a digitar novamente */
+  ['authEmail', 'authPass'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', () => {
+        const msgEl = document.getElementById('authMsg');
+        if (msgEl) msgEl.textContent = '';
+      });
+    }
+  });
+
+  /*
+    USUÁRIOS CRIADOS ANTES DE DESATIVAR "CONFIRM EMAIL":
+    No painel do Supabase: Authentication > Users > clique no usuário > "Confirm User"
+    Ou via SQL: UPDATE auth.users SET email_confirmed_at = now() WHERE email = 'axium.contato@gmail.com';
+  */
 
   document.getElementById('authPass').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') document.getElementById('btnAuthSubmit').click();
