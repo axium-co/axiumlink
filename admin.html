@@ -17,7 +17,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <!-- Supabase SDK + credenciais + init -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="js/env.js"></script>
 <script src="js/supabase-init.js"></script>
 
@@ -1026,6 +1026,10 @@
   /* Sessão existente — valida o token NO SERVIDOR */
   (async function checkSession() {
     let user = null;
+    if (!window.supabase || !window.supabase.auth) {
+      console.error('[Axiumlink] Supabase não inicializado — veja o erro original acima (CDN/env.js/cache). Mantendo tela de login.');
+      return;
+    }
     try {
       const { data, error } = await supabase.auth.getUser();
       if (!error) user = data.user;

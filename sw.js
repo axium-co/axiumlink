@@ -1,9 +1,11 @@
-const SW_VERSION = 'axiumlink-v1.1.0';
+const SW_VERSION = 'axiumlink-v1.1.1';
 const PRECACHE_URLS = [
   './',
   './index.html',
   './admin.html',
   './config.js',
+  './js/env.js',
+  './js/supabase-init.js',
   './manifest.webmanifest',
   './favicon-32x32.png',
   './icon-192.png',
