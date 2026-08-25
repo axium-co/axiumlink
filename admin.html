@@ -884,7 +884,7 @@
     async signup(email, password) {
       const { data, error } = await supabase.auth.signUp({ email, password });
       if (error) throw error;
-      this.currentUser = data.user ?? null; /* Confirm email ON ⇒ sessão nula até confirmar */
+      this.currentUser = data.user ?? null;
       return data.user;
     },
 
@@ -892,55 +892,61 @@
       await supabase.auth.signOut();
       this.currentUser = null;
       this.currentClient = null;
+      window.userProfiles = [];
+      window.currentProfileId = null;
     },
 
-    /* Busca o cliente do usuário logado ou cria um novo (slug axium-xxx) */
-    async loadOrCreateClient() {
-      const { data: { user }, error: userErr } = await supabase.auth.getUser();
-      if (userErr || !user) {
-        console.warn('[Axiumlink] Sessão expirada ou inválida.');
-        return null;
+    /* Busca TODOS os perfis do usuário autenticado */
+    async loadUserProfiles(user) {
+      if (!user || !user.id) {
+        console.error('[Axiumlink] Usuário autenticado não encontrado.');
+        return [];
       }
-      this.currentUser = user;
 
       try {
-        const COLS = 'id, slug, config';
-        const { data: existing } = await supabase
-          .from('clients').select(COLS).eq('user_id', user.id).maybeSingle();
-        if (existing) {
-          this.currentClient = existing;
-          return existing;
-        }
-
-        const { data: created, error: insErr } = await supabase
+        const { data: profiles, error } = await supabase
           .from('clients')
-          .insert({ user_id: user.id, slug: 'axium-' + Date.now().toString(36), config: {} })
-          .select(COLS).single();
+          .select('id, slug, config')
+          .eq('user_id', user.id);
 
-        /* Corrida rara entre abas: UNIQUE(user_id) estourou ⇒ busca o que a outra aba criou */
-        if (insErr && insErr.code === '23505') {
-          const { data: retry } = await supabase
-            .from('clients').select(COLS).eq('user_id', user.id).maybeSingle();
-          if (retry) {
-            this.currentClient = retry;
-            return retry;
-          }
+        if (error) throw error;
+
+        if (!profiles || profiles.length === 0) {
+          console.log('[Axiumlink] Nenhum perfil encontrado. Criando perfil inicial...');
+          const slug = 'perfil-inicial-' + Math.random().toString(36).substring(2, 7);
+          const { data: newProfile, error: insertError } = await supabase
+            .from('clients')
+            .insert([{
+              user_id: user.id,
+              slug: slug,
+              nome: 'Meu Perfil',
+              config: {}
+            }])
+            .select('id, slug, config')
+            .single();
+
+          if (insertError) throw insertError;
+
+          window.userProfiles = [newProfile];
+          window.currentProfileId = newProfile.id;
+          this.currentClient = newProfile;
+          return [newProfile];
         }
-        if (insErr) throw insErr;
 
-        this.currentClient = created;
-        return created;
+        window.userProfiles = profiles;
+        window.currentProfileId = profiles[0].id;
+        this.currentClient = profiles[0];
+        return profiles;
       } catch (err) {
-        console.error('[Axiumlink] Falha ao carregar/criar cliente:', err.message || err);
-        return null;
+        console.error('[Axiumlink] Falha ao carregar/criar perfis:', err.message || err);
+        return [];
       }
     },
 
-    /* Salva SOMENTE a coluna config (PATCH) — slug/user_id nunca vão no payload;
-       RLS restringe à própria linha e o trigger protege updated_at/user_id. */
+    /* Salva SOMENTE a coluna config do perfil ativo — RLS restringe à própria linha */
     async saveClientConfig(payload) {
-      if (!this.currentClient) {
-        throw new Error('Nenhum cliente carregado. Verifique a conexão com a nuvem.');
+      if (!window.currentProfileId) {
+        throw new Error('Nenhum perfil ativo. Verifique a conexão com a nuvem.');
       }
       const sizeKB = new Blob([JSON.stringify(payload)]).size / 1024;
       if (sizeKB > 500) {
@@ -949,24 +955,26 @@
       const { error } = await supabase
         .from('clients')
         .update({ config: payload })
-        .eq('id', this.currentClient.id)
+        .eq('id', window.currentProfileId)
         .eq('user_id', this.currentUser.id);
       if (error) throw error;
     },
 
     /* Unicidade garantida pelo UNIQUE(slug) no banco */
     async updateSlug(slug) {
-      if (!this.currentClient) return;
+      if (!window.currentProfileId) return;
       const { error } = await supabase
         .from('clients')
         .update({ slug })
-        .eq('id', this.currentClient.id)
+        .eq('id', window.currentProfileId)
         .eq('user_id', this.currentUser.id);
       if (error) {
         if (error.code === '23505') throw new Error('Este slug já está em uso. Escolha outro.');
         throw error;
       }
-      this.currentClient.slug = slug;
+      const profile = window.userProfiles.find(p => p.id === window.currentProfileId);
+      if (profile) profile.slug = slug;
+      this.currentClient = profile;
     }
   };
 
@@ -1025,23 +1033,51 @@
 
   /* Sessão existente — valida o token NO SERVIDOR */
   (async function checkSession() {
-    let user = null;
+    console.log('[Axiumlink] Verificando sessão...');
+    console.log('[Axiumlink] Supabase:', !!window.supabase);
+
     if (!window.supabase || !window.supabase.auth) {
       console.error('[Axiumlink] Supabase não inicializado — veja o erro original acima (CDN/env.js/cache). Mantendo tela de login.');
       return;
     }
+
+    let session = null;
+    let sessionError = null;
+
     try {
-      const { data, error } = await supabase.auth.getUser();
-      if (!error) user = data.user;
-    } catch (sessionErr) {
-      console.warn('[Axiumlink] Sessão inválida ou rede indisponível:', sessionErr.message);
+      const { data, error } = await supabase.auth.getSession();
+      session = data.session;
+      sessionError = error;
+    } catch (err) {
+      sessionError = err;
+    }
+
+    console.log('[Axiumlink] Session:', session);
+    console.log('[Axiumlink] User:', session?.user);
+
+    if (sessionError) {
+      if (sessionError.message && (sessionError.message.includes('Failed to fetch') || sessionError.message.includes('NetworkError'))) {
+        console.warn('[Axiumlink] Erro de rede ao verificar sessão:', sessionError.message);
+      } else {
+        console.error('[Axiumlink] Erro do Supabase ao verificar sessão:', sessionError);
+      }
+      return;
+    }
+
+    if (!session) {
+      console.log('[Axiumlink] Sessão inexistente. Usuário não autenticado.');
+      return;
+    }
+
+    const user = session.user;
+    if (!user) {
+      console.warn('[Axiumlink] Sessão existe mas sem usuário. Tratando como sessão inválida.');
       try { await supabase.auth.signOut(); } catch (_) {}
-      user = null;
+      return;
     }
-    if (user) {
-      SupaApp.currentUser = user;
-      await onAuthReady();
-    }
+
+    SupaApp.currentUser = user;
+    await onAuthReady();
   })();
 
   async function _checkSupabaseConnection() {
@@ -1060,27 +1096,30 @@
     document.getElementById('authOverlay').style.display = 'none';
     document.getElementById('appShell').hidden = false;
 
-    const client = await Promise.race([
-      SupaApp.loadOrCreateClient(),
-      new Promise((resolve) => setTimeout(() => resolve(null), 8000))
+    const profiles = await Promise.race([
+      SupaApp.loadUserProfiles(SupaApp.currentUser),
+      new Promise((resolve) => setTimeout(() => resolve([]), 8000))
     ]);
 
-    if (!client) {
+    if (!profiles || profiles.length === 0) {
       setConn(false);
       document.getElementById('saveStatus').textContent =
         'Sem conexão com a nuvem. Você pode editar — salvaremos localmente.';
     } else {
       setConn(true);
 
-      /* Slug atual → barra superior */
-      if (client.slug && !client.slug.startsWith('axium-')) {
-        document.getElementById('slugInput').value = client.slug;
-      } else {
-        document.getElementById('slugInput').placeholder = client.slug || 'seu-slug';
-      }
+      /* Slug do perfil ativo → barra superior */
+      const activeProfile = window.userProfiles.find(p => p.id === window.currentProfileId);
+      if (activeProfile) {
+        if (activeProfile.slug && !activeProfile.slug.startsWith('perfil-inicial-')) {
+          document.getElementById('slugInput').value = activeProfile.slug;
+        } else {
+          document.getElementById('slugInput').placeholder = activeProfile.slug || 'seu-slug';
+        }
 
-      /* Config da nuvem (jsonb já chega como objeto JS puro) */
-      _cloudConfigToLoad = client.config;
+        /* Config da nuvem (jsonb já chega como objeto JS puro) */
+        _cloudConfigToLoad = activeProfile.config;
+      }
 
       /* Migração única: rascunho local do Parse era indexado por user id antigo */
       try {
@@ -1110,7 +1149,8 @@
   }
 
   function getStorageKey() {
-    const slug = SupaApp.currentClient?.slug || 'default';
+    const activeProfile = window.userProfiles?.find(p => p.id === window.currentProfileId);
+    const slug = activeProfile?.slug || 'default';
     return 'axiumlink-preview-v1-' + slug;
   }
 
@@ -1126,7 +1166,8 @@
   function notifyViewerTab(payload) {
     try {
       if (_syncChannel) {
-        _syncChannel.postMessage({ type: 'config-updated', slug: SupaApp.currentClient?.slug, payload });
+        const activeProfile = window.userProfiles?.find(p => p.id === window.currentProfileId);
+        _syncChannel.postMessage({ type: 'config-updated', slug: activeProfile?.slug, payload });
       }
     } catch (_) {}
   }
@@ -1206,7 +1247,8 @@
 
     $('displayName').value = cfg.profile?.displayName || '';
     $('bio').value = cfg.profile?.bio || '';
-    $('slugInput').value = SupaApp.currentClient?.slug?.startsWith('axium-') ? '' : ($('slugInput').value || '');
+    const activeProfile = window.userProfiles?.find(p => p.id === window.currentProfileId);
+    $('slugInput').value = activeProfile?.slug?.startsWith('perfil-inicial-') ? '' : ($('slugInput').value || '');
 
     renderThemeSwatches();
     bindStyleControls();
@@ -1224,7 +1266,7 @@
   }
 
   function scheduleCloudSave() {
-    if (!SupaApp.currentClient) return; /* offline: só local */
+    if (!window.currentProfileId) return; /* offline: só local */
     clearTimeout(_autoSaveCloudTimer);
     _autoSaveCloudTimer = setTimeout(async () => {
       try {
@@ -1914,7 +1956,8 @@
 
     /* Ver página pública */
     $('btnViewPage').addEventListener('click', () => {
-      const slug = SupaApp.currentClient?.slug;
+      const activeProfile = window.userProfiles?.find(p => p.id === window.currentProfileId);
+      const slug = activeProfile?.slug;
       if (!slug) { showToast('Conecte-se para ver sua página'); return; }
       window.open('/?slug=' + encodeURIComponent(slug), '_blank');
     });
@@ -1927,7 +1970,8 @@
 
     /* Compartilhar no preview */
     $('pvShareBtn').addEventListener('click', async () => {
-      const slug = SupaApp.currentClient?.slug;
+      const activeProfile = window.userProfiles?.find(p => p.id === window.currentProfileId);
+      const slug = activeProfile?.slug;
       const url = slug ? location.origin + '/?slug=' + encodeURIComponent(slug) : location.origin;
       try {
         if (navigator.share) await navigator.share({ title: 'Axiumlink', url });
