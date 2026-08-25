@@ -570,6 +570,84 @@
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration:.01ms !important; transition-duration:.01ms !important; }
   }
+
+  /* ===== TELA DE SELEÇÃO DE PERFIS ===== */
+  .profiles-dashboard {
+    position: fixed; inset: 0; z-index: 150;
+    background: linear-gradient(160deg, #0b1220 0%, #111827 55%, #172033 100%);
+    overflow-y: auto;
+  }
+  .profiles-dashboard[hidden] { display: none; }
+
+  .pd-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 22px 36px;
+    background: rgba(17,24,39,.7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    border-bottom: 1px solid rgba(255,255,255,.06);
+  }
+  .pd-brand { display:flex; align-items:center; gap:9px; color:#fff; font-weight:800; font-size:18px; }
+  .pd-brand span { font-size:22px; }
+
+  .pd-btn-create {
+    padding: 11px 22px; border: none; border-radius: 11px; cursor: pointer;
+    background: var(--brand); color: #fff; font-size: 14px; font-weight: 700;
+    transition: background .2s ease, transform .1s ease;
+  }
+  .pd-btn-create:hover { background: var(--brand-dark); }
+  .pd-btn-create:active { transform: scale(.98); }
+
+  .pd-main { max-width: 1024px; margin: 0 auto; padding: 56px 28px; text-align: center; }
+  .pd-title { color: #f9fafb; font-size: 26px; font-weight: 800; letter-spacing: -.01em; }
+  .pd-subtitle { color: #9ca3af; font-size: 14px; margin-top: 6px; margin-bottom: 42px; }
+
+  /* Grade responsiva de cards */
+  .pd-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 2rem;
+  }
+
+  .profile-select-card {
+    cursor: pointer; text-align: center;
+    background: transparent; border: none; padding: 18px 12px 14px;
+    border-radius: 18px;
+    transition: all 0.3s ease;
+    font-family: inherit;
+  }
+  .profile-select-card:hover {
+    transform: translateY(-5px);
+    background: rgba(255,255,255,.045);
+  }
+
+  /* Avatar perfeitamente circular */
+  .psc-avatar {
+    width: 120px; height: 120px; border-radius: 50%;
+    overflow: hidden; margin: 0 auto 1rem;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 38px; font-weight: 800; color: #fff;
+    background: linear-gradient(135deg, #2563eb, #7c3aed);
+    border: 3px solid rgba(255,255,255,.08);
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  }
+  .psc-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  /* Glow premium no hover */
+  .profile-select-card:hover .psc-avatar {
+    border-color: rgba(37,99,235,.65);
+    box-shadow: 0 0 0 4px rgba(37,99,235,.25), 0 0 28px rgba(37,99,235,.45);
+  }
+
+  .psc-name {
+    color: #e5e7eb; font-size: 15px; font-weight: 600;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    padding: 0 8px;
+  }
+
+  @media (max-width: 600px) {
+    .pd-header { padding: 16px 18px; }
+    .pd-main { padding: 36px 16px; }
+    .pd-title { font-size: 21px; }
+  }
 </style>
 </head>
 <body>
@@ -579,6 +657,41 @@
 
 <!-- Toast -->
 <div id="toast"></div>
+
+<!-- ===== SELEÇÃO DE PERFIS ===== -->
+<div id="profiles-dashboard" class="profiles-dashboard" hidden>
+  <header class="pd-header">
+    <div class="pd-brand"><span>⚡</span> Axiumlink</div>
+    <button class="pd-btn-create" id="pdBtnCreate">＋ Criar Novo Perfil</button>
+  </header>
+
+  <main class="pd-main">
+    <h1 class="pd-title">Quem vai editar hoje?</h1>
+    <p class="pd-subtitle">Selecione um perfil para abrir o editor</p>
+    <div class="pd-grid" id="pdGrid"><!-- cards injetados via JS --></div>
+  </main>
+</div>
+
+<!-- ===== MODAL CRIAR PERFIL ===== -->
+<div class="modal-backdrop" id="pdCreateModal">
+  <div class="modal-box">
+    <h3 style="margin-bottom:16px;">Criar Novo Perfil</h3>
+    <div class="field">
+      <label for="pdNewName">Nome do Perfil</label>
+      <input type="text" id="pdNewName" placeholder="Ex.: Pastor Leonardo" maxlength="60">
+    </div>
+    <div class="field">
+      <label for="pdNewSlug">Slug (URL única)</label>
+      <input type="text" id="pdNewSlug" placeholder="ex.: pastor-leonardo" maxlength="30">
+      <p class="hint">axiumlink.vercel.app/<strong id="pdSlugPreview">seu-slug</strong></p>
+    </div>
+    <div style="display:flex; gap:10px; margin-top:18px;">
+      <button class="btn-mini" id="pdCancelCreate" style="flex:1; padding:12px;">Cancelar</button>
+      <button id="pdConfirmCreate" style="flex:2; padding:12px; border:none; border-radius:10px; background:var(--brand); color:#fff; font-weight:700; cursor:pointer;">Criar perfil</button>
+    </div>
+    <p id="pdCreateMsg" style="color:var(--danger); font-size:13px; margin-top:10px;"></p>
+  </div>
+</div>
 
 <!-- ===== LOGIN ===== -->
 <div id="authOverlay" class="login-screen">
@@ -599,15 +712,14 @@
 
   <!-- BARRA SUPERIOR -->
   <header class="admin-topbar">
-    <div class="topbar-brand"><span>⚡</span> Axiumlink</div>
+    <div class="topbar-brand" id="brandHome" title="Trocar de perfil" style="cursor:pointer;"><span>⚡</span> Axiumlink</div>
 
-    <!-- Seletor de Perfil (Multi-perfil) -->
+    <!-- Seletor rápido de Perfil (Multi-perfil) -->
     <div class="topbar-profile" id="topbarProfile">
-      <label for="profileSelect" style="font-size:11px; color:var(--muted); font-weight:600; margin-right:6px;">Perfil:</label>
-      <select id="profileSelect" style="min-width:140px; max-width:200px; padding:6px 10px; border:1.5px solid var(--border); border-radius:999px; background:#fff; font-size:13px; font-weight:600; color:var(--ink); outline:none; cursor:pointer;">
+      <label for="profileSelect">Perfil:</label>
+      <select id="profileSelect">
         <option value="">Carregando...</option>
       </select>
-      <button id="btnAddProfile" title="Novo perfil" style="width:28px; height:28px; border:none; border-radius:50%; background:var(--brand); color:#fff; font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; margin-left:6px;">+</button>
     </div>
 
     <div class="topbar-slug">
@@ -1309,44 +1421,30 @@
     ]);
 
     if (!profiles || profiles.length === 0) {
+      /* Offline/sem perfis: abre editor direto com rascunho local */
       setConn(false);
+      document.getElementById('profiles-dashboard').hidden = true;
       document.getElementById('saveStatus').textContent =
         'Sem conexão com a nuvem. Você pode editar — salvaremos localmente.';
-    } else {
-      setConn(true);
-
-      /* Slug do perfil ativo → barra superior */
-      const activeProfile = window.userProfiles.find(p => p.id === window.currentProfileId);
-      if (activeProfile) {
-        if (activeProfile.slug && !activeProfile.slug.startsWith('perfil-inicial-')) {
-          document.getElementById('slugInput').value = activeProfile.slug;
-        } else {
-          document.getElementById('slugInput').placeholder = activeProfile.slug || 'seu-slug';
-        }
-
-        /* Config da nuvem (jsonb já chega como objeto JS puro) */
-        _cloudConfigToLoad = activeProfile.config;
-      }
-
-      /* Migração única: rascunho local do Parse era indexado por user id antigo */
-      try {
-        const oldKey = 'axiumlink-preview-v1-' + (SupaApp.currentUser?.id || 'anon');
-        const oldRaw = localStorage.getItem(oldKey);
-        if (oldRaw) {
-          localStorage.setItem(getStorageKey(), oldRaw);
-          localStorage.removeItem(oldKey);
-          console.log('[Axiumlink] Rascunho local migrado para o novo formato.');
-        }
-      } catch (_) {}
-
-      /* Mantém sessão viva em outras abas abertas */
-      _openSyncChannel();
-
-      /* Renderiza seletor de perfis */
-      renderProfileSelect();
+      initEditor();
+      return;
     }
 
-    initEditor();
+    setConn(true);
+
+    /* Migração única: rascunho local do Parse era indexado por user id antigo */
+    try {
+      const oldKey = 'axiumlink-preview-v1-' + (SupaApp.currentUser?.id || 'anon');
+      const oldRaw = localStorage.getItem(oldKey);
+      if (oldRaw) {
+        localStorage.setItem(getStorageKey(), oldRaw);
+        localStorage.removeItem(oldKey);
+        console.log('[Axiumlink] Rascunho local migrado para o novo formato.');
+      }
+    } catch (_) {}
+
+    /* Fluxo principal: dashboard de seleção de perfis → clique → editor */
+    await showProfilesDashboard();
   }
 
   function setConn(online) {
@@ -1428,6 +1526,8 @@
   let _autoSaveTimer = null;
   let _autoSaveCloudTimer = null;
   let _isDirty = false;
+  let _editorEventsBound = false;   /* evita listeners duplicados ao trocar de perfil */
+  let _styleControlsBound = false;
 
   /* Registro das seções removíveis: chave do JSONB → card do painel */
   const SECTION_DEFS = {
@@ -1496,9 +1596,22 @@
 
     renderThemeSwatches();
     bindStyleControls();
-    bindEditorEvents();
+    if (!_editorEventsBound) {
+      bindEditorEvents();
+      _editorEventsBound = true;
+    }
+    syncEditorInputs();
     syncPanelsVisibility();
     renderAll();
+  }
+
+  /* Re-sincroniza valores dos inputs sem recriar listeners */
+  function syncEditorInputs() {
+    ['instagram','whatsapp','tiktok','youtube','x','linkedin','facebook','telegram','email'].forEach((k) => {
+      const input = $('soc' + k.charAt(0).toUpperCase() + k.slice(1));
+      if (input) input.value = (cfg.socials || {})[k] || '';
+    });
+    $('avatarHintRow').style.display = cfg.profile?.avatar ? 'block' : 'none';
   }
 
   function markDirty() {
@@ -2127,6 +2240,13 @@
   }
 
   function bindStyleControls() {
+    if (_styleControlsBound) {
+      /* Já vinculado: apenas reflete os valores do perfil atual */
+      reflectStyleValues();
+      return;
+    }
+    _styleControlsBound = true;
+
     /* bgVariant select */
     $('bgVariant').addEventListener('change', (e) => {
       if (!cfg.style) cfg.style = {};
@@ -2242,7 +2362,11 @@
     bindRange('titleSize', 'titleSizeVal', (v) => v + 'px', (v) => { cfg.style.titleSize = v; applyThemeVars(); });
     bindRange('blockGap', 'blockGapVal', (v) => v + 'px', (v) => { cfg.style.blockGap = v; renderPreview(); });
 
-    /* Reflete valores salvos nos controles */
+    reflectStyleValues();
+  }
+
+  /* Reflete os valores salvos do perfil atual nos controles (sem recriar listeners) */
+  function reflectStyleValues() {
     const st = cfg.style || {};
     $('bgVariant').value = st.bgVariant || 'solid';
     $('btnVariant').value = st.btnVariant || 'solid';
@@ -2254,7 +2378,6 @@
     $('cyberSecondary').value = st.cyberSecondary || '#ff00ff';
     $('glassEnabled').checked = !!st.glassEnabled;
 
-    /* Reflete valores salvos nos sliders */
     setRange('btnRadius', st.btnRadius);
     setRange('btnShadow', st.btnShadow);
     setRange('titleSize', st.titleSize);
@@ -2267,7 +2390,6 @@
     setRange('glassBorderOpacity', st.glassBorderOpacity ?? 25);
     setRange('btnGradientAngle', st.btnGradientAngle ?? 135);
 
-    /* Inicializa visibilidade e swatches */
     updateStyleRowsVisibility();
   }
 
@@ -2457,7 +2579,6 @@
       renderPreview();
       markDirty();
     });
-    if (cfg.profile?.avatar) $('avatarHintRow').style.display = 'block';
 
     /* Links rápidos */
     const addQuick = () => {
@@ -2479,7 +2600,6 @@
     ['instagram','whatsapp','tiktok','youtube','x','linkedin','facebook','telegram','email'].forEach((k) => {
       const input = $('soc' + k.charAt(0).toUpperCase() + k.slice(1));
       if (!input) return;
-      input.value = cfg.socials[k] || '';
       input.addEventListener('input', (e) => {
         cfg.socials = cfg.socials || {};
         cfg.socials[k] = e.target.value.trim();
@@ -2613,18 +2733,114 @@
       }
     });
 
-    $('btnAddProfile').addEventListener('click', async () => {
-      const name = prompt('Nome do novo perfil:');
-      if (!name || !name.trim()) return;
-      await createNewProfile(name.trim());
+    /* Clique na marca → volta ao dashboard de perfis */
+    $('brandHome').addEventListener('click', () => goBackToProfilesDashboard());
+  }
+
+  /* ================================================================
+     DASHBOARD DE SELEÇÃO DE PERFIS
+     ================================================================ */
+  function getInitials(name) {
+    const n = (name || '').trim();
+    if (!n) return '⚡';
+    const parts = n.split(/\s+/);
+    if (parts.length >= 2 && parts[0][0] && parts[1][0]) return (parts[0][0] + parts[1][0]).toUpperCase();
+    return n.slice(0, 2).toUpperCase();
+  }
+
+  /* Varre window.userProfiles e popula a grade de cards */
+  function renderProfileDashboard() {
+    const grid = $('pdGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+
+    (window.userProfiles || []).forEach((p) => {
+      const card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'profile-select-card';
+
+      const avatar = document.createElement('div');
+      avatar.className = 'psc-avatar';
+      const photo = p.config?.profile?.avatar; /* foto vive dentro do JSONB config */
+      if (photo) {
+        const im = document.createElement('img');
+        im.src = photo;
+        im.alt = '';
+        avatar.appendChild(im);
+      } else {
+        avatar.textContent = getInitials(p.nome || p.slug);
+      }
+
+      const name = document.createElement('div');
+      name.className = 'psc-name';
+      name.textContent = p.nome || p.slug;
+
+      card.appendChild(avatar);
+      card.appendChild(name);
+      card.addEventListener('click', () => selectProfileFromDashboard(p.id));
+      grid.appendChild(card);
     });
   }
 
-  /* Troca de perfil: salva o atual, carrega o novo, repopula controles, atualiza preview */
+  /* Exibe a tela de seleção (esconde editor) */
+  async function showProfilesDashboard() {
+    document.getElementById('authOverlay').style.display = 'none';
+    document.getElementById('appShell').hidden = true;
+    const dash = document.getElementById('profiles-dashboard');
+    dash.hidden = false;
+    renderProfileDashboard();
+  }
+
+  /* Volta ao dashboard salvando silenciosamente o rascunho atual */
+  async function goBackToProfilesDashboard() {
+    clearTimeout(_autoSaveTimer);
+    clearTimeout(_autoSaveCloudTimer);
+    try {
+      await SupaApp.saveClientConfig(buildPayload());
+    } catch (_) {}
+    await showProfilesDashboard();
+  }
+
+  /* Abre o editor carregando o perfil selecionado */
+  async function openEditorForCurrentProfile() {
+    document.getElementById('profiles-dashboard').hidden = true;
+    document.getElementById('appShell').hidden = false;
+
+    const activeProfile = window.userProfiles.find(p => p.id === window.currentProfileId);
+    _cloudConfigToLoad = activeProfile ? activeProfile.config : null;
+
+    if (activeProfile) {
+      if (activeProfile.slug && !activeProfile.slug.startsWith('perfil-inicial-')) {
+        $('slugInput').value = activeProfile.slug;
+      } else {
+        $('slugInput').placeholder = activeProfile.slug || 'seu-slug';
+        $('slugInput').value = '';
+      }
+      renderProfileSelect();
+      $('profileSelect').value = window.currentProfileId || '';
+    }
+
+    _openSyncChannel();
+    initEditor();
+  }
+
+  /* Clique em um card: define perfil ativo e abre o editor */
+  async function selectProfileFromDashboard(profileId) {
+    if (!window.userProfiles) return;
+    const p = window.userProfiles.find(x => x.id === profileId);
+    if (!p) return;
+    window.currentProfileId = profileId;
+    SupaApp.currentClient = p;
+    await openEditorForCurrentProfile();
+    showToast('Perfil: ' + (p.nome || p.slug));
+  }
+
+  /* Troca rápida via select da topbar: salva atual, abre o novo */
   async function switchProfile(newProfileId) {
     if (!window.userProfiles || !window.currentProfileId) return;
+    if (newProfileId === window.currentProfileId) return;
 
-    /* Salva o perfil atual antes de trocar */
+    clearTimeout(_autoSaveCloudTimer);
     try {
       const payload = buildPayload();
       await SupaApp.saveClientConfig(payload);
@@ -2637,67 +2853,12 @@
     if (!newProfile) return;
 
     window.currentProfileId = newProfileId;
-
-    /* Atualiza o select */
-    $('profileSelect').value = newProfileId;
-
-    /* Carrega config do novo perfil */
-    _cloudConfigToLoad = newProfile.config;
-
-    /* Atualiza slug na barra superior */
-    if (newProfile.slug && !newProfile.slug.startsWith('perfil-inicial-')) {
-      $('slugInput').value = newProfile.slug;
-    } else {
-      $('slugInput').placeholder = newProfile.slug || 'seu-slug';
-      $('slugInput').value = '';
-    }
-
-    /* Re-inicializa editor com nova config */
-    initEditor();
-
+    SupaApp.currentClient = newProfile;
+    await openEditorForCurrentProfile();
     showToast('Perfil trocado para: ' + (newProfile.nome || newProfile.slug));
   }
 
-  /* Cria novo perfil */
-  async function createNewProfile(name) {
-    if (!SupaApp.currentUser) return;
-
-    const slug = 'perfil-' + Math.random().toString(36).substring(2, 7);
-    const { data: newProfile, error } = await supabase
-      .from('clients')
-      .insert([{
-        user_id: SupaApp.currentUser.id,
-        slug: slug,
-        nome: name,
-        config: {}
-      }])
-      .select('id, slug, config, nome')
-      .single();
-
-    if (error) {
-      console.error('[Axiumlink] Erro ao criar perfil:', error);
-      showToast('Erro ao criar perfil: ' + error.message);
-      return;
-    }
-
-    window.userProfiles.push(newProfile);
-    window.currentProfileId = newProfile.id;
-
-    /* Atualiza select */
-    renderProfileSelect();
-    $('profileSelect').value = newProfile.id;
-
-    /* Carrega config vazia (defaults) */
-    _cloudConfigToLoad = {};
-    $('slugInput').placeholder = newProfile.slug;
-    $('slugInput').value = '';
-
-    initEditor();
-
-    showToast('Perfil "' + name + '" criado!');
-  }
-
-  /* Renderiza o select de perfis */
+  /* Renderiza o select rápido de perfis da topbar */
   function renderProfileSelect() {
     const select = $('profileSelect');
     if (!select || !window.userProfiles) return;
@@ -2711,6 +2872,93 @@
       select.appendChild(opt);
     });
     select.value = currentValue || window.currentProfileId || '';
+  }
+
+  /* ---- Modal "Criar Novo Perfil" ---- */
+  let _pdModalBound = false;
+
+  function bindProfileDashboard() {
+    if (_pdModalBound) return;
+    _pdModalBound = true;
+
+    $('pdBtnCreate').addEventListener('click', () => {
+      $('pdNewName').value = '';
+      $('pdNewSlug').value = '';
+      $('pdSlugPreview').textContent = 'seu-slug';
+      $('pdCreateMsg').textContent = '';
+      $('pdCreateModal').classList.add('open');
+      setTimeout(() => $('pdNewName').focus(), 50);
+    });
+
+    $('pdCancelCreate').addEventListener('click', () => {
+      $('pdCreateModal').classList.remove('open');
+    });
+
+    $('pdCreateModal').addEventListener('click', (e) => {
+      if (e.target === $('pdCreateModal')) $('pdCreateModal').classList.remove('open');
+    });
+
+    /* Sugere slug a partir do nome */
+    const suggestSlug = () => {
+      const input = $('pdNewSlug');
+      if (input.dataset.touched === '1') return;
+      const slug = $('pdNewName').value.trim().toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 30);
+      input.value = slug;
+      $('pdSlugPreview').textContent = slug || 'seu-slug';
+    };
+    $('pdNewName').addEventListener('input', suggestSlug);
+
+    $('pdNewSlug').addEventListener('input', (e) => {
+      e.target.dataset.touched = '1';
+      $('pdSlugPreview').textContent = e.target.value || 'seu-slug';
+    });
+
+    $('pdConfirmCreate').addEventListener('click', createProfileFromModal);
+  }
+
+  async function createProfileFromModal() {
+    const msgEl = $('pdCreateMsg');
+    const name = $('pdNewName').value.trim();
+    let slug = $('pdNewSlug').value.trim().toLowerCase();
+
+    if (!name) { msgEl.textContent = 'Informe o nome do perfil.'; return; }
+    if (!/^[a-z0-9-]{3,30}$/.test(slug)) {
+      msgEl.textContent = 'Slug inválido: use letras minúsculas, números e hífen (3–30).';
+      return;
+    }
+    if ((window.userProfiles || []).some(p => p.slug === slug)) {
+      msgEl.textContent = 'Você já tem um perfil com este endereço.';
+      return;
+    }
+
+    const btn = $('pdConfirmCreate');
+    btn.disabled = true;
+    msgEl.style.color = 'var(--muted)';
+    msgEl.textContent = 'Criando...';
+
+    const { data: newProfile, error } = await supabase
+      .from('clients')
+      .insert([{ user_id: SupaApp.currentUser.id, slug, nome: name, config: {} }])
+      .select('id, slug, config, nome')
+      .single();
+
+    btn.disabled = false;
+
+    if (error) {
+      console.error('[Axiumlink] Erro ao criar perfil:', error);
+      msgEl.style.color = 'var(--danger)';
+      msgEl.textContent = error.code === '23505'
+        ? 'Este endereço já está em uso por outro usuário. Escolha outro.'
+        : ('Erro: ' + error.message);
+      return;
+    }
+
+    window.userProfiles.push(newProfile);
+    $('pdCreateModal').classList.remove('open');
+    renderProfileDashboard();
+    showToast('Perfil "' + name + '" criado!');
   }
 
   function switchTab(which) {
@@ -2865,6 +3113,7 @@
 
   document.addEventListener('DOMContentLoaded', () => {
     bindCropGestures();
+    bindProfileDashboard();
 
     $('btnCropCancel').addEventListener('click', () => {
       $('cropModal').classList.remove('open');
