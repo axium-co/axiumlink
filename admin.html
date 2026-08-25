@@ -124,6 +124,26 @@
   .conn-status.offline .dot { background:var(--danger); }
   @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:.4; } }
 
+  /* Mesh Gradient Animation */
+  @keyframes meshMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* Animated Background */
+  @keyframes animatedBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* Cyberpunk Grid Glow */
+  @keyframes cyberGlow {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+  }
+
   .topbar-actions { margin-left:auto; display:flex; gap:8px; align-items:center; }
   .btn-view-page {
     padding:8px 16px; border-radius:10px; border:1.5px solid var(--border);
@@ -417,6 +437,21 @@
     transition:transform .15s ease, box-shadow .15s ease;
   }
   .link-block:hover { transform:translateY(-2px); box-shadow:0 6px 18px rgba(0,0,0,.12); }
+  .link-block:active { transform:translateY(0); }
+
+  /* Ghost button hover - preenchimento sólido */
+  .link-block.ghost:hover,
+  .social-btn.ghost:hover {
+    background: var(--p-btnbg, currentColor) !important;
+    color: var(--p-btnink, #fff) !important;
+  }
+
+  /* Neumorphic button active - efeito pressionado */
+  .link-block.neumorphic:active,
+  .social-btn.neumorphic:active {
+    box-shadow: inset 4px 4px 8px rgba(0,0,0,0.2), inset -4px -4px 8px rgba(255,255,255,0.5) !important;
+  }
+
   .link-block__head { display:flex; align-items:center; gap:11px; }
   .link-block-icon {
     width:38px; height:38px; border-radius:11px; flex-shrink:0; object-fit:cover;
@@ -729,9 +764,151 @@
         <button class="panel-del" data-section="style" title="Remover seção Estilo da página">🗑</button>
         <h2 class="panel-title"><span>🎨</span> Estilo da página</h2>
 
+        <!-- Tipo de Fundo -->
         <div class="field">
+          <label>Tipo de Fundo</label>
+          <select id="bgVariant" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+            <option value="solid">Sólido (Tema)</option>
+            <option value="gradient">Gradiente Linear</option>
+            <option value="mesh">Mesh Gradient (Fluido)</option>
+            <option value="animated">Fundo Animado (Wave/Glow)</option>
+            <option value="cyberpunk">Cyberpunk / Neon</option>
+          </select>
+        </div>
+
+        <!-- Tema de cores (para fundos sólidos/gradientes) -->
+        <div class="field" id="themeRow">
           <label>Tema de cores</label>
           <div class="color-swatch-row" id="themeSwatches"></div>
+        </div>
+
+        <!-- Gradiente Personalizado (quando gradient) -->
+        <div class="field" id="customGradientRow" style="display:none;">
+          <label>Gradiente Personalizado (2 cores)</label>
+          <div class="row-2">
+            <div class="field">
+              <label>Cor Inicial</label>
+              <input type="color" id="gradientStart" value="#6366f1">
+            </div>
+            <div class="field">
+              <label>Cor Final</label>
+              <input type="color" id="gradientEnd" value="#ec4899">
+            </div>
+          </div>
+          <div class="ds-control">
+            <label>Ângulo do Gradiente</label>
+            <div class="ds-control-row">
+              <input type="range" id="gradientAngle" min="0" max="360" step="1">
+              <output class="ds-value" id="gradientAngleVal">135deg</output>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mesh Gradient Colors (quando mesh) -->
+        <div class="field" id="meshColorsRow" style="display:none;">
+          <label>Cores do Mesh Gradient (clique para editar, × para remover)</label>
+          <div class="color-swatch-row" id="meshColorSwatches"></div>
+        </div>
+
+        <!-- Animated Colors (quando animated) -->
+        <div class="field" id="animatedColorsRow" style="display:none;">
+          <label>Cores da Animação (clique para editar, × para remover)</label>
+          <div class="color-swatch-row" id="animatedColorSwatches"></div>
+          <div class="ds-control" style="margin-top:10px;">
+            <label>Velocidade da Animação</label>
+            <div class="ds-control-row">
+              <input type="range" id="animSpeed" min="5" max="60" step="1">
+              <output class="ds-value" id="animSpeedVal">20s</output>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cyberpunk Colors (quando cyberpunk) -->
+        <div class="field" id="cyberpunkColorsRow" style="display:none;">
+          <label>Cores Neon (Glow)</label>
+          <div class="row-2">
+            <div class="field">
+              <label>Cor Primária</label>
+              <input type="color" id="cyberPrimary" value="#00ffff">
+            </div>
+            <div class="field">
+              <label>Cor Secundária</label>
+              <input type="color" id="cyberSecondary" value="#ff00ff">
+            </div>
+          </div>
+          <div class="ds-control">
+            <label>Intensidade do Grid</label>
+            <div class="ds-control-row">
+              <input type="range" id="cyberGridIntensity" min="0" max="100" step="5">
+              <output class="ds-value" id="cyberGridIntensityVal">30%</output>
+            </div>
+          </div>
+        </div>
+
+        <!-- Glassmorphism Controls -->
+        <div class="toggle-row" id="glassControlsRow" style="display:none;">
+          <span class="toggle-label">Efeito Vidro na página (Glassmorphism)</span>
+          <label class="switch">
+            <input type="checkbox" id="glassEnabled">
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="ds-control" id="glassBlurRow" style="display:none;">
+          <label>Intensidade do Desfoque (Blur)</label>
+          <div class="ds-control-row">
+            <input type="range" id="glassBlur" min="0" max="40" step="1">
+            <output class="ds-value" id="glassBlurVal">8px</output>
+          </div>
+        </div>
+
+        <div class="ds-control" id="glassOpacityRow" style="display:none;">
+          <label>Opacidade do Vidro</label>
+          <div class="ds-control-row">
+            <input type="range" id="glassOpacity" min="0" max="100" step="1">
+            <output class="ds-value" id="glassOpacityVal">30%</output>
+          </div>
+        </div>
+
+        <div class="ds-control" id="glassBorderOpacityRow" style="display:none;">
+          <label>Opacidade da Borda</label>
+          <div class="ds-control-row">
+            <input type="range" id="glassBorderOpacity" min="0" max="100" step="1">
+            <output class="ds-value" id="glassBorderOpacityVal">25%</output>
+          </div>
+        </div>
+
+        <!-- Controles de Botões -->
+        <div class="field">
+          <label>Variante do Botão</label>
+          <select id="btnVariant" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+            <option value="solid">Sólido (Tema)</option>
+            <option value="glass">Vidro (Glassmorphism)</option>
+            <option value="neumorphic">Neumórfico (Soft UI)</option>
+            <option value="ghost">Minimalista Vazado (Ghost)</option>
+            <option value="gradient">Gradiente Personalizado</option>
+          </select>
+        </div>
+
+        <div class="field" id="btnGradientRow" style="display:none;">
+          <label>Gradiente do Botão (2 cores)</label>
+          <div class="row-2">
+            <div class="field">
+              <label>Cor Inicial</label>
+              <input type="color" id="btnGradientStart" value="#6366f1">
+            </div>
+            <div class="field">
+              <label>Cor Final</label>
+              <input type="color" id="btnGradientEnd" value="#ec4899">
+            </div>
+          </div>
+          <div class="ds-control">
+            <label>Ângulo do Gradiente</label>
+            <div class="ds-control-row">
+              <input type="range" id="btnGradientAngle" min="0" max="360" step="1">
+              <output class="ds-value" id="btnGradientAngleVal">135deg</output>
+            </div>
+          </div>
         </div>
 
         <div class="ds-control">
@@ -764,14 +941,6 @@
             <input type="range" id="blockGap" min="4" max="24" step="1">
             <output class="ds-value" id="blockGapVal">10px</output>
           </div>
-        </div>
-
-        <div class="toggle-row">
-          <span class="toggle-label">Botões com transparência (vidro)</span>
-          <label class="switch">
-            <input type="checkbox" id="glassToggle">
-            <span class="slider"></span>
-          </label>
         </div>
       </section>
     </aside>
@@ -1224,7 +1393,33 @@
     quick: [],
     links: [],
     socials: {},
-    style: { theme: 'indigo', btnRadius: 14, btnShadow: 30, titleSize: 20, blockGap: 10, glass: false }
+    style: {
+      theme: 'indigo',
+      btnRadius: 14,
+      btnShadow: 30,
+      titleSize: 20,
+      blockGap: 10,
+      glass: false,
+      /* Novas propriedades avançadas */
+      bgVariant: 'solid',
+      gradientStart: '#6366f1',
+      gradientEnd: '#ec4899',
+      gradientAngle: 135,
+      meshColors: ['#6366f1', '#ec4899', '#06b6d4', '#f59e0b'],
+      animatedColors: ['#6366f1', '#ec4899', '#06b6d4'],
+      animSpeed: 20,
+      cyberPrimary: '#00ffff',
+      cyberSecondary: '#ff00ff',
+      cyberGridIntensity: 30,
+      glassEnabled: false,
+      glassBlur: 8,
+      glassOpacity: 30,
+      glassBorderOpacity: 25,
+      btnVariant: 'solid',
+      btnGradientStart: '#6366f1',
+      btnGradientEnd: '#ec4899',
+      btnGradientAngle: 135
+    }
   });
 
   let cfg = {};
@@ -1456,7 +1651,7 @@
       setRange('btnShadow', cfg.style.btnShadow);
       setRange('titleSize', cfg.style.titleSize);
       setRange('blockGap', cfg.style.blockGap);
-      $('glassToggle').checked = false;
+      $('glassEnabled').checked = false;
     }
   }
 
@@ -1629,38 +1824,167 @@
     rose:    { bg:'linear-gradient(180deg,#fff1f2,#ffe4e6)', ink:'#881337', btnbg:'#e11d48', btnink:'#ffffff' }
   };
 
-  function applyThemeVars() {
-    /* Estilo efetivo = defaults mesclados (sem gravar de volta: seção deletada continua fora do cfg) */
-    const st = Object.assign({}, DEFAULT_CFG().style, cfg.style || {});
-    const t = THEMES[st.theme] || THEMES.indigo;
-    const page = $('pvPage');
-    page.style.setProperty('--p-bg', t.bg);
-    page.style.setProperty('--p-ink', t.ink);
-    page.style.background = t.bg;
-    page.style.color = t.ink;
+  /* Gera CSS do background baseado na variante */
+  function buildBackgroundCSS(st, t) {
+    switch (st.bgVariant) {
+      case 'gradient':
+        return {
+          background: 'linear-gradient(' + (st.gradientAngle || 135) + 'deg, ' + (st.gradientStart || '#6366f1') + ', ' + (st.gradientEnd || '#ec4899') + ')'
+        };
+      case 'mesh': {
+        const colors = st.meshColors && st.meshColors.length >= 2 ? st.meshColors : ['#6366f1', '#ec4899', '#06b6d4', '#f59e0b'];
+        return {
+          backgroundColor: colors[colors.length - 1],
+          backgroundImage: [
+            'radial-gradient(at 15% 15%, ' + colors[0] + 'dd 0px, transparent 55%)',
+            'radial-gradient(at 85% 10%, ' + (colors[1] || colors[0]) + 'cc 0px, transparent 55%)',
+            'radial-gradient(at 10% 85%, ' + (colors[2] || colors[0]) + 'bb 0px, transparent 55%)',
+            'radial-gradient(at 90% 90%, ' + (colors[3] || colors[colors.length - 1]) + 'aa 0px, transparent 55%)'
+          ].join(', ')
+        };
+      }
+      case 'animated': {
+        const colors = st.animatedColors && st.animatedColors.length >= 2 ? st.animatedColors : ['#6366f1', '#ec4899', '#06b6d4'];
+        const grad = colors.map((c) => c).join(', ');
+        return {
+          background: 'linear-gradient(' + (st.gradientAngle || 135) + 'deg, ' + grad + ')',
+          backgroundSize: '400% 400%',
+          animation: 'animatedBG ' + (st.animSpeed || 20) + 's ease infinite'
+        };
+      }
+      case 'cyberpunk': {
+        const primary = st.cyberPrimary || '#00ffff';
+        const secondary = st.cyberSecondary || '#ff00ff';
+        const intensity = Math.max(0.01, (st.cyberGridIntensity || 30) / 100 * 0.08);
+        return {
+          backgroundColor: '#0a0a0f',
+          color: '#e5e7eb',
+          backgroundImage: [
+            'radial-gradient(ellipse at 15% 10%, ' + primary + '26 0%, transparent 55%)',
+            'radial-gradient(ellipse at 85% 90%, ' + secondary + '26 0%, transparent 55%)',
+            'linear-gradient(rgba(255,255,255,' + intensity.toFixed(3) + ') 1px, transparent 1px)',
+            'linear-gradient(90deg, rgba(255,255,255,' + intensity.toFixed(3) + ') 1px, transparent 1px)'
+          ].join(', '),
+          backgroundSize: '100% 100%, 100% 100%, 40px 40px, 40px 40px'
+        };
+      }
+      default:
+        return { background: t.bg };
+    }
+  }
 
+  /* Gera CSS do botão baseado na variante */
+  function buildButtonCSS(st, t) {
     const radius = (st.btnRadius ?? 14) + 'px';
     const alpha = (st.btnShadow ?? 30) / 100;
     const shadow = alpha > 0
       ? '0 ' + Math.round(alpha * 10) + 'px ' + Math.round(alpha * 26) + 'px rgba(0,0,0,' + (alpha * .35).toFixed(2) + ')'
       : 'none';
 
-    page.querySelectorAll('.link-block').forEach((el) => {
-      el.style.background = st.glass ? 'rgba(255,255,255,.55)' : t.btnbg;
-      el.style.color = st.glass ? t.ink : t.btnink;
-      el.style.borderRadius = radius;
-      el.style.boxShadow = shadow;
-      if (st.glass) {
-        el.style.backdropFilter = 'blur(8px)';
-        el.style.border = '1px solid rgba(255,255,255,.4)';
-      } else {
-        el.style.backdropFilter = '';
-        el.style.border = '';
+    const base = {
+      borderRadius: radius,
+      transition: 'all 0.2s ease'
+    };
+
+    switch (st.btnVariant) {
+      case 'glass': {
+        const blur = (st.glassBlur || 8) + 'px';
+        const opacity = (st.glassOpacity || 30) / 100;
+        const borderOpacity = (st.glassBorderOpacity || 25) / 100;
+        return {
+          ...base,
+          background: 'rgba(255,255,255,' + opacity + ')',
+          color: t.ink,
+          backdropFilter: 'blur(' + blur + ')',
+          WebkitBackdropFilter: 'blur(' + blur + ')',
+          border: '1px solid rgba(255,255,255,' + borderOpacity + ')',
+          boxShadow: shadow
+        };
       }
+      case 'neumorphic': {
+        const isDark = t.bg.includes('dark') || t.bg.includes('#0b') || t.bg.includes('#0a');
+        const bgColor = isDark ? '#1f2937' : '#e0e5ec';
+        const shadowLight = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.8)';
+        const shadowDark = isDark ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.1)';
+        return {
+          ...base,
+          background: bgColor,
+          color: t.ink,
+          border: 'none',
+          boxShadow: '8px 8px 16px ' + shadowDark + ', -8px -8px 16px ' + shadowLight
+        };
+      }
+      case 'ghost': {
+        return {
+          ...base,
+          background: 'transparent',
+          color: t.btnbg,
+          border: '2px solid ' + t.btnbg,
+          boxShadow: 'none'
+        };
+      }
+      case 'gradient': {
+        return {
+          ...base,
+          background: 'linear-gradient(' + (st.btnGradientAngle || 135) + 'deg, ' + (st.btnGradientStart || '#6366f1') + ', ' + (st.btnGradientEnd || '#ec4899') + ')',
+          color: '#ffffff',
+          border: 'none',
+          boxShadow: shadow
+        };
+      }
+      default: /* solid */
+        return {
+          ...base,
+          background: t.btnbg,
+          color: t.btnink,
+          border: 'none',
+          boxShadow: shadow
+        };
+    }
+  }
+
+  function applyThemeVars() {
+    /* Estilo efetivo = defaults mesclados (sem gravar de volta: seção deletada continua fora do cfg) */
+    const st = Object.assign({}, DEFAULT_CFG().style, cfg.style || {});
+    const t = THEMES[st.theme] || THEMES.indigo;
+    const page = $('pvPage');
+
+    /* Limpa estilos anteriores da página antes de reaplicar */
+    page.style.background = '';
+    page.style.backgroundImage = '';
+    page.style.backgroundColor = '';
+    page.style.backgroundSize = '';
+    page.style.animation = '';
+
+    /* Background da página — buildBackgroundCSS retorna objeto de propriedades */
+    const bgCSS = buildBackgroundCSS(st, t);
+    const isCyber = st.bgVariant === 'cyberpunk';
+    Object.assign(page.style, bgCSS);
+    if (!isCyber) page.style.color = t.ink;
+    page.style.setProperty('--p-bg', t.bg);
+    page.style.setProperty('--p-ink', t.ink);
+    page.style.setProperty('--p-btnbg', t.btnbg);
+    page.style.setProperty('--p-btnink', t.btnink);
+
+    /* Botões */
+    const btnCSS = buildButtonCSS(st, t);
+    const btnVariant = st.btnVariant || 'solid';
+    page.querySelectorAll('.link-block').forEach((el) => {
+      Object.assign(el.style, btnCSS);
+      el.classList.remove('ghost', 'neumorphic');
+      if (btnVariant === 'ghost' || btnVariant === 'neumorphic') el.classList.add(btnVariant);
     });
     page.querySelectorAll('.social-btn').forEach((el) => {
-      el.style.background = st.glass ? 'rgba(255,255,255,.55)' : t.btnbg;
-      el.style.color = st.glass ? t.ink : t.btnink;
+      Object.assign(el.style, {
+        ...btnCSS,
+        width: '44px',
+        height: '44px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      });
+      el.classList.remove('ghost', 'neumorphic');
+      if (btnVariant === 'ghost' || btnVariant === 'neumorphic') el.classList.add(btnVariant);
     });
 
     $('pvName').style.fontSize = (st.titleSize ?? 20) + 'px';
@@ -1682,6 +2006,7 @@
       const b = document.createElement('button');
       b.className = 'swatch' + (cfg.style?.theme === key ? ' active' : '');
       b.title = key;
+      b.dataset.theme = key;
       b.style.background = t.btnbg === '#ffffff' ? 'linear-gradient(135deg,#93c5fd,#3b82f6)' : t.btnbg;
       b.addEventListener('click', () => {
         if (!cfg.style) cfg.style = {};
@@ -1694,25 +2019,256 @@
     });
   }
 
+  /* Renderiza swatches de cores customizáveis (mesh, animated) */
+  function renderColorSwatches(containerId, colorsArray, onChange, onRemove) {
+    const wrap = $(containerId);
+    if (!wrap) return;
+    wrap.innerHTML = '';
+    (colorsArray || []).forEach((color, idx) => {
+      const btn = document.createElement('button');
+      btn.className = 'swatch';
+      btn.style.background = color;
+      btn.title = 'Cor ' + (idx + 1);
+      btn.style.position = 'relative';
+      const removeBtn = document.createElement('span');
+      removeBtn.textContent = '×';
+      removeBtn.style.position = 'absolute';
+      removeBtn.style.top = '-6px';
+      removeBtn.style.right = '-6px';
+      removeBtn.style.width = '18px';
+      removeBtn.style.height = '18px';
+      removeBtn.style.borderRadius = '50%';
+      removeBtn.style.background = 'rgba(0,0,0,0.6)';
+      removeBtn.style.color = '#fff';
+      removeBtn.style.fontSize = '12px';
+      removeBtn.style.lineHeight = '18px';
+      removeBtn.style.textAlign = 'center';
+      removeBtn.style.cursor = 'pointer';
+      removeBtn.style.display = 'none';
+      btn.appendChild(removeBtn);
+      btn.addEventListener('mouseenter', () => removeBtn.style.display = 'block');
+      btn.addEventListener('mouseleave', () => removeBtn.style.display = 'none');
+      btn.addEventListener('click', (e) => {
+        if (e.target === removeBtn) {
+          if (onRemove) onRemove(idx);
+        } else {
+          const newColor = prompt('Nova cor (hex):', color);
+          if (newColor && /^#[0-9a-fA-F]{6}$/.test(newColor)) {
+            if (onChange) onChange(idx, newColor);
+          }
+        }
+      });
+      wrap.appendChild(btn);
+    });
+    /* Botão adicionar */
+    if (colorsArray && colorsArray.length < 6) {
+      const addBtn = document.createElement('button');
+      addBtn.className = 'swatch';
+      addBtn.style.background = 'repeating-linear-gradient(45deg, transparent, transparent 5px, rgba(0,0,0,0.1) 5px, rgba(0,0,0,0.1) 10px)';
+      addBtn.style.display = 'flex';
+      addBtn.style.alignItems = 'center';
+      addBtn.style.justifyContent = 'center';
+      addBtn.style.fontSize = '20px';
+      addBtn.style.color = 'var(--muted)';
+      addBtn.textContent = '+';
+      addBtn.addEventListener('click', () => {
+        if (onChange) onChange('add', '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0'));
+      });
+      wrap.appendChild(addBtn);
+    }
+  }
+
+  /* Atualiza visibilidade das linhas condicionais */
+  function updateStyleRowsVisibility() {
+    const st = cfg.style || {};
+    const bgVar = st.bgVariant || 'solid';
+    const btnVar = st.btnVariant || 'solid';
+
+    $('themeRow').style.display = (bgVar === 'solid' || bgVar === 'gradient') ? '' : 'none';
+    $('customGradientRow').style.display = bgVar === 'gradient' ? '' : 'none';
+    $('meshColorsRow').style.display = bgVar === 'mesh' ? '' : 'none';
+    $('animatedColorsRow').style.display = bgVar === 'animated' ? '' : 'none';
+    $('cyberpunkColorsRow').style.display = bgVar === 'cyberpunk' ? '' : 'none';
+
+    /* Glass controls mostram quando glassEnabled ou btnVariant === glass */
+    const showGlass = st.glassEnabled || btnVar === 'glass';
+    $('glassControlsRow').style.display = showGlass ? '' : 'none';
+    $('glassBlurRow').style.display = showGlass ? '' : 'none';
+    $('glassOpacityRow').style.display = showGlass ? '' : 'none';
+    $('glassBorderOpacityRow').style.display = showGlass ? '' : 'none';
+
+    $('btnGradientRow').style.display = btnVar === 'gradient' ? '' : 'none';
+
+    /* Re-render swatches dinâmicos */
+    if (bgVar === 'mesh') {
+      renderColorSwatches('meshColorSwatches', st.meshColors,
+        (idx, color) => {
+          if (idx === 'add') st.meshColors.push(color); else st.meshColors[idx] = color;
+          applyThemeVars(); markDirty(); updateStyleRowsVisibility();
+        },
+        (idx) => {
+          st.meshColors.splice(idx, 1);
+          applyThemeVars(); markDirty(); updateStyleRowsVisibility();
+        }
+      );
+    }
+    if (bgVar === 'animated') {
+      renderColorSwatches('animatedColorSwatches', st.animatedColors,
+        (idx, color) => {
+          if (idx === 'add') st.animatedColors.push(color); else st.animatedColors[idx] = color;
+          applyThemeVars(); markDirty(); updateStyleRowsVisibility();
+        },
+        (idx) => {
+          st.animatedColors.splice(idx, 1);
+          applyThemeVars(); markDirty(); updateStyleRowsVisibility();
+        }
+      );
+    }
+  }
+
   function bindStyleControls() {
+    /* bgVariant select */
+    $('bgVariant').addEventListener('change', (e) => {
+      if (!cfg.style) cfg.style = {};
+      cfg.style.bgVariant = e.target.value;
+      updateStyleRowsVisibility();
+      applyThemeVars();
+      markDirty();
+    });
+
+    /* Tema de cores */
+    $('themeSwatches').addEventListener('click', (e) => {
+      const btn = e.target.closest('.swatch');
+      if (!btn || !btn.dataset.theme) return;
+      if (!cfg.style) cfg.style = {};
+      cfg.style.theme = btn.dataset.theme;
+      renderThemeSwatches();
+      applyThemeVars();
+      markDirty();
+    });
+
+    /* Gradiente customizado */
+    ['gradientStart', 'gradientEnd'].forEach(id => {
+      $(id).addEventListener('input', (e) => {
+        if (!cfg.style) cfg.style = {};
+        cfg.style[id] = e.target.value;
+        applyThemeVars();
+        markDirty();
+      });
+    });
+    $('gradientAngle').addEventListener('input', (e) => {
+      if (!cfg.style) cfg.style = {};
+      cfg.style.gradientAngle = Number(e.target.value);
+      $('gradientAngleVal').textContent = e.target.value + 'deg';
+      applyThemeVars();
+      markDirty();
+    });
+
+    /* Mesh colors - handled by renderColorSwatches */
+
+    /* Animated colors - handled by renderColorSwatches */
+    $('animSpeed').addEventListener('input', (e) => {
+      if (!cfg.style) cfg.style = {};
+      cfg.style.animSpeed = Number(e.target.value);
+      $('animSpeedVal').textContent = e.target.value + 's';
+      applyThemeVars();
+      markDirty();
+    });
+
+    /* Cyberpunk */
+    ['cyberPrimary', 'cyberSecondary'].forEach(id => {
+      $(id).addEventListener('input', (e) => {
+        if (!cfg.style) cfg.style = {};
+        cfg.style[id] = e.target.value;
+        applyThemeVars();
+        markDirty();
+      });
+    });
+    $('cyberGridIntensity').addEventListener('input', (e) => {
+      if (!cfg.style) cfg.style = {};
+      cfg.style.cyberGridIntensity = Number(e.target.value);
+      $('cyberGridIntensityVal').textContent = e.target.value + '%';
+      applyThemeVars();
+      markDirty();
+    });
+
+    /* Glassmorphism */
+    $('glassEnabled').addEventListener('change', (e) => {
+      if (!cfg.style) cfg.style = {};
+      cfg.style.glassEnabled = e.target.checked;
+      updateStyleRowsVisibility();
+      applyThemeVars();
+      markDirty();
+    });
+    ['glassBlur', 'glassOpacity', 'glassBorderOpacity'].forEach(id => {
+      $(id).addEventListener('input', (e) => {
+        if (!cfg.style) cfg.style = {};
+        cfg.style[id] = Number(e.target.value);
+        $(''+id+'Val').textContent = (id === 'glassBlur' ? e.target.value + 'px' : e.target.value + '%');
+        applyThemeVars();
+        markDirty();
+      });
+    });
+
+    /* btnVariant select */
+    $('btnVariant').addEventListener('change', (e) => {
+      if (!cfg.style) cfg.style = {};
+      cfg.style.btnVariant = e.target.value;
+      updateStyleRowsVisibility();
+      applyThemeVars();
+      markDirty();
+    });
+
+    /* Botão gradiente */
+    ['btnGradientStart', 'btnGradientEnd'].forEach(id => {
+      $(id).addEventListener('input', (e) => {
+        if (!cfg.style) cfg.style = {};
+        cfg.style[id] = e.target.value;
+        applyThemeVars();
+        markDirty();
+      });
+    });
+    $('btnGradientAngle').addEventListener('input', (e) => {
+      if (!cfg.style) cfg.style = {};
+      cfg.style.btnGradientAngle = Number(e.target.value);
+      $('btnGradientAngleVal').textContent = e.target.value + 'deg';
+      applyThemeVars();
+      markDirty();
+    });
+
+    /* Controles originais */
     bindRange('btnRadius', 'btnRadiusVal', (v) => v + 'px', (v) => { cfg.style.btnRadius = v; applyThemeVars(); });
     bindRange('btnShadow', 'btnShadowVal', (v) => v + '%', (v) => { cfg.style.btnShadow = v; applyThemeVars(); });
     bindRange('titleSize', 'titleSizeVal', (v) => v + 'px', (v) => { cfg.style.titleSize = v; applyThemeVars(); });
     bindRange('blockGap', 'blockGapVal', (v) => v + 'px', (v) => { cfg.style.blockGap = v; renderPreview(); });
 
-    $('glassToggle').checked = !!(cfg.style && cfg.style.glass);
-    $('glassToggle').addEventListener('change', (e) => {
-      if (!cfg.style) cfg.style = {};
-      cfg.style.glass = e.target.checked;
-      applyThemeVars();
-      markDirty();
-    });
+    /* Reflete valores salvos nos controles */
+    const st = cfg.style || {};
+    $('bgVariant').value = st.bgVariant || 'solid';
+    $('btnVariant').value = st.btnVariant || 'solid';
+    $('gradientStart').value = st.gradientStart || '#6366f1';
+    $('gradientEnd').value = st.gradientEnd || '#ec4899';
+    $('btnGradientStart').value = st.btnGradientStart || '#6366f1';
+    $('btnGradientEnd').value = st.btnGradientEnd || '#ec4899';
+    $('cyberPrimary').value = st.cyberPrimary || '#00ffff';
+    $('cyberSecondary').value = st.cyberSecondary || '#ff00ff';
+    $('glassEnabled').checked = !!st.glassEnabled;
 
     /* Reflete valores salvos nos sliders */
-    setRange('btnRadius', cfg.style?.btnRadius);
-    setRange('btnShadow', cfg.style?.btnShadow);
-    setRange('titleSize', cfg.style?.titleSize);
-    setRange('blockGap', cfg.style?.blockGap);
+    setRange('btnRadius', st.btnRadius);
+    setRange('btnShadow', st.btnShadow);
+    setRange('titleSize', st.titleSize);
+    setRange('blockGap', st.blockGap);
+    setRange('gradientAngle', st.gradientAngle ?? 135);
+    setRange('animSpeed', st.animSpeed ?? 20);
+    setRange('cyberGridIntensity', st.cyberGridIntensity ?? 30);
+    setRange('glassBlur', st.glassBlur ?? 8);
+    setRange('glassOpacity', st.glassOpacity ?? 30);
+    setRange('glassBorderOpacity', st.glassBorderOpacity ?? 25);
+    setRange('btnGradientAngle', st.btnGradientAngle ?? 135);
+
+    /* Inicializa visibilidade e swatches */
+    updateStyleRowsVisibility();
   }
 
   function bindRange(id, outId, fmt, onChange) {
