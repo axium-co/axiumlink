@@ -1245,6 +1245,14 @@
       _isDirty = true;
     }
 
+    /* Garante estrutura mínima para que event handlers não falhem */
+    cfg.profile = cfg.profile || { displayName: '', bio: '', avatar: '' };
+    cfg.quick = cfg.quick || [];
+    cfg.links = cfg.links || [];
+    cfg.socials = cfg.socials || {};
+    cfg.style = cfg.style || DEFAULT_CFG().style;
+    cfg.banner = cfg.banner || '';
+
     $('displayName').value = cfg.profile?.displayName || '';
     $('bio').value = cfg.profile?.bio || '';
     const activeProfile = window.userProfiles?.find(p => p.id === window.currentProfileId);
