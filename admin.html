@@ -92,6 +92,14 @@
   .topbar-brand { display:flex; align-items:center; gap:8px; font-weight:800; font-size:17px; white-space:nowrap; }
   .topbar-brand span { font-size:20px; }
 
+  .topbar-profile {
+    display:flex; align-items:center; gap:6px; margin-left:12px; padding:4px 8px;
+    background:var(--bg); border-radius:999px; border:1px solid var(--border);
+  }
+  .topbar-profile select { appearance:none; background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>"); background-repeat:no-repeat; background-position:right 8px center; padding-right:32px; }
+  .topbar-profile select:focus { border-color:var(--brand); }
+  .topbar-profile button:hover { background:var(--brand-dark); }
+
   .topbar-slug {
     display:flex; align-items:center; gap:6px; margin-left:4px;
     background:var(--bg); padding:6px 10px; border-radius:999px; border:1px solid var(--border);
@@ -509,6 +517,9 @@
 
   @media (max-width:600px) {
     .topbar-slug { display:none; }
+    .topbar-profile { margin-left:8px; }
+    .topbar-profile label { display:none; }
+    .topbar-profile select { min-width:100px; max-width:140px; }
     .btn-view-page span { display:none; }
     .conn-status span { display:none; }
     .conn-status { padding:8px; }
@@ -554,6 +565,15 @@
   <!-- BARRA SUPERIOR -->
   <header class="admin-topbar">
     <div class="topbar-brand"><span>⚡</span> Axiumlink</div>
+
+    <!-- Seletor de Perfil (Multi-perfil) -->
+    <div class="topbar-profile" id="topbarProfile">
+      <label for="profileSelect" style="font-size:11px; color:var(--muted); font-weight:600; margin-right:6px;">Perfil:</label>
+      <select id="profileSelect" style="min-width:140px; max-width:200px; padding:6px 10px; border:1.5px solid var(--border); border-radius:999px; background:#fff; font-size:13px; font-weight:600; color:var(--ink); outline:none; cursor:pointer;">
+        <option value="">Carregando...</option>
+      </select>
+      <button id="btnAddProfile" title="Novo perfil" style="width:28px; height:28px; border:none; border-radius:50%; background:var(--brand); color:#fff; font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; margin-left:6px;">+</button>
+    </div>
 
     <div class="topbar-slug">
       <label>axiumlink.vercel.app/</label>
@@ -1134,6 +1154,9 @@
 
       /* Mantém sessão viva em outras abas abertas */
       _openSyncChannel();
+
+      /* Renderiza seletor de perfis */
+      renderProfileSelect();
     }
 
     initEditor();
@@ -2007,6 +2030,113 @@
         menu.classList.remove('open');
       }
     });
+
+    /* Seletor de Perfil */
+    $('profileSelect').addEventListener('change', async (e) => {
+      const newProfileId = e.target.value;
+      if (newProfileId && newProfileId !== window.currentProfileId) {
+        await switchProfile(newProfileId);
+      }
+    });
+
+    $('btnAddProfile').addEventListener('click', async () => {
+      const name = prompt('Nome do novo perfil:');
+      if (!name || !name.trim()) return;
+      await createNewProfile(name.trim());
+    });
+  }
+
+  /* Troca de perfil: salva o atual, carrega o novo, repopula controles, atualiza preview */
+  async function switchProfile(newProfileId) {
+    if (!window.userProfiles || !window.currentProfileId) return;
+
+    /* Salva o perfil atual antes de trocar */
+    try {
+      const payload = buildPayload();
+      await SupaApp.saveClientConfig(payload);
+      localStorage.setItem(getStorageKey(), JSON.stringify(payload));
+    } catch (err) {
+      console.warn('[Axiumlink] Falha ao salvar perfil atual ao trocar:', err.message);
+    }
+
+    const newProfile = window.userProfiles.find(p => p.id === newProfileId);
+    if (!newProfile) return;
+
+    window.currentProfileId = newProfileId;
+
+    /* Atualiza o select */
+    $('profileSelect').value = newProfileId;
+
+    /* Carrega config do novo perfil */
+    _cloudConfigToLoad = newProfile.config;
+
+    /* Atualiza slug na barra superior */
+    if (newProfile.slug && !newProfile.slug.startsWith('perfil-inicial-')) {
+      $('slugInput').value = newProfile.slug;
+    } else {
+      $('slugInput').placeholder = newProfile.slug || 'seu-slug';
+      $('slugInput').value = '';
+    }
+
+    /* Re-inicializa editor com nova config */
+    initEditor();
+
+    showToast('Perfil trocado para: ' + (newProfile.nome || newProfile.slug));
+  }
+
+  /* Cria novo perfil */
+  async function createNewProfile(name) {
+    if (!SupaApp.currentUser) return;
+
+    const slug = 'perfil-' + Math.random().toString(36).substring(2, 7);
+    const { data: newProfile, error } = await supabase
+      .from('clients')
+      .insert([{
+        user_id: SupaApp.currentUser.id,
+        slug: slug,
+        nome: name,
+        config: {}
+      }])
+      .select('id, slug, config, nome')
+      .single();
+
+    if (error) {
+      console.error('[Axiumlink] Erro ao criar perfil:', error);
+      showToast('Erro ao criar perfil: ' + error.message);
+      return;
+    }
+
+    window.userProfiles.push(newProfile);
+    window.currentProfileId = newProfile.id;
+
+    /* Atualiza select */
+    renderProfileSelect();
+    $('profileSelect').value = newProfile.id;
+
+    /* Carrega config vazia (defaults) */
+    _cloudConfigToLoad = {};
+    $('slugInput').placeholder = newProfile.slug;
+    $('slugInput').value = '';
+
+    initEditor();
+
+    showToast('Perfil "' + name + '" criado!');
+  }
+
+  /* Renderiza o select de perfis */
+  function renderProfileSelect() {
+    const select = $('profileSelect');
+    if (!select || !window.userProfiles) return;
+
+    const currentValue = select.value;
+    select.innerHTML = '';
+    window.userProfiles.forEach(p => {
+      const opt = document.createElement('option');
+      opt.value = p.id;
+      opt.textContent = p.nome || p.slug;
+      select.appendChild(opt);
+    });
+    select.value = currentValue || window.currentProfileId || '';
   }
 
   function switchTab(which) {
