@@ -1418,6 +1418,24 @@
     img, svg, video {
       max-width: 100%;
     }
+
+    /* ================================================================
+       TRAVAMENTO FINAL DO AVATAR — último bloco da cascata.
+       Mesma especificidade + mesma importância de qualquer regra
+       anterior ⇒ a ORDEM decide: este bloco vence. Garante o
+       enquadramento central mesmo se algo acima conflitar.
+       ================================================================ */
+    .profile__avatar {
+      overflow: hidden !important;
+      border-radius: 50% !important;
+    }
+    .profile__avatar > img,
+    .profile__avatar img {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+      object-position: center !important;
+    }
   </style>
 
   <!-- Supabase SDK + inicialização -->
