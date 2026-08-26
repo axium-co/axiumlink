@@ -3269,6 +3269,8 @@
         const publicUrl = await uploadFileToStorage(file, 'bg');
         if (!cfg.style) cfg.style = {};
         cfg.style.bgImageUrl = publicUrl;
+        cfg.style.bgVariant = 'image';
+        updateStyleRowsVisibility();
         applyThemeVars();
         markDirty();
         showToast('Fundo atualizado!');
@@ -3280,12 +3282,17 @@
     $('bgImageUrl').addEventListener('input', (e) => {
       if (!cfg.style) cfg.style = {};
       cfg.style.bgImageUrl = e.target.value.trim();
+      if (e.target.value.trim()) cfg.style.bgVariant = 'image';
+      updateStyleRowsVisibility();
       applyThemeVars();
       markDirty();
     });
     $('btnBgImageClear').addEventListener('click', () => {
       if (!cfg.style) cfg.style = {};
       cfg.style.bgImageUrl = '';
+      cfg.style.bgVariant = 'solid';
+      $('bgVariant').value = 'solid';
+      updateStyleRowsVisibility();
       applyThemeVars();
       markDirty();
       showToast('Imagem de fundo removida');
