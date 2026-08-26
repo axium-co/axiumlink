@@ -14,7 +14,7 @@
 <!-- Fontes -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&family=Montserrat:wght@400;500;600;700;800&family=Syne:wght@400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <!-- Supabase SDK + credenciais + init -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
@@ -460,6 +460,33 @@
 
   /* ===== PÁGINA PREVIEW (pv-*) ===== */
   .pv-page { min-height:100%; background:var(--p-bg,#f9fafb); color:var(--p-ink,#111827); padding-bottom:40px; }
+
+  /* Vídeo e textura de fundo — atrás de todo o conteúdo */
+  .pv-bg-video {
+    position:absolute; inset:0; width:100%; height:100%;
+    object-fit:cover; z-index:0; pointer-events:none;
+  }
+  .pv-texture {
+    position:absolute; inset:0; z-index:1;
+    pointer-events:none; mix-blend-mode:soft-light;
+  }
+  .pv-page > *:not(.pv-bg-video):not(.pv-texture) {
+    position:relative; z-index:2;
+  }
+
+  /* Animações contínuas dos botões */
+  @keyframes pvPulse { 0%,100% { transform:scale(1); } 50% { transform:scale(1.03); } }
+  @keyframes pvFloat { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-4px); } }
+  @keyframes pvShineSweep { 0% { left:-60%; } 60%,100% { left:130%; } }
+  .pv-anim-pulse { animation:pvPulse 2.2s ease-in-out infinite; }
+  .pv-anim-float { animation:pvFloat 3.2s ease-in-out infinite; }
+  .pv-anim-shine { position:relative !important; overflow:hidden !important; }
+  .pv-anim-shine::before {
+    content:''; position:absolute; top:0; left:-60%;
+    width:40%; height:100%; pointer-events:none;
+    background:linear-gradient(105deg, transparent, rgba(255,255,255,.45), transparent);
+    animation:pvShineSweep 2.8s ease-in-out infinite;
+  }
   .pv-topbar {
     display:flex; justify-content:flex-end; gap:10px; padding:14px 16px; position:relative; z-index:5;
   }
@@ -989,6 +1016,35 @@
           <div class="color-swatch-row" id="themeSwatches"></div>
         </div>
 
+        <!-- TIPOGRAFIA PREMIUM -->
+        <div class="field">
+          <label for="fontFamily">Fonte da página</label>
+          <select id="fontFamily" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+            <option value="Inter">Inter (neutra)</option>
+            <option value="Poppins">Poppins (amigável)</option>
+            <option value="Montserrat">Montserrat (corporativa)</option>
+            <option value="Syne">Syne (artística/moderna)</option>
+            <option value="Playfair Display">Playfair Display (elegante/serifa)</option>
+            <option value="Space Grotesk">Space Grotesk (tech)</option>
+          </select>
+        </div>
+
+        <div class="ds-control">
+          <label>Espaçamento entre letras</label>
+          <div class="ds-control-row">
+            <input type="range" id="letterSpacing" min="-1" max="5" step="0.1">
+            <output class="ds-value" id="letterSpacingVal">0px</output>
+          </div>
+        </div>
+
+        <div class="ds-control">
+          <label>Altura da linha</label>
+          <div class="ds-control-row">
+            <input type="range" id="lineHeight" min="1" max="2" step="0.05">
+            <output class="ds-value" id="lineHeightVal">1.4</output>
+          </div>
+        </div>
+
         <!-- Gradiente Personalizado (quando gradient) -->
         <div class="field" id="customGradientRow" style="display:none;">
           <label>Gradiente Personalizado (2 cores)</label>
@@ -1052,6 +1108,32 @@
           </div>
         </div>
 
+        <!-- Vídeo de Fundo (quando video) -->
+        <div class="field" id="bgVideoRow" style="display:none;">
+          <label for="bgVideoUrl">URL do Vídeo de Fundo (MP4/WebM)</label>
+          <input type="url" id="bgVideoUrl" placeholder="https://exemplo.com/video.mp4">
+          <p class="hint">Reproduz em loop mudo atrás de todo o conteúdo.</p>
+        </div>
+
+        <!-- Texturas (sólido/gradiente/mesh/animado) -->
+        <div class="field" id="bgTextureRow" style="display:none;">
+          <label for="bgTexture">Textura Sobreposta</label>
+          <select id="bgTexture" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+            <option value="none">Nenhuma</option>
+            <option value="diagonal">Linhas Diagonais</option>
+            <option value="dots">Pontos</option>
+            <option value="grid">Quadriculado</option>
+            <option value="noise">Ruído (Noise)</option>
+          </select>
+          <div class="ds-control" style="margin-top:10px;">
+            <label>Opacidade do Padrão</label>
+            <div class="ds-control-row">
+              <input type="range" id="bgTextureOpacity" min="0" max="100" step="1">
+              <output class="ds-value" id="bgTextureOpacityVal">30%</output>
+            </div>
+          </div>
+        </div>
+
         <!-- Glassmorphism Controls -->
         <div class="toggle-row" id="glassControlsRow" style="display:none;">
           <span class="toggle-label">Efeito Vidro na página (Glassmorphism)</span>
@@ -1094,7 +1176,32 @@
             <option value="neumorphic">Neumórfico (Soft UI)</option>
             <option value="ghost">Minimalista Vazado (Ghost)</option>
             <option value="gradient">Gradiente Personalizado</option>
+            <option value="neon">Glow Neon</option>
           </select>
+        </div>
+
+        <div class="field" id="glowColorRow" style="display:none;">
+          <label for="btnGlowColor">Cor do Glow Neon</label>
+          <input type="color" id="btnGlowColor" value="#22d3ee">
+        </div>
+
+        <div class="row-2">
+          <div class="field">
+            <label for="btnShape">Forma</label>
+            <select id="btnShape" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+              <option value="rounded">Arredondado</option>
+              <option value="organic">Orgânico (Folha)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="btnAnimation">Animação</label>
+            <select id="btnAnimation" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+              <option value="none">Nenhuma</option>
+              <option value="pulse">Pulsação Contínua</option>
+              <option value="shine">Brilho Passante (Shine)</option>
+              <option value="float">Flutuação Suave</option>
+            </select>
+          </div>
         </div>
 
         <div class="field" id="btnGradientRow" style="display:none;">
@@ -1639,7 +1746,7 @@
       titleSize: 20,
       blockGap: 10,
       glass: false,
-      /* Novas propriedades avançadas */
+      /* Fundo */
       bgVariant: 'solid',
       gradientStart: '#6366f1',
       gradientEnd: '#ec4899',
@@ -1650,14 +1757,26 @@
       cyberPrimary: '#00ffff',
       cyberSecondary: '#ff00ff',
       cyberGridIntensity: 30,
+      bgVideoUrl: '',
+      bgTexture: 'none',
+      bgTextureOpacity: 30,
+      /* Glass */
       glassEnabled: false,
       glassBlur: 8,
       glassOpacity: 30,
       glassBorderOpacity: 25,
+      /* Botões */
       btnVariant: 'solid',
       btnGradientStart: '#6366f1',
       btnGradientEnd: '#ec4899',
-      btnGradientAngle: 135
+      btnGradientAngle: 135,
+      btnGlowColor: '#22d3ee',
+      btnShape: 'rounded',
+      btnAnimation: 'none',
+      /* Tipografia */
+      font: 'Inter',
+      letterSpacing: 0,
+      lineHeight: 1.4
     }
   });
 
@@ -2103,6 +2222,26 @@
     rose:    { bg:'linear-gradient(180deg,#fff1f2,#ffe4e6)', ink:'#881337', btnbg:'#e11d48', btnink:'#ffffff' }
   };
 
+  /* Texturas geométricas sobrepostas (padrões em cinza neutro +
+     mix-blend-mode soft-light → adaptam-se a fundos claros e escuros) */
+  const NOISE_URI = 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'120\' height=\'120\'><filter id=\'n\'><feTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'2\'/><feColorMatrix type=\'saturate\' values=\'0\'/></filter><rect width=\'120\' height=\'120\' filter=\'url(%23n)\' opacity=\'0.55\'/></svg>")';
+  const BG_TEXTURES = {
+    diagonal: { backgroundImage: 'repeating-linear-gradient(45deg, #808080 0 2px, transparent 2px 10px)' },
+    dots:     { backgroundImage: 'radial-gradient(#808080 1.5px, transparent 1.6px)', backgroundSize: '18px 18px' },
+    grid:     { backgroundImage: 'linear-gradient(#808080 1px, transparent 1px), linear-gradient(90deg, #808080 1px, transparent 1px)', backgroundSize: '24px 24px' },
+    noise:    { backgroundImage: NOISE_URI }
+  };
+
+  /* Catálogo tipográfico (famílias já importadas no <head>) */
+  const FONT_STACKS = {
+    'Inter': "'Inter', system-ui, -apple-system, sans-serif",
+    'Poppins': "'Poppins', system-ui, sans-serif",
+    'Montserrat': "'Montserrat', system-ui, sans-serif",
+    'Syne': "'Syne', system-ui, sans-serif",
+    'Playfair Display': "'Playfair Display', Georgia, serif",
+    'Space Grotesk': "'Space Grotesk', system-ui, monospace"
+  };
+
   /* Gera CSS do background baseado na variante */
   function buildBackgroundCSS(st, t) {
     switch (st.bgVariant) {
@@ -2147,14 +2286,67 @@
           backgroundSize: '100% 100%, 100% 100%, 40px 40px, 40px 40px'
         };
       }
+      case 'video':
+        /* O <video> é gerenciado por syncBgVideo(); aqui só o fallback */
+        return { backgroundColor: '#0b1220' };
       default:
         return { background: t.bg };
     }
   }
 
+  /* Injeta/remove/atualiza o <video> de fundo dentro do preview */
+  function syncBgVideo(st) {
+    const page = $('pvPage');
+    if (!page) return;
+    let v = page.querySelector('video.pv-bg-video');
+    if (st.bgVariant !== 'video' || !st.bgVideoUrl) {
+      if (v) v.remove();
+      return;
+    }
+    if (!v) {
+      v = document.createElement('video');
+      v.className = 'pv-bg-video';
+      v.muted = true;          /* obrigatório para autoplay */
+      v.loop = true;
+      v.playsInline = true;
+      v.setAttribute('muted', '');
+      v.setAttribute('playsinline', '');
+      v.setAttribute('aria-hidden', 'true');
+      page.prepend(v);
+    }
+    if (v.dataset.src !== st.bgVideoUrl) {
+      v.dataset.src = st.bgVideoUrl;
+      v.src = st.bgVideoUrl;
+      v.load();
+      const p = v.play();
+      if (p && p.catch) p.catch(() => {});
+    }
+  }
+
+  /* Injeta/remove/atualiza a camada de textura sobre o fundo */
+  function syncBgTexture(st) {
+    const page = $('pvPage');
+    if (!page) return;
+    let layer = page.querySelector('.pv-texture');
+    const tex = BG_TEXTURES[st.bgTexture];
+    if (st.bgVariant === 'video' || !tex) {
+      if (layer) layer.remove();
+      return;
+    }
+    if (!layer) {
+      layer = document.createElement('div');
+      layer.className = 'pv-texture';
+      layer.setAttribute('aria-hidden', 'true');
+      page.prepend(layer);
+    }
+    Object.assign(layer.style, tex);
+    layer.style.opacity = String((st.bgTextureOpacity ?? 30) / 100);
+  }
+
   /* Gera CSS do botão baseado na variante */
   function buildButtonCSS(st, t) {
-    const radius = (st.btnRadius ?? 14) + 'px';
+    const ORGANIC_RADIUS = '30% 70% 70% 30% / 30% 30% 70% 70%';
+    const radius = st.btnShape === 'organic' ? ORGANIC_RADIUS : ((st.btnRadius ?? 14) + 'px');
     const alpha = (st.btnShadow ?? 30) / 100;
     const shadow = alpha > 0
       ? '0 ' + Math.round(alpha * 10) + 'px ' + Math.round(alpha * 26) + 'px rgba(0,0,0,' + (alpha * .35).toFixed(2) + ')'
@@ -2178,6 +2370,16 @@
           WebkitBackdropFilter: 'blur(' + blur + ')',
           border: '1px solid rgba(255,255,255,' + borderOpacity + ')',
           boxShadow: shadow
+        };
+      }
+      case 'neon': {
+        const glow = st.btnGlowColor || '#22d3ee';
+        return {
+          ...base,
+          background: 'transparent',
+          color: glow,
+          border: '2px solid ' + glow,
+          boxShadow: '0 0 15px ' + glow + ', inset 0 0 8px ' + glow + '66'
         };
       }
       case 'neumorphic': {
@@ -2240,18 +2442,44 @@
     const isCyber = st.bgVariant === 'cyberpunk';
     Object.assign(page.style, bgCSS);
     if (!isCyber) page.style.color = t.ink;
+    page.style.position = 'relative'; /* ancora vídeo/textura absolutos */
     page.style.setProperty('--p-bg', t.bg);
     page.style.setProperty('--p-ink', t.ink);
     page.style.setProperty('--p-btnbg', t.btnbg);
     page.style.setProperty('--p-btnink', t.btnink);
 
+    /* Vídeo + textura de fundo */
+    syncBgVideo(st);
+    syncBgTexture(st);
+
+    /* Tipografia premium */
+    const fontStack = FONT_STACKS[st.font] || FONT_STACKS['Inter'];
+    page.style.fontFamily = fontStack;
+    const ls = (st.letterSpacing ?? 0) + 'px';
+    const lh = String(st.lineHeight ?? 1.4);
+    page.style.letterSpacing = ls;
+    const pvName = $('pvName');
+    if (pvName) {
+      pvName.style.letterSpacing = ls;
+      pvName.style.lineHeight = lh;
+      pvName.style.fontFamily = 'inherit';
+    }
+    const pvBio = $('pvBio');
+    if (pvBio) { pvBio.style.letterSpacing = ls; pvBio.style.lineHeight = lh; }
+
     /* Botões */
     const btnCSS = buildButtonCSS(st, t);
     const btnVariant = st.btnVariant || 'solid';
+    const btnAnim = st.btnAnimation || 'none';
+    const ANIM_CLASSES = ['pv-anim-pulse', 'pv-anim-float', 'pv-anim-shine'];
     page.querySelectorAll('.link-block').forEach((el) => {
       Object.assign(el.style, btnCSS);
       el.classList.remove('ghost', 'neumorphic');
       if (btnVariant === 'ghost' || btnVariant === 'neumorphic') el.classList.add(btnVariant);
+      el.classList.remove(...ANIM_CLASSES);
+      if (btnAnim === 'pulse') el.classList.add('pv-anim-pulse');
+      else if (btnAnim === 'float') el.classList.add('pv-anim-float');
+      else if (btnAnim === 'shine') el.classList.add('pv-anim-shine');
     });
     page.querySelectorAll('.social-btn').forEach((el) => {
       Object.assign(el.style, {
@@ -2264,6 +2492,9 @@
       });
       el.classList.remove('ghost', 'neumorphic');
       if (btnVariant === 'ghost' || btnVariant === 'neumorphic') el.classList.add(btnVariant);
+      el.classList.remove(...ANIM_CLASSES);
+      if (btnAnim === 'pulse') el.classList.add('pv-anim-pulse');
+      else if (btnAnim === 'float') el.classList.add('pv-anim-float');
     });
 
     $('pvName').style.fontSize = (st.titleSize ?? 20) + 'px';
@@ -2368,6 +2599,9 @@
     $('meshColorsRow').style.display = bgVar === 'mesh' ? '' : 'none';
     $('animatedColorsRow').style.display = bgVar === 'animated' ? '' : 'none';
     $('cyberpunkColorsRow').style.display = bgVar === 'cyberpunk' ? '' : 'none';
+    $('bgVideoRow').style.display = bgVar === 'video' ? '' : 'none';
+    $('bgTextureRow').style.display =
+      (bgVar === 'solid' || bgVar === 'gradient' || bgVar === 'mesh' || bgVar === 'animated') ? '' : 'none';
 
     /* Glass controls mostram quando glassEnabled ou btnVariant === glass */
     const showGlass = st.glassEnabled || btnVar === 'glass';
@@ -2377,6 +2611,7 @@
     $('glassBorderOpacityRow').style.display = showGlass ? '' : 'none';
 
     $('btnGradientRow').style.display = btnVar === 'gradient' ? '' : 'none';
+    $('glowColorRow').style.display = btnVar === 'neon' ? '' : 'none';
 
     /* Re-render swatches dinâmicos */
     if (bgVar === 'mesh') {
@@ -2522,6 +2757,71 @@
       markDirty();
     });
 
+    /* Vídeo de fundo */
+    $('bgVideoUrl').addEventListener('input', (e) => {
+      if (!cfg.style) cfg.style = {};
+      cfg.style.bgVideoUrl = e.target.value.trim();
+      applyThemeVars();
+      markDirty();
+    });
+
+    /* Textura sobreposta */
+    $('bgTexture').addEventListener('change', (e) => {
+      if (!cfg.style) cfg.style = {};
+      cfg.style.bgTexture = e.target.value;
+      applyThemeVars();
+      markDirty();
+    });
+    $('bgTextureOpacity').addEventListener('input', (e) => {
+      if (!cfg.style) cfg.style = {};
+      cfg.style.bgTextureOpacity = Number(e.target.value);
+      $('bgTextureOpacityVal').textContent = e.target.value + '%';
+      applyThemeVars();
+      markDirty();
+    });
+
+    /* Tipografia premium */
+    $('fontFamily').addEventListener('change', (e) => {
+      if (!cfg.style) cfg.style = {};
+      cfg.style.font = e.target.value;
+      applyThemeVars();
+      markDirty();
+    });
+    $('letterSpacing').addEventListener('input', (e) => {
+      if (!cfg.style) cfg.style = {};
+      cfg.style.letterSpacing = Number(e.target.value);
+      $('letterSpacingVal').textContent = Number(e.target.value).toFixed(1) + 'px';
+      applyThemeVars();
+      markDirty();
+    });
+    $('lineHeight').addEventListener('input', (e) => {
+      if (!cfg.style) cfg.style = {};
+      cfg.style.lineHeight = Number(e.target.value);
+      $('lineHeightVal').textContent = Number(e.target.value).toFixed(2);
+      applyThemeVars();
+      markDirty();
+    });
+
+    /* Glow Neon + Forma + Animação dos botões */
+    $('btnGlowColor').addEventListener('input', (e) => {
+      if (!cfg.style) cfg.style = {};
+      cfg.style.btnGlowColor = e.target.value;
+      applyThemeVars();
+      markDirty();
+    });
+    $('btnShape').addEventListener('change', (e) => {
+      if (!cfg.style) cfg.style = {};
+      cfg.style.btnShape = e.target.value;
+      applyThemeVars();
+      markDirty();
+    });
+    $('btnAnimation').addEventListener('change', (e) => {
+      if (!cfg.style) cfg.style = {};
+      cfg.style.btnAnimation = e.target.value;
+      applyThemeVars();
+      markDirty();
+    });
+
     /* Controles originais */
     bindRange('btnRadius', 'btnRadiusVal', (v) => v + 'px', (v) => { cfg.style.btnRadius = v; applyThemeVars(); });
     bindRange('btnShadow', 'btnShadowVal', (v) => v + '%', (v) => { cfg.style.btnShadow = v; applyThemeVars(); });
@@ -2543,6 +2843,12 @@
     $('cyberPrimary').value = st.cyberPrimary || '#00ffff';
     $('cyberSecondary').value = st.cyberSecondary || '#ff00ff';
     $('glassEnabled').checked = !!st.glassEnabled;
+    $('bgVideoUrl').value = st.bgVideoUrl || '';
+    $('bgTexture').value = st.bgTexture || 'none';
+    $('fontFamily').value = st.font || 'Inter';
+    $('btnGlowColor').value = st.btnGlowColor || '#22d3ee';
+    $('btnShape').value = st.btnShape || 'rounded';
+    $('btnAnimation').value = st.btnAnimation || 'none';
 
     setRange('btnRadius', st.btnRadius);
     setRange('btnShadow', st.btnShadow);
@@ -2555,6 +2861,9 @@
     setRange('glassOpacity', st.glassOpacity ?? 30);
     setRange('glassBorderOpacity', st.glassBorderOpacity ?? 25);
     setRange('btnGradientAngle', st.btnGradientAngle ?? 135);
+    setRange('bgTextureOpacity', st.bgTextureOpacity ?? 30);
+    setRange('letterSpacing', st.letterSpacing ?? 0);
+    setRange('lineHeight', st.lineHeight ?? 1.4);
 
     updateStyleRowsVisibility();
   }
