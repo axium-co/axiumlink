@@ -370,6 +370,7 @@
       background: var(--glass-bg);
       border: 1px solid var(--glass-border);
       border-radius: 999px;
+      overflow: hidden;
       -webkit-backdrop-filter: blur(var(--glass-blur));
       backdrop-filter: blur(var(--glass-blur));
       box-shadow: var(--shadow-x) var(--shadow-y) var(--shadow-blur) var(--shadow-spread) var(--shadow-color);
@@ -1450,10 +1451,17 @@
     }
     .profile__avatar > img,
     .profile__avatar img {
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
       width: 100% !important;
       height: 100% !important;
       object-fit: cover !important;
       object-position: center !important;
+      max-width: none !important;
+      max-height: none !important;
+      transform: none !important;
+      aspect-ratio: auto !important;
     }
   </style>
 

@@ -1,4 +1,4 @@
-const SW_VERSION = 'axiumlink-v1.2.5';
+const SW_VERSION = 'axiumlink-v1.2.6';
 const PRECACHE_URLS = [
   './',
   './index.html',
@@ -53,6 +53,10 @@ self.addEventListener('fetch', (event) => {
 
   if (url.origin === self.location.origin) {
     if (url.pathname.split('?')[0].endsWith('/config.js')) {
+      event.respondWith(networkFirst(request));
+      return;
+    }
+    if (url.pathname.split('?')[0].endsWith('/index.html') || url.pathname.split('?')[0].endsWith('/admin.html')) {
       event.respondWith(networkFirst(request));
       return;
     }
