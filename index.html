@@ -300,13 +300,17 @@
 
     /* ---- Foto/Logo do perfil — sobreposta ao cover ---- */
     /* Círculo travado: nenhuma regra inline/legada transforma em quadrado */
+    .profile__avatar,
+    .profile__avatar.profile__avatar {
+      position: relative !important;
+      border-radius: 50% !important;
+      overflow: hidden !important;
+      transform: none !important;
+    }
     .profile__avatar {
-      position: relative;
       z-index: 1;
       width: var(--avatar-s);
       height: var(--avatar-s);
-      border-radius: 50% !important;
-      overflow: hidden !important;
       background: var(--card-destaque-bg, var(--card-bg));
       color: var(--card-destaque-text, var(--card-fg));
       border: 3px solid var(--page-bg);
@@ -317,23 +321,32 @@
       font-weight: 700;
       letter-spacing: -0.02em;
       flex-shrink: 0;
-      transform: none;
     }
 
-    .profile__avatar img {
+    /* Enquadramento inteligente: a imagem SEMPRE preenche o círculo
+       inteiro, cortada pelo centro — nunca esticada nem deslocada.
+       Especificidade dupla (#id + classes) vence qualquer concorrente. */
+    .profile__avatar img,
+    #pgAvatarImg.profile__avatar-img,
+    .profile__avatar .profile__avatar-img {
       position: absolute !important;
-      inset: 0 !important;
       top: 0 !important;
       left: 0 !important;
+      right: 0 !important;
+      bottom: 0 !important;
       width: 100% !important;
       height: 100% !important;
       max-width: none !important;
       max-height: none !important;
+      min-width: 0 !important;
+      min-height: 0 !important;
       margin: 0 !important;
       padding: 0 !important;
+      border: 0 !important;
       transform: none !important;
       object-fit: cover !important;
       object-position: center !important;
+      aspect-ratio: auto !important;
       display: block !important;
     }
 

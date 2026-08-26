@@ -1,4 +1,4 @@
-const SW_VERSION = 'axiumlink-v1.2.0';
+const SW_VERSION = 'axiumlink-v1.2.2';
 const PRECACHE_URLS = [
   './',
   './index.html',
