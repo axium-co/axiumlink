@@ -514,7 +514,7 @@
     display:block; text-decoration:none; color:inherit;
     border-radius:14px; padding:13px 15px; margin-bottom:10px;
     transition:transform .15s ease, box-shadow .15s ease;
-    position:relative; width:100%; box-sizing:border-box;
+    position:relative; width:100%; min-height:48px; box-sizing:border-box;
   }
   .link-block:hover { transform:translateY(-2px); box-shadow:0 6px 18px rgba(0,0,0,.12); }
   .link-block:active { transform:translateY(0); }
@@ -532,7 +532,10 @@
     box-shadow: inset 4px 4px 8px rgba(0,0,0,0.2), inset -4px -4px 8px rgba(255,255,255,0.5) !important;
   }
 
-  /* Texto centralizado com ícone isolado à esquerda (idêntico à página pública) */
+  /* Texto centralizado com ícone isolado à esquerda (idêntico à página pública).
+     O ícone tem largura fixa + overflow:hidden: mesmo um texto longo legado
+     jamais transborda ou empurra o título centralizado — funciona igual
+     nos modos Celular e Desktop (mesmo #pvPage). */
   .link-block__head {
     display:flex; align-items:center; justify-content:center;
     width:100%; text-align:center;
@@ -540,8 +543,10 @@
   }
   .link-block-icon {
     position:absolute; left:12px; top:50%; transform:translateY(-50%);
-    width:38px; height:38px; border-radius:11px; flex-shrink:0; object-fit:cover;
+    width:38px; height:38px; border-radius:11px;
+    flex-shrink:0; object-fit:cover;
     display:flex; align-items:center; justify-content:center; font-size:17px;
+    overflow:hidden; white-space:nowrap; text-overflow:clip;
   }
   .link-block-txt { min-width:0; flex:0 1 auto; max-width:100%; }
   .link-block-title {
@@ -1959,7 +1964,18 @@
         im.alt = '';
         iconWrap.appendChild(im);
       } else {
-        iconWrap.textContent = l.icon || '👉';
+        /* Ícone NUNCA vira texto solto: se o dado legado guarda a palavra da
+           plataforma ('whatsapp', 'instagram'...), converte para emoji e
+           expõe apenas como atributo data-platform. */
+        const PLATFORM_EMOJI = {
+          whatsapp: '💬', instagram: '📷', localizacao: '📍',
+          telefone: '📞', site: '🌐', outro: '🔗'
+        };
+        const raw = String(l.icon || '').trim();
+        const key = raw.toLowerCase();
+        const isPlatformWord = Object.prototype.hasOwnProperty.call(PLATFORM_EMOJI, key);
+        iconWrap.dataset.platform = isPlatformWord ? key : '';
+        iconWrap.textContent = isPlatformWord ? PLATFORM_EMOJI[key] : (raw || '👉');
       }
 
       const txt = document.createElement('span');
