@@ -325,6 +325,76 @@
   }
   .btn-mini:hover { border-color:var(--brand); color:var(--brand); }
 
+  /* ===== COLOR PICKER POPOVER ===== */
+  .cp-popover {
+    position:fixed; z-index:2000; background:#1e1e2e; border-radius:14px;
+    box-shadow:0 12px 40px rgba(0,0,0,.45); padding:14px; width:260px;
+    font-family:Inter,system-ui,sans-serif; user-select:none;
+  }
+  .cp-sv {
+    position:relative; width:100%; height:180px; border-radius:8px;
+    cursor:crosshair; overflow:hidden; touch-action:none;
+  }
+  .cp-sv-white { position:absolute; inset:0; background:linear-gradient(to bottom,rgba(255,255,255,0),rgba(255,255,255,1)); }
+  .cp-sv-black { position:absolute; inset:0; background:linear-gradient(to right,rgba(0,0,0,1),rgba(0,0,0,0)); }
+  .cp-sv-cursor {
+    position:absolute; width:16px; height:16px; border-radius:50%;
+    border:2px solid #fff; box-shadow:0 0 3px rgba(0,0,0,.5);
+    transform:translate(-50%,-50%); pointer-events:none;
+  }
+  .cp-hue {
+    position:relative; width:100%; height:16px; margin-top:10px; border-radius:8px;
+    background:linear-gradient(to right,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00);
+    cursor:pointer; touch-action:none;
+  }
+  .cp-hue-cursor {
+    position:absolute; top:-2px; width:6px; height:20px; border-radius:3px;
+    background:#fff; border:1px solid rgba(0,0,0,.2);
+    box-shadow:0 1px 3px rgba(0,0,0,.3); transform:translateX(-50%);
+    pointer-events:none;
+  }
+  .cp-row { display:flex; align-items:center; gap:8px; margin-top:10px; }
+  .cp-preview {
+    width:36px; height:36px; border-radius:8px; border:2px solid rgba(255,255,255,.15);
+    flex-shrink:0;
+  }
+  .cp-hex-input {
+    flex:1; padding:7px 10px; border-radius:8px; border:1.5px solid rgba(255,255,255,.12);
+    background:rgba(255,255,255,.08); color:#e2e8f0; font-size:13px;
+    font-family:monospace; outline:none; text-transform:uppercase;
+  }
+  .cp-hex-input:focus { border-color:var(--brand); }
+  .cp-swatches { display:flex; gap:5px; flex-wrap:wrap; margin-top:10px; }
+  .cp-sw {
+    width:26px; height:26px; border-radius:6px; cursor:pointer;
+    border:2px solid transparent; transition:transform .12s;
+  }
+  .cp-sw:hover { transform:scale(1.15); }
+  .cp-sw.active { border-color:#fff; }
+  .cp-actions { display:flex; gap:8px; margin-top:10px; }
+  .cp-btn {
+    flex:1; padding:7px 0; border-radius:8px; border:none; font-size:12px;
+    font-weight:600; cursor:pointer; transition:opacity .15s;
+  }
+  .cp-btn-ok { background:var(--brand); color:#fff; }
+  .cp-btn-cancel { background:rgba(255,255,255,.1); color:#94a3b8; }
+  .cp-btn:hover { opacity:.85; }
+
+  /* Trigger button for native color inputs */
+  .color-trigger {
+    display:flex; align-items:center; gap:10px; padding:8px 12px;
+    border:1.5px solid var(--border); border-radius:10px; background:#fff;
+    cursor:pointer; transition:border .15s; width:100%;
+  }
+  .color-trigger:hover { border-color:var(--brand); }
+  .color-trigger-swatch {
+    width:28px; height:28px; border-radius:7px; border:1.5px solid rgba(0,0,0,.1);
+    flex-shrink:0;
+  }
+  .color-trigger-hex {
+    font-size:13px; font-family:monospace; color:var(--ink); text-transform:uppercase;
+  }
+
   /* ===== MODAL DE CROP ===== */
   #cropModal { display:none; position:fixed; inset:0; z-index:1000; }
   #cropModal.open { display:block; }
@@ -1101,11 +1171,11 @@
           <div class="row-2">
             <div class="field">
               <label>Cor Inicial</label>
-              <input type="color" id="gradientStart" value="#6366f1">
+              <div class="color-trigger" id="gradientStart" role="button" tabindex="0"><div class="color-trigger-swatch"></div><span class="color-trigger-hex">#6366F1</span></div>
             </div>
             <div class="field">
               <label>Cor Final</label>
-              <input type="color" id="gradientEnd" value="#ec4899">
+              <div class="color-trigger" id="gradientEnd" role="button" tabindex="0"><div class="color-trigger-swatch"></div><span class="color-trigger-hex">#EC4899</span></div>
             </div>
           </div>
           <div class="ds-control">
@@ -1142,11 +1212,11 @@
           <div class="row-2">
             <div class="field">
               <label>Cor Primária</label>
-              <input type="color" id="cyberPrimary" value="#00ffff">
+              <div class="color-trigger" id="cyberPrimary" role="button" tabindex="0"><div class="color-trigger-swatch"></div><span class="color-trigger-hex">#00FFFF</span></div>
             </div>
             <div class="field">
               <label>Cor Secundária</label>
-              <input type="color" id="cyberSecondary" value="#ff00ff">
+              <div class="color-trigger" id="cyberSecondary" role="button" tabindex="0"><div class="color-trigger-swatch"></div><span class="color-trigger-hex">#FF00FF</span></div>
             </div>
           </div>
           <div class="ds-control">
@@ -1251,7 +1321,7 @@
 
         <div class="field" id="glowColorRow" style="display:none;">
           <label for="btnGlowColor">Cor do Glow Neon</label>
-          <input type="color" id="btnGlowColor" value="#22d3ee">
+          <div class="color-trigger" id="btnGlowColor" role="button" tabindex="0"><div class="color-trigger-swatch"></div><span class="color-trigger-hex">#22D3EE</span></div>
         </div>
 
         <div class="row-2">
@@ -1282,11 +1352,11 @@
           <div class="row-2">
             <div class="field">
               <label>Cor Inicial</label>
-              <input type="color" id="btnGradientStart" value="#6366f1">
+              <div class="color-trigger" id="btnGradientStart" role="button" tabindex="0"><div class="color-trigger-swatch"></div><span class="color-trigger-hex">#6366F1</span></div>
             </div>
             <div class="field">
               <label>Cor Final</label>
-              <input type="color" id="btnGradientEnd" value="#ec4899">
+              <div class="color-trigger" id="btnGradientEnd" role="button" tabindex="0"><div class="color-trigger-swatch"></div><span class="color-trigger-hex">#EC4899</span></div>
             </div>
           </div>
           <div class="ds-control">
@@ -2942,10 +3012,9 @@
         if (e.target === removeBtn) {
           if (onRemove) onRemove(idx);
         } else {
-          const newColor = prompt('Nova cor (hex):', color);
-          if (newColor && /^#[0-9a-fA-F]{6}$/.test(newColor)) {
+          openColorPicker(btn, color, (newColor) => {
             if (onChange) onChange(idx, newColor);
-          }
+          });
         }
       });
       wrap.appendChild(btn);
@@ -2962,10 +3031,252 @@
       addBtn.style.color = 'var(--muted)';
       addBtn.textContent = '+';
       addBtn.addEventListener('click', () => {
-        if (onChange) onChange('add', '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0'));
+        openColorPicker(addBtn, '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0'), (newColor) => {
+          if (onChange) onChange('add', newColor);
+        });
       });
       wrap.appendChild(addBtn);
     }
+  }
+
+  /* ================================================================
+     COLOR PICKER — componente reutilizável
+     Abre um popover com: painel SV (saturação/brilho), slider de matiz,
+     campo HEX, preview e swatches rápidos. Chama onChange(hex) ao confirmar.
+     ================================================================ */
+  const CP_SWATCHES = ['#111827','#2563eb','#1f2937','#ea580c','#0891b2','#16a34a','#e11d48','#6366f1'];
+  let _cpActive = null;
+
+  function hsvToRgb(h, s, v) {
+    h = h / 360; let r, g, b;
+    const i = Math.floor(h * 6), f = h * 6 - i;
+    const p = v * (1 - s), q = v * (1 - f * s), t = v * (1 - (1 - f) * s);
+    switch (i % 6) {
+      case 0: r = v; g = t; b = p; break;
+      case 1: r = q; g = v; b = p; break;
+      case 2: r = p; g = v; b = t; break;
+      case 3: r = p; g = q; b = v; break;
+      case 4: r = t; g = p; b = v; break;
+      case 5: r = v; g = p; b = q; break;
+    }
+    return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+  }
+
+  function rgbToHsv(r, g, b) {
+    r /= 255; g /= 255; b /= 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    const d = max - min;
+    let h = 0, s = max === 0 ? 0 : d / max, v = max;
+    if (d !== 0) {
+      switch (max) {
+        case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+        case g: h = ((b - r) / d + 2) / 6; break;
+        case b: h = ((r - g) / d + 4) / 6; break;
+      }
+    }
+    return [Math.round(h * 360), Math.round(s * 100) / 100, Math.round(v * 100) / 100];
+  }
+
+  function rgbToHex(r, g, b) {
+    return '#' + [r, g, b].map(c => c.toString(16).padStart(2, '0')).join('');
+  }
+
+  function hexToRgb(hex) {
+    hex = hex.replace('#', '');
+    if (hex.length === 3) hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
+    if (hex.length !== 6) return [0, 0, 0];
+    return [parseInt(hex.slice(0,2),16), parseInt(hex.slice(2,4),16), parseInt(hex.slice(4,6),16)];
+  }
+
+  function openColorPicker(anchor, initialHex, onChange) {
+    closeColorPicker();
+    const rgb = hexToRgb(initialHex);
+    const [ih, is, iv] = rgbToHsv(rgb[0], rgb[1], rgb[2]);
+    let hue = ih, sat = is, val = iv;
+
+    const pop = document.createElement('div');
+    pop.className = 'cp-popover';
+
+    /* SV panel */
+    const sv = document.createElement('div');
+    sv.className = 'cp-sv';
+    const svWhite = document.createElement('div');
+    svWhite.className = 'cp-sv-white';
+    const svBlack = document.createElement('div');
+    svBlack.className = 'cp-sv-black';
+    const svCursor = document.createElement('div');
+    svCursor.className = 'cp-sv-cursor';
+    sv.appendChild(svWhite);
+    sv.appendChild(svBlack);
+    sv.appendChild(svCursor);
+
+    /* Hue slider */
+    const hueEl = document.createElement('div');
+    hueEl.className = 'cp-hue';
+    const hueCursor = document.createElement('div');
+    hueCursor.className = 'cp-hue-cursor';
+    hueEl.appendChild(hueCursor);
+
+    /* Preview + hex input */
+    const row = document.createElement('div');
+    row.className = 'cp-row';
+    const preview = document.createElement('div');
+    preview.className = 'cp-preview';
+    const hexInput = document.createElement('input');
+    hexInput.className = 'cp-hex-input';
+    hexInput.type = 'text';
+    hexInput.maxLength = 7;
+    row.appendChild(preview);
+    row.appendChild(hexInput);
+
+    /* Quick swatches */
+    const swRow = document.createElement('div');
+    swRow.className = 'cp-swatches';
+
+    /* Actions */
+    const actions = document.createElement('div');
+    actions.className = 'cp-actions';
+    const okBtn = document.createElement('button');
+    okBtn.className = 'cp-btn cp-btn-ok';
+    okBtn.textContent = 'OK';
+    const cancelBtn = document.createElement('button');
+    cancelBtn.className = 'cp-btn cp-btn-cancel';
+    cancelBtn.textContent = 'Cancelar';
+    actions.appendChild(okBtn);
+    actions.appendChild(cancelBtn);
+
+    pop.appendChild(sv);
+    pop.appendChild(hueEl);
+    pop.appendChild(row);
+    pop.appendChild(swRow);
+    pop.appendChild(actions);
+    document.body.appendChild(pop);
+
+    /* Position near anchor */
+    const ar = anchor.getBoundingClientRect();
+    let top = ar.bottom + 8;
+    let left = ar.left;
+    if (top + 360 > window.innerHeight) top = ar.top - 360;
+    if (left + 260 > window.innerWidth) left = window.innerWidth - 270;
+    if (left < 10) left = 10;
+    pop.style.top = Math.max(10, top) + 'px';
+    pop.style.left = left + 'px';
+
+    function updateAll() {
+      const [r, g, b] = hsvToRgb(hue, sat, val);
+      const hex = rgbToHex(r, g, b);
+      sv.style.background = 'hsl(' + hue + ',100%,50%)';
+      svCursor.style.left = (sat * 100) + '%';
+      svCursor.style.top = ((1 - val) * 100) + '%';
+      svCursor.style.background = hex;
+      hueCursor.style.left = (hue / 360 * 100) + '%';
+      preview.style.background = hex;
+      hexInput.value = hex.toUpperCase();
+      swRow.querySelectorAll('.cp-sw').forEach(sw => {
+        sw.classList.toggle('active', sw.dataset.hex.toUpperCase() === hex.toUpperCase());
+      });
+    }
+
+    /* SV drag */
+    function svUpdate(e) {
+      const rect = sv.getBoundingClientRect();
+      const t = e.touches ? e.touches[0] : e;
+      sat = Math.max(0, Math.min(1, (t.clientX - rect.left) / rect.width));
+      val = Math.max(0.01, Math.min(1, 1 - (t.clientY - rect.top) / rect.height));
+      updateAll();
+    }
+    function svStart(e) {
+      e.preventDefault();
+      svUpdate(e);
+      function onMove(ev) { svUpdate(ev); }
+      function onUp() { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); document.removeEventListener('touchmove', onMove); document.removeEventListener('touchend', onUp); }
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+      document.addEventListener('touchmove', onMove, { passive: false });
+      document.addEventListener('touchend', onUp);
+    }
+    sv.addEventListener('mousedown', svStart);
+    sv.addEventListener('touchstart', svStart, { passive: false });
+
+    /* Hue drag */
+    function hueUpdate(e) {
+      const rect = hueEl.getBoundingClientRect();
+      const t = e.touches ? e.touches[0] : e;
+      hue = Math.max(0, Math.min(360, ((t.clientX - rect.left) / rect.width) * 360));
+      updateAll();
+    }
+    function hueStart(e) {
+      e.preventDefault();
+      hueUpdate(e);
+      function onMove(ev) { hueUpdate(ev); }
+      function onUp() { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); document.removeEventListener('touchmove', onMove); document.removeEventListener('touchend', onUp); }
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+      document.addEventListener('touchmove', onMove, { passive: false });
+      document.addEventListener('touchend', onUp);
+    }
+    hueEl.addEventListener('mousedown', hueStart);
+    hueEl.addEventListener('touchstart', hueStart, { passive: false });
+
+    /* Hex input */
+    hexInput.addEventListener('input', () => {
+      let v = hexInput.value.trim();
+      if (!v.startsWith('#')) v = '#' + v;
+      if (/^#[0-9a-fA-F]{6}$/.test(v)) {
+        const [r, g, b] = hexToRgb(v);
+        [hue, sat, val] = rgbToHsv(r, g, b);
+        updateAll();
+      }
+    });
+
+    /* Quick swatches */
+    CP_SWATCHES.forEach(c => {
+      const s = document.createElement('div');
+      s.className = 'cp-sw';
+      s.style.background = c;
+      s.dataset.hex = c;
+      s.addEventListener('click', () => {
+        const [r, g, b] = hexToRgb(c);
+        [hue, sat, val] = rgbToHsv(r, g, b);
+        updateAll();
+      });
+      swRow.appendChild(s);
+    });
+
+    /* OK / Cancel */
+    okBtn.addEventListener('click', () => {
+      const [r, g, b] = hsvToRgb(hue, sat, val);
+      onChange(rgbToHex(r, g, b));
+      closeColorPicker();
+    });
+    cancelBtn.addEventListener('click', closeColorPicker);
+
+    /* Close on outside click */
+    function outsideClick(e) {
+      if (!pop.contains(e.target) && !anchor.contains(e.target)) closeColorPicker();
+    }
+    setTimeout(() => document.addEventListener('mousedown', outsideClick), 0);
+
+    _cpActive = { pop, outsideClick };
+    updateAll();
+  }
+
+  function closeColorPicker() {
+    if (_cpActive) {
+      document.removeEventListener('mousedown', _cpActive.outsideClick);
+      _cpActive.pop.remove();
+      _cpActive = null;
+    }
+  }
+
+  /* Atualiza visual de um .color-trigger (swatch + hex label) */
+  function setTriggerColor(id, hex) {
+    const el = $(id);
+    if (!el) return;
+    const swatch = el.querySelector('.color-trigger-swatch');
+    const label = el.querySelector('.color-trigger-hex');
+    if (swatch) swatch.style.background = hex || '#000';
+    if (label) label.textContent = (hex || '#000000').toUpperCase();
   }
 
   /* Atualiza visibilidade das linhas condicionais */
@@ -3060,11 +3371,15 @@
 
     /* Gradiente customizado */
     ['gradientStart', 'gradientEnd'].forEach(id => {
-      $(id).addEventListener('input', (e) => {
-        if (!cfg.style) cfg.style = {};
-        cfg.style[id] = e.target.value;
-        applyThemeVars();
-        markDirty();
+      $(id).addEventListener('click', () => {
+        const current = (cfg.style && cfg.style[id]) || (id === 'gradientStart' ? '#6366f1' : '#ec4899');
+        openColorPicker($(id), current, (hex) => {
+          if (!cfg.style) cfg.style = {};
+          cfg.style[id] = hex;
+          setTriggerColor(id, hex);
+          applyThemeVars();
+          markDirty();
+        });
       });
     });
     $('gradientAngle').addEventListener('input', (e) => {
@@ -3088,11 +3403,15 @@
 
     /* Cyberpunk */
     ['cyberPrimary', 'cyberSecondary'].forEach(id => {
-      $(id).addEventListener('input', (e) => {
-        if (!cfg.style) cfg.style = {};
-        cfg.style[id] = e.target.value;
-        applyThemeVars();
-        markDirty();
+      $(id).addEventListener('click', () => {
+        const current = (cfg.style && cfg.style[id]) || (id === 'cyberPrimary' ? '#00ffff' : '#ff00ff');
+        openColorPicker($(id), current, (hex) => {
+          if (!cfg.style) cfg.style = {};
+          cfg.style[id] = hex;
+          setTriggerColor(id, hex);
+          applyThemeVars();
+          markDirty();
+        });
       });
     });
     $('cyberGridIntensity').addEventListener('input', (e) => {
@@ -3132,11 +3451,15 @@
 
     /* Botão gradiente */
     ['btnGradientStart', 'btnGradientEnd'].forEach(id => {
-      $(id).addEventListener('input', (e) => {
-        if (!cfg.style) cfg.style = {};
-        cfg.style[id] = e.target.value;
-        applyThemeVars();
-        markDirty();
+      $(id).addEventListener('click', () => {
+        const current = (cfg.style && cfg.style[id]) || (id === 'btnGradientStart' ? '#6366f1' : '#ec4899');
+        openColorPicker($(id), current, (hex) => {
+          if (!cfg.style) cfg.style = {};
+          cfg.style[id] = hex;
+          setTriggerColor(id, hex);
+          applyThemeVars();
+          markDirty();
+        });
       });
     });
     $('btnGradientAngle').addEventListener('input', (e) => {
@@ -3234,11 +3557,15 @@
     });
 
     /* Glow Neon + Forma + Animação dos botões */
-    $('btnGlowColor').addEventListener('input', (e) => {
-      if (!cfg.style) cfg.style = {};
-      cfg.style.btnGlowColor = e.target.value;
-      applyThemeVars();
-      markDirty();
+    $('btnGlowColor').addEventListener('click', () => {
+      const current = (cfg.style && cfg.style.btnGlowColor) || '#22d3ee';
+      openColorPicker($('btnGlowColor'), current, (hex) => {
+        if (!cfg.style) cfg.style = {};
+        cfg.style.btnGlowColor = hex;
+        setTriggerColor('btnGlowColor', hex);
+        applyThemeVars();
+        markDirty();
+      });
     });
     $('btnShape').addEventListener('change', (e) => {
       if (!cfg.style) cfg.style = {};
@@ -3296,18 +3623,18 @@
     $('qlShadow').value = qls.shadow;
     $('bgVariant').value = st.bgVariant || 'solid';
     $('btnVariant').value = st.btnVariant || 'solid';
-    $('gradientStart').value = st.gradientStart || '#6366f1';
-    $('gradientEnd').value = st.gradientEnd || '#ec4899';
-    $('btnGradientStart').value = st.btnGradientStart || '#6366f1';
-    $('btnGradientEnd').value = st.btnGradientEnd || '#ec4899';
-    $('cyberPrimary').value = st.cyberPrimary || '#00ffff';
-    $('cyberSecondary').value = st.cyberSecondary || '#ff00ff';
+    setTriggerColor('gradientStart', st.gradientStart || '#6366f1');
+    setTriggerColor('gradientEnd', st.gradientEnd || '#ec4899');
+    setTriggerColor('btnGradientStart', st.btnGradientStart || '#6366f1');
+    setTriggerColor('btnGradientEnd', st.btnGradientEnd || '#ec4899');
+    setTriggerColor('cyberPrimary', st.cyberPrimary || '#00ffff');
+    setTriggerColor('cyberSecondary', st.cyberSecondary || '#ff00ff');
     $('glassEnabled').checked = !!st.glassEnabled;
     $('bgVideoUrl').value = st.bgVideoUrl || '';
     $('bgImageUrl').value = st.bgImageUrl || '';
     $('bgTexture').value = st.bgTexture || 'none';
     $('fontFamily').value = st.font || 'Inter';
-    $('btnGlowColor').value = st.btnGlowColor || '#22d3ee';
+    setTriggerColor('btnGlowColor', st.btnGlowColor || '#22d3ee');
     $('btnShape').value = st.btnShape || 'rounded';
     $('btnShadowStyle').value = st.btnShadowStyle || 'soft';
     $('btnAnimation').value = st.btnAnimation || 'none';
@@ -3488,6 +3815,13 @@
   }
 
   function bindEditorEvents() {
+    /* Suporte a teclado para todos os color triggers (Enter/Space abre picker) */
+    document.querySelectorAll('.color-trigger').forEach(el => {
+      el.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); el.click(); }
+      });
+    });
+
     $('displayName').addEventListener('input', (e) => {
       cfg.profile.displayName = e.target.value;
       renderPreview();
