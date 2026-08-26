@@ -466,11 +466,15 @@
     position:absolute; inset:0; width:100%; height:100%;
     object-fit:cover; z-index:0; pointer-events:none;
   }
+  .pv-bg-image {
+    position:absolute; inset:0; width:100%; height:100%;
+    object-fit:cover; z-index:0; pointer-events:none;
+  }
   .pv-texture {
     position:absolute; inset:0; z-index:1;
     pointer-events:none; mix-blend-mode:soft-light;
   }
-  .pv-page > *:not(.pv-bg-video):not(.pv-texture) {
+  .pv-page > *:not(.pv-bg-video):not(.pv-bg-image):not(.pv-texture) {
     position:relative; z-index:2;
   }
 
@@ -1007,6 +1011,8 @@
             <option value="mesh">Mesh Gradient (Fluido)</option>
             <option value="animated">Fundo Animado (Wave/Glow)</option>
             <option value="cyberpunk">Cyberpunk / Neon</option>
+            <option value="image">Imagem de Fundo</option>
+            <option value="video">Vídeo de Fundo</option>
           </select>
         </div>
 
@@ -1106,6 +1112,24 @@
               <output class="ds-value" id="cyberGridIntensityVal">30%</output>
             </div>
           </div>
+        </div>
+
+        <!-- Imagem de Fundo (quando image) -->
+        <div class="field" id="bgImageRow" style="display:none;">
+          <div class="upload-row">
+            <div class="upload-thumb" id="bgImageThumb">🖼️</div>
+            <div class="upload-info">
+              <strong>Imagem de fundo</strong>
+              <small>JPG ou PNG. Enviada para a nuvem e aplicada atrás do conteúdo.</small>
+            </div>
+            <button class="btn-mini" id="btnBgImagePick">Escolher</button>
+          </div>
+          <input type="file" id="bgImageInput" accept="image/*" hidden>
+          <div class="field" style="margin-top:10px;">
+            <label for="bgImageUrl">ou cole uma URL</label>
+            <input type="url" id="bgImageUrl" placeholder="https://exemplo.com/fundo.jpg">
+          </div>
+          <p class="hint" id="bgImageHint" style="display:none;"><button class="btn-mini" id="btnBgImageClear">Remover imagem</button></p>
         </div>
 
         <!-- Vídeo de Fundo (quando video) -->
@@ -1790,6 +1814,7 @@
       cyberSecondary: '#ff00ff',
       cyberGridIntensity: 30,
       bgVideoUrl: '',
+      bgImageUrl: '',
       bgTexture: 'none',
       bgTextureOpacity: 30,
       /* Glass */
@@ -2321,6 +2346,9 @@
       case 'video':
         /* O <video> é gerenciado por syncBgVideo(); aqui só o fallback */
         return { backgroundColor: '#0b1220' };
+      case 'image':
+        /* A <img> é gerenciada por syncBgImage(); aqui só o fallback */
+        return { backgroundColor: '#111827' };
       default:
         return { background: t.bg };
     }
@@ -2373,6 +2401,47 @@
     }
     Object.assign(layer.style, tex);
     layer.style.opacity = String((st.bgTextureOpacity ?? 30) / 100);
+  }
+
+  /* Injeta/remove/atualiza a imagem de fundo do preview */
+  function syncBgImage(st) {
+    const page = $('pvPage');
+    if (!page) return;
+    let img = page.querySelector('img.pv-bg-image');
+    if (st.bgVariant !== 'image' || !st.bgImageUrl) {
+      if (img) img.remove();
+      return;
+    }
+    if (!img) {
+      img = document.createElement('img');
+      img.className = 'pv-bg-image';
+      img.alt = '';
+      img.setAttribute('aria-hidden', 'true');
+      page.prepend(img);
+    }
+    if (img.dataset.src !== st.bgImageUrl) {
+      img.dataset.src = st.bgImageUrl;
+      img.src = st.bgImageUrl;
+    }
+  }
+
+  /* Atualiza miniatura e botão remover da linha Imagem de Fundo */
+  function syncBgImageControls(st) {
+    const thumb = $('bgImageThumb');
+    const hint = $('bgImageHint');
+    if (!thumb || !hint) return;
+    if (st.bgVariant === 'image' && st.bgImageUrl) {
+      thumb.innerHTML = '';
+      const im = document.createElement('img');
+      im.src = st.bgImageUrl;
+      im.alt = '';
+      im.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+      thumb.appendChild(im);
+      hint.style.display = 'block';
+    } else {
+      thumb.textContent = '🖼️';
+      hint.style.display = 'none';
+    }
   }
 
   /* Gera CSS do botão baseado na variante */
@@ -2480,9 +2549,11 @@
     page.style.setProperty('--p-btnbg', t.btnbg);
     page.style.setProperty('--p-btnink', t.btnink);
 
-    /* Vídeo + textura de fundo */
+    /* Vídeo + textura + imagem de fundo */
     syncBgVideo(st);
     syncBgTexture(st);
+    syncBgImage(st);
+    syncBgImageControls(st);
 
     /* Tipografia premium */
     const fontStack = FONT_STACKS[st.font] || FONT_STACKS['Inter'];
@@ -2632,6 +2703,7 @@
     $('animatedColorsRow').style.display = bgVar === 'animated' ? '' : 'none';
     $('cyberpunkColorsRow').style.display = bgVar === 'cyberpunk' ? '' : 'none';
     $('bgVideoRow').style.display = bgVar === 'video' ? '' : 'none';
+    $('bgImageRow').style.display = bgVar === 'image' ? '' : 'none';
     $('bgTextureRow').style.display =
       (bgVar === 'solid' || bgVar === 'gradient' || bgVar === 'mesh' || bgVar === 'animated') ? '' : 'none';
 
@@ -2797,6 +2869,45 @@
       markDirty();
     });
 
+    /* Imagem de fundo: upload para o Storage + URL manual + remover */
+    $('btnBgImagePick').addEventListener('click', () => $('bgImageInput').click());
+    $('bgImageInput').addEventListener('change', (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = async () => {
+        showToast('Enviando imagem de fundo...');
+        try {
+          const publicUrl = await uploadImageToStorage(reader.result, 'bg');
+          if (!cfg.style) cfg.style = {};
+          cfg.style.bgImageUrl = publicUrl;
+          showToast('Fundo atualizado!');
+        } catch (err) {
+          console.warn('[Axiumlink] Upload do fundo falhou, mantendo local:', err.message);
+          if (!cfg.style) cfg.style = {};
+          cfg.style.bgImageUrl = reader.result; /* fallback base64 */
+          showToast('Sem conexão com o storage — imagem salva localmente');
+        }
+        applyThemeVars();
+        markDirty();
+      };
+      reader.readAsDataURL(file);
+      e.target.value = '';
+    });
+    $('bgImageUrl').addEventListener('input', (e) => {
+      if (!cfg.style) cfg.style = {};
+      cfg.style.bgImageUrl = e.target.value.trim();
+      applyThemeVars();
+      markDirty();
+    });
+    $('btnBgImageClear').addEventListener('click', () => {
+      if (!cfg.style) cfg.style = {};
+      cfg.style.bgImageUrl = '';
+      applyThemeVars();
+      markDirty();
+      showToast('Imagem de fundo removida');
+    });
+
     /* Textura sobreposta */
     $('bgTexture').addEventListener('change', (e) => {
       if (!cfg.style) cfg.style = {};
@@ -2876,6 +2987,7 @@
     $('cyberSecondary').value = st.cyberSecondary || '#ff00ff';
     $('glassEnabled').checked = !!st.glassEnabled;
     $('bgVideoUrl').value = st.bgVideoUrl || '';
+    $('bgImageUrl').value = st.bgImageUrl || '';
     $('bgTexture').value = st.bgTexture || 'none';
     $('fontFamily').value = st.font || 'Inter';
     $('btnGlowColor').value = st.btnGlowColor || '#22d3ee';
