@@ -1788,19 +1788,21 @@
   }
 
   let _syncChannel = null;
+  /* Canal namespaced POR SLUG — mesmo contrato da página pública
+     ('axiumlink-sync-<slug>'), mensagem { type, config }. */
   function _openSyncChannel() {
     if (!('BroadcastChannel' in window)) return;
     try {
       if (_syncChannel) _syncChannel.close();
-      _syncChannel = new BroadcastChannel('axiumlink-preview');
+      const ap = window.userProfiles?.find(p => p.id === window.currentProfileId);
+      _syncChannel = new BroadcastChannel('axiumlink-sync-' + (ap?.slug || 'default'));
     } catch (_) { _syncChannel = null; }
   }
 
   function notifyViewerTab(payload) {
     try {
       if (_syncChannel) {
-        const activeProfile = window.userProfiles?.find(p => p.id === window.currentProfileId);
-        _syncChannel.postMessage({ type: 'config-updated', slug: activeProfile?.slug, payload });
+        _syncChannel.postMessage({ type: 'config-updated', config: payload });
       }
     } catch (_) {}
   }

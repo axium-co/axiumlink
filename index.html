@@ -1349,6 +1349,62 @@
       .profile__banner:not([hidden]) + .profile__info { margin-top: calc(var(--avatar-s) * -0.35); }
       .profile__title { font-size: 1.25rem; }
     }
+
+    /* ================================================================
+       ARMADURA MOBILE-FIRST — nada estoura a tela, nada encavalala
+       ================================================================ */
+
+    /* Sem scroll horizontal fantasma em nenhum dispositivo */
+    html, body {
+      max-width: 100vw;
+      overflow-x: hidden;
+    }
+
+    /* Container principal: largura fluida com teto de leitura,
+       centralizado e respeitando as safe-areas do aparelho */
+    #pageFlow {
+      width: 100%;
+      max-width: 640px;
+      margin: 0 auto;
+      box-sizing: border-box;
+      padding:
+        max(1.5rem, env(safe-area-inset-top))
+        1rem
+        max(1.5rem, env(safe-area-inset-bottom));
+    }
+    #pageFlow > * { min-width: 0; }
+
+    /* Botões/itens: sempre flexíveis, centrados, sem estourar */
+    .featured__card,
+    .quick__item,
+    .social-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+    }
+    /* Variantes legítimas de largura parcial continuam funcionando */
+    .featured__card--compact,
+    .quick-grid--list .featured__card--compact { width: auto; }
+    .featured__card--half,
+    .quick-grid--list .featured__card--half { width: calc(50% - 0.375rem); }
+
+    /* Textos dentro dos botões: truncam, nunca empurram o layout */
+    .featured__card strong,
+    .featured__card span,
+    .quick__item strong {
+      min-width: 0;
+      max-width: 100%;
+      overflow-wrap: break-word;
+    }
+
+    /* Mídia: jamais excede o container */
+    img, svg, video {
+      max-width: 100%;
+    }
   </style>
 
   <!-- Supabase SDK + inicialização -->
@@ -1707,18 +1763,28 @@
         }
         try {
           /* Policy "Leitura publica" permite anon ler qualquer linha;
-             a busca é sempre filtrada por slug. */
-          const { data, error } = await supabase
+             .single() = 1 slug ⇒ 1 client. PGRST116 (0 linhas) é tratado
+             como "não encontrado" em vez de erro genérico. */
+          const { data: clientData, error } = await supabase
             .from('clients')
-            .select('nome, config')
+            .select('*')
             .eq('slug', slug)
-            .maybeSingle();
-          if (error) throw error;
-          if (data && data.config) {
-            /* Tolerância a legado: linhas migradas do Parse podem ter config-string */
-            const cfg = typeof data.config === 'string' ? JSON.parse(data.config) : data.config;
+            .single();
+          if (error) {
+            if (error.code === 'PGRST116') {
+              console.warn('[Axiumlink] Nenhum Client com slug "' + slug + '".');
+              return readLocalConfig();
+            }
+            throw error;
+          }
+          if (clientData && clientData.config) {
+            /* config já chega como objeto JSON nativo do Supabase (JSONB);
+               tolerância apenas para linhas legadas que vieram como string */
+            const cfg = typeof clientData.config === 'string'
+              ? JSON.parse(clientData.config)
+              : clientData.config;
             if (cfg && typeof cfg === 'object') {
-              cfg._clientNome = String(data.nome || '').trim(); /* coluna nome → título */
+              cfg._clientNome = String(clientData.nome || '').trim();
               return cfg;
             }
             console.warn('[Axiumlink] Client encontrado mas campo "config" vazio.');
@@ -2806,18 +2872,29 @@
         }
       });
 
-      /* Sincronização via BroadcastChannel — mais confiável que storage
-         event em PWAs e mobile Safari. Recebe o payload completo do admin
-         assim que ele salva (debounce de 300ms no localStorage + 2s no
-         Supabase). Canal é namespaced pelo slug para isolar clientes. */
+      /* Sincronização via BroadcastChannel — contrato compartilhado com o
+         admin: canal 'axiumlink-sync-<slug>', mensagem { config }.
+         Reflete a edição no instante em que o admin salva/autosave. */
       try {
         const syncChannel = new BroadcastChannel('axiumlink-sync-' + (getSlug() || 'default'));
         syncChannel.onmessage = (e) => {
-          if (e.data && e.data.config) {
-            try { applyConfig(e.data.config); } catch (err) {}
+          const incoming = e.data && e.data.config ? e.data.config : (e.data || null);
+          if (incoming) {
+            try { applyConfig(incoming); } catch (err) {}
           }
         };
       } catch (e) { /* BroadcastChannel não suportado — storage event continua ativo */ }
+
+      /* Refetch imediato quando a aba volta ao foco (mobile: troca de app) */
+      const refetchOnFocus = async () => {
+        if (document.visibilityState !== 'visible') return;
+        try {
+          const fresh = await readConfig();
+          if (fresh) applyConfig(fresh);
+        } catch (e) { /* silent */ }
+      };
+      document.addEventListener('visibilitychange', refetchOnFocus);
+      window.addEventListener('focus', refetchOnFocus);
     })();
   </script>
 
