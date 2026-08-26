@@ -2031,9 +2031,56 @@
         const avatarImg = document.getElementById('pgAvatarImg');
         const avatarLetter = document.getElementById('pgAvatarLetter');
         if (avatarImg && avatarLetter) {
-          avatarImg.src = p.photo;
+          /* Enquadramento garantido por INLINE STYLE: vence qualquer
+             regra/conflito de CSS, em qualquer tema ou wrapper */
+          Object.assign(avatarImg.style, {
+            position: 'absolute',
+            top: '0',
+            left: '0',
+            right: '0',
+            bottom: '0',
+            width: '100%',
+            height: '100%',
+            maxWidth: 'none',
+            maxHeight: 'none',
+            minWidth: '0',
+            minHeight: '0',
+            margin: '0',
+            padding: '0',
+            border: '0',
+            transform: 'none',
+            objectFit: 'cover',
+            objectPosition: 'center',
+            aspectRatio: 'auto',
+            display: 'block'
+          });
           avatarImg.hidden = false;
           avatarLetter.hidden = true;
+          avatarLetter.style.display = 'none';
+          avatarImg.src = p.photo;
+
+          /* Container: círculo travado também por inline */
+          const avBox = avatarImg.closest('.profile__avatar');
+          if (avBox) {
+            avBox.style.position = 'relative';
+            avBox.style.overflow = 'hidden';
+            avBox.style.borderRadius = '999px';
+          }
+
+          /* Diagnóstico — confirma geometria real após o layout */
+          requestAnimationFrame(() => {
+            try {
+              const r = avatarImg.getBoundingClientRect();
+              const box = avatarImg.parentElement.getBoundingClientRect();
+              console.log(
+                '[Axiumlink][AvatarDebug] img:', Math.round(r.width) + 'x' + Math.round(r.height),
+                '@(' + Math.round(r.left) + ',' + Math.round(r.top) + ')',
+                '| círculo:', Math.round(box.width) + 'x' + Math.round(box.height),
+                '| natural:', avatarImg.naturalWidth + 'x' + avatarImg.naturalHeight,
+                '| objectFit:', getComputedStyle(avatarImg).objectFit
+              );
+            } catch (_) {}
+          });
         }
       } else {
         /* Sem foto válida → volta para o fallback de iniciais */
@@ -2042,7 +2089,9 @@
         if (avatarImg && avatarLetter) {
           avatarImg.removeAttribute('src');
           avatarImg.hidden = true;
+          avatarImg.style.display = 'none';
           avatarLetter.hidden = false;
+          avatarLetter.style.display = '';
         }
       }
 
