@@ -34,6 +34,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Roboto:wght@400;500;700&family=Open+Sans:wght@400;600;700&family=Poppins:wght@400;500;700&family=Montserrat:wght@400;600;700&family=Lato:wght@400;700&family=Merriweather:wght@400;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
   <!-- ================================================================
        DESIGN SYSTEM INJETÁVEL
@@ -562,6 +563,7 @@
     }
 
     .social-icon__inner svg { width: 22px; height: 22px; }
+    .social-icon__inner i { font-size: 20px; line-height: 1; color: inherit; }
     .social-icon__img { width: 100%; height: 100%; object-fit: cover; }
 
     /* ---- Lista de Links — modo lista vertical (cards empilhados) ---- */
@@ -770,6 +772,7 @@
     }
 
     .featured__icon svg { width: 26px; height: 26px; }
+    .featured__icon i { font-size: 22px; line-height: 1; color: inherit; }
     .featured__icon-img { width: 100%; height: 100%; object-fit: cover; }
 
     /* Alinhamento do ícone por link (link.iconAlign do painel).
@@ -2637,14 +2640,22 @@
       }
 
       /* ---- Lista de links dinâmicos (cfg.links ou migra cards antigos) ---- */
-      const linkIcons = {
-        whatsapp: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5Z"/><path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1"/></svg>',
-        instagram: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37Z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>',
-        site: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>',
-        telefone: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92Z"/></svg>',
-        localizacao: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>',
-        outro: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>'
-      };
+      function resolveIcon(raw) {
+        const v = String(raw || '').toLowerCase().trim().replace(/^@/, '').replace(/[^a-z0-9]/g, '');
+        const MAP = {
+          'whatsapp': 'fab fa-whatsapp', 'whats': 'fab fa-whatsapp',
+          'instagram': 'fab fa-instagram', 'insta': 'fab fa-instagram',
+          'tiktok': 'fab fa-tiktok', 'youtube': 'fab fa-youtube',
+          'twitter': 'fab fa-x-twitter', 'x': 'fab fa-x-twitter',
+          'linkedin': 'fab fa-linkedin-in', 'facebook': 'fab fa-facebook',
+          'telegram': 'fab fa-telegram', 'email': 'fas fa-envelope', 'mail': 'fas fa-envelope',
+          'telefone': 'fas fa-phone', 'tel': 'fas fa-phone', 'fone': 'fas fa-phone',
+          'localizacao': 'fas fa-map-marker-alt', 'local': 'fas fa-map-marker-alt',
+          'location': 'fas fa-map-marker-alt', 'maps': 'fas fa-map-marker-alt',
+          'site': 'fas fa-globe', 'web': 'fas fa-globe', 'pix': 'fas fa-qrcode'
+        };
+        return MAP[v] || null;
+      }
 
       function linkHref(url, icon) {
         const value = String(url || '').trim();
@@ -2712,10 +2723,22 @@
               img.alt = '';
               img.loading = 'lazy';
               icon.appendChild(img);
+              a.appendChild(icon);
             } else {
-              icon.innerHTML = linkIcons[link.icon] || linkIcons.outro;
+              const faClass = resolveIcon(link.icon);
+              if (faClass) {
+                const i = document.createElement('i');
+                i.className = faClass;
+                icon.appendChild(i);
+                a.appendChild(icon);
+              } else {
+                const raw = String(link.icon || '').trim();
+                if (raw && !/^[a-z0-9@._-]+$/i.test(raw)) {
+                  icon.textContent = raw;
+                  a.appendChild(icon);
+                }
+              }
             }
-            a.appendChild(icon);
 
             const body = document.createElement('span');
             body.className = 'featured__body';
@@ -2753,7 +2776,21 @@
               img.loading = 'lazy';
               inner.appendChild(img);
             } else {
-              inner.innerHTML = linkIcons[link.icon] || linkIcons.outro;
+              const faClass = resolveIcon(link.icon);
+              if (faClass) {
+                const i = document.createElement('i');
+                i.className = faClass;
+                inner.appendChild(i);
+              } else {
+                const raw = String(link.icon || '').trim();
+                if (raw && !/^[a-z0-9@._-]+$/i.test(raw)) {
+                  inner.textContent = raw;
+                } else {
+                  const i = document.createElement('i');
+                  i.className = 'fas fa-link';
+                  inner.appendChild(i);
+                }
+              }
             }
             a.appendChild(inner);
 

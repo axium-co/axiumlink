@@ -15,6 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&family=Montserrat:wght@400;500;600;700;800&family=Syne:wght@400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
 <!-- Supabase SDK + credenciais + init -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
@@ -613,6 +614,8 @@
     display:flex; align-items:center; justify-content:center; font-size:17px;
     overflow:hidden; white-space:nowrap; text-overflow:clip;
   }
+  .link-block-icon i { font-size:17px; line-height:1; }
+  .link-block-icon img { width:100%; height:100%; object-fit:cover; }
   .link-block-txt { min-width:0; flex:0 1 auto; max-width:100%; }
   .link-block-title {
     font-size:14.5px; font-weight:700;
@@ -2357,27 +2360,18 @@
         im.alt = '';
         iconWrap.appendChild(im);
       } else {
-        /* Identificadores de plataforma NUNCA viram texto visível.
-           Regra: se o valor é só palavra (letras/números/@/./_/-), é um
-           id interno — resolve para emoji por prefixo (aceita 'whats',
-           'insta', 'local'...) ou usa 👉. Emojis passam intactos. */
-        const ICON_PREFIXES = [
-          [/^what/i, '💬'], [/^insta/i, '📷'], [/^(loc|local|ender)/i, '📍'],
-          [/^(tel|fone|lig)/i, '📞'], [/^(site|web|port)/i, '🌐'], [/^(mail|email)/i, '✉️']
-        ];
-        const FALLBACK_ICON = '👉';
+        const faClass = resolveIcon(l.icon);
         const raw = String(l.icon || '').trim();
-        const isIdentifier = raw !== '' && /^[a-z0-9@._-]+$/i.test(raw);
-        let out = FALLBACK_ICON;
-        if (!isIdentifier) {
-          out = raw || FALLBACK_ICON;                     /* emoji real */
+        if (faClass) {
+          const i = document.createElement('i');
+          i.className = faClass;
+          iconWrap.appendChild(i);
+        } else if (raw && !/^[a-z0-9@._-]+$/i.test(raw)) {
+          iconWrap.textContent = raw;
         } else {
-          for (const [re, emo] of ICON_PREFIXES) {
-            if (re.test(raw)) { out = emo; break; }
-          }
+          iconWrap.style.display = 'none';
+          head.style.paddingLeft = '15px';
         }
-        iconWrap.dataset.platform = isIdentifier ? raw.toLowerCase() : '';
-        iconWrap.textContent = out;
       }
 
       const txt = document.createElement('span');
@@ -2424,6 +2418,26 @@
   function svgDataUri(grad) {
     const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="' + grad.match(/#[0-9a-f]{6}/gi)?.[0] + '"/><stop offset="1" stop-color="' + (grad.match(/#[0-9a-f]{6}/gi)?.[1] || grad.match(/#[0-9a-f]{6}/gi)?.[0]) + '"/></linearGradient></defs><rect width="128" height="128" rx="36" fill="url(#g)"/></svg>';
     return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+  }
+
+  /* Mapeamento centralizado de ícones — normaliza valores legados
+     (whats, insta, local...) e emojis para classes Font Awesome.
+     Retorna null para valores não reconhecidos. */
+  function resolveIcon(raw) {
+    const v = String(raw || '').toLowerCase().trim().replace(/^@/, '').replace(/[^a-z0-9]/g, '');
+    const MAP = {
+      'whatsapp': 'fab fa-whatsapp', 'whats': 'fab fa-whatsapp',
+      'instagram': 'fab fa-instagram', 'insta': 'fab fa-instagram',
+      'tiktok': 'fab fa-tiktok', 'youtube': 'fab fa-youtube',
+      'twitter': 'fab fa-x-twitter', 'x': 'fab fa-x-twitter',
+      'linkedin': 'fab fa-linkedin-in', 'facebook': 'fab fa-facebook',
+      'telegram': 'fab fa-telegram', 'email': 'fas fa-envelope', 'mail': 'fas fa-envelope',
+      'telefone': 'fas fa-phone', 'tel': 'fas fa-phone', 'fone': 'fas fa-phone',
+      'localizacao': 'fas fa-map-marker-alt', 'local': 'fas fa-map-marker-alt',
+      'location': 'fas fa-map-marker-alt', 'maps': 'fas fa-map-marker-alt',
+      'site': 'fas fa-globe', 'web': 'fas fa-globe', 'pix': 'fas fa-qrcode'
+    };
+    return MAP[v] || null;
   }
 
   /* Remove tipo de link "colado" ao início do título (dado legado),
