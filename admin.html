@@ -1328,12 +1328,22 @@
           <div class="field">
             <label for="btnShape">Formato dos Botões</label>
             <select id="btnShape" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
-              <option value="square">Quadrado Rígido</option>
-              <option value="soft">Cantos Suaves</option>
-              <option value="rounded">Personalizado (Slider)</option>
-              <option value="premium">Arredondado Premium</option>
-              <option value="pill">Estilo Pílula / Capsule</option>
-              <option value="organic">Cantos Assimétricos / Orgânico</option>
+              <optgroup label="Geometricos">
+                <option value="square">Quadrado Rigido</option>
+                <option value="soft">Cantos Suaves</option>
+                <option value="rounded">Arredondado Medio</option>
+                <option value="pill">Totalmente Arredondado (Pilula)</option>
+              </optgroup>
+              <optgroup label="Organicos">
+                <option value="organic">Cantos Assimetricos 1 (Folha)</option>
+                <option value="bubble">Cantos Assimetricos 2 (Bolha)</option>
+                <option value="diagonal">Estilo Diagonal</option>
+              </optgroup>
+              <optgroup label="Especiais">
+                <option value="double">Borda Dupla</option>
+                <option value="brutalist">Estilo Brutalista</option>
+                <option value="custom">Formato Customizado (Slider)</option>
+              </optgroup>
             </select>
           </div>
           <div class="field">
@@ -1371,7 +1381,7 @@
         <div class="ds-control" id="btnRadiusRow">
           <label>Arredondamento dos botões</label>
           <div class="ds-control-row">
-            <input type="range" id="btnRadius" min="0" max="28" step="1">
+            <input type="range" id="btnRadius" min="0" max="50" step="1">
             <output class="ds-value" id="btnRadiusVal">14px</output>
           </div>
         </div>
@@ -2797,11 +2807,21 @@
   function t_btninkc(st) { return (THEMES[st.theme] || THEMES.indigo).btnink; }
   function t_inkc(st) { return (THEMES[st.theme] || THEMES.indigo).ink; }
 
-  /* Gera CSS do botão baseado na variante */
+  /* Gera CSS do botao baseado na variante */
   function buildButtonCSS(st, t) {
-    const ORGANIC_RADIUS = '30% 70% 70% 30% / 30% 30% 70% 70%';
-    const SHAPE_RADIUS = { square: '0px', soft: '8px', premium: '16px', pill: '50px', organic: ORGANIC_RADIUS };
-    const radius = SHAPE_RADIUS[st.btnShape] ?? ((st.btnRadius ?? 14) + 'px');
+    const SHAPES = {
+      square:    { borderRadius: '0px' },
+      soft:      { borderRadius: '6px' },
+      rounded:   { borderRadius: '16px' },
+      pill:      { borderRadius: '9999px' },
+      organic:   { borderRadius: '30% 70% 70% 30% / 30% 30% 70% 70%' },
+      bubble:    { borderRadius: '50% 20% 50% 20% / 20% 50% 20% 50%' },
+      diagonal:  { borderRadius: '20px 0px 20px 0px' },
+      double:    { borderRadius: '8px', border: '4px double currentColor' },
+      brutalist: { borderRadius: '0px', border: '3px solid #000', boxShadow: '5px 5px 0px #000' },
+      custom:    { borderRadius: ((st.btnRadius ?? 14) + 'px') }
+    };
+    const shape = SHAPES[st.btnShape] || SHAPES.rounded;
 
     /* Estilo de sombra independente da variante:
        soft = intensidade ajustável; demais = fórmulas fixas */
@@ -2815,11 +2835,10 @@
       ? '0 ' + Math.round(alpha * 10) + 'px ' + Math.round(alpha * 26) + 'px rgba(0,0,0,' + (alpha * .35).toFixed(2) + ')'
       : 'none';
 
-    const base = {
-      borderRadius: radius,
+    const base = Object.assign({
       boxShadow: shadow,
       transition: 'all 0.2s ease'
-    };
+    }, shape);
 
     switch (st.btnVariant) {
       case 'glass': {
@@ -2832,7 +2851,8 @@
           color: t.ink,
           backdropFilter: 'blur(' + blur + ')',
           WebkitBackdropFilter: 'blur(' + blur + ')',
-          border: '1px solid rgba(255,255,255,0.25)'
+          border: '1px solid rgba(255,255,255,0.25)',
+          ...shape
         };
       }
       case 'neon': {
@@ -2841,7 +2861,8 @@
           ...base,
           background: 'transparent',
           color: glow,
-          border: '2px solid ' + glow
+          border: '2px solid ' + glow,
+          ...shape
         };
       }
       case 'neumorphic': {
@@ -2851,7 +2872,8 @@
           ...base,
           background: bgColor,
           color: t.ink,
-          border: 'none'
+          border: 'none',
+          ...shape
         };
       }
       case 'ghost': {
@@ -2859,7 +2881,8 @@
           ...base,
           background: 'transparent',
           color: t.btnbg,
-          border: '2px solid ' + t.btnbg
+          border: '2px solid ' + t.btnbg,
+          ...shape
         };
       }
       case 'gradient': {
@@ -2867,7 +2890,8 @@
           ...base,
           background: 'linear-gradient(' + (st.btnGradientAngle || 135) + 'deg, ' + (st.btnGradientStart || '#6366f1') + ', ' + (st.btnGradientEnd || '#ec4899') + ')',
           color: '#ffffff',
-          border: 'none'
+          border: 'none',
+          ...shape
         };
       }
       default: /* solid */
@@ -2875,7 +2899,8 @@
           ...base,
           background: t.btnbg,
           color: t.btnink,
-          border: 'none'
+          border: 'none',
+          ...shape
         };
     }
   }
@@ -3308,7 +3333,7 @@
     $('btnGlassBlurRow').style.display = showBtnGlass ? '' : 'none';
 
     /* Slider de raio só no modo Personalizado; intensidade só na sombra Suave */
-    $('btnRadiusRow').style.display = (st.btnShape || 'rounded') === 'rounded' ? '' : 'none';
+    $('btnRadiusRow').style.display = (st.btnShape || 'rounded') === 'custom' ? '' : 'none';
     $('btnShadowRow').style.display = (st.btnShadowStyle || 'soft') === 'soft' ? '' : 'none';
 
     $('btnGradientRow').style.display = btnVar === 'gradient' ? '' : 'none';
