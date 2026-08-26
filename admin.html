@@ -3624,11 +3624,24 @@
       }
     });
 
-    /* Ver página pública */
-    $('btnViewPage').addEventListener('click', () => {
+    /* Ver página pública — salva antes de abrir para garantir dados atualizados */
+    $('btnViewPage').addEventListener('click', async () => {
       const activeProfile = window.userProfiles?.find(p => p.id === window.currentProfileId);
       const slug = activeProfile?.slug;
       if (!slug) { showToast('Conecte-se para ver sua página'); return; }
+      if (_isDirty) {
+        showToast('Salvando antes de abrir...');
+        try {
+          const payload = buildPayload();
+          await SupaApp.saveClientConfig(payload);
+          notifyViewerTab(payload);
+          _isDirty = false;
+          setConn(true);
+        } catch (err) {
+          showToast('Erro ao salvar: ' + (err.message || 'desconhecido'));
+          return;
+        }
+      }
       window.open('/?slug=' + encodeURIComponent(slug), '_blank');
     });
 

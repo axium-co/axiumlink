@@ -817,6 +817,15 @@
       overflow-wrap: anywhere;
     }
 
+    .featured__sub {
+      font-size: 0.75rem;
+      opacity: 0.65;
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
     .featured__arrow {
       flex-shrink: 0;
       margin-left: auto;
@@ -1814,18 +1823,15 @@
 
       async function readConfig() {
         const slug = getSlug();
-        if (typeof window.supabase === 'undefined' || !window.supabase.createClient) return readLocalConfig();
+        if (typeof window.supabase === 'undefined' || !window.supabase.createClient) {
+          console.warn('[Axiumlink][Diag] Supabase SDK não disponível — usando fallback local');
+          return readLocalConfig();
+        }
         if (!slug) {
-          /* Sem slug na URL → não há como identificar qual Client buscar.
-             A policy RLS de leitura é por slug; sem slug, cai direto no
-             fallback local (localStorage/config.js). */
-          console.warn('[Axiumlink] Acesso sem slug (?s=). Use ?s=meu-slug para carregar dados da nuvem.');
+          console.warn('[Axiumlink][Diag] Acesso sem slug (?s=). Usando fallback local.');
           return readLocalConfig();
         }
         try {
-          /* Policy "Leitura publica" permite anon ler qualquer linha;
-             .single() = 1 slug ⇒ 1 client. PGRST116 (0 linhas) é tratado
-             como "não encontrado" em vez de erro genérico. */
           const { data: clientData, error } = await supabase
             .from('clients')
             .select('*')
@@ -1833,33 +1839,39 @@
             .single();
           if (error) {
             if (error.code === 'PGRST116') {
-              console.warn('[Axiumlink] Nenhum Client com slug "' + slug + '".');
+              console.warn('[Axiumlink][Diag] Slug "' + slug + '" não encontrado no Supabase. Usando fallback local.');
               return readLocalConfig();
             }
             throw error;
           }
           if (clientData && clientData.config) {
-            /* config já chega como objeto JSON nativo do Supabase (JSONB);
-               tolerância apenas para linhas legadas que vieram como string */
             const cfg = typeof clientData.config === 'string'
               ? JSON.parse(clientData.config)
               : clientData.config;
             if (cfg && typeof cfg === 'object') {
               cfg._clientNome = String(clientData.nome || '').trim();
+              console.log('[Axiumlink][Diag] Config carregado do Supabase para slug "' + slug + '":', {
+                bgVariant: cfg.style?.bgVariant,
+                bgImageUrl: cfg.style?.bgImageUrl ? '(possui URL)' : '(vazio)',
+                theme: cfg.style?.theme,
+                displayName: cfg.profile?.displayName,
+                linksCount: Array.isArray(cfg.links) ? cfg.links.length : 0
+              });
               return cfg;
             }
-            console.warn('[Axiumlink] Client encontrado mas campo "config" vazio.');
+            console.warn('[Axiumlink][Diag] Client encontrado mas campo "config" vazio.');
           } else {
-            console.warn('[Axiumlink] Nenhum Client com slug "' + slug + '". Verifique se o slug está correto.');
+            console.warn('[Axiumlink][Diag] Slug "' + slug + '" existe mas sem config. Usando fallback local.');
           }
         } catch (e) {
-          console.error('[Axiumlink] Erro ao buscar config:', e.message || e);
+          console.error('[Axiumlink][Diag] Erro ao buscar config:', e.message || e);
           if (e instanceof TypeError && e.message.includes('Failed to fetch')) {
-            console.error('[Axiumlink] Rede indisponível ou CORS bloqueado. Verifique js/env.js e o SDK Supabase.');
+            console.error('[Axiumlink][Diag] Rede indisponível ou CORS bloqueado.');
           } else if (e.code === '42P01') {
-            console.error('[Axiumlink] Tabela public.clients não existe. Rode o script DDL no SQL Editor do Supabase.');
+            console.error('[Axiumlink][Diag] Tabela public.clients não existe.');
           }
         }
+        console.warn('[Axiumlink][Diag] Fallback: usando config local/estático.');
         return readLocalConfig();
       }
 
@@ -1936,7 +1948,7 @@
 
         const validImg = (u) => /^(data:image\/|https?:\/\/)/i.test(String(u || '').trim());
 
-        return {
+        const result = {
           _adapted: true,
           _premium: st,
           _qls: cfg.quickLinksStyle || null,
@@ -1955,12 +1967,21 @@
             banner: { enabled: !!cfg.banner, image: cfg.banner, bgType: 'image', height: 190 }
           },
           links: Array.isArray(cfg.links)
-            ? cfg.links.map(l => ({ title: l.title, url: l.url, icon: l.icon, image: l.iconImg || null, iconAlign: l.iconAlign || null }))
+            ? cfg.links.map(l => ({ title: l.title, url: l.url, icon: l.icon, image: l.iconImg || null, iconAlign: l.iconAlign || null, sub: l.sub || null, animation: l.animation || null, width: l.width || null }))
             : undefined,
           quickActions: Array.isArray(cfg.quick)
             ? cfg.quick.map(q => ({ title: q.label, url: q.url, image: q.img || null, icon: q.icon || null }))
             : undefined
         };
+        console.log('[Axiumlink][adapt] Resultado:', {
+          bgVariant: st.bgVariant,
+          pageBg: pageBg ? pageBg.substring(0, 60) + '...' : '(vazio)',
+          bgImage: result.visual.bgImage ? '(possui URL)' : '(vazio)',
+          profileName: result.profile.name,
+          linksCount: result.links ? result.links.length : 0,
+          hasPhoto: !!result.profile.photo
+        });
+        return result;
       }
 
       /* Motor reativo: lê o payload (ou o recebido por parâmetro) e
@@ -1969,6 +1990,15 @@
       function applyConfig(cfg) {
         cfg = adaptNewSchema(cfg);
         if (!cfg) return;
+
+        console.log('[Axiumlink][apply] Aplicando config:', {
+          source: cfg._clientNome ? 'Supabase' : 'local',
+          name: cfg.profile?.name,
+          hasPhoto: !!cfg.profile?.photo,
+          pageBg: (cfg.visual?.pageBg || '').substring(0, 50) || '(vazio)',
+          bgImage: cfg.visual?.bgImage ? '(possui)' : '(vazio)',
+          linksCount: cfg.links?.length || 0
+        });
 
         /* ---- Auto-cura do trio acidental legado ----
            Versões antigas do painel gravavam btnBg '#ffffff', btnColor
@@ -2745,6 +2775,12 @@
             const strong = document.createElement('strong');
             strong.textContent = cleanLinkTitle(link.title) || 'Novo Link';
             body.appendChild(strong);
+            if (link.sub) {
+              const sub = document.createElement('span');
+              sub.className = 'featured__sub';
+              sub.textContent = link.sub;
+              body.appendChild(sub);
+            }
             a.appendChild(body);
 
             a.appendChild(makeArrow());
