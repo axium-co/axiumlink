@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@omniroute/opencode-provider": "^0.1.0"
+  }
+}
