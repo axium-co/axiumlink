@@ -1364,21 +1364,42 @@
       }
     },
 
-    /* Salva SOMENTE a coluna config do perfil ativo — RLS restringe à própria linha */
+    /* Salva nome + config do perfil ativo.
+       Mapeamento: payload.profile.displayName → coluna 'nome';
+                   payload inteiro (bio, links, quick, socials, style, banner) → jsonb 'config'.
+       Filtro duplo (id + user_id) aproveita a RLS: nunca toca em linha de outro usuário. */
     async saveClientConfig(payload) {
       if (!window.currentProfileId) {
         throw new Error('Nenhum perfil ativo. Verifique a conexão com a nuvem.');
+      }
+      if (!this.currentUser || !this.currentUser.id) {
+        throw new Error('Sessão expirada. Faça login novamente.');
       }
       const sizeKB = new Blob([JSON.stringify(payload)]).size / 1024;
       if (sizeKB > 500) {
         throw new Error('Configuração muito grande (' + Math.round(sizeKB) + 'KB). Máximo permitido: 500KB. Reduza o tamanho das imagens.');
       }
+
+      const activeProfile = window.userProfiles?.find(p => p.id === window.currentProfileId);
+      const displayName = String(payload?.profile?.displayName || '').trim();
+
+      /* nome só é atualizado com valor não vazio — evita apagar o nome do
+         card no dashboard se o usuário limpar o campo sem querer */
+      const patch = { config: payload };
+      if (displayName) patch.nome = displayName;
+
       const { error } = await supabase
         .from('clients')
-        .update({ config: payload })
+        .update(patch)
         .eq('id', window.currentProfileId)
         .eq('user_id', this.currentUser.id);
       if (error) throw error;
+
+      /* mantém o cache local em sinc com o banco */
+      if (activeProfile) {
+        activeProfile.config = payload;
+        if (displayName) activeProfile.nome = displayName;
+      }
     },
 
     /* Unicidade garantida pelo UNIQUE(slug) no banco */
