@@ -1573,35 +1573,79 @@
   };
 
   /* ================================================================
-     SUPABASE STORAGE — upload de imagens (avatar / ícones)
-     Bucket público 'avatars'; caminho por usuário: <uid>/<arquivo>
+     SUPABASE STORAGE — upload REAL de imagens (avatar/ícone/fundo)
+     Bucket público 'avatars'. Caminho '<uid>/<tipo>-<timestamp>-<rand>.<ext>'
+     casa com a RLS policy (storage.foldername(name))[1] = auth.uid().
+     FALHAS SÃO EXPLÍCITAS: console.error com a mensagem exata do
+     Supabase + toast — NUNCA mais fallback silencioso para base64,
+     evitando dado inválido no JSONB.
      ================================================================ */
-  async function uploadImageToStorage(dataUrl, folder) {
+  function storageErrorMessage(err) {
+    const msg = String(err?.message || err || '').toLowerCase();
+    if (msg.includes('bucket not found')) {
+      return 'Bucket "avatars" não existe. Crie em Storage → New Bucket.';
+    }
+    if (msg.includes('row-level security') || msg.includes('rls') || err?.status === 403) {
+      return 'Bloqueado pela RLS. Aplique as policies de insert/select no bucket avatars.';
+    }
+    if (msg.includes('failed to fetch')) {
+      return 'Sem conexão com o Supabase Storage. Verifique a internet.';
+    }
+    if (msg.includes('exceeded') || msg.includes('payload too large')) {
+      return 'Imagem maior que o limite do bucket. Reduza o tamanho.';
+    }
+    return err?.message || String(err || 'Erro desconhecido no upload.');
+  }
+
+  async function uploadFileToStorage(file, folder) {
     if (!SupaApp.currentUser || !SupaApp.currentUser.id) {
       throw new Error('Sessão expirada. Faça login novamente.');
     }
+    if (!file) throw new Error('Nenhum arquivo selecionado.');
 
-    /* dataURL (saída do crop) → Blob */
-    const res = await fetch(dataUrl);
-    const blob = await res.blob();
-    const extRaw = (blob.type && blob.type.split('/')[1]) || 'jpg';
-    const ext = extRaw === 'jpeg' ? 'jpg' : extRaw;
+    const extFromName = (file.name || '').split('.').pop();
+    const ext = (file.type === 'image/png') ? 'png'
+      : (file.type === 'image/webp') ? 'webp'
+      : (extFromName && /^[a-z0-9]{2,4}$/i.test(extFromName) ? extFromName.toLowerCase() : 'jpg');
 
-    /* pasta = user id → casa com a RLS policy storage.foldername(name)[1] */
+    /* pasta = user id → passa na RLS por pasta */
     const path = SupaApp.currentUser.id + '/' +
-      folder + '-' + Date.now().toString(36) + '-' +
-      Math.random().toString(36).substring(2, 8) + '.' + ext;
+      folder + '-' + Date.now() + '-' +
+      Math.random().toString(36).substring(2, 7) + '.' + ext;
 
-    const { error } = await supabase.storage
+    const { data, error } = await supabase.storage
       .from('avatars')
-      .upload(path, blob, { contentType: blob.type || 'image/jpeg', cacheControl: '3600', upsert: false });
-    if (error) throw error;
+      .upload(path, file, {
+        contentType: file.type || 'image/jpeg',
+        cacheControl: '3600',
+        upsert: false
+      });
+    if (error) {
+      console.error('[Supabase Storage Error]', error);
+      throw new Error(storageErrorMessage(error));
+    }
 
-    const { data: pub, error: urlErr } = supabase.storage
+    const { data: publicUrlData, error: urlErr } = supabase.storage
       .from('avatars')
       .getPublicUrl(path);
-    if (urlErr || !pub?.publicUrl) throw new Error(urlErr?.message || 'Falha ao obter URL pública.');
-    return pub.publicUrl;
+    if (urlErr || !publicUrlData?.publicUrl) {
+      console.error('[Supabase Storage Error]', urlErr || 'getPublicUrl vazio');
+      throw new Error(storageErrorMessage(urlErr || 'Falha ao obter a URL pública.'));
+    }
+    return publicUrlData.publicUrl;
+  }
+
+  /* Saída do modal de crop (dataURL) → File nomeado para o Storage */
+  function dataUrlToFile(dataUrl, basename) {
+    const arr = dataUrl.split(',');
+    const mimeMatch = /:(.*?);/.exec(arr[0]);
+    const mime = (mimeMatch && mimeMatch[1]) || 'image/jpeg';
+    const ext = mime === 'image/png' ? 'png' : 'jpg';
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) u8arr[n] = bstr.charCodeAt(n);
+    return new File([u8arr], basename + '-' + Date.now() + '.' + ext, { type: mime });
   }
 
   /* ---- Auth Overlay Logic ---- */
@@ -2928,30 +2972,24 @@
       markDirty();
     });
 
-    /* Imagem de fundo: upload para o Storage + URL manual + remover */
+    /* Imagem de fundo: File bruto → Storage → URL pública permanente */
     $('btnBgImagePick').addEventListener('click', () => $('bgImageInput').click());
-    $('bgImageInput').addEventListener('change', (e) => {
+    $('bgImageInput').addEventListener('change', async (e) => {
       const file = e.target.files?.[0];
+      e.target.value = '';
       if (!file) return;
-      const reader = new FileReader();
-      reader.onload = async () => {
-        showToast('Enviando imagem de fundo...');
-        try {
-          const publicUrl = await uploadImageToStorage(reader.result, 'bg');
-          if (!cfg.style) cfg.style = {};
-          cfg.style.bgImageUrl = publicUrl;
-          showToast('Fundo atualizado!');
-        } catch (err) {
-          console.warn('[Axiumlink] Upload do fundo falhou, mantendo local:', err.message);
-          if (!cfg.style) cfg.style = {};
-          cfg.style.bgImageUrl = reader.result; /* fallback base64 */
-          showToast('Sem conexão com o storage — imagem salva localmente');
-        }
+      showToast('Enviando imagem de fundo...');
+      try {
+        const publicUrl = await uploadFileToStorage(file, 'bg');
+        if (!cfg.style) cfg.style = {};
+        cfg.style.bgImageUrl = publicUrl;
         applyThemeVars();
         markDirty();
-      };
-      reader.readAsDataURL(file);
-      e.target.value = '';
+        showToast('Fundo atualizado!');
+      } catch (err) {
+        console.error('[Axiumlink] Upload do fundo falhou:', err.message);
+        showToast('Falha no upload: ' + err.message);
+      }
     });
     $('bgImageUrl').addEventListener('input', (e) => {
       if (!cfg.style) cfg.style = {};
@@ -3243,20 +3281,19 @@
     $('avatarInput').addEventListener('change', (e) => {
       const file = e.target.files?.[0];
       if (file) openCrop(file, 'Ajustar foto de perfil', 'circle', async (dataUrl) => {
-        cfg.profile = cfg.profile || { displayName: '', bio: '', avatar: '' };
-        $('avatarHintRow').style.display = 'block';
         showToast('Enviando imagem...');
         try {
-          const publicUrl = await uploadImageToStorage(dataUrl, 'avatar');
+          const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'avatar');
+          cfg.profile = cfg.profile || { displayName: '', bio: '', avatar: '' };
           cfg.profile.avatar = publicUrl;
+          $('avatarHintRow').style.display = 'block';
+          renderPreview();
+          markDirty();
           showToast('Foto atualizada!');
         } catch (err) {
-          console.warn('[Axiumlink] Upload para o Storage falhou, mantendo local:', err.message);
-          cfg.profile.avatar = dataUrl; /* fallback: base64 no JSONB */
-          showToast('Sem conexão com o storage — imagem salva localmente');
+          console.error('[Axiumlink] Upload do avatar falhou:', err.message);
+          showToast('Falha no upload: ' + err.message);
         }
-        renderPreview();
-        markDirty();
       });
       e.target.value = '';
     });
@@ -3307,13 +3344,12 @@
       if (file) openCrop(file, 'Ícone do bloco', 'square', async (dataUrl) => {
         showToast('Enviando ícone...');
         try {
-          const publicUrl = await uploadImageToStorage(dataUrl, 'icon');
+          const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'icone'), 'icon');
           _pendingBlockIcon = publicUrl;
           showToast('Ícone pronto — salve o bloco');
         } catch (err) {
-          console.warn('[Axiumlink] Upload para o Storage falhou, mantendo local:', err.message);
-          _pendingBlockIcon = dataUrl; /* fallback: base64 no JSONB */
-          showToast('Sem conexão — ícone salvo localmente');
+          console.error('[Axiumlink] Upload do ícone falhou:', err.message);
+          showToast('Falha no upload: ' + err.message);
         }
         $('blockIcon').value = '';
       });
