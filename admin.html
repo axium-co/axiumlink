@@ -339,7 +339,9 @@
   }
   .crop-head strong { font-size:14.5px; }
   .crop-stage {
-    aspect-ratio:1/1; max-height:52vh; width:auto; margin:0 auto;
+    /* Largura definida (= teto da altura) garante palco quadrado real:
+       a matemática do crop assume rect.width == rect.height no círculo */
+    aspect-ratio:1/1; width:min(100%, 52vh); margin:0 auto;
     background:#111827; touch-action:none; user-select:none; -webkit-user-select:none;
     position:relative; overflow:hidden;
   }
@@ -3868,22 +3870,27 @@
     const rect = stage.getBoundingClientRect();
     const dispW = parseFloat(cropState.img.style.width) || 1;
     const dispH = parseFloat(cropState.img.style.height) || 1;
-    const scaleToCanvas = wPx / rect.width;
+
+    /* Conversões de espaço: px do palco (CSS) → px do canvas de saída →
+       px NATURAIS da imagem. O retângulo de ORIGEM do drawImage é sempre
+       em px naturais — o código antigo passava px de exibição e com sinal
+       invertido, recortando o canto superior esquerdo do ARQUIVO ORIGINAL
+       (fundo puro, sem a logo centrada) → export 100% preto. */
+    const stc = wPx / rect.width;            /* palco → canvas */
+    const kx = cropState.naturalW / dispW;   /* exibição → natural */
+    const ky = cropState.naturalH / dispH;
+    const sx = -(rect.width / 2 - dispW / 2 + cropState.tx) * stc * kx;
+    const sy = -(rect.height / 2 - dispH / 2 + cropState.ty) * stc * ky;
+    const sw = rect.width * stc * kx;
+    const sh = rect.height * stc * ky;
 
     /* JPEG não tem canal alfa: sem pintar o fundo antes, todo pixel
-       transparente da fonte é achatado em PRETO no export (bug do
-       avatar ficar 100% escuro). Fundo branco = resultado previsível. */
+       transparente da fonte é achatado em PRETO no export. Fundo
+       branco = resultado previsível. */
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, wPx, hPx);
 
-    ctx.drawImage(
-      cropState.img,
-      (rect.width / 2 - dispW / 2 + cropState.tx) * scaleToCanvas,
-      (rect.height / 2 - dispH / 2 + cropState.ty) * scaleToCanvas,
-      dispW * scaleToCanvas,
-      dispH * scaleToCanvas,
-      0, 0, wPx, hPx
-    );
+    ctx.drawImage(cropState.img, sx, sy, sw, sh, 0, 0, wPx, hPx);
 
     let dataUrl;
     try {
@@ -3894,7 +3901,12 @@
       showToast('Falha ao processar a imagem: ' + (err?.message || err));
       return;
     }
-    console.log('[Axiumlink][CropDebug] export:', wPx + 'x' + hPx, '| bytes:', Math.round(dataUrl.length * 0.75));
+    window.__lastCropDataUrl = dataUrl;
+    console.log('[Axiumlink][CropDebug] export:', wPx + 'x' + hPx,
+      '| srcRect:', [sx, sy, sw, sh].map((n) => Math.round(n)).join(','),
+      '| natural:', cropState.naturalW + 'x' + cropState.naturalH,
+      '| bytes:', Math.round(dataUrl.length * 0.75),
+      '| ver resultado: window.open(window.__lastCropDataUrl)');
     $('cropModal').classList.remove('open');
     const cb = cropState.onDone;
     cropState = null;
