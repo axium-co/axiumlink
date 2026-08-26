@@ -777,6 +777,49 @@
 
     .featured__card:hover .featured__arrow { transform: translateX(3px); opacity: 0.9; }
 
+    /* ================================================================
+       BOTÕES DE AÇÃO EM MODO LISTA — arquitetura flexbox premium:
+       texto perfeitamente centralizado, ícone isolado à esquerda
+       (position:absolute) e título com truncamento ellipsis.
+       Banners ficam de fora (a imagem cobre o card inteiro).
+       ================================================================ */
+    .pg-links--list .featured__card:not(.featured__card--banner),
+    .quick-grid--list .featured__card:not(.featured__card--banner) {
+      justify-content: center;
+      width: 100%;
+      text-align: center;
+    }
+
+    .pg-links--list .featured__card:not(.featured__card--banner) .featured__icon,
+    .quick-grid--list .featured__card:not(.featured__card--banner) .featured__icon {
+      position: absolute;
+      left: 0.875rem;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .pg-links--list .featured__card:not(.featured__card--banner) .featured__body,
+    .quick-grid--list .featured__card:not(.featured__card--banner) .featured__body {
+      align-items: center;
+      min-width: 0;
+      max-width: calc(100% - 7.5rem); /* reserva ícone (esq.) + seta (dir.) */
+    }
+
+    .pg-links--list .featured__card:not(.featured__card--banner) .featured__body strong,
+    .quick-grid--list .featured__card:not(.featured__card--banner) .featured__body strong {
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .pg-links--list .featured__card:not(.featured__card--banner) .featured__arrow,
+    .quick-grid--list .featured__card:not(.featured__card--banner) .featured__arrow {
+      position: absolute;
+      right: 0.875rem;
+      margin-left: 0;
+    }
+
     /* ---- Primeiro card (CTA principal) — leve destaque ---- */
     .featured__card--primary {
       border-color: var(--primary-border);
@@ -2195,7 +2238,7 @@
             const body = document.createElement('span');
             body.className = 'featured__body';
             const strong = document.createElement('strong');
-            strong.textContent = action.title || 'Nova Ação';
+            strong.textContent = cleanLinkTitle(action.title) || 'Nova Ação';
             body.appendChild(strong);
 
             if (action.url) node.title = action.url;
@@ -2230,6 +2273,20 @@
         return 'https://' + value;
       }
 
+      /* Remove tipo de link "colado" ao início do título (dado legado),
+         ex.: 'whatsappAgende via WhatsApp' → 'Agende via WhatsApp'.
+         Só atua sem espaço e seguido de maiúscula/número/@, preservando
+         títulos legítimos como 'WhatsApp Business'. */
+      const LINK_TYPE_KEYS = ['whatsapp', 'instagram', 'localizacao', 'telefone', 'site', 'outro'];
+      function cleanLinkTitle(raw) {
+        const t = String(raw || '').trim();
+        for (const k of LINK_TYPE_KEYS) {
+          const re = new RegExp('^' + k + '(?=[A-ZÁÀÂÃÉÊÍÓÔÕÚÇ0-9@])', 'i');
+          if (re.test(t)) return t.slice(k.length).trim() || t;
+        }
+        return t;
+      }
+
       function linksFromCards(cards) {
         const map = { whatsapp: 'whatsapp', instagram: 'instagram', maps: 'localizacao' };
         return ['whatsapp', 'instagram', 'maps']
@@ -2256,7 +2313,7 @@
             a.href = linkHref(link.url, link.icon);
             a.target = '_blank';
             a.rel = 'noopener';
-            a.setAttribute('aria-label', link.title || 'Link externo');
+            a.setAttribute('aria-label', cleanLinkTitle(link.title) || 'Link externo');
             a.title = link.url || link.title || '';
 
             if (link.animation && link.animation !== 'none') a.classList.add('anim-' + link.animation);
@@ -2280,7 +2337,7 @@
             const body = document.createElement('span');
             body.className = 'featured__body';
             const strong = document.createElement('strong');
-            strong.textContent = link.title || 'Novo Link';
+            strong.textContent = cleanLinkTitle(link.title) || 'Novo Link';
             body.appendChild(strong);
             a.appendChild(body);
 
