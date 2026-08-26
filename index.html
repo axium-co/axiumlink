@@ -771,6 +771,25 @@
     .featured__icon svg { width: 26px; height: 26px; }
     .featured__icon-img { width: 100%; height: 100%; object-fit: cover; }
 
+    /* Alinhamento do ícone por link (link.iconAlign do painel).
+       Padrão = esquerda fixa (layout nativo). 'center' centraliza
+       conjunto ícone+texto e oculta seta; 'right' fixa o ícone na
+       borda direita (absoluto) com o texto fluindo à esquerda. */
+    .featured__card.ia-center {
+      justify-content: center;
+      text-align: center;
+    }
+    .featured__card.ia-center .featured__arrow { display: none; }
+    .featured__card.ia-right { padding-right: calc(48px + 1.75rem); }
+    .featured__card.ia-right .featured__arrow { display: none; }
+    .featured__card.ia-right .featured__icon {
+      position: absolute;
+      right: 0.875rem;
+      top: 50%;
+      transform: translateY(-50%);
+      margin: 0;
+    }
+
     .featured__body {
       display: flex;
       flex-direction: column;
@@ -1893,6 +1912,10 @@
             ].join(', ');
             break;
           }
+          case 'glass':
+            /* Base colorida que o veil de vidro fosco (#axGlassVeil) borrará */
+            pageBg = 'linear-gradient(' + (st.gradientAngle || 135) + 'deg, ' + (st.gradientStart || '#6366f1') + ', ' + (st.gradientEnd || '#ec4899') + ')';
+            break;
           case 'video':
             pageBg = '#0b1220';
             break;
@@ -1905,6 +1928,7 @@
         return {
           _adapted: true,
           _premium: st,
+          _qls: cfg.quickLinksStyle || null,
           profile: {
             name: String(cfg._clientNome || p.displayName || '').trim(),
             bio: p.bio || '',
@@ -1920,10 +1944,10 @@
             banner: { enabled: !!cfg.banner, image: cfg.banner, bgType: 'image', height: 190 }
           },
           links: Array.isArray(cfg.links)
-            ? cfg.links.map(l => ({ title: l.title, url: l.url, icon: l.icon, image: l.iconImg || null }))
+            ? cfg.links.map(l => ({ title: l.title, url: l.url, icon: l.icon, image: l.iconImg || null, iconAlign: l.iconAlign || null }))
             : undefined,
           quickActions: Array.isArray(cfg.quick)
-            ? cfg.quick.map(q => ({ title: q.label, url: q.url, image: q.img || null }))
+            ? cfg.quick.map(q => ({ title: q.label, url: q.url, image: q.img || null, icon: q.icon || null }))
             : undefined,
           socials: cfg.socials || {}
         };
@@ -2030,6 +2054,30 @@
       document.body.style.backgroundBlendMode = pageGrad
         ? ((pgd.blend && pgd.blend !== 'normal') ? pgd.blend : '')
         : '';
+
+      /* ---- Vidro fosco da página (bgVariant = glass) ----
+         Veil fixo com z-index:-1: pinta ACIMA do fundo do body (que ele
+         borracha via backdrop-filter) e ABAIXO de todo o conteúdo. */
+      (() => {
+        const sp = cfg._premium || {};
+        let veil = document.getElementById('axGlassVeil');
+        if (sp.bgVariant !== 'glass') {
+          if (veil) veil.remove();
+          return;
+        }
+        if (!veil) {
+          veil = document.createElement('div');
+          veil.id = 'axGlassVeil';
+          veil.setAttribute('aria-hidden', 'true');
+          document.body.prepend(veil);
+        }
+        const blur = (sp.glassBlur ?? 12) + 'px';
+        veil.style.cssText =
+          'position:fixed;inset:0;z-index:-1;pointer-events:none;' +
+          'backdrop-filter:blur(' + blur + ');-webkit-backdrop-filter:blur(' + blur + ');' +
+          'background:rgba(255,255,255,' + ((sp.glassOpacity ?? 30) / 100) + ');' +
+          'border:1px solid rgba(255,255,255,' + ((sp.glassBorderOpacity ?? 25) / 100) + ')';
+      })();
 
       /* Subtítulo/descrições = texto neutro misturado com o fundo (tom suave).
          Independe do "Cor dos Textos": o perfil tem as próprias opções. */
@@ -2296,9 +2344,63 @@
         localizacao: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>',
         whatsapp: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5Z"/><path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1"/></svg>',
         instagram: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37Z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>',
+        tiktok: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12a4 4 0 1 0 4 4V4c.5 2.6 2.4 4.5 5 5"/></svg>',
+        youtube: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-1.92 29 29 0 0 0 .46-5.33 29 29 0 0 0-.46-5.33z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/></svg>',
         site: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>',
         outro: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>'
       };
+
+      /* ---- Estilo exclusivo dos atalhos rápidos (config.quickLinksStyle).
+         Roda DEPOIS do pass global de botões, que senão sobrescreveria
+         background/sombra dos cards de atalho com o estilo dos links. ---- */
+      function applyQuickLinksStyle(container) {
+        const qls = cfg._qls;
+        if (!qls || !container) return;
+        const s = Object.assign({ format: 'circle', background: 'solid', shadow: 'soft' }, qls);
+        const thBtnbg2 = { indigo:'#111827', light:'#2563eb', dark:'#1f2937', sunset:'#ea580c', ocean:'#0891b2', forest:'#16a34a', rose:'#e11d48' }[st.theme] || '#111827';
+        const isHex = s.format === 'hexagon';
+        const FORMAT_RADIUS = { circle:'9999px', squircle:'26px', leaf:'70% 30% 70% 30% / 30% 70% 30% 70%' };
+        container.querySelectorAll('.featured__card').forEach((card) => {
+          card.style.borderRadius = FORMAT_RADIUS[s.format] || '9999px';
+          if (isHex) {
+            card.style.clipPath = 'polygon(50% 0%, 93.3% 25%, 93.3% 75%, 50% 100%, 6.7% 75%, 6.7% 25%)';
+          } else {
+            card.style.clipPath = '';
+          }
+          switch (s.background) {
+            case 'outline':
+              card.style.background = 'transparent';
+              card.style.border = '1.5px solid ' + thBtnbg2;
+              break;
+            case 'glass':
+              card.style.background = 'rgba(255,255,255,0.15)';
+              card.style.backdropFilter = 'blur(12px)';
+              card.style.webkitBackdropFilter = 'blur(12px)';
+              card.style.border = '1px solid rgba(255,255,255,0.25)';
+              break;
+            case 'gradient':
+              card.style.background = 'linear-gradient(135deg, ' + (st.gradientStart || '#6366f1') + ', ' + (st.gradientEnd || '#ec4899') + ')';
+              card.style.border = 'none';
+              break;
+            default:
+              card.style.background = thBtnbg2;
+              card.style.border = 'none';
+          }
+          switch (s.shadow) {
+            case 'none':
+              card.style.boxShadow = 'none';
+              card.style.filter = '';
+              break;
+            case 'glow':
+              if (isHex) { card.style.filter = 'drop-shadow(0 0 8px currentColor)'; card.style.boxShadow = 'none'; }
+              else { card.style.boxShadow = '0 0 14px currentColor'; card.style.filter = ''; }
+              break;
+            default:
+              card.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+              card.style.filter = '';
+          }
+        });
+      }
 
       function quickHref(url, icon) {
         const value = String(url || '').trim();
@@ -2589,6 +2691,8 @@
             a.title = link.url || link.title || '';
 
             if (link.animation && link.animation !== 'none') a.classList.add('anim-' + link.animation);
+            if (link.iconAlign === 'center') a.classList.add('ia-center');
+            else if (link.iconAlign === 'right') a.classList.add('ia-right');
             applyButtonWidth(a, link.width);
 
             const icon = document.createElement('span');
@@ -2846,42 +2950,49 @@
         const thBtnbg = { indigo:'#111827', light:'#2563eb', dark:'#1f2937', sunset:'#ea580c', ocean:'#0891b2', forest:'#16a34a', rose:'#e11d48' }[st.theme] || '#111827';
         const thInk   = { indigo:'#111827', light:'#1f2937', dark:'#e5e7eb', sunset:'#7c2d12', ocean:'#164e63', forest:'#14532d', rose:'#881337' }[st.theme] || '#111827';
         const ORGANIC = '30% 70% 70% 30% / 30% 30% 70% 70%';
-        const radius = st.btnShape === 'organic' ? ORGANIC : ((st.btnRadius ?? 14) + 'px');
+        const SHAPE_RADIUS = { square:'0px', soft:'8px', premium:'16px', pill:'50px', organic:ORGANIC };
+        const radius = SHAPE_RADIUS[st.btnShape] ?? ((st.btnRadius ?? 14) + 'px');
+
+        /* Estilo de sombra independente da variante (espelha o painel) */
+        const sStyle = st.btnShadowStyle || 'soft';
         const alpha = (st.btnShadow ?? 30) / 100;
-        const softShadow = alpha > 0 ? '0 ' + Math.round(alpha*10) + 'px ' + Math.round(alpha*26) + 'px rgba(0,0,0,' + (alpha*.35).toFixed(2) + ')' : 'none';
+        let shadow;
+        if (sStyle === 'none') shadow = 'none';
+        else if (sStyle === 'neumorph') shadow = '6px 6px 12px rgba(0,0,0,0.1), -6px -6px 12px rgba(255,255,255,0.8)';
+        else if (sStyle === 'glow') shadow = '0 0 15px currentColor';
+        else shadow = alpha > 0 ? '0 ' + Math.round(alpha*10) + 'px ' + Math.round(alpha*26) + 'px rgba(0,0,0,' + (alpha*.35).toFixed(2) + ')' : 'none';
 
         function buildBtn() {
           switch (st.btnVariant) {
             case 'glass': {
-              const bl = (st.glassBlur || 8) + 'px';
+              /* Vidro dedicado dos botões (fallback: legados do fundo) */
+              const bl = (st.btnGlassBlur ?? st.glassBlur ?? 12) + 'px';
               return {
-                background: 'rgba(255,255,255,' + ((st.glassOpacity ?? 30)/100) + ')',
+                background: 'rgba(255,255,255,' + ((st.btnGlassOpacity ?? st.glassOpacity ?? 15)/100) + ')',
                 color: thInk,
                 backdropFilter: 'blur(' + bl + ')',
                 webkitBackdropFilter: 'blur(' + bl + ')',
-                border: '1px solid rgba(255,255,255,' + ((st.glassBorderOpacity ?? 25)/100) + ')',
-                boxShadow: softShadow
+                border: '1px solid rgba(255,255,255,0.25)',
+                boxShadow: shadow
               };
             }
-            case 'neumorphic': {
-              const dark = /^#0/.test(thBtnbg);
+            case 'neumorphic':
               return {
-                background: dark ? '#1f2937' : '#e0e5ec',
+                background: /^#0/.test(thBtnbg) ? '#1f2937' : '#e0e5ec',
                 color: thInk,
                 border: 'none',
-                boxShadow: '8px 8px 16px rgba(0,0,0,' + (dark?'0.35':'0.1') + '), -8px -8px 16px rgba(255,255,255,' + (dark?'0.08':'0.8') + ')'
+                boxShadow: shadow
               };
-            }
             case 'ghost':
-              return { background:'transparent', color:thBtnbg, border:'2px solid '+thBtnbg, boxShadow:'none' };
+              return { background:'transparent', color:thBtnbg, border:'2px solid '+thBtnbg, boxShadow:shadow };
             case 'gradient':
-              return { background:'linear-gradient('+(st.btnGradientAngle||135)+'deg,'+(st.btnGradientStart||'#6366f1')+','+(st.btnGradientEnd||'#ec4899')+')', color:'#fff', border:'none', boxShadow:softShadow };
+              return { background:'linear-gradient('+(st.btnGradientAngle||135)+'deg,'+(st.btnGradientStart||'#6366f1')+','+(st.btnGradientEnd||'#ec4899')+')', color:'#fff', border:'none', boxShadow:shadow };
             case 'neon': {
               const g = st.btnGlowColor || '#22d3ee';
-              return { background:'transparent', color:g, border:'2px solid '+g, boxShadow:'0 0 15px '+g+', inset 0 0 8px '+g+'66' };
+              return { background:'transparent', color:g, border:'2px solid '+g, boxShadow:shadow };
             }
             default:
-              return { background:thBtnbg, color:'#ffffff', border:'none', boxShadow:softShadow };
+              return { background:thBtnbg, color:'#ffffff', border:'none', boxShadow:shadow };
           }
         }
 
@@ -2897,6 +3008,10 @@
           else if (btnAnim === 'float') el.classList.add('ax-anim-float');
           else if (btnAnim === 'shine') el.classList.add('ax-anim-shine');
         });
+
+        /* Atalhos rápidos recebem o estilo exclusivo POR ÚLTIMO,
+           vencendo o pass global acima */
+        applyQuickLinksStyle(document.getElementById('pgQuick'));
 
         /* Espaçamento entre blocos */
         const lc = document.getElementById('pgLinks');

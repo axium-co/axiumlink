@@ -461,16 +461,29 @@
   }
 
   /* ===== PÁGINA PREVIEW (pv-*) ===== */
-  .pv-page { min-height:100%; background:var(--p-bg,#f9fafb); color:var(--p-ink,#111827); padding-bottom:40px; }
+  /* position:relative + overflow:hidden TRAVADOS em CSS (não só via JS):
+     ancoram os filhos absolutos no mockup e impedem que qualquer fundo,
+     vídeo ou textura estoure as bordas do dispositivo falso */
+  .pv-page {
+    position:relative !important; overflow:hidden !important;
+    min-height:100%; background:var(--p-bg,#f9fafb); color:var(--p-ink,#111827); padding-bottom:40px;
+  }
 
   /* Vídeo e textura de fundo — atrás de todo o conteúdo */
   .pv-bg-video {
-    position:absolute; inset:0; width:100%; height:100%;
-    object-fit:cover; z-index:0; pointer-events:none;
+    position:absolute !important; inset:0;
+    top:0 !important; left:0 !important; width:100% !important; height:100% !important;
+    max-width:none; max-height:none;
+    object-fit:cover !important; object-position:center !important;
+    z-index:0; pointer-events:none;
   }
   .pv-bg-image {
-    position:absolute; inset:0; width:100%; height:100%;
-    object-fit:cover; z-index:0; pointer-events:none;
+    position:absolute !important; inset:0;
+    top:0 !important; left:0 !important; width:100% !important; height:100% !important;
+    max-width:none; max-height:none;
+    object-fit:cover !important; object-position:center !important;
+    background-repeat:no-repeat !important;
+    z-index:0; pointer-events:none;
   }
   .pv-texture {
     position:absolute; inset:0; z-index:1;
@@ -551,6 +564,12 @@
     width:64px; height:64px; border-radius:18px; object-fit:cover;
     box-shadow:0 3px 10px rgba(0,0,0,.1); background:#e5e7eb;
   }
+  /* Atalho com ícone de plataforma (SVG) — mesmo box do thumb */
+  .quick-thumb.quick-ico {
+    display:flex; align-items:center; justify-content:center;
+    color:#fff;
+  }
+  .quick-thumb.quick-ico svg { width:52%; height:52%; }
   .quick-label {
     font-size:11px; font-weight:600; max-width:74px;
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
@@ -604,6 +623,25 @@
   .link-block-sub {
     font-size:12px; opacity:.65; margin-top:2px;
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+
+  /* Alinhamento do ícone por bloco (l.iconAlign).
+     Padrão 'left': absoluto em left:12px — texto permanece centralizado
+     pois o head compensa com padding. 'right' espelha a lógica.
+     'center': ícone vira item estático do flex, ao lado do texto. */
+  .link-block.icon-right .link-block-icon { left:auto; right:12px; }
+  .link-block.icon-right .link-block__head { padding-left:26px; padding-right:48px; }
+  .link-block.icon-center .link-block__head { padding-left:0; padding-right:0; gap:8px; }
+  .link-block.icon-center .link-block-icon {
+    position:static; transform:none;
+    width:26px; height:26px; border-radius:8px; font-size:15px;
+  }
+
+  /* Vidro fosco do FUNDO da página: camada z-index:-1 dentro de #pvPage
+     (stacking context) — borracha o bg de baixo sem afetar o conteúdo */
+  .pv-glass-veil {
+    position:absolute; inset:0; z-index:-1;
+    pointer-events:none;
   }
 
   /* Redes sociais */
@@ -950,6 +988,36 @@
         <h2 class="panel-title"><span>⚡</span> Links rápidos</h2>
         <p class="hint" style="margin:-6px 0 12px;">Aparecem como atalhos redondos no topo da página.</p>
 
+        <!-- Estilo exclusivo dos atalhos compactos -->
+        <div class="row-2">
+          <div class="field">
+            <label for="qlFormat">Formato do Atalho</label>
+            <select id="qlFormat" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+              <option value="circle">Círculo Perfeito</option>
+              <option value="squircle">Quadrado Suave (Arredondado)</option>
+              <option value="leaf">Estilo Folha</option>
+              <option value="hexagon">Hexágono</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="qlShadow">Sombra do Atalho</label>
+            <select id="qlShadow" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+              <option value="soft">Sombra Projetada Leve</option>
+              <option value="none">Sem Sombra</option>
+              <option value="glow">Brilho Neon (Glow)</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label for="qlBackground">Fundo do Atalho</label>
+          <select id="qlBackground" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+            <option value="solid">Cor Sólida (Tema)</option>
+            <option value="outline">Transparente com Borda Fina</option>
+            <option value="glass">Efeito Vidro (Glassmorphism)</option>
+            <option value="gradient">Gradiente Suave</option>
+          </select>
+        </div>
+
         <div id="quickList"></div>
 
         <div class="row-2">
@@ -961,6 +1029,19 @@
             <label for="quickUrl">URL</label>
             <input type="url" id="quickUrl" placeholder="https://...">
           </div>
+        </div>
+        <div class="field">
+          <label for="quickIcon">Ícone do Atalho</label>
+          <select id="quickIcon" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+            <option value="">Sem ícone (usar imagem padrão)</option>
+            <option value="instagram">Instagram</option>
+            <option value="whatsapp">WhatsApp</option>
+            <option value="tiktok">TikTok</option>
+            <option value="youtube">YouTube</option>
+            <option value="email">E-mail</option>
+            <option value="telefone">Telefone</option>
+            <option value="pix">PIX</option>
+          </select>
         </div>
         <button class="btn-add" id="btnAddQuick">+ Adicionar atalho</button>
       </section>
@@ -1034,6 +1115,7 @@
             <option value="mesh">Mesh Gradient (Fluido)</option>
             <option value="animated">Fundo Animado (Wave/Glow)</option>
             <option value="cyberpunk">Cyberpunk / Neon</option>
+            <option value="glass">Efeito Vidro Fosco (Glassmorphism)</option>
             <option value="image">Imagem de Fundo</option>
             <option value="video">Vídeo de Fundo</option>
           </select>
@@ -1234,10 +1316,14 @@
 
         <div class="row-2">
           <div class="field">
-            <label for="btnShape">Forma</label>
+            <label for="btnShape">Formato dos Botões</label>
             <select id="btnShape" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
-              <option value="rounded">Arredondado</option>
-              <option value="organic">Orgânico (Folha)</option>
+              <option value="square">Quadrado Rígido</option>
+              <option value="soft">Cantos Suaves</option>
+              <option value="rounded">Personalizado (Slider)</option>
+              <option value="premium">Arredondado Premium</option>
+              <option value="pill">Estilo Pílula / Capsule</option>
+              <option value="organic">Cantos Assimétricos / Orgânico</option>
             </select>
           </div>
           <div class="field">
@@ -1272,7 +1358,7 @@
           </div>
         </div>
 
-        <div class="ds-control">
+        <div class="ds-control" id="btnRadiusRow">
           <label>Arredondamento dos botões</label>
           <div class="ds-control-row">
             <input type="range" id="btnRadius" min="0" max="28" step="1">
@@ -1280,11 +1366,37 @@
           </div>
         </div>
 
-        <div class="ds-control">
-          <label>Sombra dos botões</label>
+        <div class="field">
+          <label for="btnShadowStyle">Estilo de Sombra</label>
+          <select id="btnShadowStyle" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+            <option value="soft">Sombra Suave Projetada</option>
+            <option value="none">Nenhuma Sombra</option>
+            <option value="neumorph">Efeito Soft UI / Neumorphism</option>
+            <option value="glow">Brilho Neon (Glow)</option>
+          </select>
+        </div>
+
+        <div class="ds-control" id="btnShadowRow">
+          <label>Intensidade da Sombra Suave</label>
           <div class="ds-control-row">
             <input type="range" id="btnShadow" min="0" max="100" step="5">
             <output class="ds-value" id="btnShadowVal">30%</output>
+          </div>
+        </div>
+
+        <!-- Vidro fosco exclusivo dos botões (btnVariant = glass) -->
+        <div class="ds-control" id="btnGlassOpacityRow" style="display:none;">
+          <label>Opacidade do Vidro (botões)</label>
+          <div class="ds-control-row">
+            <input type="range" id="btnGlassOpacity" min="5" max="50" step="1">
+            <output class="ds-value" id="btnGlassOpacityVal">15%</output>
+          </div>
+        </div>
+        <div class="ds-control" id="btnGlassBlurRow" style="display:none;">
+          <label>Desfoque do Vidro (botões)</label>
+          <div class="ds-control-row">
+            <input type="range" id="btnGlassBlur" min="0" max="30" step="1">
+            <output class="ds-value" id="btnGlassBlurVal">12px</output>
           </div>
         </div>
 
@@ -1429,6 +1541,14 @@
           <button class="btn-mini" id="btnBlockIconPick" style="width:100%;">Escolher…</button>
           <input type="file" id="blockIconInput" accept="image/*" hidden>
         </div>
+      </div>
+      <div class="field">
+        <label for="blockIconAlign">Alinhamento do Ícone</label>
+        <select id="blockIconAlign" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+          <option value="left">À Esquerda (Fixo)</option>
+          <option value="center">Junto ao Texto (Centralizado)</option>
+          <option value="right">À Direita</option>
+        </select>
       </div>
 
       <div style="display:flex; gap:10px; margin-top:18px;">
@@ -1858,10 +1978,24 @@
      ================================================================ */
   const $ = (id) => document.getElementById(id);
 
+  /* Ícones de plataforma para atalhos rápidos (SVG inline, stroke =
+     currentColor → herdam a cor do tema/estado). Chaves espelham o
+     mapa quickIcons da página pública. */
+  const QUICK_ICONS = {
+    instagram: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37Z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>',
+    whatsapp: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5Z"/><path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1"/></svg>',
+    tiktok: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12a4 4 0 1 0 4 4V4c.5 2.6 2.4 4.5 5 5"/></svg>',
+    youtube: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-1.92 29 29 0 0 0 .46-5.33 29 29 0 0 0-.46-5.33z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/></svg>',
+    email: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>',
+    telefone: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92Z"/></svg>',
+    pix: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>'
+  };
+
   const DEFAULT_CFG = () => ({
     profile: { displayName: '', bio: '', avatar: '' },
     banner: '',
     quick: [],
+    quickLinksStyle: { format: 'circle', background: 'solid', shadow: 'soft' },
     links: [],
     socials: {},
     style: {
@@ -1899,6 +2033,9 @@
       btnGlowColor: '#22d3ee',
       btnShape: 'rounded',
       btnAnimation: 'none',
+      btnShadowStyle: 'soft',
+      btnGlassOpacity: 15,
+      btnGlassBlur: 12,
       /* Tipografia */
       font: 'Inter',
       letterSpacing: 0,
@@ -2150,6 +2287,9 @@
       setRange('btnShadow', cfg.style.btnShadow);
       setRange('titleSize', cfg.style.titleSize);
       setRange('blockGap', cfg.style.blockGap);
+      setRange('btnGlassOpacity', cfg.style.btnGlassOpacity ?? 15);
+      setRange('btnGlassBlur', cfg.style.btnGlassBlur ?? 12);
+      $('btnShadowStyle').value = cfg.style.btnShadowStyle || 'soft';
       $('glassEnabled').checked = false;
     }
   }
@@ -2226,10 +2366,26 @@
       a.href = q.url || '#';
       a.target = '_blank';
       a.rel = 'noopener noreferrer';
-      a.innerHTML =
-        '<img class="quick-thumb" alt="" src="' + (q.img || placeholderFor(i)) + '">' +
-        '<span class="quick-label"></span>';
-      a.querySelector('.quick-label').textContent = q.label || ('Atalho ' + (i + 1));
+
+      /* Ícone de plataforma escolhido vira SVG real; sem ícone, mantém
+         o comportamento legado (imagem enviada ou placeholder) */
+      if (q.icon && QUICK_ICONS[q.icon]) {
+        const th = document.createElement('span');
+        th.className = 'quick-thumb quick-ico';
+        th.setAttribute('aria-hidden', 'true');
+        th.innerHTML = QUICK_ICONS[q.icon];
+        a.appendChild(th);
+      } else {
+        const im = document.createElement('img');
+        im.className = 'quick-thumb';
+        im.alt = '';
+        im.src = q.img || placeholderFor(i);
+        a.appendChild(im);
+      }
+      const ql = document.createElement('span');
+      ql.className = 'quick-label';
+      ql.textContent = q.label || ('Atalho ' + (i + 1));
+      a.appendChild(ql);
       a.addEventListener('click', (ev) => ev.preventDefault());
       grid.appendChild(a);
     });
@@ -2240,7 +2396,7 @@
     list.style.gap = (cfg.style?.blockGap ?? 10) + 'px';
     (cfg.links || []).forEach((l) => {
       const a = document.createElement('a');
-      a.className = 'link-block';
+      a.className = 'link-block' + (l.iconAlign === 'center' ? ' icon-center' : l.iconAlign === 'right' ? ' icon-right' : '');
       a.href = l.url || '#';
       a.target = '_blank';
       a.rel = 'noopener noreferrer';
@@ -2320,6 +2476,10 @@
       a.addEventListener('click', (ev) => ev.preventDefault());
       soc.appendChild(a);
     });
+
+    /* Reconstruiu o DOM → reaplica estilos (atalhos/botões) de imediato.
+       Idempotente: chamadas duplicadas com applyThemeVars não acumulam nada. */
+    applyThemeVars();
   }
 
   function placeholderFor(i) {
@@ -2447,6 +2607,12 @@
           backgroundSize: '100% 100%, 100% 100%, 40px 40px, 40px 40px'
         };
       }
+      case 'glass':
+        /* A "poeira" do vidro é o veil .pv-glass-veil (syncGlassVeil);
+           aqui fica só a base colorida que aparecerá borrada atrás */
+        return {
+          background: 'linear-gradient(' + (st.gradientAngle || 135) + 'deg, ' + (st.gradientStart || '#6366f1') + ', ' + (st.gradientEnd || '#ec4899') + ')'
+        };
       case 'video':
         /* O <video> é gerenciado por syncBgVideo(); aqui só o fallback */
         return { backgroundColor: '#0b1220' };
@@ -2529,6 +2695,31 @@
     }
   }
 
+  /* Camada de vidro fosco sobre o fundo da página (bgVariant = glass):
+     z-index:-1 dentro do stacking context de #pvPage — borracha SOMENTE
+     o fundo; o conteúdo permanece nítido e clicável acima */
+  function syncGlassVeil(st) {
+    const page = $('pvPage');
+    if (!page) return;
+    let veil = page.querySelector('.pv-glass-veil');
+    if (st.bgVariant !== 'glass') {
+      if (veil) veil.remove();
+      return;
+    }
+    if (!veil) {
+      veil = document.createElement('div');
+      veil.className = 'pv-glass-veil';
+      veil.setAttribute('aria-hidden', 'true');
+      page.prepend(veil);
+    }
+    const blur = (st.glassBlur ?? 12) + 'px';
+    const alpha = (st.glassOpacity ?? 30) / 100;
+    veil.style.backdropFilter = 'blur(' + blur + ')';
+    veil.style.webkitBackdropFilter = 'blur(' + blur + ')';
+    veil.style.background = 'rgba(255,255,255,' + alpha + ')';
+    veil.style.border = '1px solid rgba(255,255,255,' + ((st.glassBorderOpacity ?? 25) / 100) + ')';
+  }
+
   /* Atualiza miniatura e botão remover da linha Imagem de Fundo */
   function syncBgImageControls(st) {
     const thumb = $('bgImageThumb');
@@ -2548,33 +2739,95 @@
     }
   }
 
+  /* CSS dos atalhos rápidos (quickLinksStyle no JSONB).
+     Aplicado sobre .quick-thumb (o elemento visual redondo). Hexágono usa
+     clip-path — nesse caso glow vira drop-shadow, pois box-shadow é
+     cortado pelo recorte. */
+  function buildQuickCSS(st, qls) {
+    const s = Object.assign({ format: 'circle', background: 'solid', shadow: 'soft' }, qls || {});
+    const FORMAT_RADIUS = { circle: '50%', squircle: '26px', leaf: '70% 30% 70% 30% / 30% 70% 30% 70%' };
+    const isHex = s.format === 'hexagon';
+    const out = { borderRadius: FORMAT_RADIUS[s.format] || '50%' };
+    if (isHex) {
+      out.clipPath = 'polygon(50% 0%, 93.3% 25%, 93.3% 75%, 50% 100%, 6.7% 75%, 6.7% 25%)';
+    }
+
+    switch (s.background) {
+      case 'outline':
+        out.background = 'transparent';
+        out.border = '1.5px solid ' + (t_btnbg(st));
+        out.color = t_btnbg(st);
+        break;
+      case 'glass':
+        out.background = 'rgba(255,255,255,0.15)';
+        out.backdropFilter = 'blur(12px)';
+        out.WebkitBackdropFilter = 'blur(12px)';
+        out.border = '1px solid rgba(255,255,255,0.25)';
+        out.color = t_inkc(st);
+        break;
+      case 'gradient':
+        out.background = 'linear-gradient(135deg, ' + (st.gradientStart || '#6366f1') + ', ' + (st.gradientEnd || '#ec4899') + ')';
+        out.color = '#ffffff';
+        break;
+      default: /* solid */
+        out.background = t_btnbg(st);
+        out.color = t_btninkc(st);
+    }
+
+    switch (s.shadow) {
+      case 'none':
+        out.boxShadow = 'none';
+        break;
+      case 'glow':
+        if (isHex) out.filter = 'drop-shadow(0 0 8px currentColor)';
+        else out.boxShadow = '0 0 14px currentColor';
+        break;
+      default: /* soft */
+        out.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+    }
+    return out;
+  }
+  /* Cores efetivas do tema para os atalhos */
+  function t_btnbg(st) { return (THEMES[st.theme] || THEMES.indigo).btnbg; }
+  function t_btninkc(st) { return (THEMES[st.theme] || THEMES.indigo).btnink; }
+  function t_inkc(st) { return (THEMES[st.theme] || THEMES.indigo).ink; }
+
   /* Gera CSS do botão baseado na variante */
   function buildButtonCSS(st, t) {
     const ORGANIC_RADIUS = '30% 70% 70% 30% / 30% 30% 70% 70%';
-    const radius = st.btnShape === 'organic' ? ORGANIC_RADIUS : ((st.btnRadius ?? 14) + 'px');
+    const SHAPE_RADIUS = { square: '0px', soft: '8px', premium: '16px', pill: '50px', organic: ORGANIC_RADIUS };
+    const radius = SHAPE_RADIUS[st.btnShape] ?? ((st.btnRadius ?? 14) + 'px');
+
+    /* Estilo de sombra independente da variante:
+       soft = intensidade ajustável; demais = fórmulas fixas */
+    const sStyle = st.btnShadowStyle || 'soft';
     const alpha = (st.btnShadow ?? 30) / 100;
-    const shadow = alpha > 0
+    let shadow;
+    if (sStyle === 'none') shadow = 'none';
+    else if (sStyle === 'neumorph') shadow = '6px 6px 12px rgba(0,0,0,0.1), -6px -6px 12px rgba(255,255,255,0.8)';
+    else if (sStyle === 'glow') shadow = '0 0 15px currentColor';
+    else shadow = alpha > 0
       ? '0 ' + Math.round(alpha * 10) + 'px ' + Math.round(alpha * 26) + 'px rgba(0,0,0,' + (alpha * .35).toFixed(2) + ')'
       : 'none';
 
     const base = {
       borderRadius: radius,
+      boxShadow: shadow,
       transition: 'all 0.2s ease'
     };
 
     switch (st.btnVariant) {
       case 'glass': {
-        const blur = (st.glassBlur || 8) + 'px';
-        const opacity = (st.glassOpacity || 30) / 100;
-        const borderOpacity = (st.glassBorderOpacity || 25) / 100;
+        /* Vidro dedicado dos botões (fallback: controles legados do fundo) */
+        const blur = (st.btnGlassBlur ?? st.glassBlur ?? 12) + 'px';
+        const opacity = (st.btnGlassOpacity ?? st.glassOpacity ?? 15) / 100;
         return {
           ...base,
           background: 'rgba(255,255,255,' + opacity + ')',
           color: t.ink,
           backdropFilter: 'blur(' + blur + ')',
           WebkitBackdropFilter: 'blur(' + blur + ')',
-          border: '1px solid rgba(255,255,255,' + borderOpacity + ')',
-          boxShadow: shadow
+          border: '1px solid rgba(255,255,255,0.25)'
         };
       }
       case 'neon': {
@@ -2583,21 +2836,17 @@
           ...base,
           background: 'transparent',
           color: glow,
-          border: '2px solid ' + glow,
-          boxShadow: '0 0 15px ' + glow + ', inset 0 0 8px ' + glow + '66'
+          border: '2px solid ' + glow
         };
       }
       case 'neumorphic': {
         const isDark = t.bg.includes('dark') || t.bg.includes('#0b') || t.bg.includes('#0a');
         const bgColor = isDark ? '#1f2937' : '#e0e5ec';
-        const shadowLight = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.8)';
-        const shadowDark = isDark ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.1)';
         return {
           ...base,
           background: bgColor,
           color: t.ink,
-          border: 'none',
-          boxShadow: '8px 8px 16px ' + shadowDark + ', -8px -8px 16px ' + shadowLight
+          border: 'none'
         };
       }
       case 'ghost': {
@@ -2605,8 +2854,7 @@
           ...base,
           background: 'transparent',
           color: t.btnbg,
-          border: '2px solid ' + t.btnbg,
-          boxShadow: 'none'
+          border: '2px solid ' + t.btnbg
         };
       }
       case 'gradient': {
@@ -2614,8 +2862,7 @@
           ...base,
           background: 'linear-gradient(' + (st.btnGradientAngle || 135) + 'deg, ' + (st.btnGradientStart || '#6366f1') + ', ' + (st.btnGradientEnd || '#ec4899') + ')',
           color: '#ffffff',
-          border: 'none',
-          boxShadow: shadow
+          border: 'none'
         };
       }
       default: /* solid */
@@ -2623,8 +2870,7 @@
           ...base,
           background: t.btnbg,
           color: t.btnink,
-          border: 'none',
-          boxShadow: shadow
+          border: 'none'
         };
     }
   }
@@ -2658,6 +2904,7 @@
     syncBgTexture(st);
     syncBgImage(st);
     syncBgImageControls(st);
+    syncGlassVeil(st);
 
     /* Tipografia premium */
     const fontStack = FONT_STACKS[st.font] || FONT_STACKS['Inter'];
@@ -2703,6 +2950,12 @@
       el.classList.remove(...ANIM_CLASSES);
       if (btnAnim === 'pulse') el.classList.add('pv-anim-pulse');
       else if (btnAnim === 'float') el.classList.add('pv-anim-float');
+    });
+
+    /* Estilo exclusivo dos atalhos rápidos (quickLinksStyle) */
+    const qCSS = buildQuickCSS(st, cfg.quickLinksStyle);
+    page.querySelectorAll('.quick-item .quick-thumb').forEach((th) => {
+      Object.assign(th.style, qCSS);
     });
 
     $('pvName').style.fontSize = (st.titleSize ?? 20) + 'px';
@@ -2812,12 +3065,21 @@
     $('bgTextureRow').style.display =
       (bgVar === 'solid' || bgVar === 'gradient' || bgVar === 'mesh' || bgVar === 'animated') ? '' : 'none';
 
-    /* Glass controls mostram quando glassEnabled ou btnVariant === glass */
-    const showGlass = st.glassEnabled || btnVar === 'glass';
+    /* Glass controls mostram quando glassEnabled, botão de vidro ou fundo de vidro */
+    const showGlass = st.glassEnabled || btnVar === 'glass' || bgVar === 'glass';
     $('glassControlsRow').style.display = showGlass ? '' : 'none';
     $('glassBlurRow').style.display = showGlass ? '' : 'none';
     $('glassOpacityRow').style.display = showGlass ? '' : 'none';
     $('glassBorderOpacityRow').style.display = showGlass ? '' : 'none';
+
+    /* Vidro exclusivo dos botões */
+    const showBtnGlass = btnVar === 'glass';
+    $('btnGlassOpacityRow').style.display = showBtnGlass ? '' : 'none';
+    $('btnGlassBlurRow').style.display = showBtnGlass ? '' : 'none';
+
+    /* Slider de raio só no modo Personalizado; intensidade só na sombra Suave */
+    $('btnRadiusRow').style.display = (st.btnShape || 'rounded') === 'rounded' ? '' : 'none';
+    $('btnShadowRow').style.display = (st.btnShadowStyle || 'soft') === 'soft' ? '' : 'none';
 
     $('btnGradientRow').style.display = btnVar === 'gradient' ? '' : 'none';
     $('glowColorRow').style.display = btnVar === 'neon' ? '' : 'none';
@@ -3054,14 +3316,39 @@
     $('btnShape').addEventListener('change', (e) => {
       if (!cfg.style) cfg.style = {};
       cfg.style.btnShape = e.target.value;
+      updateStyleRowsVisibility();
       applyThemeVars();
       markDirty();
     });
+    /* Estilo de sombra independente (none/soft/neumorph/glow) */
+    $('btnShadowStyle').addEventListener('change', (e) => {
+      if (!cfg.style) cfg.style = {};
+      cfg.style.btnShadowStyle = e.target.value;
+      updateStyleRowsVisibility();
+      applyThemeVars();
+      markDirty();
+    });
+    /* Vidro dedicado dos botões */
+    bindRange('btnGlassOpacity', 'btnGlassOpacityVal', (v) => v + '%', (v) => { if (!cfg.style) cfg.style = {}; cfg.style.btnGlassOpacity = v; applyThemeVars(); });
+    bindRange('btnGlassBlur', 'btnGlassBlurVal', (v) => v + 'px', (v) => { if (!cfg.style) cfg.style = {}; cfg.style.btnGlassBlur = v; applyThemeVars(); });
     $('btnAnimation').addEventListener('change', (e) => {
       if (!cfg.style) cfg.style = {};
       cfg.style.btnAnimation = e.target.value;
       applyThemeVars();
       markDirty();
+    });
+
+    /* Estilo exclusivo dos atalhos rápidos (config.quickLinksStyle) */
+    ['qlFormat', 'qlBackground', 'qlShadow'].forEach((id) => {
+      $(id).addEventListener('change', () => {
+        cfg.quickLinksStyle = Object.assign(
+          { format: 'circle', background: 'solid', shadow: 'soft' },
+          cfg.quickLinksStyle || {}
+        );
+        cfg.quickLinksStyle[id === 'qlFormat' ? 'format' : id === 'qlBackground' ? 'background' : 'shadow'] = $(id).value;
+        applyThemeVars();
+        markDirty();
+      });
     });
 
     /* Controles originais */
@@ -3076,6 +3363,10 @@
   /* Reflete os valores salvos do perfil atual nos controles (sem recriar listeners) */
   function reflectStyleValues() {
     const st = cfg.style || {};
+    const qls = Object.assign({ format: 'circle', background: 'solid', shadow: 'soft' }, cfg.quickLinksStyle || {});
+    $('qlFormat').value = qls.format;
+    $('qlBackground').value = qls.background;
+    $('qlShadow').value = qls.shadow;
     $('bgVariant').value = st.bgVariant || 'solid';
     $('btnVariant').value = st.btnVariant || 'solid';
     $('gradientStart').value = st.gradientStart || '#6366f1';
@@ -3091,10 +3382,13 @@
     $('fontFamily').value = st.font || 'Inter';
     $('btnGlowColor').value = st.btnGlowColor || '#22d3ee';
     $('btnShape').value = st.btnShape || 'rounded';
+    $('btnShadowStyle').value = st.btnShadowStyle || 'soft';
     $('btnAnimation').value = st.btnAnimation || 'none';
 
     setRange('btnRadius', st.btnRadius);
     setRange('btnShadow', st.btnShadow);
+    setRange('btnGlassOpacity', st.btnGlassOpacity ?? 15);
+    setRange('btnGlassBlur', st.btnGlassBlur ?? 12);
     setRange('titleSize', st.titleSize);
     setRange('blockGap', st.blockGap);
     setRange('gradientAngle', st.gradientAngle ?? 135);
@@ -3255,6 +3549,7 @@
     $('blockUrl').value = l.url || '';
     $('blockSub').value = l.sub || '';
     $('blockIcon').value = (!l.iconImg && l.icon) || '';
+    $('blockIconAlign').value = l.iconAlign || 'left';
     _pendingBlockIcon = l.iconImg || null;
 
     $('blockModal').classList.add('open');
@@ -3312,9 +3607,10 @@
       const url = $('quickUrl').value.trim();
       if (!label || !url) { showToast('Preencha nome e URL do atalho'); return; }
       cfg.quick = cfg.quick || [];
-      cfg.quick.push({ label, url });
+      cfg.quick.push({ label, url, icon: $('quickIcon').value || '' });
       $('quickLabel').value = '';
       $('quickUrl').value = '';
+      $('quickIcon').value = '';
       markDirty();
       renderQuickList();
       renderPreview();
@@ -3368,7 +3664,8 @@
         url,
         sub: $('blockSub').value.trim(),
         icon: _pendingBlockIcon ? '' : ($('blockIcon').value.trim() || '👉'),
-        iconImg: _pendingBlockIcon || ''
+        iconImg: _pendingBlockIcon || '',
+        iconAlign: $('blockIconAlign').value || 'left'
       };
 
       cfg.links = cfg.links || [];
