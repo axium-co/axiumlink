@@ -1550,17 +1550,32 @@
         <label for="blockSub">Descrição (opcional)</label>
         <input type="text" id="blockSub" placeholder="Aparece abaixo do título" maxlength="80">
       </div>
-      <div class="row-2">
-        <div class="field">
-          <label for="blockIcon">Ícone (emoji)</label>
-          <input type="text" id="blockIcon" placeholder="👉" maxlength="4">
-        </div>
-        <div class="field">
-          <label>Imagem do ícone</label>
-          <button class="btn-mini" id="btnBlockIconPick" style="width:100%;">Escolher…</button>
-          <input type="file" id="blockIconInput" accept="image/*" hidden>
-        </div>
+    <div class="row-2">
+      <div class="field">
+        <label for="blockType">Plataforma / Ícone</label>
+        <select id="blockType" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+          <option value="">Nenhum</option>
+          <option value="whatsapp">WhatsApp</option>
+          <option value="instagram">Instagram</option>
+          <option value="tiktok">TikTok</option>
+          <option value="youtube">YouTube</option>
+          <option value="twitter">Twitter / X</option>
+          <option value="linkedin">LinkedIn</option>
+          <option value="facebook">Facebook</option>
+          <option value="telegram">Telegram</option>
+          <option value="email">Email</option>
+          <option value="telefone">Telefone</option>
+          <option value="localizacao">Localização</option>
+          <option value="site">Site / Web</option>
+          <option value="pix">Pix</option>
+        </select>
       </div>
+      <div class="field">
+        <label>Imagem do ícone</label>
+        <button class="btn-mini" id="btnBlockIconPick" style="width:100%;">Escolher…</button>
+        <input type="file" id="blockIconInput" accept="image/*" hidden>
+      </div>
+    </div>
       <div class="field">
         <label for="blockIconAlign">Alinhamento do Ícone</label>
         <select id="blockIconAlign" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
@@ -2432,6 +2447,7 @@
       const head = document.createElement('div');
       head.className = 'link-block__head';
 
+      const iconType = l.type || l.icon || '';
       const iconWrap = document.createElement('span');
       iconWrap.className = 'link-block-icon';
       if (l.iconImg) {
@@ -2440,14 +2456,11 @@
         im.alt = '';
         iconWrap.appendChild(im);
       } else {
-        const faClass = resolveIcon(l.icon);
-        const raw = String(l.icon || '').trim();
+        const faClass = resolveIcon(iconType);
         if (faClass) {
           const i = document.createElement('i');
           i.className = faClass;
           iconWrap.appendChild(i);
-        } else if (raw && !/^[a-z0-9@._-]+$/i.test(raw)) {
-          iconWrap.textContent = raw;
         } else {
           iconWrap.style.display = 'none';
           head.style.paddingLeft = '15px';
@@ -2458,7 +2471,8 @@
       txt.className = 'link-block-txt';
       const tt = document.createElement('span');
       tt.className = 'link-block-title';
-      tt.textContent = cleanLinkTitle(l.title) || 'Sem título';
+      const fallbackLabel = iconType ? (iconType.charAt(0).toUpperCase() + iconType.slice(1)) : 'Sem título';
+      tt.textContent = l.title || fallbackLabel;
       txt.appendChild(tt);
       if (l.sub) {
         const ss = document.createElement('span');
@@ -3722,7 +3736,9 @@
       main.className = 'link-item-main';
       const tt = document.createElement('div');
       tt.className = 'link-item-title';
-      tt.textContent = cleanLinkTitle(l.title) || 'Sem título';
+      const iconType = l.type || l.icon || '';
+      const fallbackLabel = iconType ? (iconType.charAt(0).toUpperCase() + iconType.slice(1)) : 'Sem título';
+      tt.textContent = l.title || fallbackLabel;
       const uu = document.createElement('div');
       uu.className = 'link-item-url';
       uu.textContent = l.url || '';
@@ -3824,10 +3840,10 @@
     $('btnBlockDelete').style.display = isNew ? 'none' : 'flex';
 
     const l = isNew ? {} : (cfg.links[index] || {});
-    $('blockTitle').value = cleanLinkTitle(l.title) || '';
+    $('blockTitle').value = l.title || '';
     $('blockUrl').value = l.url || '';
     $('blockSub').value = l.sub || '';
-    $('blockIcon').value = (!l.iconImg && l.icon) || '';
+    $('blockType').value = l.type || '';
     $('blockIconAlign').value = l.iconAlign || 'left';
     _pendingBlockIcon = l.iconImg || null;
 
@@ -3923,7 +3939,6 @@
           console.error('[Axiumlink] Upload do ícone falhou:', err.message);
           showToast('Falha no upload: ' + err.message);
         }
-        $('blockIcon').value = '';
       });
       e.target.value = '';
     });
@@ -3933,11 +3948,16 @@
       const url = $('blockUrl').value.trim();
       if (!title || !url) { showToast('Título e URL são obrigatórios'); return; }
 
+      const isNew = editingBlockIndex == null;
+      const existingId = isNew ? null : (cfg.links[editingBlockIndex] || {}).id;
+
       const entry = {
+        id: existingId || (Date.now().toString(36) + Math.random().toString(36).slice(2, 6)),
         title,
+        type: $('blockType').value || '',
         url,
         sub: $('blockSub').value.trim(),
-        icon: _pendingBlockIcon ? '' : ($('blockIcon').value.trim() || '👉'),
+        icon: _pendingBlockIcon ? '' : ($('blockType').value || ''),
         iconImg: _pendingBlockIcon || '',
         iconAlign: $('blockIconAlign').value || 'left'
       };

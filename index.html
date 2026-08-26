@@ -1967,7 +1967,17 @@
             banner: { enabled: !!cfg.banner, image: cfg.banner, bgType: 'image', height: 190 }
           },
           links: Array.isArray(cfg.links)
-            ? cfg.links.map(l => ({ title: l.title, url: l.url, icon: l.icon, image: l.iconImg || null, iconAlign: l.iconAlign || null, sub: l.sub || null, animation: l.animation || null, width: l.width || null }))
+            ? cfg.links.map(l => ({
+                id: l.id || null,
+                title: l.title || '',
+                type: l.type || l.icon || '',
+                url: l.url,
+                image: l.iconImg || null,
+                iconAlign: l.iconAlign || null,
+                sub: l.sub || null,
+                animation: l.animation || null,
+                width: l.width || null
+              }))
             : undefined,
           quickActions: Array.isArray(cfg.quick)
             ? cfg.quick.map(q => ({ title: q.label, url: q.url, image: q.img || null, icon: q.icon || null }))
@@ -2715,7 +2725,7 @@
           .map((k) => {
             const c = (cards || {})[k];
             return (c && c.link)
-              ? { title: c.title || '', url: c.link, icon: map[k], image: c.icon || null }
+              ? { title: c.title || '', type: map[k], url: c.link, image: c.icon || null }
               : null;
           })
           .filter(Boolean);
@@ -2729,14 +2739,16 @@
         linksContainer.classList.remove('pg-links--grid');
 
         linkList.forEach((link) => {
+          const linkType = link.type || link.icon || '';
           if (isLinksList) {
             const a = document.createElement('a');
             a.className = 'featured__card';
-            a.href = linkHref(link.url, link.icon);
+            a.href = linkHref(link.url, linkType);
             a.target = '_blank';
             a.rel = 'noopener';
-            a.setAttribute('aria-label', cleanLinkTitle(link.title) || 'Link externo');
-            a.title = link.url || link.title || '';
+            const displayTitle = link.title || (linkType ? (linkType.charAt(0).toUpperCase() + linkType.slice(1)) : 'Link');
+            a.setAttribute('aria-label', displayTitle);
+            a.title = link.url || displayTitle;
 
             if (link.animation && link.animation !== 'none') a.classList.add('anim-' + link.animation);
             if (link.iconAlign === 'center') a.classList.add('ia-center');
@@ -2755,25 +2767,19 @@
               icon.appendChild(img);
               a.appendChild(icon);
             } else {
-              const faClass = resolveIcon(link.icon);
+              const faClass = resolveIcon(linkType);
               if (faClass) {
                 const i = document.createElement('i');
                 i.className = faClass;
                 icon.appendChild(i);
                 a.appendChild(icon);
-              } else {
-                const raw = String(link.icon || '').trim();
-                if (raw && !/^[a-z0-9@._-]+$/i.test(raw)) {
-                  icon.textContent = raw;
-                  a.appendChild(icon);
-                }
               }
             }
 
             const body = document.createElement('span');
             body.className = 'featured__body';
             const strong = document.createElement('strong');
-            strong.textContent = cleanLinkTitle(link.title) || 'Novo Link';
+            strong.textContent = displayTitle;
             body.appendChild(strong);
             if (link.sub) {
               const sub = document.createElement('span');
@@ -2791,7 +2797,7 @@
           } else {
             const a = document.createElement('a');
             a.className = 'social-icon';
-            a.href = linkHref(link.url, link.icon);
+            a.href = linkHref(link.url, linkType);
             a.target = '_blank';
             a.rel = 'noopener';
             a.setAttribute('aria-label', link.title || 'Link externo');
@@ -2812,20 +2818,15 @@
               img.loading = 'lazy';
               inner.appendChild(img);
             } else {
-              const faClass = resolveIcon(link.icon);
+              const faClass = resolveIcon(linkType);
               if (faClass) {
                 const i = document.createElement('i');
                 i.className = faClass;
                 inner.appendChild(i);
               } else {
-                const raw = String(link.icon || '').trim();
-                if (raw && !/^[a-z0-9@._-]+$/i.test(raw)) {
-                  inner.textContent = raw;
-                } else {
-                  const i = document.createElement('i');
-                  i.className = 'fas fa-link';
-                  inner.appendChild(i);
-                }
+                const i = document.createElement('i');
+                i.className = 'fas fa-link';
+                inner.appendChild(i);
               }
             }
             a.appendChild(inner);
