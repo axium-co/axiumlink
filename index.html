@@ -318,7 +318,17 @@
       flex-shrink: 0;
     }
 
-    .profile__avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .profile__avatar img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      max-width: none;
+      max-height: none;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+    }
 
     /* ---- Container de vidro + sombra do avatar (design.profile) ----
        As variáveis são alimentadas pelo JS a partir do config.js. */
@@ -1693,14 +1703,17 @@
              a busca é sempre filtrada por slug. */
           const { data, error } = await supabase
             .from('clients')
-            .select('config')
+            .select('nome, config')
             .eq('slug', slug)
             .maybeSingle();
           if (error) throw error;
           if (data && data.config) {
             /* Tolerância a legado: linhas migradas do Parse podem ter config-string */
             const cfg = typeof data.config === 'string' ? JSON.parse(data.config) : data.config;
-            if (cfg && typeof cfg === 'object') return cfg;
+            if (cfg && typeof cfg === 'object') {
+              cfg._clientNome = String(data.nome || '').trim(); /* coluna nome → título */
+              return cfg;
+            }
             console.warn('[Axiumlink] Client encontrado mas campo "config" vazio.');
           } else {
             console.warn('[Axiumlink] Nenhum Client com slug "' + slug + '". Verifique se o slug está correto.');
@@ -1716,10 +1729,107 @@
         return readLocalConfig();
       }
 
+      /* ================================================================
+         ADAPTADOR DE SCHEMA — painel novo → formato legado da página.
+         O admin grava { profile:{displayName,avatar}, style:{...},
+         banner, quick[], links[], socials{} }. Aqui traduzimos para o
+         shape { profile:{name,photo}, visual:{pageBg,bgImage}, design:{...} }
+         que TODA a pipeline de render abaixo já entende — e preservamos
+         st em _premium para o pass de estilo avançado no fim.
+         ================================================================ */
+      function adaptNewSchema(cfg) {
+        if (!cfg || typeof cfg !== 'object') return cfg;
+        const p = cfg.profile || {};
+        const isNew = (p.displayName != null) || (cfg.style != null);
+        if (!isNew) return cfg;
+        if (cfg._adapted) return cfg;
+
+        const st = cfg.style || {};
+        const THEMES = {
+          indigo:  { bg:'#f9fafb', ink:'#111827', btnbg:'#111827', btnink:'#ffffff' },
+          light:   { bg:'#ffffff', ink:'#1f2937', btnbg:'#2563eb', btnink:'#ffffff' },
+          dark:    { bg:'#0b1220', ink:'#e5e7eb', btnbg:'#1f2937', btnink:'#f9fafb' },
+          sunset:  { bg:'linear-gradient(180deg,#fff7ed,#ffedd5)', ink:'#7c2d12', btnbg:'#ea580c', btnink:'#ffffff' },
+          ocean:   { bg:'linear-gradient(180deg,#ecfeff,#cffafe)', ink:'#164e63', btnbg:'#0891b2', btnink:'#ffffff' },
+          forest:  { bg:'linear-gradient(180deg,#f0fdf4,#dcfce7)', ink:'#14532d', btnbg:'#16a34a', btnink:'#ffffff' },
+          rose:    { bg:'linear-gradient(180deg,#fff1f2,#ffe4e6)', ink:'#881337', btnbg:'#e11d48', btnink:'#ffffff' }
+        };
+        const th = THEMES[st.theme] || THEMES.indigo;
+
+        /* Fundo → string única (visual.pageBg) */
+        let pageBg = th.bg;
+        switch (st.bgVariant) {
+          case 'gradient':
+            pageBg = 'linear-gradient(' + (st.gradientAngle || 135) + 'deg, ' + (st.gradientStart || '#6366f1') + ', ' + (st.gradientEnd || '#ec4899') + ')';
+            break;
+          case 'mesh': {
+            const c = Array.isArray(st.meshColors) && st.meshColors.length >= 2 ? st.meshColors : ['#6366f1','#ec4899','#06b6d4','#f59e0b'];
+            pageBg = [
+              'radial-gradient(at 15% 15%, ' + c[0] + 'dd 0px, transparent 55%)',
+              'radial-gradient(at 85% 10%, ' + (c[1]||c[0]) + 'cc 0px, transparent 55%)',
+              'radial-gradient(at 10% 85%, ' + (c[2]||c[0]) + 'bb 0px, transparent 55%)',
+              'radial-gradient(at 90% 90%, ' + (c[3]||c[c.length-1]) + 'aa 0px, transparent 55%)'
+            ].join(', ');
+            break;
+          }
+          case 'animated': {
+            const c = Array.isArray(st.animatedColors) && st.animatedColors.length >= 2 ? st.animatedColors : ['#6366f1','#ec4899','#06b6d4'];
+            pageBg = 'linear-gradient(' + (st.gradientAngle || 135) + 'deg, ' + c.join(', ') + ')';
+            break;
+          }
+          case 'cyberpunk': {
+            const pr = st.cyberPrimary || '#00ffff';
+            const se = st.cyberSecondary || '#ff00ff';
+            const gi = Math.max(0.01, ((st.cyberGridIntensity ?? 30) / 100) * 0.08);
+            pageBg = [
+              'radial-gradient(ellipse at 15% 10%, ' + pr + '26 0%, transparent 55%)',
+              'radial-gradient(ellipse at 85% 90%, ' + se + '26 0%, transparent 55%)',
+              'linear-gradient(rgba(255,255,255,' + gi.toFixed(3) + ') 1px, transparent 1px)',
+              'linear-gradient(90deg, rgba(255,255,255,' + gi.toFixed(3) + ') 1px, transparent 1px)'
+            ].join(', ');
+            break;
+          }
+          case 'video':
+            pageBg = '#0b1220';
+            break;
+          default:
+            pageBg = th.bg;
+        }
+
+        const validImg = (u) => /^(data:image\/|https?:\/\/)/i.test(String(u || '').trim());
+
+        return {
+          _adapted: true,
+          _premium: st,
+          profile: {
+            name: String(cfg._clientNome || p.displayName || '').trim(),
+            bio: p.bio || '',
+            photo: validImg(p.avatar) ? p.avatar.trim() : '',
+            address: p.address || ''
+          },
+          visual: {
+            pageBg,
+            bgImage: (st.bgVariant === 'image' && validImg(st.bgImageUrl)) ? st.bgImageUrl : '',
+            textColor: st.btnVariant === 'neon' ? (st.btnGlowColor || '#22d3ee') : th.btnink
+          },
+          design: {
+            banner: { enabled: !!cfg.banner, image: cfg.banner, bgType: 'image', height: 190 }
+          },
+          links: Array.isArray(cfg.links)
+            ? cfg.links.map(l => ({ title: l.title, url: l.url, icon: l.icon, image: l.iconImg || null }))
+            : undefined,
+          quickActions: Array.isArray(cfg.quick)
+            ? cfg.quick.map(q => ({ title: q.label, url: q.url, image: q.img || null }))
+            : undefined,
+          socials: cfg.socials || {}
+        };
+      }
+
       /* Motor reativo: lê o payload (ou o recebido por parâmetro) e
          reaplica tudo de forma idempotente. Chamar novamente com outro
          payload atualiza a página inteira sem duplicar blocos. */
       function applyConfig(cfg) {
+        cfg = adaptNewSchema(cfg);
         if (!cfg) return;
 
         /* ---- Auto-cura do trio acidental legado ----
@@ -1830,7 +1940,7 @@
       set('--card-destaque-bg', v.cardBg);
       set('--card-destaque-text', v.cardText);
 
-      /* ---- Foto de perfil (data URL recortada no painel) ---- */
+      /* ---- Foto de perfil (URL do Storage no schema novo) ---- */
       if (p.photo) {
         const avatarImg = document.getElementById('pgAvatarImg');
         const avatarLetter = document.getElementById('pgAvatarLetter');
@@ -1838,6 +1948,15 @@
           avatarImg.src = p.photo;
           avatarImg.hidden = false;
           avatarLetter.hidden = true;
+        }
+      } else {
+        /* Sem foto válida → volta para o fallback de iniciais */
+        const avatarImg = document.getElementById('pgAvatarImg');
+        const avatarLetter = document.getElementById('pgAvatarLetter');
+        if (avatarImg && avatarLetter) {
+          avatarImg.removeAttribute('src');
+          avatarImg.hidden = true;
+          avatarLetter.hidden = false;
         }
       }
 
@@ -2486,6 +2605,149 @@
 
           flow.appendChild(s.node);
         });
+      }
+
+      /* ================================================================
+         PASS PREMIUM — recursos novos do painel (cfg._premium = st)
+         Tipografia, variantes de botão, animações e fundos especiais.
+         Idempotente: pode rodar a cada refresh de 30s sem duplicar.
+         ================================================================ */
+      const st = cfg._premium;
+      if (st && typeof st === 'object') {
+        /* CSS dos keyframes/classes — injetado uma única vez */
+        if (!document.getElementById('axPremiumCSS')) {
+          const s = document.createElement('style');
+          s.id = 'axPremiumCSS';
+          s.textContent =
+            '@keyframes axBGMove{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}' +
+            '@keyframes axPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}' +
+            '@keyframes axFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}' +
+            '@keyframes axShineSweep{0%{left:-60%}60%,100%{left:130%}}' +
+            '.ax-anim-pulse{animation:axPulse 2.2s ease-in-out infinite}' +
+            '.ax-anim-float{animation:axFloat 3.2s ease-in-out infinite}' +
+            '.ax-anim-shine{position:relative!important;overflow:hidden!important}' +
+            '.ax-anim-shine::before{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;pointer-events:none;background:linear-gradient(105deg,transparent,rgba(255,255,255,.45),transparent);animation:axShineSweep 2.8s ease-in-out infinite}' +
+            '.ax-bg-video{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:-1;pointer-events:none}';
+          document.head.appendChild(s);
+        }
+
+        /* Google Fonts das famílias premium */
+        if (!document.getElementById('axFonts')) {
+          const fl = document.createElement('link');
+          fl.id = 'axFonts';
+          fl.rel = 'stylesheet';
+          fl.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&family=Montserrat:wght@400;500;600;700;800&family=Syne:wght@400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap';
+          document.head.appendChild(fl);
+        }
+        const FONT_STACKS = {
+          'Inter': "'Inter', system-ui, sans-serif",
+          'Poppins': "'Poppins', system-ui, sans-serif",
+          'Montserrat': "'Montserrat', system-ui, sans-serif",
+          'Syne': "'Syne', system-ui, sans-serif",
+          'Playfair Display': "'Playfair Display', Georgia, serif",
+          'Space Grotesk': "'Space Grotesk', system-ui, monospace"
+        };
+        document.body.style.fontFamily = FONT_STACKS[st.font] || FONT_STACKS['Inter'];
+        const ls = (st.letterSpacing ?? 0) + 'px';
+        const lh = String(st.lineHeight ?? 1.4);
+        document.body.style.letterSpacing = ls;
+        const titleEl = document.getElementById('pgTitle');
+        if (titleEl) {
+          titleEl.style.fontSize = (st.titleSize ?? 20) + 'px';
+          titleEl.style.letterSpacing = ls;
+          titleEl.style.lineHeight = lh;
+        }
+
+        /* Fundo animado: movimento contínuo */
+        if (st.bgVariant === 'animated') {
+          document.body.style.backgroundSize = '400% 400%';
+          document.body.style.animation = 'axBGMove ' + (st.animSpeed || 20) + 's ease infinite';
+        } else if (st.bgVariant === 'cyberpunk') {
+          document.body.style.backgroundSize = '100% 100%, 100% 100%, 40px 40px, 40px 40px';
+          document.body.style.animation = '';
+        } else {
+          document.body.style.animation = '';
+        }
+
+        /* Vídeo de fundo (loop mudo atrás de tudo) */
+        let bgv = document.querySelector('video.ax-bg-video');
+        if (st.bgVariant === 'video' && st.bgVideoUrl) {
+          if (!bgv) {
+            bgv = document.createElement('video');
+            bgv.className = 'ax-bg-video';
+            bgv.muted = true; bgv.loop = true; bgv.playsInline = true;
+            bgv.setAttribute('muted', ''); bgv.setAttribute('playsinline', '');
+            bgv.setAttribute('aria-hidden', 'true');
+            document.body.prepend(bgv);
+          }
+          if (bgv.dataset.src !== st.bgVideoUrl) {
+            bgv.dataset.src = st.bgVideoUrl;
+            bgv.src = st.bgVideoUrl;
+            bgv.load();
+            const pp = bgv.play(); if (pp && pp.catch) pp.catch(() => {});
+          }
+        } else if (bgv) bgv.remove();
+
+        /* Estilo global dos botões (variantes novas) */
+        const T2 = getComputedStyle(document.documentElement);
+        const thBtnbg = { indigo:'#111827', light:'#2563eb', dark:'#1f2937', sunset:'#ea580c', ocean:'#0891b2', forest:'#16a34a', rose:'#e11d48' }[st.theme] || '#111827';
+        const thInk   = { indigo:'#111827', light:'#1f2937', dark:'#e5e7eb', sunset:'#7c2d12', ocean:'#164e63', forest:'#14532d', rose:'#881337' }[st.theme] || '#111827';
+        const ORGANIC = '30% 70% 70% 30% / 30% 30% 70% 70%';
+        const radius = st.btnShape === 'organic' ? ORGANIC : ((st.btnRadius ?? 14) + 'px');
+        const alpha = (st.btnShadow ?? 30) / 100;
+        const softShadow = alpha > 0 ? '0 ' + Math.round(alpha*10) + 'px ' + Math.round(alpha*26) + 'px rgba(0,0,0,' + (alpha*.35).toFixed(2) + ')' : 'none';
+
+        function buildBtn() {
+          switch (st.btnVariant) {
+            case 'glass': {
+              const bl = (st.glassBlur || 8) + 'px';
+              return {
+                background: 'rgba(255,255,255,' + ((st.glassOpacity ?? 30)/100) + ')',
+                color: thInk,
+                backdropFilter: 'blur(' + bl + ')',
+                webkitBackdropFilter: 'blur(' + bl + ')',
+                border: '1px solid rgba(255,255,255,' + ((st.glassBorderOpacity ?? 25)/100) + ')',
+                boxShadow: softShadow
+              };
+            }
+            case 'neumorphic': {
+              const dark = /^#0/.test(thBtnbg);
+              return {
+                background: dark ? '#1f2937' : '#e0e5ec',
+                color: thInk,
+                border: 'none',
+                boxShadow: '8px 8px 16px rgba(0,0,0,' + (dark?'0.35':'0.1') + '), -8px -8px 16px rgba(255,255,255,' + (dark?'0.08':'0.8') + ')'
+              };
+            }
+            case 'ghost':
+              return { background:'transparent', color:thBtnbg, border:'2px solid '+thBtnbg, boxShadow:'none' };
+            case 'gradient':
+              return { background:'linear-gradient('+(st.btnGradientAngle||135)+'deg,'+(st.btnGradientStart||'#6366f1')+','+(st.btnGradientEnd||'#ec4899')+')', color:'#fff', border:'none', boxShadow:softShadow };
+            case 'neon': {
+              const g = st.btnGlowColor || '#22d3ee';
+              return { background:'transparent', color:g, border:'2px solid '+g, boxShadow:'0 0 15px '+g+', inset 0 0 8px '+g+'66' };
+            }
+            default:
+              return { background:thBtnbg, color:'#ffffff', border:'none', boxShadow:softShadow };
+          }
+        }
+
+        const btnCSS = buildBtn();
+        const ANIMS = ['ax-anim-pulse','ax-anim-float','ax-anim-shine'];
+        const btnAnim = st.btnAnimation || 'none';
+        document.querySelectorAll('.quick__item, .featured__card, .social-icon').forEach((el) => {
+          Object.assign(el.style, btnCSS);
+          el.style.borderRadius = radius;
+          el.style.setProperty('--ui-bg', btnCSS.background);
+          el.classList.remove(...ANIMS);
+          if (btnAnim === 'pulse') el.classList.add('ax-anim-pulse');
+          else if (btnAnim === 'float') el.classList.add('ax-anim-float');
+          else if (btnAnim === 'shine') el.classList.add('ax-anim-shine');
+        });
+
+        /* Espaçamento entre blocos */
+        const lc = document.getElementById('pgLinks');
+        if (lc && st.blockGap != null) lc.style.gap = st.blockGap + 'px';
       }
 
       /* ---- título do documento ---- */
