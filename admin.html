@@ -1226,7 +1226,8 @@
             <div class="upload-thumb" id="bgImageThumb">🖼️</div>
             <div class="upload-info">
               <strong>Imagem de fundo</strong>
-              <small>JPG ou PNG. Enviada para a nuvem e aplicada atrás do conteúdo.</small>
+              <small id="bgImageInfoDefault">JPG ou PNG. Enviada para a nuvem e aplicada atrás do conteúdo.</small>
+              <small id="bgImageInfoActive" style="display:none; color:var(--brand); font-weight:600;">✓ Imagem ativa — clique abaixo para trocar ou remover.</small>
             </div>
             <button class="btn-mini" id="btnBgImagePick">Escolher</button>
           </div>
@@ -1235,7 +1236,7 @@
             <label for="bgImageUrl">ou cole uma URL</label>
             <input type="url" id="bgImageUrl" placeholder="https://exemplo.com/fundo.jpg">
           </div>
-          <p class="hint" id="bgImageHint" style="display:none;"><button class="btn-mini" id="btnBgImageClear">Remover imagem</button></p>
+          <button id="btnBgImageClear" style="display:none; margin-top:10px; width:100%; padding:10px; border-radius:10px; border:1.5px solid #ef4444; background:#fef2f2; color:#dc2626; font-size:13px; font-weight:600; cursor:pointer; transition:all .15s;">✕ Remover Imagem de Fundo</button>
         </div>
 
         <!-- Vídeo de Fundo (quando video) -->
@@ -2742,22 +2743,33 @@
     veil.style.border = '1px solid rgba(255,255,255,' + ((st.glassBorderOpacity ?? 25) / 100) + ')';
   }
 
-  /* Atualiza miniatura e botão remover da linha Imagem de Fundo */
+  /* Atualiza miniatura, botão remover e hints da linha Imagem de Fundo */
   function syncBgImageControls(st) {
     const thumb = $('bgImageThumb');
-    const hint = $('bgImageHint');
-    if (!thumb || !hint) return;
-    if (st.bgVariant === 'image' && st.bgImageUrl) {
-      thumb.innerHTML = '';
-      const im = document.createElement('img');
-      im.src = st.bgImageUrl;
-      im.alt = '';
-      im.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block;';
-      thumb.appendChild(im);
-      hint.style.display = 'block';
+    const btnClear = $('btnBgImageClear');
+    const infoDefault = $('bgImageInfoDefault');
+    const infoActive = $('bgImageInfoActive');
+    if (!thumb) return;
+    const hasImage = st.bgVariant === 'image' && st.bgImageUrl;
+    if (hasImage) {
+      if (!thumb.querySelector('img')) {
+        thumb.innerHTML = '';
+        const im = document.createElement('img');
+        im.alt = '';
+        im.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block;';
+        thumb.appendChild(im);
+      }
+      thumb.querySelector('img').src = st.bgImageUrl;
+      if (btnClear) btnClear.style.display = 'block';
+      if (infoDefault) infoDefault.style.display = 'none';
+      if (infoActive) infoActive.style.display = 'block';
     } else {
-      thumb.textContent = '🖼️';
-      hint.style.display = 'none';
+      const oldImg = thumb.querySelector('img');
+      if (oldImg) oldImg.remove();
+      if (!thumb.textContent.trim()) thumb.textContent = '🖼️';
+      if (btnClear) btnClear.style.display = 'none';
+      if (infoDefault) infoDefault.style.display = '';
+      if (infoActive) infoActive.style.display = 'none';
     }
   }
 
@@ -3292,6 +3304,7 @@
       cfg.style.bgImageUrl = '';
       cfg.style.bgVariant = 'solid';
       $('bgVariant').value = 'solid';
+      $('bgImageUrl').value = '';
       updateStyleRowsVisibility();
       applyThemeVars();
       markDirty();
