@@ -379,6 +379,85 @@
     #previewScroll { width:200%; height:200%; }
   }
 
+  /* ===== ALTERNADOR DE DISPOSITIVO (CELULAR / DESKTOP) ===== */
+  .device-toggle {
+    display:flex; justify-content:center; gap:4px; margin:0 auto 16px;
+    width:max-content; padding:4px;
+    background:var(--bg); border:1px solid var(--border); border-radius:999px;
+  }
+  .device-tab {
+    display:flex; align-items:center; gap:7px;
+    padding:8px 18px; border:none; border-radius:999px;
+    background:transparent; color:var(--muted);
+    font-size:13px; font-weight:700; cursor:pointer;
+    transition:all .3s ease;
+  }
+  .device-tab span { font-size:15px; line-height:1; }
+  .device-tab:hover { color:var(--ink); }
+  .device-tab.active {
+    background:#fff; color:var(--brand);
+    box-shadow:0 1px 6px rgba(17,24,39,.12);
+  }
+
+  /* ===== ESTÁGIO DE PREVIEW (controla qual mockup aparece) ===== */
+  .preview-stage { position:relative; }
+  .preview-stage .phone-mockup,
+  .preview-stage .desktop-mockup-frame {
+    transition:opacity .3s ease, transform .3s ease;
+  }
+
+  /* Modo CELULAR (padrão) */
+  .preview-stage.mode-desktop .phone-mockup {
+    display:none;
+  }
+
+  /* ===== MOCKUP DESKTOP (janela de navegador) ===== */
+  .desktop-mockup-frame {
+    display:none;
+    width:100%; max-width:900px; margin:0 auto;
+    background:#0f172a; border-radius:14px; padding:10px;
+    box-shadow:0 30px 70px rgba(0,0,0,.35);
+    box-sizing:border-box;
+  }
+  .dm-browser-bar {
+    display:flex; align-items:center; gap:8px;
+    padding:2px 4px 10px;
+  }
+  .dm-dot { width:12px; height:12px; border-radius:50%; flex-shrink:0; cursor:pointer; }
+  .dm-dot--close { background:#ff5f57; }
+  .dm-dot--min   { background:#febc2e; }
+  .dm-dot--max   { background:#28c840; }
+  .dm-urlbar {
+    flex:1; min-width:0;
+    background:#1e293b; color:#94a3b8;
+    font-size:12px; font-weight:600;
+    padding:7px 14px; border-radius:999px;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    text-align:center;
+    user-select:none;
+  }
+  .dm-screen {
+    background:#fff; border-radius:8px; overflow:hidden;
+    aspect-ratio:16 / 9.5;
+    max-height:min(58vh, 560px);
+    margin:0 auto;
+  }
+  .dm-scroll {
+    width:100%; height:100%; overflow-y:auto; overscroll-behavior:contain;
+    background:#fff;
+  }
+  .dm-scroll::-webkit-scrollbar { width:8px; }
+  .dm-scroll::-webkit-scrollbar-thumb { background:#cbd5e1; border-radius:999px; }
+
+  /* Modo DESKTOP ativo */
+  .preview-stage.mode-desktop .desktop-mockup-frame { display:block; }
+  .preview-stage.mode-desktop .desktop-mockup-frame[aria-hidden="false"] { animation:none; }
+
+  /* Em telas estreitas o monitor vira miniatura proporcional */
+  @media (max-width:1100px) {
+    .dm-screen { aspect-ratio:16 / 9.5; max-height:52vh; }
+  }
+
   /* ===== PÁGINA PREVIEW (pv-*) ===== */
   .pv-page { min-height:100%; background:var(--p-bg,#f9fafb); color:var(--p-ink,#111827); padding-bottom:40px; }
   .pv-topbar {
@@ -1071,38 +1150,63 @@
     <!-- ===== COLUNA PREVIEW ===== -->
     <section class="preview-col">
       <div class="preview-sticky">
-        <div class="phone-mockup">
-          <div class="phone-notch"></div>
-          <div class="phone-screen-wrap">
-            <div id="previewScroll">
-              <div class="pv-page" id="pvPage">
-                <div class="pv-topbar">
-                  <button class="pv-icon-btn" id="pvShareBtn" title="Compartilhar">🔗</button>
-                </div>
 
-                <div class="pv-banner no-banner" id="pvBanner">
-                  <img id="pvBannerImg" alt="">
-                </div>
+        <!-- Alternador de dispositivo -->
+        <div class="device-toggle" id="deviceToggle" role="tablist" aria-label="Dispositivo de pré-visualização">
+          <button type="button" class="device-tab active" id="tabMobile" data-mode="mobile" role="tab" aria-selected="true"><span>📱</span> Celular</button>
+          <button type="button" class="device-tab" id="tabDesktop" data-mode="desktop" role="tab" aria-selected="false"><span>🖥️</span> Desktop</button>
+        </div>
 
-                <div class="pv-avatar-wrap">
-                  <div class="pv-avatar" id="pvAvatar">
-                    <img id="pvAvatarImg" alt="" style="display:none;">
-                    <span id="pvAvatarInitial">⚡</span>
+        <div class="preview-stage mode-mobile" id="previewStage">
+
+          <!-- MOCKUP CELULAR -->
+          <div class="phone-mockup">
+            <div class="phone-notch"></div>
+            <div class="phone-screen-wrap">
+              <div id="previewScroll">
+                <div class="pv-page" id="pvPage">
+                  <div class="pv-topbar">
+                    <button class="pv-icon-btn" id="pvShareBtn" title="Compartilhar">🔗</button>
                   </div>
-                </div>
 
-                <h1 class="pv-name" id="pvName">Seu nome</h1>
-                <p class="pv-bio" id="pvBio"></p>
+                  <div class="pv-banner no-banner" id="pvBanner">
+                    <img id="pvBannerImg" alt="">
+                  </div>
 
-                <div class="pv-content">
-                  <div class="quick-grid--scroll" id="previewQuickGrid"></div>
-                  <div id="previewLinksList"></div>
-                  <div class="socials-row" id="previewSocials"></div>
-                  <p class="pv-footer">Feito com ⚡ Axiumlink</p>
+                  <div class="pv-avatar-wrap">
+                    <div class="pv-avatar" id="pvAvatar">
+                      <img id="pvAvatarImg" alt="" style="display:none;">
+                      <span id="pvAvatarInitial">⚡</span>
+                    </div>
+                  </div>
+
+                  <h1 class="pv-name" id="pvName">Seu nome</h1>
+                  <p class="pv-bio" id="pvBio"></p>
+
+                  <div class="pv-content">
+                    <div class="quick-grid--scroll" id="previewQuickGrid"></div>
+                    <div id="previewLinksList"></div>
+                    <div class="socials-row" id="previewSocials"></div>
+                    <p class="pv-footer">Feito com ⚡ Axiumlink</p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+
+          <!-- MOCKUP DESKTOP (janela de navegador) -->
+          <div class="desktop-mockup-frame" id="desktopMockupFrame" aria-hidden="true">
+            <div class="dm-browser-bar">
+              <span class="dm-dot dm-dot--close" title="Fechar"></span>
+              <span class="dm-dot dm-dot--min" title="Minimizar"></span>
+              <span class="dm-dot dm-dot--max" title="Expandir"></span>
+              <div class="dm-urlbar">🔒&nbsp;<span id="dmUrlText">://seulink.com</span></div>
+            </div>
+            <div class="dm-screen">
+              <div class="dm-scroll" id="dmScroll"><!-- #pvPage migra para cá no modo desktop --></div>
+            </div>
+          </div>
+
         </div>
 
         <div style="text-align:center; margin-top:16px;" id="saveBtnDesktopWrap">
@@ -2846,6 +2950,7 @@
     }
 
     _openSyncChannel();
+    updateDesktopUrlBar();
     initEditor();
   }
 
@@ -2994,6 +3099,48 @@
   }
 
   /* ================================================================
+     PREVIEW DUPLA — CELULAR / DESKTOP
+     Um único #pvPage migra entre os frames; todo o motor de estilo
+     inline continua aplicando no mesmo elemento.
+     ================================================================ */
+  window.currentPreviewMode = 'mobile';
+
+  function setPreviewMode(mode) {
+    if (mode !== 'mobile' && mode !== 'desktop') return;
+    window.currentPreviewMode = mode;
+
+    const stage = $('previewStage');
+    const page = $('pvPage');
+
+    stage.classList.toggle('mode-mobile', mode === 'mobile');
+    stage.classList.toggle('mode-desktop', mode === 'desktop');
+
+    $('tabMobile').classList.toggle('active', mode === 'mobile');
+    $('tabDesktop').classList.toggle('active', mode === 'desktop');
+    $('tabMobile').setAttribute('aria-selected', mode === 'mobile');
+    $('tabDesktop').setAttribute('aria-selected', mode === 'desktop');
+    $('desktopMockupFrame').setAttribute('aria-hidden', mode !== 'desktop');
+
+    /* Move o conteúdo para a tela do dispositivo ativo */
+    const target = mode === 'desktop' ? $('dmScroll') : $('previewScroll');
+    if (page && target && page.parentElement !== target) {
+      target.appendChild(page);
+      target.scrollTop = 0;
+    }
+
+    applyThemeVars(); /* re-aplica espaçamentos/estilos no novo contexto */
+  }
+
+  function updateDesktopUrlBar() {
+    const el = $('dmUrlText');
+    if (!el) return;
+    const activeProfile = window.userProfiles?.find(p => p.id === window.currentProfileId);
+    const slug = activeProfile?.slug;
+    el.textContent = slug ? ('://seulink.com/' + slug) : '://seulink.com';
+  }
+
+
+  /* ================================================================
      CROP DE IMAGENS
      ================================================================ */
   let cropState = null;
@@ -3139,6 +3286,10 @@
   document.addEventListener('DOMContentLoaded', () => {
     bindCropGestures();
     bindProfileDashboard();
+
+    /* Alternância Celular / Desktop */
+    $('tabMobile').addEventListener('click', () => setPreviewMode('mobile'));
+    $('tabDesktop').addEventListener('click', () => setPreviewMode('desktop'));
 
     $('btnCropCancel').addEventListener('click', () => {
       $('cropModal').classList.remove('open');
