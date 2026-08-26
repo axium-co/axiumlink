@@ -587,15 +587,13 @@
   .link-block:active { transform:translateY(0); }
 
   /* Ghost button hover - preenchimento sólido */
-  .link-block.ghost:hover,
-  .social-btn.ghost:hover {
+  .link-block.ghost:hover {
     background: var(--p-btnbg, currentColor) !important;
     color: var(--p-btnink, #fff) !important;
   }
 
   /* Neumorphic button active - efeito pressionado */
-  .link-block.neumorphic:active,
-  .social-btn.neumorphic:active {
+  .link-block.neumorphic:active {
     box-shadow: inset 4px 4px 8px rgba(0,0,0,0.2), inset -4px -4px 8px rgba(255,255,255,0.5) !important;
   }
 
@@ -644,14 +642,6 @@
     position:absolute; inset:0; z-index:-1;
     pointer-events:none;
   }
-
-  /* Redes sociais */
-  .socials-row { display:flex; justify-content:center; gap:12px; margin-top:22px; flex-wrap:wrap; }
-  .social-btn {
-    width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center;
-    text-decoration:none; font-size:18px; box-shadow:0 2px 8px rgba(0,0,0,.08);
-  }
-  .social-btn img { width:100%; height:100%; border-radius:50%; object-fit:cover; }
 
   .pv-footer {
     text-align:center; font-size:11px; opacity:.55; margin-top:30px; padding-top:16px;
@@ -1047,61 +1037,6 @@
         <button class="btn-add" id="btnAddQuick">+ Adicionar atalho</button>
       </section>
 
-      <!-- REDES SOCIAIS -->
-      <section class="panel">
-        <button class="panel-del" data-section="socials" title="Remover seção Redes sociais">🗑</button>
-        <h2 class="panel-title"><span>🌐</span> Redes sociais</h2>
-
-        <div class="row-2">
-          <div class="field">
-            <label for="socInstagram">Instagram</label>
-            <input type="text" id="socInstagram" placeholder="@usuario">
-          </div>
-          <div class="field">
-            <label for="socWhatsApp">WhatsApp</label>
-            <input type="text" id="socWhatsApp" placeholder="5511999999999">
-          </div>
-        </div>
-
-        <div class="row-2">
-          <div class="field">
-            <label for="socTikTok">TikTok</label>
-            <input type="text" id="socTikTok" placeholder="@usuario">
-          </div>
-          <div class="field">
-            <label for="socYouTube">YouTube</label>
-            <input type="text" id="socYouTube" placeholder="@canal">
-          </div>
-        </div>
-
-        <div class="row-2">
-          <div class="field">
-            <label for="socX">X / Twitter</label>
-            <input type="text" id="socX" placeholder="@usuario">
-          </div>
-          <div class="field">
-            <label for="socLinkedIn">LinkedIn</label>
-            <input type="text" id="socLinkedIn" placeholder="seu-perfil">
-          </div>
-        </div>
-
-        <div class="row-2">
-          <div class="field">
-            <label for="socFacebook">Facebook</label>
-            <input type="text" id="socFacebook" placeholder="sua-pagina">
-          </div>
-          <div class="field">
-            <label for="socTelegram">Telegram</label>
-            <input type="text" id="socTelegram" placeholder="@usuario">
-          </div>
-        </div>
-
-        <div class="field">
-          <label for="socEmail">E-mail público</label>
-          <input type="email" id="socEmail" placeholder="voce@email.com">
-        </div>
-      </section>
-
       <!-- ESTILO -->
       <section class="panel" id="stylePanel">
         <button class="panel-del" data-section="style" title="Remover seção Estilo da página">🗑</button>
@@ -1459,7 +1394,6 @@
                   <div class="pv-content">
                     <div class="quick-grid--scroll" id="previewQuickGrid"></div>
                     <div id="previewLinksList"></div>
-                    <div class="socials-row" id="previewSocials"></div>
                     <p class="pv-footer">Feito com ⚡ Axiumlink</p>
                   </div>
                 </div>
@@ -1642,7 +1576,7 @@
 
     /* Salva nome + config do perfil ativo.
        Mapeamento: payload.profile.displayName → coluna 'nome';
-                   payload inteiro (bio, links, quick, socials, style, banner) → jsonb 'config'.
+                   payload inteiro (bio, links, quick, style, banner) → jsonb 'config'.
        Filtro duplo (id + user_id) aproveita a RLS: nunca toca em linha de outro usuário. */
     async saveClientConfig(payload) {
       if (!window.currentProfileId) {
@@ -1999,7 +1933,6 @@
     quick: [],
     quickLinksStyle: { format: 'circle', background: 'solid', shadow: 'soft' },
     links: [],
-    socials: {},
     style: {
       theme: 'indigo',
       btnRadius: 14,
@@ -2059,7 +1992,6 @@
     profile: { label: 'Perfil',           ico: '👤', def: () => ({ displayName: '', bio: '', avatar: '' }) },
     links:   { label: 'Seus links',       ico: '🔗', def: () => [] },
     quick:   { label: 'Links rápidos',    ico: '⚡', def: () => [] },
-    socials: { label: 'Redes sociais',    ico: '🌐', def: () => ({}) },
     style:   { label: 'Estilo da página', ico: '🎨', def: () => DEFAULT_CFG().style }
   };
 
@@ -2110,7 +2042,6 @@
     cfg.profile = cfg.profile || { displayName: '', bio: '', avatar: '' };
     cfg.quick = cfg.quick || [];
     cfg.links = cfg.links || [];
-    cfg.socials = cfg.socials || {};
     cfg.style = cfg.style || DEFAULT_CFG().style;
     cfg.banner = cfg.banner || '';
 
@@ -2132,10 +2063,6 @@
 
   /* Re-sincroniza valores dos inputs sem recriar listeners */
   function syncEditorInputs() {
-    ['instagram','whatsapp','tiktok','youtube','x','linkedin','facebook','telegram','email'].forEach((k) => {
-      const input = $('soc' + k.charAt(0).toUpperCase() + k.slice(1));
-      if (input) input.value = (cfg.socials || {})[k] || '';
-    });
     $('avatarHintRow').style.display = cfg.profile?.avatar ? 'block' : 'none';
   }
 
@@ -2279,11 +2206,6 @@
       $('displayName').value = cfg.profile.displayName || '';
       $('bio').value = cfg.profile.bio || '';
       $('avatarHintRow').style.display = cfg.profile.avatar ? 'block' : 'none';
-    } else if (key === 'socials') {
-      ['instagram','whatsapp','tiktok','youtube','x','linkedin','facebook','telegram','email'].forEach((k) => {
-        const input = $('soc' + k.charAt(0).toUpperCase() + k.slice(1));
-        if (input) input.value = '';
-      });
     } else if (key === 'style') {
       setRange('btnRadius', cfg.style.btnRadius);
       setRange('btnShadow', cfg.style.btnShadow);
@@ -2481,25 +2403,6 @@
     list.style.display = 'flex';
     list.style.flexDirection = 'column';
 
-    /* Redes sociais no preview */
-    const soc = $('previewSocials');
-    soc.innerHTML = '';
-    const icons = {
-      instagram: '📷', whatsapp: '💬', tiktok: '🎵', youtube: '▶️',
-      x: '𝕏', linkedin: '💼', facebook: '👍', telegram: '✈️', email: '✉️'
-    };
-    Object.entries(cfg.socials || {}).forEach(([k, v]) => {
-      if (!v) return;
-      const a = document.createElement('a');
-      a.className = 'social-btn';
-      a.textContent = icons[k] || '🔗';
-      a.href = socialUrl(k, v);
-      a.target = '_blank';
-      a.rel = 'noopener noreferrer';
-      a.addEventListener('click', (ev) => ev.preventDefault());
-      soc.appendChild(a);
-    });
-
     /* Reconstruiu o DOM → reaplica estilos (atalhos/botões) de imediato.
        Idempotente: chamadas duplicadas com applyThemeVars não acumulam nada. */
     applyThemeVars();
@@ -2521,22 +2424,6 @@
   function svgDataUri(grad) {
     const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="' + grad.match(/#[0-9a-f]{6}/gi)?.[0] + '"/><stop offset="1" stop-color="' + (grad.match(/#[0-9a-f]{6}/gi)?.[1] || grad.match(/#[0-9a-f]{6}/gi)?.[0]) + '"/></linearGradient></defs><rect width="128" height="128" rx="36" fill="url(#g)"/></svg>';
     return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
-  }
-
-  function socialUrl(kind, value) {
-    const v = encodeURIComponent(value.replace(/^@/, ''));
-    switch (kind) {
-      case 'instagram': return 'https://instagram.com/' + v;
-      case 'whatsapp': return 'https://wa.me/' + value.replace(/\D/g, '');
-      case 'tiktok': return 'https://tiktok.com/@' + v;
-      case 'youtube': return 'https://youtube.com/@' + v;
-      case 'x': return 'https://x.com/' + v;
-      case 'linkedin': return 'https://linkedin.com/in/' + v;
-      case 'facebook': return 'https://facebook.com/' + v;
-      case 'telegram': return 'https://t.me/' + v;
-      case 'email': return 'mailto:' + value;
-      default: return '#';
-    }
   }
 
   /* Remove tipo de link "colado" ao início do título (dado legado),
@@ -2968,22 +2855,6 @@
       if (btnAnim === 'pulse') el.classList.add('pv-anim-pulse');
       else if (btnAnim === 'float') el.classList.add('pv-anim-float');
       else if (btnAnim === 'shine') el.classList.add('pv-anim-shine');
-    });
-    page.querySelectorAll('.social-btn').forEach((el) => {
-      Object.assign(el.style, {
-        ...btnCSS,
-        width: '44px',
-        height: '44px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      });
-      el.style.borderRadius = '50%'; /* círculo perfeito — nunca herda raio de botão */
-      el.classList.remove('ghost', 'neumorphic');
-      if (btnVariant === 'ghost' || btnVariant === 'neumorphic') el.classList.add(btnVariant);
-      el.classList.remove(...ANIM_CLASSES);
-      if (btnAnim === 'pulse') el.classList.add('pv-anim-pulse');
-      else if (btnAnim === 'float') el.classList.add('pv-anim-float');
     });
 
     /* Estilo exclusivo dos atalhos rápidos (quickLinksStyle) */
@@ -3659,18 +3530,6 @@
     };
     $('btnAddQuick').addEventListener('click', addQuick);
     $('quickUrl').addEventListener('keydown', (e) => { if (e.key === 'Enter') addQuick(); });
-
-    /* Redes sociais */
-    ['instagram','whatsapp','tiktok','youtube','x','linkedin','facebook','telegram','email'].forEach((k) => {
-      const input = $('soc' + k.charAt(0).toUpperCase() + k.slice(1));
-      if (!input) return;
-      input.addEventListener('input', (e) => {
-        cfg.socials = cfg.socials || {};
-        cfg.socials[k] = e.target.value.trim();
-        renderPreview();
-        markDirty();
-      });
-    });
 
     /* Blocos */
     $('btnAddLink').addEventListener('click', () => openBlockModal(null));

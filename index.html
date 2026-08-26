@@ -1863,7 +1863,7 @@
       /* ================================================================
          ADAPTADOR DE SCHEMA — painel novo → formato legado da página.
          O admin grava { profile:{displayName,avatar}, style:{...},
-         banner, quick[], links[], socials{} }. Aqui traduzimos para o
+         banner, quick[], links[] }. Aqui traduzimos para o
          shape { profile:{name,photo}, visual:{pageBg,bgImage}, design:{...} }
          que TODA a pipeline de render abaixo já entende — e preservamos
          st em _premium para o pass de estilo avançado no fim.
@@ -1956,8 +1956,7 @@
             : undefined,
           quickActions: Array.isArray(cfg.quick)
             ? cfg.quick.map(q => ({ title: q.label, url: q.url, image: q.img || null, icon: q.icon || null }))
-            : undefined,
-          socials: cfg.socials || {}
+            : undefined
         };
       }
 
