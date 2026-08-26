@@ -1527,6 +1527,38 @@
     }
   };
 
+  /* ================================================================
+     SUPABASE STORAGE — upload de imagens (avatar / ícones)
+     Bucket público 'avatars'; caminho por usuário: <uid>/<arquivo>
+     ================================================================ */
+  async function uploadImageToStorage(dataUrl, folder) {
+    if (!SupaApp.currentUser || !SupaApp.currentUser.id) {
+      throw new Error('Sessão expirada. Faça login novamente.');
+    }
+
+    /* dataURL (saída do crop) → Blob */
+    const res = await fetch(dataUrl);
+    const blob = await res.blob();
+    const extRaw = (blob.type && blob.type.split('/')[1]) || 'jpg';
+    const ext = extRaw === 'jpeg' ? 'jpg' : extRaw;
+
+    /* pasta = user id → casa com a RLS policy storage.foldername(name)[1] */
+    const path = SupaApp.currentUser.id + '/' +
+      folder + '-' + Date.now().toString(36) + '-' +
+      Math.random().toString(36).substring(2, 8) + '.' + ext;
+
+    const { error } = await supabase.storage
+      .from('avatars')
+      .upload(path, blob, { contentType: blob.type || 'image/jpeg', cacheControl: '3600', upsert: false });
+    if (error) throw error;
+
+    const { data: pub, error: urlErr } = supabase.storage
+      .from('avatars')
+      .getPublicUrl(path);
+    if (urlErr || !pub?.publicUrl) throw new Error(urlErr?.message || 'Falha ao obter URL pública.');
+    return pub.publicUrl;
+  }
+
   /* ---- Auth Overlay Logic ---- */
   let isSignupMode = false;
 
@@ -3039,10 +3071,19 @@
     $('btnAvatarPick').addEventListener('click', () => $('avatarInput').click());
     $('avatarInput').addEventListener('change', (e) => {
       const file = e.target.files?.[0];
-      if (file) openCrop(file, 'Ajustar foto de perfil', 'circle', (dataUrl) => {
+      if (file) openCrop(file, 'Ajustar foto de perfil', 'circle', async (dataUrl) => {
         cfg.profile = cfg.profile || { displayName: '', bio: '', avatar: '' };
-        cfg.profile.avatar = dataUrl;
         $('avatarHintRow').style.display = 'block';
+        showToast('Enviando imagem...');
+        try {
+          const publicUrl = await uploadImageToStorage(dataUrl, 'avatar');
+          cfg.profile.avatar = publicUrl;
+          showToast('Foto atualizada!');
+        } catch (err) {
+          console.warn('[Axiumlink] Upload para o Storage falhou, mantendo local:', err.message);
+          cfg.profile.avatar = dataUrl; /* fallback: base64 no JSONB */
+          showToast('Sem conexão com o storage — imagem salva localmente');
+        }
         renderPreview();
         markDirty();
       });
@@ -3092,10 +3133,18 @@
     $('btnBlockIconPick').addEventListener('click', () => $('blockIconInput').click());
     $('blockIconInput').addEventListener('change', (e) => {
       const file = e.target.files?.[0];
-      if (file) openCrop(file, 'Ícone do bloco', 'square', (dataUrl) => {
-        _pendingBlockIcon = dataUrl;
+      if (file) openCrop(file, 'Ícone do bloco', 'square', async (dataUrl) => {
+        showToast('Enviando ícone...');
+        try {
+          const publicUrl = await uploadImageToStorage(dataUrl, 'icon');
+          _pendingBlockIcon = publicUrl;
+          showToast('Ícone pronto — salve o bloco');
+        } catch (err) {
+          console.warn('[Axiumlink] Upload para o Storage falhou, mantendo local:', err.message);
+          _pendingBlockIcon = dataUrl; /* fallback: base64 no JSONB */
+          showToast('Sem conexão — ícone salvo localmente');
+        }
         $('blockIcon').value = '';
-        showToast('Ícone pronto — salve o bloco');
       });
       e.target.value = '';
     });
