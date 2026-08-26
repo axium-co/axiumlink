@@ -1471,7 +1471,7 @@
             .insert([{
               user_id: user.id,
               slug: slug,
-              nome: 'Meu Perfil',
+              nome: 'Novo Perfil',   /* nome amigável; string aleatória só no slug */
               config: {}
             }])
             .select('id, slug, config')
@@ -3420,6 +3420,11 @@
     return n.slice(0, 2).toUpperCase();
   }
 
+  /* Nome exibido SEMPRE vem de profile.nome — slug nunca aparece como nome */
+  function profileDisplayName(p) {
+    return String(p?.nome || '').trim() || 'Sem Nome';
+  }
+
   /* Varre window.userProfiles e popula a grade de cards */
   function renderProfileDashboard() {
     const grid = $('pdGrid');
@@ -3433,19 +3438,21 @@
 
       const avatar = document.createElement('div');
       avatar.className = 'psc-avatar';
-      const photo = p.config?.profile?.avatar; /* foto vive dentro do JSONB config */
-      if (photo) {
+      const rawPhoto = String(p.config?.profile?.avatar || '').trim();
+      const hasValidPhoto = /^(data:image\/|https?:\/\/)/i.test(rawPhoto);
+      if (hasValidPhoto) {
         const im = document.createElement('img');
-        im.src = photo;
+        im.src = rawPhoto;
         im.alt = '';
         avatar.appendChild(im);
       } else {
-        avatar.textContent = getInitials(p.nome || p.slug);
+        /* Sem foto válida: primeira(s) letra(s) do NOME centralizada(s) */
+        avatar.textContent = getInitials(profileDisplayName(p));
       }
 
       const name = document.createElement('div');
       name.className = 'psc-name';
-      name.textContent = p.nome || p.slug;
+      name.textContent = profileDisplayName(p);
 
       card.appendChild(avatar);
       card.appendChild(name);
@@ -3505,7 +3512,7 @@
     window.currentProfileId = profileId;
     SupaApp.currentClient = p;
     await openEditorForCurrentProfile();
-    showToast('Perfil: ' + (p.nome || p.slug));
+    showToast('Perfil: ' + profileDisplayName(p));
   }
 
   /* Troca rápida via select da topbar: salva atual, abre o novo */
@@ -3541,7 +3548,7 @@
     window.userProfiles.forEach(p => {
       const opt = document.createElement('option');
       opt.value = p.id;
-      opt.textContent = p.nome || p.slug;
+      opt.textContent = profileDisplayName(p);
       select.appendChild(opt);
     });
     select.value = currentValue || window.currentProfileId || '';
