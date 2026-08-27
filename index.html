@@ -274,6 +274,46 @@
       pointer-events: none;
     }
 
+    .profile__banner-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 16px 24px;
+      gap: 8px;
+    }
+
+    .profile__banner-title {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: #ffffff;
+      text-shadow: 0 1px 4px rgba(0,0,0,.4);
+      line-height: 1.3;
+      margin: 0;
+    }
+
+    .profile__banner-cta {
+      display: inline-block;
+      padding: 8px 20px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.9);
+      color: #0f172a;
+      font-size: 0.8125rem;
+      font-weight: 700;
+      text-decoration: none;
+      transition: transform .2s, box-shadow .2s;
+      box-shadow: 0 2px 8px rgba(0,0,0,.2);
+    }
+
+    .profile__banner-cta:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(0,0,0,.25);
+    }
+
     .profile__banner img,
     .profile__banner .profile__banner-img {
       width: 100%;
@@ -718,6 +758,50 @@
     @keyframes fadeSlideUp {
       from { opacity: 0; transform: translateY(12px); }
       to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ---- Partículas flutuantes (bgVariant: particles) ---- */
+    @keyframes particleDrift1 {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      25%      { transform: translate(30px, -40px) scale(1.1); }
+      50%      { transform: translate(-20px, -80px) scale(0.95); }
+      75%      { transform: translate(40px, -30px) scale(1.05); }
+    }
+    @keyframes particleDrift2 {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33%      { transform: translate(-50px, -60px) scale(1.15); }
+      66%      { transform: translate(30px, -40px) scale(0.9); }
+    }
+    @keyframes particleDrift3 {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      20%      { transform: translate(40px, 30px) scale(1.08); }
+      60%      { transform: translate(-30px, -50px) scale(0.92); }
+    }
+
+    .ax-particles {
+      position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden;
+    }
+    .ax-particles span {
+      position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.45;
+    }
+    .ax-particles span:nth-child(1) {
+      width: 280px; height: 280px; top: 10%; left: 15%;
+      background: var(--p-btnbg, #6366f1);
+      animation: particleDrift1 18s ease-in-out infinite;
+    }
+    .ax-particles span:nth-child(2) {
+      width: 220px; height: 220px; top: 55%; right: 10%;
+      background: var(--p-btnink, #ec4899);
+      animation: particleDrift2 22s ease-in-out infinite;
+    }
+    .ax-particles span:nth-child(3) {
+      width: 180px; height: 180px; bottom: 15%; left: 40%;
+      background: var(--text-title, #06b6d4);
+      animation: particleDrift3 16s ease-in-out infinite;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .ax-particles span { animation: none; }
     }
 
     /* ================================================================
@@ -1522,6 +1606,10 @@
       <!-- Banner superior (gerado pelo Painel — design.banner) -->
       <div class="profile__banner" id="pgBanner" hidden>
         <div class="profile__banner-scrim" id="pgScrim"></div>
+        <div class="profile__banner-overlay" id="pgBannerOverlay" style="display:none;">
+          <p class="profile__banner-title" id="pgBannerTitle"></p>
+          <a class="profile__banner-cta" id="pgBannerCta" href="#" style="display:none;"></a>
+        </div>
       </div>
 
       <!-- TODO: SEU LOGO — troque o <span> por <img src="sua-logo.png" alt="Nome do Cliente"> -->
@@ -1999,6 +2087,9 @@
           case 'video':
             pageBg = '#0b1220';
             break;
+          case 'particles':
+            pageBg = th.bg;
+            break;
           default:
             pageBg = th.bg;
         }
@@ -2024,7 +2115,15 @@
             btnInk: resolvedBtnInk
           },
           design: {
-            banner: { enabled: !!cfg.banner, image: cfg.banner, bgType: 'image', height: 190 }
+            banner: {
+              enabled: !!cfg.banner,
+              image: cfg.banner,
+              bgType: 'image',
+              height: 190,
+              overlayTitle: st.bannerOverlayTitle || '',
+              overlayCta: st.bannerOverlayCta || '',
+              overlayCtaUrl: st.bannerOverlayCtaUrl || ''
+            }
           },
           links: Array.isArray(cfg.links)
             ? cfg.links.map(l => ({
@@ -2330,6 +2429,28 @@
             : bn.scrim === 'light'
               ? 'rgba(255, 255, 255, ' + ((bn.scrimOpacity || 45) / 100) + ')'
               : 'none';
+
+          /* Overlay de texto + CTA sobre o banner */
+          const overlayEl = document.getElementById('pgBannerOverlay');
+          const titleEl = document.getElementById('pgBannerTitle');
+          const ctaEl = document.getElementById('pgBannerCta');
+          const hasOverlay = bn.overlayTitle || bn.overlayCta;
+          if (overlayEl) {
+            overlayEl.style.display = hasOverlay ? 'flex' : 'none';
+          }
+          if (titleEl) {
+            titleEl.textContent = bn.overlayTitle || '';
+            titleEl.style.display = bn.overlayTitle ? '' : 'none';
+          }
+          if (ctaEl) {
+            if (bn.overlayCta && bn.overlayCtaUrl) {
+              ctaEl.textContent = bn.overlayCta;
+              ctaEl.href = bn.overlayCtaUrl;
+              ctaEl.style.display = '';
+            } else {
+              ctaEl.style.display = 'none';
+            }
+          }
         }
       }
 
@@ -2763,7 +2884,16 @@
           'telefone': 'fas fa-phone', 'tel': 'fas fa-phone', 'fone': 'fas fa-phone',
           'localizacao': 'fas fa-map-marker-alt', 'local': 'fas fa-map-marker-alt',
           'location': 'fas fa-map-marker-alt', 'maps': 'fas fa-map-marker-alt',
-          'site': 'fas fa-globe', 'web': 'fas fa-globe', 'pix': 'fas fa-qrcode'
+          'site': 'fas fa-globe', 'web': 'fas fa-globe', 'pix': 'fas fa-qrcode',
+          'spotify': 'fab fa-spotify', 'discord': 'fab fa-discord',
+          'twitch': 'fab fa-twitch', 'github': 'fab fa-github',
+          'pinterest': 'fab fa-pinterest', 'snapchat': 'fab fa-snapchat',
+          'reddit': 'fab fa-reddit', 'threads': 'fab fa-threads',
+          'behance': 'fab fa-behance', 'dribbble': 'fab fa-dribbble',
+          'medium': 'fab fa-medium', 'substack': 'fas fa-newspaper',
+          'podcast': 'fas fa-podcast', 'music': 'fas fa-music',
+          'steam': 'fab fa-steam', 'paypal': 'fab fa-paypal',
+          'signal': 'fab fa-signal-messenger'
         };
         return MAP[v] || null;
       }
@@ -3111,7 +3241,19 @@
             bgv.load();
             const pp = bgv.play(); if (pp && pp.catch) pp.catch(() => {});
           }
+          bgv.style.opacity = ((st.bgVideoOpacity ?? 100) / 100);
         } else if (bgv) bgv.remove();
+
+        /* Partículas flutuantes */
+        let particles = document.querySelector('.ax-particles');
+        if (st.bgVariant === 'particles') {
+          if (!particles) {
+            particles = document.createElement('div');
+            particles.className = 'ax-particles';
+            particles.innerHTML = '<span></span><span></span><span></span>';
+            document.body.prepend(particles);
+          }
+        } else if (particles) particles.remove();
 
         /* Estilo global dos botões (variantes novas) */
         const T2 = getComputedStyle(document.documentElement);

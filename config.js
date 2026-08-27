@@ -85,7 +85,10 @@ window.AXIUMLINK_CONFIG = {
       glass: false,
       glassBlur: 18,
       scrim: "none",
-      scrimOpacity: 45
+      scrimOpacity: 45,
+      overlayTitle: '',
+      overlayCta: '',
+      overlayCtaUrl: ''
     },
     page: {
       gradientOn: true,
