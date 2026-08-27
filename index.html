@@ -10,13 +10,15 @@
   <!-- ================================================================
        SEO / Compartilhamento
        ================================================================ -->
-  <meta name="description" content="Links e contatos de Nome do Cliente. Agende pelo WhatsApp, siga no Instagram e veja nossa localização." />
+  <meta id="metaDesc" name="description" content="Links e contatos de Nome do Cliente. Agende pelo WhatsApp, siga no Instagram e veja nossa localização." />
   <meta name="robots" content="index, follow" />
   <meta property="og:type" content="profile" />
-  <meta property="og:title" content="Nome do Cliente | Link Bio" />
-  <meta property="og:description" content="Links e contatos de Nome do Cliente." />
-  <meta property="og:image" content="icon-512.png" />
+  <meta id="ogTitle" property="og:title" content="Nome do Cliente | Link Bio" />
+  <meta id="ogDesc" property="og:description" content="Links e contatos de Nome do Cliente." />
+  <meta id="ogImage" property="og:image" content="icon-512.png" />
   <meta name="twitter:card" content="summary" />
+  <meta id="twTitle" name="twitter:title" content="Nome do Cliente | Link Bio" />
+  <meta id="twDesc" name="twitter:description" content="Links e contatos de Nome do Cliente." />
 
   <!-- ================================================================
        PWA — substitua pelos ícones reais depois
@@ -862,6 +864,62 @@
     .featured__card:nth-child(7) { animation-delay: .35s; }
     .featured__card:nth-child(8) { animation-delay: .40s; }
 
+    /* Social icons entrance */
+    .social-icon { animation: fadeSlideUp .4s ease both; }
+    .social-icon:nth-child(1) { animation-delay: .05s; }
+    .social-icon:nth-child(2) { animation-delay: .08s; }
+    .social-icon:nth-child(3) { animation-delay: .11s; }
+    .social-icon:nth-child(4) { animation-delay: .14s; }
+    .social-icon:nth-child(5) { animation-delay: .17s; }
+    .social-icon:nth-child(6) { animation-delay: .20s; }
+
+    /* Profile header entrance */
+    .profile__avatar { animation: fadeSlideUp .5s ease both; animation-delay: .0s; }
+    .profile__name  { animation: fadeSlideUp .5s ease both; animation-delay: .08s; }
+    .profile__bio   { animation: fadeSlideUp .5s ease both; animation-delay: .14s; }
+
+    /* Tabs entrance */
+    .pg-tabs { animation: fadeSlideUp .4s ease both; animation-delay: .02s; }
+
+    /* ---- Skeleton loader ---- */
+    @keyframes shimmer {
+      0%   { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    .pg-skeleton {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      padding: 60px 24px 40px;
+      max-width: 420px;
+      margin: 0 auto;
+    }
+    .pg-skeleton.hidden { display: none; }
+    .skel-avatar {
+      width: 96px; height: 96px; border-radius: 50%;
+      background: linear-gradient(90deg, rgba(0,0,0,.06) 25%, rgba(0,0,0,.12) 50%, rgba(0,0,0,.06) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.6s ease-in-out infinite;
+    }
+    .skel-line {
+      height: 14px; border-radius: 7px;
+      background: linear-gradient(90deg, rgba(0,0,0,.06) 25%, rgba(0,0,0,.12) 50%, rgba(0,0,0,.06) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.6s ease-in-out infinite;
+    }
+    .skel-name { width: 140px; height: 18px; animation-delay: .1s; }
+    .skel-bio  { width: 200px; animation-delay: .15s; }
+    .skel-card {
+      width: 100%; height: 52px; border-radius: var(--global-radius);
+      background: linear-gradient(90deg, rgba(0,0,0,.06) 25%, rgba(0,0,0,.12) 50%, rgba(0,0,0,.06) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.6s ease-in-out infinite;
+    }
+    .skel-card:nth-child(4) { animation-delay: .2s; }
+    .skel-card:nth-child(5) { animation-delay: .25s; }
+    .skel-card:nth-child(6) { animation-delay: .3s; }
+
     @media (prefers-reduced-motion: reduce) {
       .featured__card { animation: none; }
     }
@@ -1692,6 +1750,15 @@
 </head>
 
 <body>
+  <!-- Skeleton loader — visível até applyConfig() esconder -->
+  <div id="pgSkeleton" class="pg-skeleton">
+    <div class="skel-avatar"></div>
+    <div class="skel-line skel-name"></div>
+    <div class="skel-line skel-bio"></div>
+    <div class="skel-card"></div>
+    <div class="skel-card"></div>
+    <div class="skel-card"></div>
+  </div>
   <main class="page">
     <div class="page-flow" id="pageFlow">
 
@@ -2256,6 +2323,32 @@
       function applyConfig(cfg) {
         cfg = adaptNewSchema(cfg);
         if (!cfg) return;
+
+        /* Esconde skeleton loader */
+        const skel = document.getElementById('pgSkeleton');
+        if (skel) skel.classList.add('hidden');
+
+        /* ---- SEO / OG Dinâmico ---- */
+        const displayName = (cfg.profile?.displayName || cfg.profile?.name || '').trim();
+        const bioText = (cfg.profile?.bio || '').trim();
+        const title = displayName ? displayName + ' | Link Bio' : 'Link Bio';
+        const desc = bioText || (displayName ? 'Links e contatos de ' + displayName + '.' : 'Links e contatos.');
+        const ogImg = cfg.banner || cfg.profile?.photo || null;
+        const setMeta = (id, attr, val) => { const el = document.getElementById(id); if (el) el.setAttribute(attr, val); };
+        setMeta('metaDesc', 'content', desc);
+        setMeta('ogTitle', 'content', title);
+        setMeta('ogDesc', 'content', desc);
+        setMeta('twTitle', 'content', title);
+        setMeta('twDesc', 'content', desc);
+        if (ogImg) setMeta('ogImage', 'content', ogImg);
+        document.title = title;
+
+        /* ---- Favicon customizado ---- */
+        const favicon = cfg.profile?.favicon;
+        if (favicon) {
+          const link = document.querySelector('link[rel="icon"][sizes="32x32"]');
+          if (link) link.href = favicon;
+        }
 
         console.log('[Axiumlink][apply] Aplicando config:', {
           source: cfg._clientNome ? 'Supabase' : 'local',

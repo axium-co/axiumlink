@@ -1144,6 +1144,15 @@
           <label for="bio">Bio</label>
           <textarea id="bio" placeholder="Conte em uma frase o que você faz" maxlength="160"></textarea>
         </div>
+        <div class="field">
+          <label>Favicon personalizado (opcional)</label>
+          <small style="display:block;margin-bottom:6px;color:var(--muted);">Ícone da aba do navegador. PNG 32x32.</small>
+          <button class="btn-mini" id="btnFaviconPick" style="width:100%;">Escolher…</button>
+          <input type="file" id="faviconInput" accept="image/png,image/x-icon" hidden>
+          <p id="faviconHint" style="display:none;margin-top:4px;">
+            <button class="btn-mini" id="btnFaviconClear">Remover</button>
+          </p>
+        </div>
       </section>
 
       <!-- LINKS -->
@@ -2361,6 +2370,7 @@
 
     $('displayName').value = cfg.profile?.displayName || '';
     $('bio').value = cfg.profile?.bio || '';
+    if (cfg.profile?.favicon) $('faviconHint').style.display = 'block';
     const activeProfile = window.userProfiles?.find(p => p.id === window.currentProfileId);
     $('slugInput').value = activeProfile?.slug?.startsWith('perfil-inicial-') ? '' : ($('slugInput').value || '');
 
@@ -2521,6 +2531,7 @@
       $('displayName').value = cfg.profile.displayName || '';
       $('bio').value = cfg.profile.bio || '';
       $('avatarHintRow').style.display = cfg.profile.avatar ? 'block' : 'none';
+      $('faviconHint').style.display = cfg.profile.favicon ? 'block' : 'none';
     } else if (key === 'style') {
       setRange('btnRadius', cfg.style.btnRadius);
       setRange('btnShadow', cfg.style.btnShadow);
@@ -4719,6 +4730,30 @@
       cfg.profile.avatar = '';
       $('avatarHintRow').style.display = 'none';
       renderPreview();
+      markDirty();
+    });
+
+    /* Favicon */
+    $('btnFaviconPick').addEventListener('click', () => $('faviconInput').click());
+    $('faviconInput').addEventListener('change', async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      showToast('Enviando favicon...');
+      try {
+        const publicUrl = await uploadFileToStorage(file, 'favicon');
+        cfg.profile = cfg.profile || {};
+        cfg.profile.favicon = publicUrl;
+        $('faviconHint').style.display = 'block';
+        markDirty();
+        showToast('Favicon atualizado!');
+      } catch (err) {
+        showToast('Falha no upload: ' + err.message);
+      }
+      e.target.value = '';
+    });
+    $('btnFaviconClear').addEventListener('click', () => {
+      cfg.profile.favicon = '';
+      $('faviconHint').style.display = 'none';
       markDirty();
     });
 
