@@ -2252,10 +2252,10 @@
             pageBg = '#0b1220';
             break;
           case 'particles':
-            pageBg = th.bg;
+            pageBg = resolvedBg;
             break;
           default:
-            pageBg = th.bg;
+            pageBg = resolvedBg;
         }
 
         const validImg = (u) => /^(data:image\/|https?:\/\/)/i.test(String(u || '').trim());

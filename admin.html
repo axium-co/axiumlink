@@ -2889,8 +2889,8 @@
       config: {
         theme: 'dark',
         bgVariant: 'solid',
-        bgColor: '#0f172a',
-        textColor: '#f1f5f9',
+        pageBgColor: '#0f172a',
+        pageTextColor: '#f1f5f9',
         btnBgColor: '#1e293b',
         btnTextColor: '#f1f5f9',
         font: 'Inter',
@@ -2911,8 +2911,8 @@
       config: {
         theme: 'dark',
         bgVariant: 'solid',
-        bgColor: '#1a1a1a',
-        textColor: '#f5f0e8',
+        pageBgColor: '#1a1a1a',
+        pageTextColor: '#f5f0e8',
         btnBgColor: '#c9a84c',
         btnTextColor: '#1a1a1a',
         font: 'Playfair Display',
@@ -2937,7 +2937,7 @@
         cyberPrimary: '#00ffff',
         cyberSecondary: '#ff00ff',
         cyberGridIntensity: 25,
-        textColor: '#e0f2fe',
+        pageTextColor: '#e0f2fe',
         btnBgColor: '#0e7490',
         btnTextColor: '#00ffff',
         font: 'Space Grotesk',
@@ -2959,8 +2959,8 @@
       config: {
         theme: 'light',
         bgVariant: 'solid',
-        bgColor: '#ffffff',
-        textColor: '#111827',
+        pageBgColor: '#ffffff',
+        pageTextColor: '#111827',
         btnBgColor: '#111827',
         btnTextColor: '#ffffff',
         font: 'Montserrat',
@@ -2981,8 +2981,8 @@
       config: {
         theme: 'forest',
         bgVariant: 'solid',
-        bgColor: '#f0fdf4',
-        textColor: '#14532d',
+        pageBgColor: '#f0fdf4',
+        pageTextColor: '#14532d',
         btnBgColor: '#16a34a',
         btnTextColor: '#ffffff',
         font: 'Poppins',
@@ -3008,7 +3008,7 @@
         gradientStart: '#fff7ed',
         gradientEnd: '#ffedd5',
         gradientAngle: 160,
-        textColor: '#7c2d12',
+        pageTextColor: '#7c2d12',
         btnBgColor: '#ea580c',
         btnTextColor: '#ffffff',
         font: 'Syne',
@@ -3033,7 +3033,7 @@
         gradientStart: '#667eea',
         gradientEnd: '#764ba2',
         gradientAngle: 135,
-        textColor: '#1e293b',
+        pageTextColor: '#1e293b',
         btnBgColor: 'rgba(255,255,255,0.25)',
         btnTextColor: '#1e293b',
         font: 'Inter',
@@ -3502,7 +3502,15 @@
   function applyThemeVars() {
     /* Estilo efetivo = defaults mesclados (sem gravar de volta: seção deletada continua fora do cfg) */
     const st = Object.assign({}, DEFAULT_CFG().style, cfg.style || {});
-    const t = THEMES[st.theme] || THEMES.indigo;
+    const base = THEMES[st.theme] || THEMES.indigo;
+    /* Cores individuais sobrepõem o tema: pageBgColor, pageTextColor,
+       btnBgColor, btnTextColor são os campos oficiais dos color triggers */
+    const t = {
+      bg:    st.pageBgColor || base.bg,
+      ink:   st.pageTextColor || base.ink,
+      btnbg: st.btnBgColor || base.btnbg,
+      btnink: st.btnTextColor || base.btnink
+    };
     const page = $('pvPage');
 
     /* Limpa estilos anteriores da página antes de reaplicar */
