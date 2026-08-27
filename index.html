@@ -2324,7 +2324,8 @@
             name: String(cfg._clientNome || p.displayName || '').trim(),
             bio: p.bio || '',
             photo: validImg(p.avatar) ? p.avatar.trim() : '',
-            address: p.address || ''
+            address: p.address || '',
+            verified: !!p.verified
           },
           visual: {
             pageBg,
@@ -2335,7 +2336,7 @@
             btnInk: resolvedBtnInk
           },
           design: {
-            banner: {
+            banner: Object.assign({
               enabled: !!cfg.banner,
               image: cfg.banner,
               bgType: 'image',
@@ -2343,7 +2344,8 @@
               overlayTitle: st.bannerOverlayTitle || '',
               overlayCta: st.bannerOverlayCta || '',
               overlayCtaUrl: st.bannerOverlayCtaUrl || ''
-            }
+            }, (cfg.design && cfg.design.banner) || {}),
+            profile: (cfg.design && cfg.design.profile) || {}
           },
           links: Array.isArray(cfg.links)
             ? cfg.links.map(l => ({
@@ -2647,6 +2649,8 @@
       if (pgBanner) {
         if (bn.enabled === false) {
           pgBanner.hidden = true;
+          const scHidden = document.getElementById('pgScrim');
+          if (scHidden) scHidden.style.display = 'none';
         } else {
           pgBanner.hidden = false;
 
@@ -2716,12 +2720,27 @@
       const pgAvatarEl = pgAvatarCard ? pgAvatarCard.querySelector('.profile__avatar') : null;
       if (pgAvatarCard && pgAvatarEl) {
         const pRadius = pf.radius || {};
-        const pRadiusCSS = (pRadius.tl || 14) + 'px ' + (pRadius.tr || 14) + 'px ' + (pRadius.br || 14) + 'px ' + (pRadius.bl || 14) + 'px';
-        pgAvatarEl.style.borderRadius = pRadiusCSS;
+        const hasShape = !!pf.shape || Object.keys(pRadius).some((k) => pRadius[k] != null);
+        let pRadiusCSS = '50%';
+        if (hasShape) {
+          pRadiusCSS = (pRadius.tl == null ? 14 : pRadius.tl) + 'px ' + (pRadius.tr == null ? 14 : pRadius.tr) + 'px ' + (pRadius.br == null ? 14 : pRadius.br) + 'px ' + (pRadius.bl == null ? 14 : pRadius.bl) + 'px';
+        }
+        /* O .profile__avatar tem border-radius:50% !important no CSS (círculo
+           padrão). Quando o usuário escolhe um formato, precisamos vencer o
+           !important — por isso setProperty(..., 'important'). */
+        if (hasShape) {
+          pgAvatarEl.style.setProperty('border-radius', pRadiusCSS, 'important');
+        } else {
+          pgAvatarEl.style.removeProperty('border-radius');
+        }
         pgAvatarEl.style.border = (pf.borderStyle === 'none' || !pf.borderWidth)
           ? 'none'
           : (pf.borderWidth || 3) + 'px ' + (pf.borderStyle || 'solid') + ' ' + (pf.borderColor || 'var(--page-bg)');
-        pgAvatarCard.style.borderRadius = pRadiusCSS;
+        if (hasShape) {
+          pgAvatarCard.style.setProperty('border-radius', pRadiusCSS, 'important');
+        } else {
+          pgAvatarCard.style.removeProperty('border-radius');
+        }
 
         if (pf.glass) {
           pgAvatarCard.style.setProperty('--glass-pad', '6px');
@@ -2779,17 +2798,41 @@
          (nunca exibe o placeholder hardcoded do HTML) */
       const addrEl = document.getElementById('pgAddress');
       const addrStyle = ptext.address;
+      const addrPres = pf.address || {};
       const hasAddr = !!(flat.profileAddress || '').trim();
       if (addrEl) {
-        addrEl.hidden = !hasAddr;
-        if (hasAddr && addrStyle) {
-          if (addrStyle.blockRadius) addrEl.style.borderRadius = addrStyle.blockRadius;
-          if (addrStyle.blockBg) addrEl.style.background = addrStyle.blockBg;
-          if (addrStyle.blockBorderColor != null && addrStyle.blockBorderWidth != null) {
-            addrEl.style.border = addrStyle.blockBorderWidth + 'px solid ' + addrStyle.blockBorderColor;
+        addrEl.hidden = !(hasAddr && pf.addrShow !== false);
+        if (hasAddr) {
+          /* Estilos de apresentação do endereço (painel): pílula ou texto
+             simples + cor de fundo/texto. Quando vazios, mantém o padrão. */
+          if (addrPres.style === 'plain') {
+            addrEl.style.borderRadius = addrPres.radius || '8px';
+            addrEl.style.background = addrPres.bg || 'transparent';
+            addrEl.style.border = '1px solid rgba(0,0,0,0)';
+          } else {
+            if (addrPres.bg || addrPres.color || addrPres.radius) addrEl.style.borderRadius = '999px';
+            addrEl.style.background = addrPres.bg || '';
+            addrEl.style.border = '';
           }
-          if (addrStyle.blockFont) addrEl.style.fontFamily = addrStyle.blockFont;
+          addrEl.style.color = addrPres.color || '';
+          if (addrStyle) {
+            if (addrStyle.blockRadius) addrEl.style.borderRadius = addrStyle.blockRadius;
+            if (addrStyle.blockBg) addrEl.style.background = addrStyle.blockBg;
+            if (addrStyle.blockBorderColor != null && addrStyle.blockBorderWidth != null) {
+              addrEl.style.border = addrStyle.blockBorderWidth + 'px solid ' + addrStyle.blockBorderColor;
+            }
+            if (addrStyle.blockFont) addrEl.style.fontFamily = addrStyle.blockFont;
+          }
         }
+      }
+
+      /* Cor do selo de verificado */
+      if (pf.verifiedColor) {
+        const vEl = document.getElementById('pgVerified');
+        if (vEl) vEl.style.background = pf.verifiedColor;
+      } else {
+        const vEl = document.getElementById('pgVerified');
+        if (vEl) vEl.style.removeProperty('background');
       }
 
       /* Alinhamento do nome também rege a linha do selo de verificado */

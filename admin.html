@@ -676,6 +676,28 @@
   .pv-bio {
     text-align:center; font-size:13.5px; opacity:.75; margin-top:6px; padding:0 32px; line-height:1.55;
   }
+  .pv-name-row {
+    display:flex; align-items:center; justify-content:center; gap:7px;
+    flex-wrap:wrap; padding:0 24px;
+  }
+  .pv-name-row h1.pv-name { margin-top:12px; padding:0; }
+  .pv-verified {
+    display:inline-flex; align-items:center; justify-content:center;
+    width:20px; height:20px; border-radius:999px; flex-shrink:0;
+    background:#6366f1; color:#fff; font-size:11px; font-weight:800; line-height:1;
+    margin-top:12px;
+  }
+  .pv-verified[hidden] { display:none; }
+  .pv-address {
+    display:inline-flex; align-items:center; justify-content:center; gap:5px;
+    margin:10px auto 0; padding:6px 13px; border-radius:999px; box-sizing:border-box;
+    font-size:11.5px; font-weight:600; color:#fff; max-width:calc(100% - 48px);
+    background:rgba(12,14,22,.82); border:1px solid rgba(255,255,255,.16);
+  }
+  .pv-address[hidden] { display:none; }
+  .pv-address-ico { font-size:11px; line-height:1; }
+  .pv-banner-scrim { position:absolute; inset:0; z-index:2; pointer-events:none; }
+  .pv-banner-scrim[hidden] { display:none; }
 
   .pv-content { padding:20px 16px 0; max-width:560px; margin:0 auto; }
 
@@ -1173,9 +1195,118 @@
           <label for="bio">Bio</label>
           <textarea id="bio" placeholder="Conte em uma frase o que você faz" maxlength="160"></textarea>
         </div>
-        <div class="field">
+<div class="field">
           <label for="address">Endereço/Localização</label>
           <input type="text" id="address" placeholder="Rua, bairro e cidade" maxlength="120">
+        </div>
+
+        <!-- Moldura do avatar -->
+        <div class="field" style="margin-top:8px; padding-top:12px; border-top:1px solid var(--bg);">
+          <label style="font-size:13px; font-weight:700; color:var(--ink);">Moldura do avatar</label>
+          <div class="toggle-row" style="padding-top:4px;">
+            <span class="toggle-label">Borda colorida no avatar</span>
+            <label class="switch">
+              <input type="checkbox" id="avatarBorder">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="row-2">
+            <div class="field" style="margin:10px 0 0;">
+              <label for="avatarShape">Formato</label>
+              <select id="avatarShape">
+                <option value="square">Quadrado</option>
+                <option value="rounded">Arredondado</option>
+                <option value="circle">Círculo</option>
+              </select>
+            </div>
+            <div class="field" style="margin:10px 0 0;">
+              <label>Cor da borda</label>
+              <div class="color-trigger" id="avatarBorderColor" role="button" tabindex="0">
+                <div class="color-trigger-swatch" style="background:#ffffff;"></div>
+                <span class="color-trigger-hex">AUTO</span>
+              </div>
+            </div>
+          </div>
+          <div class="ds-control" style="margin-top:12px;">
+            <label>Espessura da borda</label>
+            <div class="ds-control-row">
+              <input type="range" id="avatarBorderWidth" min="1" max="10" step="1">
+              <output class="ds-value" id="avatarBorderWidthVal">3px</output>
+            </div>
+          </div>
+        </div>
+
+        <!-- Selo de verificado -->
+        <div class="field" style="padding-top:12px; border-top:1px solid var(--bg);">
+          <label style="font-size:13px; font-weight:700; color:var(--ink);">Selo de verificado</label>
+          <div class="toggle-row" style="padding-top:4px;">
+            <span class="toggle-label">Mostrar selo ✓ ao lado do nome</span>
+            <label class="switch">
+              <input type="checkbox" id="profileVerified">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="field" style="margin:10px 0 0;">
+            <label>Cor do selo</label>
+            <div class="color-trigger" id="verifiedColor" role="button" tabindex="0">
+              <div class="color-trigger-swatch" style="background:#6366f1;"></div>
+              <span class="color-trigger-hex">AUTO</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bio -->
+        <div class="field" style="padding-top:12px; border-top:1px solid var(--bg);">
+          <label style="font-size:13px; font-weight:700; color:var(--ink);">Bio</label>
+          <div class="toggle-row" style="padding-top:4px;">
+            <span class="toggle-label">Texto em negrito</span>
+            <label class="switch">
+              <input type="checkbox" id="bioBold">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="field" style="margin:10px 0 0;">
+            <label>Cor do texto da bio</label>
+            <div class="color-trigger" id="bioColor" role="button" tabindex="0">
+              <div class="color-trigger-swatch" style="background:#334155;"></div>
+              <span class="color-trigger-hex">AUTO</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Endereço -->
+        <div class="field" style="padding-top:12px; border-top:1px solid var(--bg);">
+          <label style="font-size:13px; font-weight:700; color:var(--ink);">Apresentação do endereço</label>
+          <div class="toggle-row" style="padding-top:4px;">
+            <span class="toggle-label">Mostrar endereço na página</span>
+            <label class="switch">
+              <input type="checkbox" id="addressShow">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="row-2">
+            <div class="field" style="margin:10px 0 0;">
+              <label for="addressStyle">Estilo</label>
+              <select id="addressStyle">
+                <option value="pill">Pílula (pill)</option>
+                <option value="plain">Texto simples</option>
+              </select>
+            </div>
+            <div class="field" style="margin:10px 0 0;">
+              <label>Cor de fundo</label>
+              <div class="color-trigger" id="addressBg" role="button" tabindex="0">
+                <div class="color-trigger-swatch" style="background:#0c0e16;"></div>
+                <span class="color-trigger-hex">AUTO</span>
+              </div>
+            </div>
+          </div>
+          <div class="field" style="margin:10px 0 0;">
+            <label>Cor do texto</label>
+            <div class="color-trigger" id="addressTextColor" role="button" tabindex="0">
+              <div class="color-trigger-swatch" style="background:#ffffff;"></div>
+              <span class="color-trigger-hex">AUTO</span>
+            </div>
+          </div>
         </div>
         <div class="field">
           <label>Favicon personalizado (opcional)</label>
@@ -1817,8 +1948,28 @@
           <div class="field">
             <input type="text" id="bannerOverlayCta" placeholder="Texto do botão CTA (opcional)" maxlength="30">
           </div>
-          <div class="field">
+<div class="field">
             <input type="url" id="bannerOverlayCtaUrl" placeholder="URL do botão CTA">
+          </div>
+        </div>
+
+        <!-- ESCURECIMENTO (SCRIM) -->
+        <div class="field" style="margin-top:8px; padding-top:12px; border-top:1px solid var(--bg);">
+          <label style="font-size:13px; font-weight:700; color:var(--ink);">Legibilidade do texto</label>
+          <p class="hint" style="margin-bottom:8px;">Escurece o banner para os textos (título/CTA) se destacarem.</p>
+          <div class="toggle-row" style="padding-top:4px;">
+            <span class="toggle-label">Escurecer o banner</span>
+            <label class="switch">
+              <input type="checkbox" id="bannerScrim">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="ds-control" style="margin-top:12px;">
+            <label>Intensidade do escurecimento</label>
+            <div class="ds-control-row">
+              <input type="range" id="bannerScrimOpacity" min="0" max="100" step="5">
+              <output class="ds-value" id="bannerScrimOpacityVal">45%</output>
+            </div>
           </div>
         </div>
         </div>
@@ -1849,6 +2000,7 @@
 
                   <div class="pv-banner no-banner" id="pvBanner">
                     <img id="pvBannerImg" alt="">
+                    <div class="pv-banner-scrim" id="pvBannerScrim" hidden></div>
                   </div>
 
                   <div class="pv-avatar-wrap">
@@ -1858,8 +2010,15 @@
                     </div>
                   </div>
 
-                  <h1 class="pv-name" id="pvName">Seu nome</h1>
+                  <div class="pv-name-row">
+                    <h1 class="pv-name" id="pvName">Seu nome</h1>
+                    <span class="pv-verified" id="pvVerified" title="Perfil verificado" hidden>✓</span>
+                  </div>
                   <p class="pv-bio" id="pvBio"></p>
+                  <div class="pv-address" id="pvAddress" hidden>
+                    <span class="pv-address-ico">📍</span>
+                    <span id="pvAddressText"></span>
+                  </div>
 
                   <div class="pv-content">
                     <div class="quick-grid--scroll" id="previewQuickGrid"></div>
@@ -2814,7 +2973,6 @@
             ? (nome.split(/\s+/)[0][0] + nome.split(/\s+/)[1][0]).toUpperCase()
             : nome.slice(0, 2).toUpperCase())
         : '⚡';
-      avatarBox.style.borderRadius = '50%';
       avatarBox.style.display = 'flex';
       avatarBox.style.alignItems = 'center';
       avatarBox.style.justifyContent = 'center';
@@ -2862,6 +3020,7 @@
     renderBannerOverlay();
 
     applyThemeVars();
+    applyProfileDesignToMockup();
 
     /* Links rápidos no preview */
     const grid = $('previewQuickGrid');
@@ -3865,6 +4024,129 @@
     });
   }
 
+  /* Aplica o design de perfil/banner (cfg.design) ao mockup celular.
+     Valores padrão reproduzem o visual atual: avatar arredondado sem
+     borda, sem selo, bio normal, endereço visível quando preenchido,
+     banner sem escurecimento. */
+  function applyProfileDesignToMockup() {
+    const dp = cfg.design || (cfg.design = {});
+    const pf = dp.profile || (dp.profile = {});
+
+    /* Avatar: formato + borda */
+    const av = $('pvAvatar');
+    if (av) {
+      const pRadius = pf.radius || {};
+      const hasShape = !!pf.shape || Object.keys(pRadius).some((k) => pRadius[k] != null);
+      let radiusCSS = '50%';
+      if (hasShape) {
+        radiusCSS = (pRadius.tl == null ? 14 : pRadius.tl) + 'px ' + (pRadius.tr == null ? 14 : pRadius.tr) + 'px '
+          + (pRadius.br == null ? 14 : pRadius.br) + 'px ' + (pRadius.bl == null ? 14 : pRadius.bl) + 'px';
+      }
+      av.style.borderRadius = radiusCSS;
+      if (pf.borderOn) {
+        av.style.border = (pf.borderWidth || 3) + 'px solid ' + (pf.borderColor || '#ffffff');
+      } else {
+        av.style.border = 'none';
+      }
+    }
+
+    /* Selo de verificado */
+    const verified = $('pvVerified');
+    if (verified) {
+      verified.hidden = !(cfg.profile && cfg.profile.verified);
+      verified.style.background = pf.verifiedColor ? pf.verifiedColor : '#6366f1';
+    }
+
+    /* Bio: cor + negrito */
+    const bio = $('pvBio');
+    if (bio) {
+      const btext = (pf.text && pf.text.bio) || {};
+      bio.style.color = btext.color || '';
+      bio.style.fontWeight = btext.weight ? String(btext.weight) : '400';
+    }
+
+    /* Endereço: mostrar/ocultar + estilo (pílula/simples) + cores */
+    const addrBox = $('pvAddress');
+    if (addrBox) {
+      const hasAddrRaw = !!(cfg.profile && String(cfg.profile.address || '').trim());
+      const showAddr = hasAddrRaw && pf.addrShow !== false;
+      addrBox.hidden = !showAddr;
+      if (showAddr) {
+        const astyle = pf.address || {};
+        const addrText = $('pvAddressText');
+        if (addrText) addrText.textContent = cfg.profile.address;
+        if (astyle.style === 'plain') {
+          addrBox.style.borderRadius = '8px';
+          addrBox.style.background = astyle.bg || 'transparent';
+          addrBox.style.border = '1px solid rgba(0,0,0,0)';
+        } else {
+          addrBox.style.borderRadius = '999px';
+          addrBox.style.background = astyle.bg || 'rgba(12,14,22,.82)';
+          addrBox.style.border = '1px solid rgba(255,255,255,.16)';
+        }
+        addrBox.style.color = astyle.color || '#ffffff';
+      }
+    }
+
+    /* Scrim do banner (escurecimento para legibilidade) */
+    const scrim = $('pvBannerScrim');
+    if (scrim) {
+      const bn = dp.banner || {};
+      if (bn.scrim === 'dark') {
+        scrim.hidden = false;
+        scrim.style.background = 'rgba(0,0,0,' + ((bn.scrimOpacity == null ? 45 : bn.scrimOpacity) / 100) + ')';
+      } else if (bn.scrim === 'light') {
+        scrim.hidden = false;
+        scrim.style.background = 'rgba(255,255,255,' + ((bn.scrimOpacity == null ? 45 : bn.scrimOpacity) / 100) + ')';
+      } else {
+        scrim.hidden = true;
+      }
+    }
+  }
+
+  /* Renderiza os color triggers do perfil/banner com semântica AUTO
+     ('' = herdar o valor padrão do tema) */
+  const DESIGN_TRIGGER_DEFAULTS = {
+    avatarBorderColor: '#ffffff',
+    verifiedColor: '#6366f1',
+    bioColor: '#334155',
+    addressBg: '#0c0e16',
+    addressTextColor: '#ffffff'
+  };
+
+  function renderDesignTriggers() {
+    const dp = cfg.design || (cfg.design = {});
+    const pf = dp.profile || (dp.profile = {});
+    setTriggerColor('avatarBorderColor', pf.borderOn ? (pf.borderColor || '') : '');
+    const avLabel = $('avatarBorderColor')?.querySelector('.color-trigger-hex');
+    if (avLabel) avLabel.textContent = pf.borderOn && pf.borderColor ? pf.borderColor.toUpperCase() : 'AUTO';
+
+    setTriggerColor('verifiedColor', pf.verifiedColor || '');
+    const vLabel = $('verifiedColor')?.querySelector('.color-trigger-hex');
+    if (vLabel) vLabel.textContent = pf.verifiedColor ? pf.verifiedColor.toUpperCase() : 'AUTO';
+
+    setTriggerColor('bioColor', (pf.text && pf.text.bio && pf.text.bio.color) || '');
+    const bioColor = (pf.text && pf.text.bio && pf.text.bio.color) || '';
+    const bioLabel = $('bioColor')?.querySelector('.color-trigger-hex');
+    if (bioLabel) bioLabel.textContent = bioColor ? bioColor.toUpperCase() : 'AUTO';
+
+    setTriggerColor('addressBg', (pf.address && pf.address.bg) || '');
+    const addressBg = (pf.address && pf.address.bg) || '';
+    const abLabel = $('addressBg')?.querySelector('.color-trigger-hex');
+    if (abLabel) abLabel.textContent = addressBg ? addressBg.toUpperCase() : 'AUTO';
+
+    setTriggerColor('addressTextColor', (pf.address && pf.address.color) || '');
+    const addressColor = (pf.address && pf.address.color) || '';
+    const atLabel = $('addressTextColor')?.querySelector('.color-trigger-hex');
+    if (atLabel) atLabel.textContent = addressColor ? addressColor.toUpperCase() : 'AUTO';
+
+    /* Banner scrim */
+    const bn = dp.banner || (dp.banner = {});
+    const scrimEl = $('bannerScrim');
+    if (scrimEl) scrimEl.checked = bn.scrim === 'dark';
+    if ($('bannerScrimOpacity')) setRange('bannerScrimOpacity', bn.scrimOpacity == null ? 45 : bn.scrimOpacity);
+  }
+
   /* Renderiza color triggers individuais (fundo, texto, botão bg, botão texto) */
   const COLOR_TRIGGER_IDS = ['pageBgColor', 'pageTextColor', 'btnBgColor', 'btnTextColor'];
   const COLOR_TRIGGER_DEFAULTS = {
@@ -4790,6 +5072,133 @@
       showToast('Imagem do banner removida');
     });
 
+    /* ===== Personalização de Perfil/Banner (cfg.design) ===== */
+    const profileDesignRef = () => {
+      const dp = cfg.design || (cfg.design = {});
+      dp.profile = dp.profile || {};
+      return dp.profile;
+    };
+
+    $('avatarBorder').addEventListener('change', (e) => {
+      const pf = profileDesignRef();
+      pf.borderOn = e.target.checked;
+      pf.borderStyle = pf.borderOn ? 'solid' : 'none';
+      renderPreview();
+      renderDesignTriggers();
+      markDirty();
+    });
+    $('avatarShape').addEventListener('change', (e) => {
+      const pf = profileDesignRef();
+      const big = e.target.value === 'circle' ? 999 : (e.target.value === 'rounded' ? 14 : 0);
+      pf.shape = e.target.value;
+      pf.radius = { tl: big, tr: big, br: big, bl: big };
+      renderPreview();
+      markDirty();
+    });
+    bindRange('avatarBorderWidth', 'avatarBorderWidthVal', (v) => v + 'px', (v) => {
+      const pf = profileDesignRef();
+      pf.borderWidth = v;
+      renderPreview();
+    });
+    $('avatarBorderColor').addEventListener('click', () => {
+      const pf = profileDesignRef();
+      const current = pf.borderColor || '#ffffff';
+      openColorPicker($('avatarBorderColor'), current, (hex) => {
+        pf.borderColor = hex;
+        renderPreview();
+        renderDesignTriggers();
+        markDirty();
+      });
+    });
+
+    $('profileVerified').addEventListener('change', (e) => {
+      cfg.profile = cfg.profile || {};
+      cfg.profile.verified = e.target.checked;
+      renderPreview();
+      markDirty();
+    });
+    $('verifiedColor').addEventListener('click', () => {
+      const pf = profileDesignRef();
+      const current = pf.verifiedColor || '#6366f1';
+      openColorPicker($('verifiedColor'), current, (hex) => {
+        pf.verifiedColor = hex;
+        renderPreview();
+        renderDesignTriggers();
+        markDirty();
+      });
+    });
+
+    $('bioBold').addEventListener('change', (e) => {
+      const pf = profileDesignRef();
+      pf.text = pf.text || {};
+      pf.text.bio = pf.text.bio || {};
+      pf.text.bio.weight = e.target.checked ? 700 : 400;
+      renderPreview();
+      markDirty();
+    });
+    $('bioColor').addEventListener('click', () => {
+      const pf = profileDesignRef();
+      pf.text = pf.text || {};
+      pf.text.bio = pf.text.bio || {};
+      const current = pf.text.bio.color || '#334155';
+      openColorPicker($('bioColor'), current, (hex) => {
+        pf.text.bio.color = hex;
+        renderPreview();
+        renderDesignTriggers();
+        markDirty();
+      });
+    });
+
+    $('addressShow').addEventListener('change', (e) => {
+      const pf = profileDesignRef();
+      pf.addrShow = e.target.checked;
+      renderPreview();
+      markDirty();
+    });
+    $('addressStyle').addEventListener('change', (e) => {
+      const pf = profileDesignRef();
+      pf.address = pf.address || {};
+      pf.address.style = e.target.value;
+      renderPreview();
+      markDirty();
+    });
+    $('addressBg').addEventListener('click', () => {
+      const pf = profileDesignRef();
+      pf.address = pf.address || {};
+      const current = pf.address.bg || '#0c0e16';
+      openColorPicker($('addressBg'), current, (hex) => {
+        pf.address.bg = hex;
+        renderPreview();
+        renderDesignTriggers();
+        markDirty();
+      });
+    });
+    $('addressTextColor').addEventListener('click', () => {
+      const pf = profileDesignRef();
+      pf.address = pf.address || {};
+      const current = pf.address.color || '#ffffff';
+      openColorPicker($('addressTextColor'), current, (hex) => {
+        pf.address.color = hex;
+        renderPreview();
+        renderDesignTriggers();
+        markDirty();
+      });
+    });
+
+    $('bannerScrim').addEventListener('change', (e) => {
+      const dp = cfg.design || (cfg.design = {});
+      dp.banner = dp.banner || {};
+      dp.banner.scrim = e.target.checked ? 'dark' : 'none';
+      renderPreview();
+      markDirty();
+    });
+    bindRange('bannerScrimOpacity', 'bannerScrimOpacityVal', (v) => v + '%', (v) => {
+      const dp = cfg.design || (cfg.design = {});
+      dp.banner = dp.banner || {};
+      dp.banner.scrimOpacity = v;
+      renderPreview();
+    });
+
     reflectStyleValues();
   }
 
@@ -4859,7 +5268,30 @@
     $('bannerOverlayCtaUrl').value = st.bannerOverlayCtaUrl || '';
     renderBannerOverlay();
 
+    /* Personalização de Perfil/Banner (cfg.design) */
+    reflectDesignValues();
+
     updateStyleRowsVisibility();
+  }
+
+  /* Reflete o design de perfil/banner salvo nos controles do painel */
+  function reflectDesignValues() {
+    const dp = cfg.design || (cfg.design = {});
+    const pf = dp.profile || (dp.profile = {});
+    const shapeEl = $('avatarShape');
+    if (shapeEl) shapeEl.value = pf.shape || 'circle';
+    const borderEl = $('avatarBorder');
+    if (borderEl) borderEl.checked = !!pf.borderOn;
+    if ($('avatarBorderWidth')) setRange('avatarBorderWidth', pf.borderWidth == null ? 3 : pf.borderWidth);
+    const verifiedEl = $('profileVerified');
+    if (verifiedEl) verifiedEl.checked = !!(cfg.profile && cfg.profile.verified);
+    const boldEl = $('bioBold');
+    if (boldEl) boldEl.checked = !!((pf.text && pf.text.bio && pf.text.bio.weight) && pf.text.bio.weight >= 600);
+    const addrShowEl = $('addressShow');
+    if (addrShowEl) addrShowEl.checked = pf.addrShow !== false;
+    const addrStyleEl = $('addressStyle');
+    if (addrStyleEl) addrStyleEl.value = (pf.address && pf.address.style) || 'pill';
+    renderDesignTriggers();
   }
 
   function bindRange(id, outId, fmt, onChange) {
