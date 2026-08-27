@@ -2917,6 +2917,19 @@
      ================================================================ */
   const $ = (id) => document.getElementById(id);
 
+  /* Anexa um listener de forma defensiva: se o elemento não existir,
+     registra um aviso e segue em frente, evitando que UM id faltando
+     quebre todos os demais bindings em cascata. */
+  function safeOn(id, evt, fn) {
+    const el = $(id);
+    if (el) {
+      el.addEventListener(evt, fn);
+      return el;
+    }
+    console.warn('[Axiumlink] Elemento nao encontrado: ' + id);
+    return null;
+  }
+
   /* Ícones de plataforma para atalhos rápidos (SVG inline, stroke =
      currentColor → herdam a cor do tema/estado). Chaves espelham o
      mapa quickIcons da página pública. */
@@ -5221,7 +5234,7 @@
     _styleControlsBound = true;
 
     /* bgVariant select */
-    $('bgVariant').addEventListener('change', (e) => {
+    safeOn('bgVariant', 'change', (e) => {
       if (!cfg.style) cfg.style = {};
       cfg.style.bgVariant = e.target.value;
       updateStyleRowsVisibility();
@@ -5252,7 +5265,7 @@
     });
 
     /* Gradiente multi-stop */
-    $('btnAddGradientStop').addEventListener('click', () => {
+    safeOn('btnAddGradientStop', 'click', () => {
       const stops = ensureGradientStops();
       if (stops.length >= 6) return;
       openColorPicker($('btnAddGradientStop'), '#6366f1', (hex) => {
@@ -5263,7 +5276,7 @@
         markDirty();
       });
     });
-    $('gradientAngle').addEventListener('input', (e) => {
+    safeOn('gradientAngle', 'input', (e) => {
       if (!cfg.style) cfg.style = {};
       cfg.style.gradientAngle = Number(e.target.value);
       $('gradientAngleVal').textContent = e.target.value + 'deg';
@@ -5275,7 +5288,7 @@
     /* Mesh colors - handled by renderColorSwatches */
 
     /* Animated colors - handled by renderColorSwatches */
-    $('animSpeed').addEventListener('input', (e) => {
+    safeOn('animSpeed', 'input', (e) => {
       if (!cfg.style) cfg.style = {};
       cfg.style.animSpeed = Number(e.target.value);
       $('animSpeedVal').textContent = e.target.value + 's';
@@ -5285,7 +5298,7 @@
 
     /* Cyberpunk */
     ['cyberPrimary', 'cyberSecondary'].forEach(id => {
-      $(id).addEventListener('click', () => {
+      safeOn(id, 'click', () => {
         const current = (cfg.style && cfg.style[id]) || (id === 'cyberPrimary' ? '#00ffff' : '#ff00ff');
         openColorPicker($(id), current, (hex) => {
           if (!cfg.style) cfg.style = {};
@@ -5296,7 +5309,7 @@
         });
       });
     });
-    $('cyberGridIntensity').addEventListener('input', (e) => {
+    safeOn('cyberGridIntensity', 'input', (e) => {
       if (!cfg.style) cfg.style = {};
       cfg.style.cyberGridIntensity = Number(e.target.value);
       $('cyberGridIntensityVal').textContent = e.target.value + '%';
@@ -5316,7 +5329,7 @@
         if (!cfg.style) cfg.style = {};
         return (cfg.style[g.key] = cfg.style[g.key] || {});
       };
-      $(g.prefix + 'Toggle').addEventListener('change', (e) => {
+      safeOn(g.prefix + 'Toggle', 'change', (e) => {
         elRef().enabled = e.target.checked;
         applyThemeVars();
         markDirty();
@@ -5329,7 +5342,7 @@
     });
 
     /* btnVariant select */
-    $('btnVariant').addEventListener('change', (e) => {
+    safeOn('btnVariant', 'change', (e) => {
       if (!cfg.style) cfg.style = {};
       cfg.style.btnVariant = e.target.value;
       updateStyleRowsVisibility();
@@ -5339,7 +5352,7 @@
 
     /* Botão gradiente */
     ['btnGradientStart', 'btnGradientEnd'].forEach(id => {
-      $(id).addEventListener('click', () => {
+      safeOn(id, 'click', () => {
         const current = (cfg.style && cfg.style[id]) || (id === 'btnGradientStart' ? '#6366f1' : '#ec4899');
         openColorPicker($(id), current, (hex) => {
           if (!cfg.style) cfg.style = {};
@@ -5350,7 +5363,7 @@
         });
       });
     });
-    $('btnGradientAngle').addEventListener('input', (e) => {
+    safeOn('btnGradientAngle', 'input', (e) => {
       if (!cfg.style) cfg.style = {};
       cfg.style.btnGradientAngle = Number(e.target.value);
       $('btnGradientAngleVal').textContent = e.target.value + 'deg';
@@ -5359,7 +5372,7 @@
     });
 
     /* Vídeo de fundo */
-    $('bgVideoUrl').addEventListener('input', (e) => {
+    safeOn('bgVideoUrl', 'input', (e) => {
       if (!cfg.style) cfg.style = {};
       cfg.style.bgVideoUrl = e.target.value.trim();
       applyThemeVars();
@@ -5368,8 +5381,8 @@
     bindRange('bgVideoOpacity', 'bgVideoOpacityVal', (v) => v + '%', (v) => { cfg.style.bgVideoOpacity = v; applyThemeVars(); });
 
     /* Imagem de fundo: File bruto → Storage → URL pública permanente */
-    $('btnBgImagePick').addEventListener('click', () => $('bgImageInput').click());
-    $('bgImageInput').addEventListener('change', async (e) => {
+    safeOn('btnBgImagePick', 'click', () => $('bgImageInput').click());
+    safeOn('bgImageInput', 'change', async (e) => {
       const file = e.target.files?.[0];
       e.target.value = '';
       if (!file) return;
@@ -5388,7 +5401,7 @@
         showToast('Falha no upload: ' + err.message);
       }
     });
-    $('bgImageUrl').addEventListener('input', (e) => {
+    safeOn('bgImageUrl', 'input', (e) => {
       if (!cfg.style) cfg.style = {};
       cfg.style.bgImageUrl = e.target.value.trim();
       if (e.target.value.trim()) cfg.style.bgVariant = 'image';
@@ -5396,7 +5409,7 @@
       applyThemeVars();
       markDirty();
     });
-    $('btnBgImageClear').addEventListener('click', () => {
+    safeOn('btnBgImageClear', 'click', () => {
       if (!cfg.style) cfg.style = {};
       cfg.style.bgImageUrl = '';
       cfg.style.bgVariant = 'solid';
@@ -5409,13 +5422,13 @@
     });
 
     /* Textura sobreposta */
-    $('bgTexture').addEventListener('change', (e) => {
+    safeOn('bgTexture', 'change', (e) => {
       if (!cfg.style) cfg.style = {};
       cfg.style.bgTexture = e.target.value;
       applyThemeVars();
       markDirty();
     });
-    $('bgTextureOpacity').addEventListener('input', (e) => {
+    safeOn('bgTextureOpacity', 'input', (e) => {
       if (!cfg.style) cfg.style = {};
       cfg.style.bgTextureOpacity = Number(e.target.value);
       $('bgTextureOpacityVal').textContent = e.target.value + '%';
@@ -5424,14 +5437,14 @@
     });
 
     /* Tipografia premium */
-    $('fontFamily').addEventListener('change', (e) => {
+    safeOn('fontFamily', 'change', (e) => {
       if (!cfg.style) cfg.style = {};
       cfg.style.font = e.target.value;
       applyThemeVars();
       markDirty();
     });
     /* Sub-blocos de tipografia (nome, bio, botões) */
-    $('layoutSpacing').addEventListener('change', (e) => {
+    safeOn('layoutSpacing', 'change', (e) => {
       if (!cfg.style) cfg.style = {};
       const v = e.target.value;
       cfg.style.layoutSpacing = v;
@@ -5465,7 +5478,7 @@
           markDirty();
         });
       });
-      $(bc.prefix + 'Font').addEventListener('change', (e) => {
+      safeOn(bc.prefix + 'Font', 'change', (e) => {
         if (!cfg.style) cfg.style = {};
         cfg.style[bc.key] = cfg.style[bc.key] || {};
         cfg.style[bc.key].font = e.target.value;
@@ -5474,7 +5487,7 @@
       });
     });
     /* Glow Neon + Forma + Animação dos botões */
-    $('btnGlowColor').addEventListener('click', () => {
+    safeOn('btnGlowColor', 'click', () => {
       const current = (cfg.style && cfg.style.btnGlowColor) || '#22d3ee';
       openColorPicker($('btnGlowColor'), current, (hex) => {
         if (!cfg.style) cfg.style = {};
@@ -5484,7 +5497,7 @@
         markDirty();
       });
     });
-    $('btnShape').addEventListener('change', (e) => {
+    safeOn('btnShape', 'change', (e) => {
       if (!cfg.style) cfg.style = {};
       cfg.style.btnShape = e.target.value;
       updateStyleRowsVisibility();
@@ -5492,14 +5505,14 @@
       markDirty();
     });
     /* Estilo de sombra independente (none/soft/neumorph/glow) */
-    $('btnShadowStyle').addEventListener('change', (e) => {
+    safeOn('btnShadowStyle', 'change', (e) => {
       if (!cfg.style) cfg.style = {};
       cfg.style.btnShadowStyle = e.target.value;
       updateStyleRowsVisibility();
       applyThemeVars();
       markDirty();
     });
-    $('btnAnimation').addEventListener('change', (e) => {
+    safeOn('btnAnimation', 'change', (e) => {
       if (!cfg.style) cfg.style = {};
       cfg.style.btnAnimation = e.target.value;
       applyThemeVars();
@@ -5508,7 +5521,7 @@
 
     /* Estilo exclusivo dos atalhos rápidos (config.quickLinksStyle) */
     ['qlFormat', 'qlBackground', 'qlShadow'].forEach((id) => {
-      $(id).addEventListener('change', () => {
+      safeOn(id, 'change', () => {
         cfg.quickLinksStyle = Object.assign(
           { format: 'circle', background: 'solid', shadow: 'soft', borderColor: '' },
           cfg.quickLinksStyle || {}
@@ -5544,7 +5557,7 @@
 
     /* Overlay do banner */
     ['bannerOverlayTitle', 'bannerOverlayCta', 'bannerOverlayCtaUrl'].forEach(id => {
-      $(id).addEventListener('input', (e) => {
+      safeOn(id, 'input', (e) => {
         if (!cfg.style) cfg.style = {};
         cfg.style[id] = e.target.value;
         renderBannerOverlay();
@@ -5562,21 +5575,31 @@
     bindRange('bannerTitleWeight','bannerTitleWeightVal', (v) => '' + v, (v) => btRW('titleWeight', v));
     bindRange('bannerCtaSize', 'bannerCtaSizeVal', (v) => v + 'px',  (v) => btRW('ctaSize', v));
     bindRange('bannerCtaWeight','bannerCtaWeightVal', (v) => '' + v, (v) => btRW('ctaWeight', v));
-    $('#bannerTextAlign').addEventListener('change', (e) => { btRW('align', e.target.value); markDirty(); });
-    $('#bannerTextVpos').addEventListener('change', (e) => { btRW('vpos', e.target.value); markDirty(); });
-    $('#bannerTextDarken').addEventListener('change', (e) => { btRW('darken', e.target.checked); markDirty(); });
-    $('#bannerTitleColor').addEventListener('click', () => {
+    const btAlignEl = $('bannerTextAlign');
+    if (btAlignEl) btAlignEl.addEventListener('change', (e) => { btRW('align', e.target.value); markDirty(); });
+    else console.warn('[Axiumlink] Elemento nao encontrado: bannerTextAlign');
+    const btVposEl = $('bannerTextVpos');
+    if (btVposEl) btVposEl.addEventListener('change', (e) => { btRW('vpos', e.target.value); markDirty(); });
+    else console.warn('[Axiumlink] Elemento nao encontrado: bannerTextVpos');
+    const btDarkenEl = $('bannerTextDarken');
+    if (btDarkenEl) btDarkenEl.addEventListener('change', (e) => { btRW('darken', e.target.checked); markDirty(); });
+    else console.warn('[Axiumlink] Elemento nao encontrado: bannerTextDarken');
+    const btTitleColorEl = $('bannerTitleColor');
+    if (btTitleColorEl) btTitleColorEl.addEventListener('click', () => {
       const cur = btRef().titleColor || '#ffffff';
       openColorPicker($('bannerTitleColor'), cur, (hex) => { btRef().titleColor = hex; setTriggerColor('bannerTitleColor', hex); renderBannerOverlay(); markDirty(); });
     });
-    $('#bannerCtaColor').addEventListener('click', () => {
+    else console.warn('[Axiumlink] Elemento nao encontrado: bannerTitleColor');
+    const btCtaColorEl = $('bannerCtaColor');
+    if (btCtaColorEl) btCtaColorEl.addEventListener('click', () => {
       const cur = btRef().ctaColor || '#0f172a';
       openColorPicker($('bannerCtaColor'), cur, (hex) => { btRef().ctaColor = hex; setTriggerColor('bannerCtaColor', hex); renderBannerOverlay(); markDirty(); });
     });
+    else console.warn('[Axiumlink] Elemento nao encontrado: bannerCtaColor');
 
     /* Imagem do banner (cfg.banner) */
-    $('btnBannerImagePick').addEventListener('click', () => $('bannerImageInput').click());
-    $('bannerImageInput').addEventListener('change', async (e) => {
+    safeOn('btnBannerImagePick', 'click', () => $('bannerImageInput').click());
+    safeOn('bannerImageInput', 'change', async (e) => {
       const file = e.target.files?.[0];
       e.target.value = '';
       if (!file) return;
@@ -5592,12 +5615,12 @@
         showToast('Falha no upload: ' + err.message);
       }
     });
-    $('bannerImageUrl').addEventListener('input', (e) => {
+    safeOn('bannerImageUrl', 'input', (e) => {
       cfg.banner = e.target.value.trim();
       renderPreview();
       markDirty();
     });
-    $('btnBannerImageClear').addEventListener('click', () => {
+    safeOn('btnBannerImageClear', 'click', () => {
       cfg.banner = '';
       $('bannerImageUrl').value = '';
       renderPreview();
@@ -5612,7 +5635,7 @@
       return dp.profile;
     };
 
-    $('avatarBorder').addEventListener('change', (e) => {
+    safeOn('avatarBorder', 'change', (e) => {
       const pf = profileDesignRef();
       pf.borderOn = e.target.checked;
       pf.borderStyle = pf.borderOn ? 'solid' : 'none';
@@ -5620,7 +5643,7 @@
       renderDesignTriggers();
       markDirty();
     });
-    $('avatarShape').addEventListener('change', (e) => {
+    safeOn('avatarShape', 'change', (e) => {
       const pf = profileDesignRef();
       const big = e.target.value === 'circle' ? 999 : (e.target.value === 'rounded' ? 14 : 0);
       pf.shape = e.target.value;
@@ -5633,7 +5656,7 @@
       pf.borderWidth = v;
       renderPreview();
     });
-    $('avatarBorderColor').addEventListener('click', () => {
+    safeOn('avatarBorderColor', 'click', () => {
       const pf = profileDesignRef();
       const current = pf.borderColor || '#ffffff';
       openColorPicker($('avatarBorderColor'), current, (hex) => {
@@ -5649,13 +5672,13 @@
       renderPreview();
     });
 
-    $('profileVerified').addEventListener('change', (e) => {
+    safeOn('profileVerified', 'change', (e) => {
       cfg.profile = cfg.profile || {};
       cfg.profile.verified = e.target.checked;
       renderPreview();
       markDirty();
     });
-    $('verifiedColor').addEventListener('click', () => {
+    safeOn('verifiedColor', 'click', () => {
       const pf = profileDesignRef();
       const current = pf.verifiedColor || '#6366f1';
       openColorPicker($('verifiedColor'), current, (hex) => {
@@ -5666,7 +5689,7 @@
       });
     });
 
-    $('nameColor').addEventListener('click', () => {
+    safeOn('nameColor', 'click', () => {
       const pf = profileDesignRef();
       pf.text = pf.text || {};
       pf.text.name = pf.text.name || {};
@@ -5678,7 +5701,7 @@
         markDirty();
       });
     });
-    $('nameAlign').addEventListener('change', (e) => {
+    safeOn('nameAlign', 'change', (e) => {
       const pf = profileDesignRef();
       pf.text = pf.text || {};
       pf.text.name = pf.text.name || {};
@@ -5687,7 +5710,7 @@
       markDirty();
     });
 
-    $('bioBold').addEventListener('change', (e) => {
+    safeOn('bioBold', 'change', (e) => {
       const pf = profileDesignRef();
       pf.text = pf.text || {};
       pf.text.bio = pf.text.bio || {};
@@ -5695,7 +5718,7 @@
       renderPreview();
       markDirty();
     });
-    $('bioColor').addEventListener('click', () => {
+    safeOn('bioColor', 'click', () => {
       const pf = profileDesignRef();
       pf.text = pf.text || {};
       pf.text.bio = pf.text.bio || {};
@@ -5707,7 +5730,7 @@
         markDirty();
       });
     });
-    $('bioAlign').addEventListener('change', (e) => {
+    safeOn('bioAlign', 'change', (e) => {
       const pf = profileDesignRef();
       pf.text = pf.text || {};
       pf.text.bio = pf.text.bio || {};
@@ -5716,27 +5739,27 @@
       markDirty();
     });
 
-    $('addressShow').addEventListener('change', (e) => {
+    safeOn('addressShow', 'change', (e) => {
       const pf = profileDesignRef();
       pf.addrShow = e.target.checked;
       renderPreview();
       markDirty();
     });
-    $('addressIcon').addEventListener('change', (e) => {
+    safeOn('addressIcon', 'change', (e) => {
       const pf = profileDesignRef();
       pf.address = pf.address || {};
       pf.address.showIcon = e.target.checked;
       renderPreview();
       markDirty();
     });
-    $('addressStyle').addEventListener('change', (e) => {
+    safeOn('addressStyle', 'change', (e) => {
       const pf = profileDesignRef();
       pf.address = pf.address || {};
       pf.address.style = e.target.value;
       renderPreview();
       markDirty();
     });
-    $('addressBg').addEventListener('click', () => {
+    safeOn('addressBg', 'click', () => {
       const pf = profileDesignRef();
       pf.address = pf.address || {};
       const current = pf.address.bg || '#0c0e16';
@@ -5747,7 +5770,7 @@
         markDirty();
       });
     });
-    $('addressTextColor').addEventListener('click', () => {
+    safeOn('addressTextColor', 'click', () => {
       const pf = profileDesignRef();
       pf.address = pf.address || {};
       const current = pf.address.color || '#ffffff';
@@ -5759,7 +5782,7 @@
       });
     });
 
-    $('bannerScrim').addEventListener('change', (e) => {
+    safeOn('bannerScrim', 'change', (e) => {
       const dp = cfg.design || (cfg.design = {});
       dp.banner = dp.banner || {};
       dp.banner.scrim = e.target.checked ? 'dark' : 'none';
@@ -5921,10 +5944,14 @@
 
   function bindRange(id, outId, fmt, onChange) {
     const input = $(id);
+    if (!input) {
+      console.warn('[Axiumlink] Elemento nao encontrado em bindRange: ' + id);
+      return;
+    }
     const out = $(outId);
     input.addEventListener('input', () => {
       const v = Number(input.value);
-      out.textContent = fmt(v);
+      if (out) out.textContent = fmt(v);
       onChange(v);
       markDirty();
     });
@@ -5932,8 +5959,13 @@
 
   function setRange(id, val) {
     if (val == null) return;
-    $(id).value = val;
-    $(id).dispatchEvent(new Event('input'));
+    const el = $(id);
+    if (!el) {
+      console.warn('[Axiumlink] Elemento nao encontrado em setRange: ' + id);
+      return;
+    }
+    el.value = val;
+    el.dispatchEvent(new Event('input'));
   }
 
   /* ================================================================
@@ -6123,27 +6155,27 @@
       });
     });
 
-    $('displayName').addEventListener('input', (e) => {
+    safeOn('displayName', 'input', (e) => {
       cfg.profile.displayName = e.target.value;
       renderPreview();
       markDirty();
     });
 
-    $('bio').addEventListener('input', (e) => {
+    safeOn('bio', 'input', (e) => {
       cfg.profile.bio = e.target.value;
       renderPreview();
       markDirty();
     });
 
-    $('address').addEventListener('input', (e) => {
+    safeOn('address', 'input', (e) => {
       cfg.profile.address = e.target.value;
       renderPreview();
       markDirty();
     });
 
     /* Avatar */
-    $('btnAvatarPick').addEventListener('click', () => $('avatarInput').click());
-    $('avatarInput').addEventListener('change', (e) => {
+    safeOn('btnAvatarPick', 'click', () => $('avatarInput').click());
+    safeOn('avatarInput', 'change', (e) => {
       const file = e.target.files?.[0];
       if (file) openCrop(file, 'Ajustar foto de perfil', 'circle', async (dataUrl) => {
         showToast('Enviando imagem...');
@@ -6162,7 +6194,7 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
       });
       e.target.value = '';
     });
-    $('btnAvatarClear').addEventListener('click', () => {
+    safeOn('btnAvatarClear', 'click', () => {
       cfg.profile.avatar = '';
       $('avatarHintRow').style.display = 'none';
       renderPreview();
@@ -6170,8 +6202,8 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
     });
 
     /* Favicon */
-    $('btnFaviconPick').addEventListener('click', () => $('faviconInput').click());
-    $('faviconInput').addEventListener('change', async (e) => {
+    safeOn('btnFaviconPick', 'click', () => $('faviconInput').click());
+    safeOn('faviconInput', 'change', async (e) => {
       const file = e.target.files?.[0];
       if (!file) return;
       showToast('Enviando favicon...');
@@ -6187,7 +6219,7 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
       }
       e.target.value = '';
     });
-    $('btnFaviconClear').addEventListener('click', () => {
+    safeOn('btnFaviconClear', 'click', () => {
       cfg.profile.favicon = '';
       $('faviconHint').style.display = 'none';
       markDirty();
@@ -6208,17 +6240,17 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
       renderQuickList();
       renderPreview();
     };
-    $('btnAddQuick').addEventListener('click', addQuick);
-    $('quickUrl').addEventListener('keydown', (e) => { if (e.key === 'Enter') addQuick(); });
+    safeOn('btnAddQuick', 'click', addQuick);
+    safeOn('quickUrl', 'keydown', (e) => { if (e.key === 'Enter') addQuick(); });
 
     /* Blocos */
-    $('btnAddLink').addEventListener('click', () => openBlockModal(null));
-    $('btnBlockCancel').addEventListener('click', closeBlockModal);
-    $('blockModal').addEventListener('click', (e) => {
+    safeOn('btnAddLink', 'click', () => openBlockModal(null));
+    safeOn('btnBlockCancel', 'click', closeBlockModal);
+    safeOn('blockModal', 'click', (e) => {
       if (e.target === $('blockModal')) closeBlockModal();
     });
-    $('btnBlockIconPick').addEventListener('click', () => $('blockIconInput').click());
-    $('blockIconInput').addEventListener('change', (e) => {
+    safeOn('btnBlockIconPick', 'click', () => $('blockIconInput').click());
+    safeOn('blockIconInput', 'change', (e) => {
       const file = e.target.files?.[0];
       if (file) openCrop(file, 'Ícone do bloco', 'square', async (dataUrl) => {
         showToast('Enviando ícone...');
@@ -6263,10 +6295,10 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
       closeBlockModal();
       renderAll();
     };
-    $('btnBlockSave').addEventListener('click', submitBlock);
-    $('blockUrl').addEventListener('keydown', (e) => { if (e.key === 'Enter') submitBlock(); });
+    safeOn('btnBlockSave', 'click', submitBlock);
+    safeOn('blockUrl', 'keydown', (e) => { if (e.key === 'Enter') submitBlock(); });
 
-    $('btnBlockDelete').addEventListener('click', () => {
+    safeOn('btnBlockDelete', 'click', () => {
       if (editingBlockIndex == null) return;
       if (!confirm('Excluir este bloco?')) return;
       cfg.links.splice(editingBlockIndex, 1);
@@ -6276,11 +6308,11 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
     });
 
     /* Salvar (desktop + mobile) */
-    $('saveBtn').addEventListener('click', (e) => persistNow(e.currentTarget));
-    $('saveBtnMobile').addEventListener('click', (e) => persistNow(e.currentTarget));
+    safeOn('saveBtn', 'click', (e) => persistNow(e.currentTarget));
+    safeOn('saveBtnMobile', 'click', (e) => persistNow(e.currentTarget));
 
     /* Slug */
-    $('btnSaveSlug').addEventListener('click', async () => {
+    safeOn('btnSaveSlug', 'click', async () => {
       const val = $('slugInput').value.trim().toLowerCase();
       if (!val) { showToast('Digite um endereço'); return; }
       if (!/^[a-z0-9-]{3,30}$/.test(val)) {
@@ -6297,7 +6329,7 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
     });
 
     /* Ver página pública — salva antes de abrir para garantir dados atualizados */
-    $('btnViewPage').addEventListener('click', async () => {
+    safeOn('btnViewPage', 'click', async () => {
       const activeProfile = window.userProfiles?.find(p => p.id === window.currentProfileId);
       const slug = activeProfile?.slug;
       if (!slug) { showToast('Conecte-se para ver sua página'); return; }
@@ -6318,13 +6350,13 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
     });
 
     /* Sair */
-    $('btnLogout').addEventListener('click', async () => {
+    safeOn('btnLogout', 'click', async () => {
       try { await SupaApp.logout(); } catch (_) {}
       location.reload();
     });
 
     /* Compartilhar no preview */
-    $('pvShareBtn').addEventListener('click', async () => {
+    safeOn('pvShareBtn', 'click', async () => {
       const activeProfile = window.userProfiles?.find(p => p.id === window.currentProfileId);
       const slug = activeProfile?.slug;
       const url = slug ? publicUrlForSlug(slug) : location.origin;
@@ -6335,8 +6367,8 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
     });
 
     /* Tabs mobile */
-    $('tabContent').addEventListener('click', () => switchTab('content'));
-    $('tabStyle').addEventListener('click', () => switchTab('style'));
+    safeOn('tabContent', 'click', () => switchTab('content'));
+    safeOn('tabStyle', 'click', () => switchTab('style'));
 
     /* Deletar seções (lixeira de cada card) */
     document.querySelectorAll('.panel-del').forEach((btn) => {
@@ -6354,7 +6386,7 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
     });
 
     /* Menu "+ Adicionar seção" */
-    $('btnAddSection').addEventListener('click', (e) => {
+    safeOn('btnAddSection', 'click', (e) => {
       e.stopPropagation();
       $('addMenu').classList.toggle('open');
     });
@@ -6366,7 +6398,7 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
     });
 
     /* Seletor de Perfil */
-    $('profileSelect').addEventListener('change', async (e) => {
+    safeOn('profileSelect', 'change', async (e) => {
       const newProfileId = e.target.value;
       if (newProfileId && newProfileId !== window.currentProfileId) {
         await switchProfile(newProfileId);
@@ -6374,7 +6406,7 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
     });
 
     /* Clique na marca → volta ao dashboard de perfis */
-    $('brandHome').addEventListener('click', () => goBackToProfilesDashboard());
+    safeOn('brandHome', 'click', () => goBackToProfilesDashboard());
   }
 
   /* ================================================================
@@ -6532,7 +6564,7 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
     if (_pdModalBound) return;
     _pdModalBound = true;
 
-    $('pdBtnCreate').addEventListener('click', () => {
+    safeOn('pdBtnCreate', 'click', () => {
       $('pdNewName').value = '';
       $('pdNewSlug').value = '';
       $('pdSlugPreview').textContent = 'seu-slug';
@@ -6541,11 +6573,11 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
       setTimeout(() => $('pdNewName').focus(), 50);
     });
 
-    $('pdCancelCreate').addEventListener('click', () => {
+    safeOn('pdCancelCreate', 'click', () => {
       $('pdCreateModal').classList.remove('open');
     });
 
-    $('pdCreateModal').addEventListener('click', (e) => {
+    safeOn('pdCreateModal', 'click', (e) => {
       if (e.target === $('pdCreateModal')) $('pdCreateModal').classList.remove('open');
     });
 
@@ -6559,14 +6591,14 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
       input.value = slug;
       $('pdSlugPreview').textContent = slug || 'seu-slug';
     };
-    $('pdNewName').addEventListener('input', suggestSlug);
+    safeOn('pdNewName', 'input', suggestSlug);
 
-    $('pdNewSlug').addEventListener('input', (e) => {
+    safeOn('pdNewSlug', 'input', (e) => {
       e.target.dataset.touched = '1';
       $('pdSlugPreview').textContent = e.target.value || 'seu-slug';
     });
 
-    $('pdConfirmCreate').addEventListener('click', createProfileFromModal);
+    safeOn('pdConfirmCreate', 'click', createProfileFromModal);
   }
 
   async function createProfileFromModal() {
@@ -6839,18 +6871,18 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
     bindProfileDashboard();
 
     /* Alternância Celular / Desktop */
-    $('tabMobile').addEventListener('click', () => setPreviewMode('mobile'));
-    $('tabDesktop').addEventListener('click', () => setPreviewMode('desktop'));
+    safeOn('tabMobile', 'click', () => setPreviewMode('mobile'));
+    safeOn('tabDesktop', 'click', () => setPreviewMode('desktop'));
 
-    $('btnCropCancel').addEventListener('click', () => {
+    safeOn('btnCropCancel', 'click', () => {
       $('cropModal').classList.remove('open');
       cropState = null;
     });
-    $('btnCropClose').addEventListener('click', () => {
+    safeOn('btnCropClose', 'click', () => {
       $('cropModal').classList.remove('open');
       cropState = null;
     });
-    $('btnCropOk').addEventListener('click', confirmCrop);
+    safeOn('btnCropOk', 'click', confirmCrop);
   });
 
   console.log('%c[Axiumlink] Editor carregado.', 'color:#16a34a;font-weight:bold');
