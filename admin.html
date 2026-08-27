@@ -1230,6 +1230,155 @@
         <button class="btn-add" id="btnAddQuick">+ Adicionar atalho</button>
       </section>
 
+      <!-- PERSONALIZAÇÃO DE BOTÕES -->
+      <section class="panel" id="btnStylePanel">
+        <h2 class="panel-title"><span>🔘</span> Personalização de Botões</h2>
+
+        <div class="field">
+          <label>Variante do Botão</label>
+          <select id="btnVariant" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+            <option value="solid">Sólido (Tema)</option>
+            <option value="glass">Vidro (Glassmorphism)</option>
+            <option value="neumorphic">Neumórfico (Soft UI)</option>
+            <option value="ghost">Minimalista Vazado (Ghost)</option>
+            <option value="gradient">Gradiente Personalizado</option>
+            <option value="neon">Glow Neon</option>
+          </select>
+        </div>
+
+        <div class="field" id="glowColorRow" style="display:none;">
+          <label for="btnGlowColor">Cor do Glow Neon</label>
+          <div class="color-trigger" id="btnGlowColor" role="button" tabindex="0"><div class="color-trigger-swatch"></div><span class="color-trigger-hex">#22D3EE</span></div>
+        </div>
+
+        <div class="row-2">
+          <div class="field">
+            <label for="btnShape">Formato dos Botões</label>
+            <select id="btnShape" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+              <optgroup label="Geometricos">
+                <option value="square">Quadrado Rigido</option>
+                <option value="soft">Cantos Suaves</option>
+                <option value="rounded">Arredondado Medio</option>
+                <option value="pill">Totalmente Arredondado (Pilula)</option>
+              </optgroup>
+              <optgroup label="Organicos">
+                <option value="organic">Cantos Assimetricos 1 (Folha)</option>
+                <option value="bubble">Cantos Assimetricos 2 (Bolha)</option>
+                <option value="diagonal">Estilo Diagonal</option>
+              </optgroup>
+              <optgroup label="Especiais">
+                <option value="double">Borda Dupla</option>
+                <option value="brutalist">Estilo Brutalista</option>
+                <option value="custom">Formato Customizado (Slider)</option>
+              </optgroup>
+            </select>
+          </div>
+          <div class="field">
+            <label for="btnAnimation">Animação</label>
+            <select id="btnAnimation" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+              <option value="none">Nenhuma</option>
+              <option value="pulse">Pulsação Contínua</option>
+              <option value="shine">Brilho Passante (Shine)</option>
+              <option value="float">Flutuação Suave</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field" id="btnGradientRow" style="display:none;">
+          <label>Gradiente do Botão (2 cores)</label>
+          <div class="row-2">
+            <div class="field">
+              <label>Cor Inicial</label>
+              <div class="color-trigger" id="btnGradientStart" role="button" tabindex="0"><div class="color-trigger-swatch"></div><span class="color-trigger-hex">#6366F1</span></div>
+            </div>
+            <div class="field">
+              <label>Cor Final</label>
+              <div class="color-trigger" id="btnGradientEnd" role="button" tabindex="0"><div class="color-trigger-swatch"></div><span class="color-trigger-hex">#EC4899</span></div>
+            </div>
+          </div>
+          <div class="ds-control">
+            <label>Ângulo do Gradiente</label>
+            <div class="ds-control-row">
+              <input type="range" id="btnGradientAngle" min="0" max="360" step="1">
+              <output class="ds-value" id="btnGradientAngleVal">135deg</output>
+            </div>
+          </div>
+        </div>
+
+        <div class="ds-control" id="btnRadiusRow">
+          <label>Arredondamento dos botões</label>
+          <div class="ds-control-row">
+            <input type="range" id="btnRadius" min="0" max="50" step="1">
+            <output class="ds-value" id="btnRadiusVal">14px</output>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="btnShadowStyle">Estilo de Sombra</label>
+          <select id="btnShadowStyle" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+            <option value="soft">Sombra Suave Projetada</option>
+            <option value="none">Nenhuma Sombra</option>
+            <option value="neumorph">Efeito Soft UI / Neumorphism</option>
+            <option value="glow">Brilho Neon (Glow)</option>
+          </select>
+        </div>
+
+        <div class="ds-control" id="btnShadowRow">
+          <label>Intensidade da Sombra Suave</label>
+          <div class="ds-control-row">
+            <input type="range" id="btnShadow" min="0" max="100" step="5">
+            <output class="ds-value" id="btnShadowVal">30%</output>
+          </div>
+        </div>
+
+        <div class="ds-control" id="btnGlassOpacityRow" style="display:none;">
+          <label>Opacidade do Vidro (botões)</label>
+          <div class="ds-control-row">
+            <input type="range" id="btnGlassOpacity" min="5" max="50" step="1">
+            <output class="ds-value" id="btnGlassOpacityVal">15%</output>
+          </div>
+        </div>
+        <div class="ds-control" id="btnGlassBlurRow" style="display:none;">
+          <label>Desfoque do Vidro (botões)</label>
+          <div class="ds-control-row">
+            <input type="range" id="btnGlassBlur" min="0" max="30" step="1">
+            <output class="ds-value" id="btnGlassBlurVal">12px</output>
+          </div>
+        </div>
+
+        <div class="ds-control">
+          <label>Tamanho da fonte dos títulos</label>
+          <div class="ds-control-row">
+            <input type="range" id="titleSize" min="15" max="30" step="1">
+            <output class="ds-value" id="titleSizeVal">20px</output>
+          </div>
+        </div>
+
+        <div class="ds-control">
+          <label>Tamanho da bio</label>
+          <div class="ds-control-row">
+            <input type="range" id="bioSize" min="10" max="20" step="1">
+            <output class="ds-value" id="bioSizeVal">14px</output>
+          </div>
+        </div>
+
+        <div class="ds-control">
+          <label>Peso da fonte (negrito)</label>
+          <div class="ds-control-row">
+            <input type="range" id="fontWeight" min="300" max="900" step="100">
+            <output class="ds-value" id="fontWeightVal">700</output>
+          </div>
+        </div>
+
+        <div class="ds-control">
+          <label>Espaçamento entre blocos</label>
+          <div class="ds-control-row">
+            <input type="range" id="blockGap" min="4" max="24" step="1">
+            <output class="ds-value" id="blockGapVal">10px</output>
+          </div>
+        </div>
+      </section>
+
       <!-- ESTILO -->
       <section class="panel" id="stylePanel">
         <button class="panel-del" data-section="style" title="Remover seção Estilo da página">🗑</button>
@@ -1458,152 +1607,6 @@
           <div class="ds-control-row">
             <input type="range" id="glassBorderOpacity" min="0" max="100" step="1">
             <output class="ds-value" id="glassBorderOpacityVal">25%</output>
-          </div>
-        </div>
-
-        <!-- Controles de Botões -->
-        <div class="field">
-          <label>Variante do Botão</label>
-          <select id="btnVariant" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
-            <option value="solid">Sólido (Tema)</option>
-            <option value="glass">Vidro (Glassmorphism)</option>
-            <option value="neumorphic">Neumórfico (Soft UI)</option>
-            <option value="ghost">Minimalista Vazado (Ghost)</option>
-            <option value="gradient">Gradiente Personalizado</option>
-            <option value="neon">Glow Neon</option>
-          </select>
-        </div>
-
-        <div class="field" id="glowColorRow" style="display:none;">
-          <label for="btnGlowColor">Cor do Glow Neon</label>
-          <div class="color-trigger" id="btnGlowColor" role="button" tabindex="0"><div class="color-trigger-swatch"></div><span class="color-trigger-hex">#22D3EE</span></div>
-        </div>
-
-        <div class="row-2">
-          <div class="field">
-            <label for="btnShape">Formato dos Botões</label>
-            <select id="btnShape" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
-              <optgroup label="Geometricos">
-                <option value="square">Quadrado Rigido</option>
-                <option value="soft">Cantos Suaves</option>
-                <option value="rounded">Arredondado Medio</option>
-                <option value="pill">Totalmente Arredondado (Pilula)</option>
-              </optgroup>
-              <optgroup label="Organicos">
-                <option value="organic">Cantos Assimetricos 1 (Folha)</option>
-                <option value="bubble">Cantos Assimetricos 2 (Bolha)</option>
-                <option value="diagonal">Estilo Diagonal</option>
-              </optgroup>
-              <optgroup label="Especiais">
-                <option value="double">Borda Dupla</option>
-                <option value="brutalist">Estilo Brutalista</option>
-                <option value="custom">Formato Customizado (Slider)</option>
-              </optgroup>
-            </select>
-          </div>
-          <div class="field">
-            <label for="btnAnimation">Animação</label>
-            <select id="btnAnimation" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
-              <option value="none">Nenhuma</option>
-              <option value="pulse">Pulsação Contínua</option>
-              <option value="shine">Brilho Passante (Shine)</option>
-              <option value="float">Flutuação Suave</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="field" id="btnGradientRow" style="display:none;">
-          <label>Gradiente do Botão (2 cores)</label>
-          <div class="row-2">
-            <div class="field">
-              <label>Cor Inicial</label>
-              <div class="color-trigger" id="btnGradientStart" role="button" tabindex="0"><div class="color-trigger-swatch"></div><span class="color-trigger-hex">#6366F1</span></div>
-            </div>
-            <div class="field">
-              <label>Cor Final</label>
-              <div class="color-trigger" id="btnGradientEnd" role="button" tabindex="0"><div class="color-trigger-swatch"></div><span class="color-trigger-hex">#EC4899</span></div>
-            </div>
-          </div>
-          <div class="ds-control">
-            <label>Ângulo do Gradiente</label>
-            <div class="ds-control-row">
-              <input type="range" id="btnGradientAngle" min="0" max="360" step="1">
-              <output class="ds-value" id="btnGradientAngleVal">135deg</output>
-            </div>
-          </div>
-        </div>
-
-        <div class="ds-control" id="btnRadiusRow">
-          <label>Arredondamento dos botões</label>
-          <div class="ds-control-row">
-            <input type="range" id="btnRadius" min="0" max="50" step="1">
-            <output class="ds-value" id="btnRadiusVal">14px</output>
-          </div>
-        </div>
-
-        <div class="field">
-          <label for="btnShadowStyle">Estilo de Sombra</label>
-          <select id="btnShadowStyle" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
-            <option value="soft">Sombra Suave Projetada</option>
-            <option value="none">Nenhuma Sombra</option>
-            <option value="neumorph">Efeito Soft UI / Neumorphism</option>
-            <option value="glow">Brilho Neon (Glow)</option>
-          </select>
-        </div>
-
-        <div class="ds-control" id="btnShadowRow">
-          <label>Intensidade da Sombra Suave</label>
-          <div class="ds-control-row">
-            <input type="range" id="btnShadow" min="0" max="100" step="5">
-            <output class="ds-value" id="btnShadowVal">30%</output>
-          </div>
-        </div>
-
-        <!-- Vidro fosco exclusivo dos botões (btnVariant = glass) -->
-        <div class="ds-control" id="btnGlassOpacityRow" style="display:none;">
-          <label>Opacidade do Vidro (botões)</label>
-          <div class="ds-control-row">
-            <input type="range" id="btnGlassOpacity" min="5" max="50" step="1">
-            <output class="ds-value" id="btnGlassOpacityVal">15%</output>
-          </div>
-        </div>
-        <div class="ds-control" id="btnGlassBlurRow" style="display:none;">
-          <label>Desfoque do Vidro (botões)</label>
-          <div class="ds-control-row">
-            <input type="range" id="btnGlassBlur" min="0" max="30" step="1">
-            <output class="ds-value" id="btnGlassBlurVal">12px</output>
-          </div>
-        </div>
-
-        <div class="ds-control">
-          <label>Tamanho da fonte dos títulos</label>
-          <div class="ds-control-row">
-            <input type="range" id="titleSize" min="15" max="30" step="1">
-            <output class="ds-value" id="titleSizeVal">20px</output>
-          </div>
-        </div>
-
-        <div class="ds-control">
-          <label>Tamanho da bio</label>
-          <div class="ds-control-row">
-            <input type="range" id="bioSize" min="10" max="20" step="1">
-            <output class="ds-value" id="bioSizeVal">14px</output>
-          </div>
-        </div>
-
-        <div class="ds-control">
-          <label>Peso da fonte (negrito)</label>
-          <div class="ds-control-row">
-            <input type="range" id="fontWeight" min="300" max="900" step="100">
-            <output class="ds-value" id="fontWeightVal">700</output>
-          </div>
-        </div>
-
-        <div class="ds-control">
-          <label>Espaçamento entre blocos</label>
-          <div class="ds-control-row">
-            <input type="range" id="blockGap" min="4" max="24" step="1">
-            <output class="ds-value" id="blockGapVal">10px</output>
           </div>
         </div>
 
