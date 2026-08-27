@@ -947,6 +947,103 @@
 
     .featured__card:hover .featured__arrow { transform: translateX(3px); opacity: 0.9; }
 
+    /* ---- Novos estilos de bloco ---- */
+    .featured__card--highlight {
+      padding: 1rem 1.25rem;
+      border-radius: var(--global-radius);
+      text-align: center;
+      justify-content: center;
+    }
+    .featured__card--highlight .featured__body { text-align: center; max-width: 100%; }
+    .featured__card--highlight .featured__body strong { font-size: 1.125rem; }
+    .featured__card--highlight .featured__arrow { display: none; }
+    .featured__card--highlight .featured__icon { display: none; }
+
+    .featured__card--testimonial {
+      padding: 1.25rem 1.5rem;
+      border-radius: var(--global-radius);
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+      font-style: italic;
+      position: relative;
+    }
+    .featured__card--testimonial::before {
+      content: '\201C';
+      font-size: 3rem;
+      line-height: 1;
+      color: color-mix(in srgb, currentColor 20%, transparent);
+      position: absolute;
+      top: 0.25rem;
+      left: 0.75rem;
+      font-style: normal;
+    }
+    .featured__card--testimonial .featured__body { text-align: left; padding-left: 0.5rem; }
+    .featured__card--testimonial .featured__icon { display: none; }
+    .featured__card--testimonial .featured__arrow { display: none; }
+
+    .featured__card--video {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+      padding: 0;
+      overflow: hidden;
+      min-height: 200px;
+    }
+    .featured__card--video .featured__body { display: none; }
+    .featured__card--video .featured__icon { display: none; }
+    .featured__card--video .featured__arrow { display: none; }
+    .featured__card--video iframe {
+      width: 100%;
+      aspect-ratio: 16/9;
+      border: none;
+      border-radius: var(--global-radius);
+    }
+    .featured__card--video .featured__video-fallback {
+      width: 100%;
+      aspect-ratio: 16/9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,.05);
+      border-radius: var(--global-radius);
+      color: var(--muted);
+      font-size: 2rem;
+    }
+
+    /* ---- Categorias / Tabs ---- */
+    .pg-tabs {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 10px;
+      margin-bottom: 6px;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .pg-tabs::-webkit-scrollbar { display: none; }
+    .pg-tab {
+      flex-shrink: 0;
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: 1.5px solid color-mix(in srgb, var(--text-title, #000) 15%, transparent);
+      background: transparent;
+      color: color-mix(in srgb, var(--text-title, #000) 60%, transparent);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+    .pg-tab:hover {
+      background: color-mix(in srgb, var(--text-title, #000) 8%, transparent);
+    }
+    .pg-tab--active {
+      background: var(--p-btnbg, #111827);
+      color: var(--p-btnink, #fff);
+      border-color: var(--p-btnbg, #111827);
+    }
+
     /* ================================================================
        BOTÕES DE AÇÃO EM MODO LISTA — arquitetura flexbox premium:
        texto perfeitamente centralizado, ícone isolado à esquerda
@@ -2836,6 +2933,61 @@
               icon.innerHTML = quickIcons[action.icon] || quickIcons.link;
               node.appendChild(icon);
             }
+          } else if (action.cardStyle === 'highlight') {
+            node.classList.add('featured__card--highlight');
+            const body = document.createElement('span');
+            body.className = 'featured__body';
+            const strong = document.createElement('strong');
+            strong.textContent = cleanLinkTitle(action.title) || 'Destaque';
+            body.appendChild(strong);
+            if (action.sub) {
+              const sub = document.createElement('span');
+              sub.className = 'featured__sub';
+              sub.textContent = action.sub;
+              body.appendChild(sub);
+            }
+            node.appendChild(body);
+          } else if (action.cardStyle === 'testimonial') {
+            node.classList.add('featured__card--testimonial');
+            const body = document.createElement('span');
+            body.className = 'featured__body';
+            const strong = document.createElement('strong');
+            strong.textContent = cleanLinkTitle(action.title) || 'Depoimento';
+            body.appendChild(strong);
+            if (action.sub) {
+              const sub = document.createElement('span');
+              sub.className = 'featured__sub';
+              sub.textContent = '— ' + action.sub;
+              body.appendChild(sub);
+            }
+            node.appendChild(body);
+          } else if (action.cardStyle === 'video') {
+            node.classList.add('featured__card--video');
+            node.target = '';
+            node.rel = '';
+            const url = (action.url || '').trim();
+            const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|watch\?v=))([A-Za-z0-9_-]{11})/);
+            const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+            if (ytMatch) {
+              const iframe = document.createElement('iframe');
+              iframe.src = 'https://www.youtube.com/embed/' + ytMatch[1];
+              iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+              iframe.allowFullscreen = true;
+              iframe.title = action.title || 'Vídeo';
+              node.appendChild(iframe);
+            } else if (vimeoMatch) {
+              const iframe = document.createElement('iframe');
+              iframe.src = 'https://player.vimeo.com/video/' + vimeoMatch[1];
+              iframe.allow = 'autoplay; fullscreen; picture-in-picture';
+              iframe.allowFullscreen = true;
+              iframe.title = action.title || 'Vídeo';
+              node.appendChild(iframe);
+            } else {
+              const fallback = document.createElement('div');
+              fallback.className = 'featured__video-fallback';
+              fallback.innerHTML = '<i class="fas fa-play-circle"></i>';
+              node.appendChild(fallback);
+            }
           } else {
             const icon = document.createElement('span');
             icon.className = 'featured__icon';
@@ -2939,12 +3091,60 @@
         linksContainer.replaceChildren();
         linksContainer.classList.remove('pg-links--grid');
 
-        linkList.forEach((link) => {
+        /* ---- Categorias / Tabs ---- */
+        const categories = [...new Set(linkList.map(l => l.category).filter(Boolean))];
+        let activeCat = null;
+        if (categories.length > 0) {
+          const tabsWrap = document.createElement('div');
+          tabsWrap.className = 'pg-tabs';
+          const allTab = document.createElement('button');
+          allTab.className = 'pg-tab pg-tab--active';
+          allTab.textContent = 'Todos';
+          allTab.addEventListener('click', () => {
+            activeCat = null;
+            tabsWrap.querySelectorAll('.pg-tab').forEach(t => t.classList.remove('pg-tab--active'));
+            allTab.classList.add('pg-tab--active');
+            renderLinksList(filteredLinks());
+          });
+          tabsWrap.appendChild(allTab);
+
+          categories.forEach(cat => {
+            const btn = document.createElement('button');
+            btn.className = 'pg-tab';
+            btn.textContent = cat;
+            btn.addEventListener('click', () => {
+              activeCat = cat;
+              tabsWrap.querySelectorAll('.pg-tab').forEach(t => t.classList.remove('pg-tab--active'));
+              btn.classList.add('pg-tab--active');
+              renderLinksList(filteredLinks());
+            });
+            tabsWrap.appendChild(btn);
+          });
+          linksContainer.appendChild(tabsWrap);
+        }
+
+        function filteredLinks() {
+          return activeCat ? linkList.filter(l => l.category === activeCat) : linkList;
+        }
+
+        renderLinksList(linkList);
+
+        function renderLinksList(list) {
+          const existing = linksContainer.querySelector('.pg-links-list');
+          if (existing) existing.remove();
+          const wrap = document.createElement('div');
+          wrap.className = 'pg-links-list';
+          wrap.style.gap = (cfg.style?.blockGap ?? 10) + 'px';
+          wrap.style.display = 'flex';
+          wrap.style.flexDirection = 'column';
+
+        list.forEach((link) => {
           const linkType = link.type || link.icon || '';
           if (isLinksList) {
-            const a = document.createElement('a');
+            const isVideo = link.cardStyle === 'video';
+            const a = document.createElement(isVideo ? 'div' : 'a');
             a.className = 'featured__card';
-            a.href = linkHref(link.url, linkType);
+            if (!isVideo) a.href = linkHref(link.url, linkType);
             a.target = '_blank';
             a.rel = 'noopener';
             const displayTitle = link.title || (linkType ? (linkType.charAt(0).toUpperCase() + linkType.slice(1)) : 'Link');
@@ -2956,83 +3156,162 @@
             else if (link.iconAlign === 'right') a.classList.add('ia-right');
             applyButtonWidth(a, link.width);
 
-            const icon = document.createElement('span');
-            icon.className = 'featured__icon';
-            icon.setAttribute('aria-hidden', 'true');
-            if (link.image) {
-              const img = document.createElement('img');
-              img.className = 'featured__icon-img';
-              img.src = link.image;
-              img.alt = '';
-              img.loading = 'lazy';
-              icon.appendChild(img);
-              a.appendChild(icon);
-            } else {
-              const faClass = resolveIcon(linkType);
-              if (faClass) {
-                const i = document.createElement('i');
-                i.className = faClass;
-                icon.appendChild(i);
-                a.appendChild(icon);
+            if (link.cardStyle === 'highlight') {
+              a.classList.add('featured__card--highlight');
+              const body = document.createElement('span');
+              body.className = 'featured__body';
+              const strong = document.createElement('strong');
+              strong.textContent = displayTitle;
+              body.appendChild(strong);
+              if (link.sub) {
+                const sub = document.createElement('span');
+                sub.className = 'featured__sub';
+                sub.textContent = link.sub;
+                body.appendChild(sub);
               }
-            }
-
-            const body = document.createElement('span');
-            body.className = 'featured__body';
-            const strong = document.createElement('strong');
-            strong.textContent = displayTitle;
-            body.appendChild(strong);
-            if (link.sub) {
-              const sub = document.createElement('span');
-              sub.className = 'featured__sub';
-              sub.textContent = link.sub;
-              body.appendChild(sub);
-            }
-            a.appendChild(body);
-
-            a.appendChild(makeArrow());
-
-            aplicarEstiloIndividual(a, link);
-
-            linksContainer.appendChild(a);
-          } else {
-            const a = document.createElement('a');
-            a.className = 'social-icon';
-            a.href = linkHref(link.url, linkType);
-            a.target = '_blank';
-            a.rel = 'noopener';
-            a.setAttribute('aria-label', link.title || 'Link externo');
-            a.title = link.url || link.title || '';
-
-            if (link.animation && link.animation !== 'none') a.classList.add('anim-' + link.animation);
-
-            aplicarEstiloIndividual(a, link);
-
-            const inner = document.createElement('span');
-            inner.className = 'social-icon__inner';
-            inner.setAttribute('aria-hidden', 'true');
-            if (link.image) {
-              const img = document.createElement('img');
-              img.className = 'social-icon__img';
-              img.src = link.image;
-              img.alt = '';
-              img.loading = 'lazy';
-              inner.appendChild(img);
-            } else {
-              const faClass = resolveIcon(linkType);
-              if (faClass) {
-                const i = document.createElement('i');
-                i.className = faClass;
-                inner.appendChild(i);
+              a.appendChild(body);
+            } else if (link.cardStyle === 'testimonial') {
+              a.classList.add('featured__card--testimonial');
+              const body = document.createElement('span');
+              body.className = 'featured__body';
+              const strong = document.createElement('strong');
+              strong.textContent = displayTitle;
+              body.appendChild(strong);
+              if (link.sub) {
+                const sub = document.createElement('span');
+                sub.className = 'featured__sub';
+                sub.textContent = '— ' + link.sub;
+                body.appendChild(sub);
+              }
+              a.appendChild(body);
+            } else if (isVideo) {
+              a.classList.add('featured__card--video');
+              a.target = '';
+              a.rel = '';
+              const url = (link.url || '').trim();
+              const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|watch\?v=))([A-Za-z0-9_-]{11})/);
+              const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+              if (ytMatch) {
+                const iframe = document.createElement('iframe');
+                iframe.src = 'https://www.youtube.com/embed/' + ytMatch[1];
+                iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+                iframe.allowFullscreen = true;
+                iframe.title = displayTitle;
+                a.appendChild(iframe);
+              } else if (vimeoMatch) {
+                const iframe = document.createElement('iframe');
+                iframe.src = 'https://player.vimeo.com/video/' + vimeoMatch[1];
+                iframe.allow = 'autoplay; fullscreen; picture-in-picture';
+                iframe.allowFullscreen = true;
+                iframe.title = displayTitle;
+                a.appendChild(iframe);
               } else {
-                const i = document.createElement('i');
-                i.className = 'fas fa-link';
-                inner.appendChild(i);
+                const fallback = document.createElement('div');
+                fallback.className = 'featured__video-fallback';
+                fallback.innerHTML = '<i class="fas fa-play-circle"></i>';
+                a.appendChild(fallback);
               }
-            }
-            a.appendChild(inner);
+            } else {
+              const icon = document.createElement('span');
+              icon.className = 'featured__icon';
+              icon.setAttribute('aria-hidden', 'true');
+              if (link.image) {
+                const img = document.createElement('img');
+                img.className = 'featured__icon-img';
+                img.src = link.image;
+                img.alt = '';
+                img.loading = 'lazy';
+                icon.appendChild(img);
+                a.appendChild(icon);
+              } else {
+                const faClass = resolveIcon(linkType);
+                if (faClass) {
+                  const i = document.createElement('i');
+                  i.className = faClass;
+                  icon.appendChild(i);
+                  a.appendChild(icon);
+                }
+              }
 
-            linksContainer.appendChild(a);
+              const body = document.createElement('span');
+              body.className = 'featured__body';
+              const strong = document.createElement('strong');
+              strong.textContent = displayTitle;
+              body.appendChild(strong);
+              if (link.sub) {
+                const sub = document.createElement('span');
+                sub.className = 'featured__sub';
+                sub.textContent = link.sub;
+                body.appendChild(sub);
+              }
+              a.appendChild(body);
+
+              a.appendChild(makeArrow());
+
+              aplicarEstiloIndividual(a, link);
+
+              wrap.appendChild(a);
+            } else {
+              const a = document.createElement('a');
+              a.className = 'social-icon';
+              a.href = linkHref(link.url, linkType);
+              a.target = '_blank';
+              a.rel = 'noopener';
+              a.setAttribute('aria-label', link.title || 'Link externo');
+              a.title = link.url || link.title || '';
+
+              if (link.animation && link.animation !== 'none') a.classList.add('anim-' + link.animation);
+
+              aplicarEstiloIndividual(a, link);
+
+              const inner = document.createElement('span');
+              inner.className = 'social-icon__inner';
+              inner.setAttribute('aria-hidden', 'true');
+              if (link.image) {
+                const img = document.createElement('img');
+                img.className = 'social-icon__img';
+                img.src = link.image;
+                img.alt = '';
+                img.loading = 'lazy';
+                inner.appendChild(img);
+              } else {
+                const faClass = resolveIcon(linkType);
+                if (faClass) {
+                  const i = document.createElement('i');
+                  i.className = faClass;
+                  inner.appendChild(i);
+                } else {
+                  const i = document.createElement('i');
+                  i.className = 'fas fa-link';
+                  inner.appendChild(i);
+                }
+              }
+              a.appendChild(inner);
+
+              wrap.appendChild(a);
+            }
+          });
+
+          linksContainer.appendChild(wrap);
+        }
+        renderLinksList(linkList);
+
+        /* ---- Click analytics: incrementa contagem ao clicar em qualquer link ---- */
+        const slug = (location.pathname.replace(/^\//, '') || 'default').replace(/\/$/, '');
+        function trackClick(linkId) {
+          try {
+            const key = 'axiumlink_clicks_' + slug;
+            const data = JSON.parse(localStorage.getItem(key) || '{}');
+            data[linkId] = (data[linkId] || 0) + 1;
+            localStorage.setItem(key, JSON.stringify(data));
+          } catch(_) {}
+        }
+        linksContainer.addEventListener('click', (e) => {
+          const a = e.target.closest('a.featured__card, a.social-icon');
+          if (!a) return;
+          const idx = [...linksContainer.querySelectorAll('a.featured__card, a.social-icon')].indexOf(a);
+          if (idx >= 0 && linkList[idx] && linkList[idx].id) {
+            trackClick(linkList[idx].id);
           }
         });
       }

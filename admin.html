@@ -738,10 +738,51 @@
   .link-block.icon-right .link-block-icon { left:auto; right:12px; }
   .link-block.icon-right .link-block__head { padding-left:26px; padding-right:48px; }
   .link-block.icon-center .link-block__head { padding-left:0; padding-right:0; gap:8px; }
-  .link-block.icon-center .link-block-icon {
+   .link-block.icon-center .link-block-icon {
     position:static; transform:none;
     width:26px; height:26px; border-radius:8px; font-size:15px;
   }
+
+  .link-block.featured__card--highlight {
+    text-align:center; justify-content:center; padding:1rem 1.25rem;
+  }
+  .link-block.featured__card--highlight strong { font-size:1.125rem; }
+  .link-block.featured__card--highlight .link-block-icon { display:none; }
+  .link-block.featured__card--highlight .link-block__head { padding-left:0; padding-right:0; justify-content:center; }
+
+  .link-block.featured__card--testimonial {
+    flex-direction:column; align-items:flex-start; gap:6px;
+    font-style:italic; padding:1.25rem 1.5rem; position:relative;
+  }
+  .link-block.featured__card--testimonial::before {
+    content:'\201C'; font-size:3rem; line-height:1;
+    color:color-mix(in srgb, currentColor 20%, transparent);
+    position:absolute; top:2px; left:12px; font-style:normal;
+  }
+  .link-block.featured__card--testimonial .link-block-icon { display:none; }
+  .link-block.featured__card--testimonial .link-block__head { padding-left:0.5rem; padding-right:0; }
+
+  .link-block.featured__card--video {
+    flex-direction:column; align-items:stretch; gap:0; padding:0; overflow:hidden; min-height:200px;
+  }
+  .link-block.featured__card--video iframe {
+    width:100%; aspect-ratio:16/9; border:none; border-radius:var(--global-radius);
+  }
+  .link-block.featured__card--video .link-block__head { display:none; }
+  .link-block.featured__card--video .featured__video-fallback {
+    width:100%; aspect-ratio:16/9; display:flex; align-items:center; justify-content:center;
+    background:rgba(0,0,0,.05); border-radius:var(--global-radius); color:#94a3b8; font-size:2rem;
+  }
+
+  .pg-tabs { display:flex; gap:6px; overflow-x:auto; padding-bottom:10px; margin-bottom:6px; scrollbar-width:none; }
+  .pg-tabs::-webkit-scrollbar { display:none; }
+  .pg-tab {
+    flex-shrink:0; padding:6px 14px; border-radius:20px;
+    border:1.5px solid rgba(0,0,0,.15); background:transparent; color:rgba(0,0,0,.6);
+    font-size:13px; font-weight:600; cursor:pointer; transition:all .2s ease; white-space:nowrap;
+  }
+  .pg-tab:hover { background:rgba(0,0,0,.06); }
+  .pg-tab--active { background:var(--p-btnbg, #111827); color:var(--p-btnink, #fff); border-color:var(--p-btnbg, #111827); }
 
   /* Vidro fosco do FUNDO da página: camada z-index:-1 dentro de #pvPage
      (stacking context) — borracha o bg de baixo sem afetar o conteúdo */
@@ -1686,6 +1727,20 @@
         <label for="blockSub">Descrição (opcional)</label>
         <input type="text" id="blockSub" placeholder="Aparece abaixo do título" maxlength="80">
       </div>
+      <div class="field">
+        <label for="blockCardStyle">Estilo do Bloco</label>
+        <select id="blockCardStyle" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+          <option value="">Normal (Link)</option>
+          <option value="highlight">Destaque (CTA grande)</option>
+          <option value="testimonial">Depoimento (Citação)</option>
+          <option value="video">Vídeo Embutido (YouTube/Vimeo)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="blockCategory">Categoria (opcional)</label>
+        <input type="text" id="blockCategory" placeholder="Ex.: Redes Sociais, Projetos…" maxlength="30" list="categoryDatalist">
+        <datalist id="categoryDatalist"></datalist>
+      </div>
     <div class="row-2">
       <div class="field">
         <label for="blockType">Plataforma / Ícone</label>
@@ -1699,6 +1754,17 @@
           <option value="linkedin">LinkedIn</option>
           <option value="facebook">Facebook</option>
           <option value="telegram">Telegram</option>
+          <option value="spotify">Spotify</option>
+          <option value="discord">Discord</option>
+          <option value="twitch">Twitch</option>
+          <option value="github">GitHub</option>
+          <option value="pinterest">Pinterest</option>
+          <option value="snapchat">Snapchat</option>
+          <option value="reddit">Reddit</option>
+          <option value="threads">Threads</option>
+          <option value="behance">Behance</option>
+          <option value="dribbble">Dribbble</option>
+          <option value="medium">Medium</option>
           <option value="email">Email</option>
           <option value="telefone">Telefone</option>
           <option value="localizacao">Localização</option>
@@ -2591,56 +2657,128 @@
     const list = $('previewLinksList');
     list.innerHTML = '';
     list.style.gap = (cfg.style?.blockGap ?? 10) + 'px';
+
+    /* Categorias / Tabs no preview */
+    const cats = [...new Set((cfg.links || []).map(l => l.category).filter(Boolean))];
+    if (cats.length > 0) {
+      const tabsWrap = document.createElement('div');
+      tabsWrap.className = 'pg-tabs';
+      const allTab = document.createElement('button');
+      allTab.className = 'pg-tab pg-tab--active';
+      allTab.textContent = 'Todos';
+      tabsWrap.appendChild(allTab);
+      cats.forEach(c => {
+        const btn = document.createElement('button');
+        btn.className = 'pg-tab';
+        btn.textContent = c;
+        tabsWrap.appendChild(btn);
+      });
+      list.appendChild(tabsWrap);
+    }
+
     (cfg.links || []).forEach((l) => {
-      const a = document.createElement('a');
+      const isVideo = l.cardStyle === 'video';
+      const a = document.createElement(isVideo ? 'div' : 'a');
       a.className = 'link-block' + (l.iconAlign === 'center' ? ' icon-center' : l.iconAlign === 'right' ? ' icon-right' : '');
-      a.href = l.url || '#';
+      if (!isVideo) a.href = l.url || '#';
       a.target = '_blank';
       a.rel = 'noopener noreferrer';
 
-      const head = document.createElement('div');
-      head.className = 'link-block__head';
-
-      const iconType = l.type || l.icon || '';
-      const iconWrap = document.createElement('span');
-      iconWrap.className = 'link-block-icon';
-      if (l.iconImg) {
-        const im = document.createElement('img');
-        im.src = l.iconImg;
-        im.alt = '';
-        iconWrap.appendChild(im);
-      } else {
-        const faClass = resolveIcon(iconType);
-        if (faClass) {
-          const i = document.createElement('i');
-          i.className = faClass;
-          iconWrap.appendChild(i);
-        } else {
-          iconWrap.style.display = 'none';
-          head.style.paddingLeft = '15px';
+      if (l.cardStyle === 'highlight') {
+        a.classList.add('featured__card--highlight');
+        const strong = document.createElement('strong');
+        strong.textContent = l.title || 'Destaque';
+        a.appendChild(strong);
+        if (l.sub) {
+          const sub = document.createElement('div');
+          sub.className = 'featured__sub';
+          sub.textContent = l.sub;
+          a.appendChild(sub);
         }
+      } else if (l.cardStyle === 'testimonial') {
+        a.classList.add('featured__card--testimonial');
+        a.style.fontStyle = 'italic';
+        const strong = document.createElement('strong');
+        strong.textContent = l.title || 'Depoimento';
+        a.appendChild(strong);
+        if (l.sub) {
+          const sub = document.createElement('div');
+          sub.className = 'featured__sub';
+          sub.textContent = '— ' + l.sub;
+          a.appendChild(sub);
+        }
+      } else if (isVideo) {
+        a.classList.add('featured__card--video');
+        a.target = '';
+        a.rel = '';
+        const url = (l.url || '').trim();
+        const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|watch\?v=))([A-Za-z0-9_-]{11})/);
+        const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+        if (ytMatch) {
+          const iframe = document.createElement('iframe');
+          iframe.src = 'https://www.youtube.com/embed/' + ytMatch[1];
+          iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+          iframe.allowFullscreen = true;
+          iframe.title = l.title || 'Vídeo';
+          a.appendChild(iframe);
+        } else if (vimeoMatch) {
+          const iframe = document.createElement('iframe');
+          iframe.src = 'https://player.vimeo.com/video/' + vimeoMatch[1];
+          iframe.allow = 'autoplay; fullscreen; picture-in-picture';
+          iframe.allowFullscreen = true;
+          iframe.title = l.title || 'Vídeo';
+          a.appendChild(iframe);
+        } else {
+          const fallback = document.createElement('div');
+          fallback.className = 'featured__video-fallback';
+          fallback.innerHTML = '<i class="fas fa-play-circle"></i>';
+          a.appendChild(fallback);
+        }
+      } else {
+        const head = document.createElement('div');
+        head.className = 'link-block__head';
+
+        const iconType = l.type || l.icon || '';
+        const iconWrap = document.createElement('span');
+        iconWrap.className = 'link-block-icon';
+        if (l.iconImg) {
+          const im = document.createElement('img');
+          im.src = l.iconImg;
+          im.alt = '';
+          iconWrap.appendChild(im);
+        } else {
+          const faClass = resolveIcon(iconType);
+          if (faClass) {
+            const i = document.createElement('i');
+            i.className = faClass;
+            iconWrap.appendChild(i);
+          } else {
+            iconWrap.style.display = 'none';
+            head.style.paddingLeft = '15px';
+          }
+        }
+
+        const txt = document.createElement('span');
+        txt.className = 'link-block-txt';
+        const tt = document.createElement('span');
+        tt.className = 'link-block-title';
+        const fallbackLabel = iconType ? (iconType.charAt(0).toUpperCase() + iconType.slice(1)) : 'Sem título';
+        tt.textContent = l.title || fallbackLabel;
+        txt.appendChild(tt);
+        if (l.sub) {
+          const ss = document.createElement('span');
+          ss.className = 'link-block-sub';
+          ss.textContent = l.sub;
+          txt.appendChild(ss);
+        }
+
+        head.appendChild(iconWrap);
+        head.appendChild(txt);
+        a.appendChild(head);
+
+        a.addEventListener('click', (ev) => ev.preventDefault());
+        list.appendChild(a);
       }
-
-      const txt = document.createElement('span');
-      txt.className = 'link-block-txt';
-      const tt = document.createElement('span');
-      tt.className = 'link-block-title';
-      const fallbackLabel = iconType ? (iconType.charAt(0).toUpperCase() + iconType.slice(1)) : 'Sem título';
-      tt.textContent = l.title || fallbackLabel;
-      txt.appendChild(tt);
-      if (l.sub) {
-        const ss = document.createElement('span');
-        ss.className = 'link-block-sub';
-        ss.textContent = l.sub;
-        txt.appendChild(ss);
-      }
-
-      head.appendChild(iconWrap);
-      head.appendChild(txt);
-      a.appendChild(head);
-
-      a.addEventListener('click', (ev) => ev.preventDefault());
-      list.appendChild(a);
     });
     list.style.display = 'flex';
     list.style.flexDirection = 'column';
@@ -4381,9 +4519,35 @@
       const iconType = l.type || l.icon || '';
       const fallbackLabel = iconType ? (iconType.charAt(0).toUpperCase() + iconType.slice(1)) : 'Sem título';
       tt.textContent = l.title || fallbackLabel;
+      if (l.cardStyle) {
+        const badge = document.createElement('span');
+        badge.style.cssText = 'margin-left:6px;font-size:10px;padding:1px 6px;border-radius:8px;background:var(--brand);color:#fff;font-weight:600;vertical-align:middle;';
+        badge.textContent = l.cardStyle === 'highlight' ? 'Destaque' : l.cardStyle === 'testimonial' ? 'Depoimento' : l.cardStyle === 'video' ? 'Vídeo' : l.cardStyle;
+        tt.appendChild(badge);
+      }
+      if (l.category) {
+        const catBadge = document.createElement('span');
+        catBadge.style.cssText = 'margin-left:6px;font-size:10px;padding:1px 6px;border-radius:8px;background:#6366f1;color:#fff;font-weight:600;vertical-align:middle;';
+        catBadge.textContent = l.category;
+        tt.appendChild(catBadge);
+      }
       const uu = document.createElement('div');
       uu.className = 'link-item-url';
       uu.textContent = l.url || '';
+
+      /* Click analytics: exibe contagem se houver */
+      try {
+        const slug = (window.currentProfileSlug || 'default');
+        const clickData = JSON.parse(localStorage.getItem('axiumlink_clicks_' + slug) || '{}');
+        const clicks = clickData[l.id] || 0;
+        if (clicks > 0) {
+          const clickBadge = document.createElement('span');
+          clickBadge.style.cssText = 'margin-left:8px;font-size:10px;padding:1px 6px;border-radius:8px;background:#f59e0b;color:#000;font-weight:600;vertical-align:middle;';
+          clickBadge.textContent = clicks + ' cliques';
+          uu.appendChild(clickBadge);
+        }
+      } catch(_) {}
+
       main.appendChild(tt);
       main.appendChild(uu);
 
@@ -4486,8 +4650,21 @@
     $('blockUrl').value = l.url || '';
     $('blockSub').value = l.sub || '';
     $('blockType').value = l.type || '';
+    $('blockCardStyle').value = l.cardStyle || '';
+    $('blockCategory').value = l.category || '';
     $('blockIconAlign').value = l.iconAlign || 'left';
     _pendingBlockIcon = l.iconImg || null;
+
+    /* Popula datalist de categorias existentes */
+    const catList = $('categoryDatalist');
+    if (catList) {
+      const cats = [...new Set((cfg.links || []).map(x => x.category).filter(Boolean))];
+      catList.replaceChildren(...cats.map(c => {
+        const opt = document.createElement('option');
+        opt.value = c;
+        return opt;
+      }));
+    }
 
     $('blockModal').classList.add('open');
   }
@@ -4599,6 +4776,8 @@
         type: $('blockType').value || '',
         url,
         sub: $('blockSub').value.trim(),
+        cardStyle: $('blockCardStyle').value || '',
+        category: $('blockCategory').value.trim() || '',
         icon: _pendingBlockIcon ? '' : ($('blockType').value || ''),
         iconImg: _pendingBlockIcon || '',
         iconAlign: $('blockIconAlign').value || 'left'
@@ -4793,6 +4972,7 @@
     document.getElementById('appShell').hidden = false;
 
     const activeProfile = window.userProfiles.find(p => p.id === window.currentProfileId);
+    window.currentProfileSlug = activeProfile?.slug || 'default';
     _cloudConfigToLoad = activeProfile ? activeProfile.config : null;
 
     if (activeProfile) {
@@ -4817,6 +4997,7 @@
     const p = window.userProfiles.find(x => x.id === profileId);
     if (!p) return;
     window.currentProfileId = profileId;
+    window.currentProfileSlug = p.slug || 'default';
     SupaApp.currentClient = p;
     await openEditorForCurrentProfile();
     showToast('Perfil: ' + profileDisplayName(p));
@@ -4840,6 +5021,7 @@
     if (!newProfile) return;
 
     window.currentProfileId = newProfileId;
+    window.currentProfileSlug = newProfile.slug || 'default';
     SupaApp.currentClient = newProfile;
     await openEditorForCurrentProfile();
     showToast('Perfil trocado para: ' + (newProfile.nome || newProfile.slug));
