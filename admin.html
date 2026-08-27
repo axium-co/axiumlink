@@ -1234,6 +1234,13 @@
               <output class="ds-value" id="avatarBorderWidthVal">3px</output>
             </div>
           </div>
+          <div class="ds-control" style="margin-top:12px;">
+            <label>Tamanho do avatar</label>
+            <div class="ds-control-row">
+              <input type="range" id="avatarSize" min="48" max="160" step="2">
+              <output class="ds-value" id="avatarSizeVal">96px</output>
+            </div>
+          </div>
         </div>
 
         <!-- Selo de verificado -->
@@ -1255,6 +1262,28 @@
           </div>
         </div>
 
+        <!-- Nome de exibição -->
+        <div class="field" style="padding-top:12px; border-top:1px solid var(--bg);">
+          <label style="font-size:13px; font-weight:700; color:var(--ink);">Nome de exibição</label>
+          <div class="row-2">
+            <div class="field" style="margin:10px 0 0;">
+              <label>Cor do texto</label>
+              <div class="color-trigger" id="nameColor" role="button" tabindex="0">
+                <div class="color-trigger-swatch" style="background:#dc2626;"></div>
+                <span class="color-trigger-hex">AUTO</span>
+              </div>
+            </div>
+            <div class="field" style="margin:10px 0 0;">
+              <label for="nameAlign">Alinhamento</label>
+              <select id="nameAlign">
+                <option value="left">Esquerda</option>
+                <option value="center" selected>Centro</option>
+                <option value="right">Direita</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
         <!-- Bio -->
         <div class="field" style="padding-top:12px; border-top:1px solid var(--bg);">
           <label style="font-size:13px; font-weight:700; color:var(--ink);">Bio</label>
@@ -1272,6 +1301,14 @@
               <span class="color-trigger-hex">AUTO</span>
             </div>
           </div>
+          <div class="field" style="margin:10px 0 0;">
+            <label for="bioAlign">Alinhamento</label>
+            <select id="bioAlign">
+              <option value="left">Esquerda</option>
+              <option value="center" selected>Centro</option>
+              <option value="right">Direita</option>
+            </select>
+          </div>
         </div>
 
         <!-- Endereço -->
@@ -1281,6 +1318,13 @@
             <span class="toggle-label">Mostrar endereço na página</span>
             <label class="switch">
               <input type="checkbox" id="addressShow">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="toggle-row">
+            <span class="toggle-label">Mostrar ícone de localização</span>
+            <label class="switch">
+              <input type="checkbox" id="addressIcon">
               <span class="slider"></span>
             </label>
           </div>
@@ -2003,7 +2047,7 @@
                     <div class="pv-banner-scrim" id="pvBannerScrim" hidden></div>
                   </div>
 
-                  <div class="pv-avatar-wrap">
+                  <div class="pv-avatar-wrap" id="pvAvatarWrap">
                     <div class="pv-avatar" id="pvAvatar">
                       <img id="pvAvatarImg" alt="" style="display:none;">
                       <span id="pvAvatarInitial">⚡</span>
@@ -2016,7 +2060,7 @@
                   </div>
                   <p class="pv-bio" id="pvBio"></p>
                   <div class="pv-address" id="pvAddress" hidden>
-                    <span class="pv-address-ico">📍</span>
+                    <span class="pv-address-ico" id="pvAddressIco">📍</span>
                     <span id="pvAddressText"></span>
                   </div>
 
@@ -4050,6 +4094,15 @@
       }
     }
 
+    /* Tamanho do avatar (contém também a sobreposição do banner) */
+    const wrap = $('pvAvatarWrap');
+    if (wrap) {
+      const size = pf.size || 96;
+      wrap.style.width = size + 'px';
+      wrap.style.height = size + 'px';
+      wrap.style.marginTop = -(size / 2) + 'px';
+    }
+
     /* Selo de verificado */
     const verified = $('pvVerified');
     if (verified) {
@@ -4057,12 +4110,25 @@
       verified.style.background = pf.verifiedColor ? pf.verifiedColor : '#6366f1';
     }
 
-    /* Bio: cor + negrito */
+    /* Nome: cor do texto + alinhamento */
+    const name = $('pvName');
+    if (name) {
+      const ntext = (pf.text && pf.text.name) || {};
+      name.style.color = ntext.color || '';
+    }
+    const nameRow = document.querySelector('.pv-name-row');
+    if (nameRow) {
+      const na = (pf.text && pf.text.name && pf.text.name.align);
+      nameRow.style.justifyContent = na === 'left' ? 'flex-start' : na === 'right' ? 'flex-end' : 'center';
+    }
+
+    /* Bio: cor + negrito + alinhamento */
     const bio = $('pvBio');
     if (bio) {
       const btext = (pf.text && pf.text.bio) || {};
       bio.style.color = btext.color || '';
       bio.style.fontWeight = btext.weight ? String(btext.weight) : '400';
+      bio.style.textAlign = btext.align || 'center';
     }
 
     /* Endereço: mostrar/ocultar + estilo (pílula/simples) + cores */
@@ -4086,6 +4152,8 @@
         }
         addrBox.style.color = astyle.color || '#ffffff';
       }
+      const addrIco = $('pvAddressIco');
+      if (addrIco) addrIco.hidden = !((pf.address && pf.address.showIcon) !== false);
     }
 
     /* Scrim do banner (escurecimento para legibilidade) */
@@ -4109,6 +4177,7 @@
   const DESIGN_TRIGGER_DEFAULTS = {
     avatarBorderColor: '#ffffff',
     verifiedColor: '#6366f1',
+    nameColor: '#dc2626',
     bioColor: '#334155',
     addressBg: '#0c0e16',
     addressTextColor: '#ffffff'
@@ -4124,6 +4193,11 @@
     setTriggerColor('verifiedColor', pf.verifiedColor || '');
     const vLabel = $('verifiedColor')?.querySelector('.color-trigger-hex');
     if (vLabel) vLabel.textContent = pf.verifiedColor ? pf.verifiedColor.toUpperCase() : 'AUTO';
+
+    setTriggerColor('nameColor', (pf.text && pf.text.name && pf.text.name.color) || '');
+    const nameColor = (pf.text && pf.text.name && pf.text.name.color) || '';
+    const nLabel = $('nameColor')?.querySelector('.color-trigger-hex');
+    if (nLabel) nLabel.textContent = nameColor ? nameColor.toUpperCase() : 'AUTO';
 
     setTriggerColor('bioColor', (pf.text && pf.text.bio && pf.text.bio.color) || '');
     const bioColor = (pf.text && pf.text.bio && pf.text.bio.color) || '';
@@ -4330,6 +4404,19 @@
     /* Merge: preset config sobrescreve só os campos que define */
     Object.keys(preset.config).forEach((k) => {
       cfg.style[k] = preset.config[k];
+    });
+
+    /* As 4 cores de "Cores do Tema" SEMPRE sincronizam com a paleta do preset.
+       Preenche os campos que o preset não define explicitamente — senão o
+       picker manteria o valor do preset anterior (parece travado). */
+    const COLOR_FILL = {
+      pageBgColor: preset.preview.bg,
+      pageTextColor: preset.preview.text,
+      btnBgColor: preset.preview.btn,
+      btnTextColor: preset.preview.btnText
+    };
+    Object.keys(COLOR_FILL).forEach((k) => {
+      if (!(k in preset.config)) cfg.style[k] = COLOR_FILL[k];
     });
     cfg.style.activePreset = key;
 
@@ -5110,6 +5197,11 @@
         markDirty();
       });
     });
+    bindRange('avatarSize', 'avatarSizeVal', (v) => v + 'px', (v) => {
+      const pf = profileDesignRef();
+      pf.size = v;
+      renderPreview();
+    });
 
     $('profileVerified').addEventListener('change', (e) => {
       cfg.profile = cfg.profile || {};
@@ -5126,6 +5218,27 @@
         renderDesignTriggers();
         markDirty();
       });
+    });
+
+    $('nameColor').addEventListener('click', () => {
+      const pf = profileDesignRef();
+      pf.text = pf.text || {};
+      pf.text.name = pf.text.name || {};
+      const current = pf.text.name.color || '#dc2626';
+      openColorPicker($('nameColor'), current, (hex) => {
+        pf.text.name.color = hex;
+        renderPreview();
+        renderDesignTriggers();
+        markDirty();
+      });
+    });
+    $('nameAlign').addEventListener('change', (e) => {
+      const pf = profileDesignRef();
+      pf.text = pf.text || {};
+      pf.text.name = pf.text.name || {};
+      pf.text.name.align = e.target.value;
+      renderPreview();
+      markDirty();
     });
 
     $('bioBold').addEventListener('change', (e) => {
@@ -5148,10 +5261,25 @@
         markDirty();
       });
     });
+    $('bioAlign').addEventListener('change', (e) => {
+      const pf = profileDesignRef();
+      pf.text = pf.text || {};
+      pf.text.bio = pf.text.bio || {};
+      pf.text.bio.align = e.target.value;
+      renderPreview();
+      markDirty();
+    });
 
     $('addressShow').addEventListener('change', (e) => {
       const pf = profileDesignRef();
       pf.addrShow = e.target.checked;
+      renderPreview();
+      markDirty();
+    });
+    $('addressIcon').addEventListener('change', (e) => {
+      const pf = profileDesignRef();
+      pf.address = pf.address || {};
+      pf.address.showIcon = e.target.checked;
       renderPreview();
       markDirty();
     });
@@ -5283,12 +5411,19 @@
     const borderEl = $('avatarBorder');
     if (borderEl) borderEl.checked = !!pf.borderOn;
     if ($('avatarBorderWidth')) setRange('avatarBorderWidth', pf.borderWidth == null ? 3 : pf.borderWidth);
+    if ($('avatarSize')) setRange('avatarSize', pf.size == null ? 96 : pf.size);
     const verifiedEl = $('profileVerified');
     if (verifiedEl) verifiedEl.checked = !!(cfg.profile && cfg.profile.verified);
     const boldEl = $('bioBold');
     if (boldEl) boldEl.checked = !!((pf.text && pf.text.bio && pf.text.bio.weight) && pf.text.bio.weight >= 600);
+    const nameAlignEl = $('nameAlign');
+    if (nameAlignEl) nameAlignEl.value = (pf.text && pf.text.name && pf.text.name.align) || 'center';
+    const bioAlignEl = $('bioAlign');
+    if (bioAlignEl) bioAlignEl.value = (pf.text && pf.text.bio && pf.text.bio.align) || 'center';
     const addrShowEl = $('addressShow');
     if (addrShowEl) addrShowEl.checked = pf.addrShow !== false;
+    const addrIconEl = $('addressIcon');
+    if (addrIconEl) addrIconEl.checked = !(pf.address && pf.address.showIcon === false);
     const addrStyleEl = $('addressStyle');
     if (addrStyleEl) addrStyleEl.value = (pf.address && pf.address.style) || 'pill';
     renderDesignTriggers();

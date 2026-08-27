@@ -2774,20 +2774,29 @@
       const pgHeader = document.getElementById('pageProfile');
       if (pgHeader && pf.marginTop != null) pgHeader.style.marginTop = pf.marginTop + 'px';
       if (pgAvatarCard && pf.zIndex != null) pgAvatarCard.style.zIndex = pf.zIndex;
+      /* Tamanho do avatar: sobrescreve --avatar-s (raiz .profile). Só quando
+         configurado; senão mantém o responsivo do CSS (96/112/76px). */
+      if (pgHeader) {
+        if (pf.size) pgHeader.style.setProperty('--avatar-s', pf.size + 'px');
+        else pgHeader.style.removeProperty('--avatar-s');
+      }
 
       /* ---- Estilização de texto do perfil (design.profile.text) ---- */
       const ptext = pf.text || {};
       const applyPubText = (id, cfg) => {
         const t = document.getElementById(id);
-        if (!t || !cfg) return;
+        if (!t) return;
+        if (!cfg) {
+          t.style.textAlign = '';
+          if (id === 'pgAddress') t.style.justifyContent = 'center';
+          return;
+        }
         if (cfg.color) t.style.color = cfg.color;
         if (cfg.size) t.style.fontSize = cfg.size + 'px';
         if (cfg.weight) t.style.fontWeight = cfg.weight;
-        if (cfg.align) {
-          t.style.textAlign = cfg.align;
-          if (id === 'pgAddress') {
-            t.style.justifyContent = cfg.align === 'left' ? 'flex-start' : cfg.align === 'right' ? 'flex-end' : 'center';
-          }
+        t.style.textAlign = cfg.align || '';
+        if (id === 'pgAddress') {
+          t.style.justifyContent = cfg.align === 'left' ? 'flex-start' : cfg.align === 'right' ? 'flex-end' : 'center';
         }
       };
       applyPubText('pgTitle', ptext.name);
@@ -2815,6 +2824,8 @@
             addrEl.style.border = '';
           }
           addrEl.style.color = addrPres.color || '';
+          const addrIconEl = addrEl.querySelector('svg');
+          if (addrIconEl) addrIconEl.style.display = (addrPres.showIcon === false) ? 'none' : '';
           if (addrStyle) {
             if (addrStyle.blockRadius) addrEl.style.borderRadius = addrStyle.blockRadius;
             if (addrStyle.blockBg) addrEl.style.background = addrStyle.blockBg;
