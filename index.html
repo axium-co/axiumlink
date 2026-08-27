@@ -30,10 +30,10 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="Nome do Cliente" />
 
-  <!-- Fonte Inter (fallback para system-ui se offline) -->
+  <!-- Fonte padrão (Inter) — outras fontes são carregadas sob demanda pelo JS -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Roboto:wght@400;500;700&family=Open+Sans:wght@400;600;700&family=Poppins:wght@400;500;700&family=Montserrat:wght@400;600;700&family=Lato:wght@400;700&family=Merriweather:wght@400;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
   <!-- ================================================================
@@ -97,6 +97,7 @@
       --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04), 0 6px 18px rgba(15, 23, 42, 0.07);
       --shadow-md: 0 2px 4px rgba(15, 23, 42, 0.05), 0 14px 34px rgba(15, 23, 42, 0.12);
       --shadow-avatar: 0 10px 30px rgba(15, 23, 42, 0.22);
+      --shadow-glow: 0 0 24px rgba(99, 102, 241, 0.20);
       --radius-md: 14px;
       --radius-lg: 18px;
       --radius-pill: 999px;
@@ -714,6 +715,11 @@
       60%, 100% { transform: translateX(130%); }
     }
 
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
     /* ================================================================
        CARDS DE LINK PRINCIPAIS (ícone à esquerda, texto, seta)
        ================================================================ */
@@ -749,7 +755,8 @@
 
     .featured__card:hover {
       transform: translateY(-2px);
-      box-shadow: var(--ui-shadow, var(--shadow-md));
+      box-shadow: var(--ui-shadow, var(--shadow-md)),
+        0 0 20px color-mix(in srgb, var(--ui-bg, var(--card-destaque-bg, var(--card-bg))) 25%, transparent);
     }
 
     .featured__card:hover::after { background-color: color-mix(in srgb, var(--card-fg) 4%, transparent); }
@@ -757,6 +764,23 @@
     .featured__card:active::after { background-color: color-mix(in srgb, var(--card-fg) 7%, transparent); }
 
     .featured__card:hover { border-color: color-mix(in srgb, var(--card-fg) 26%, transparent); }
+
+    /* Entrada animada com stagger */
+    .featured__card {
+      animation: fadeSlideUp .45s ease both;
+    }
+    .featured__card:nth-child(1) { animation-delay: .05s; }
+    .featured__card:nth-child(2) { animation-delay: .10s; }
+    .featured__card:nth-child(3) { animation-delay: .15s; }
+    .featured__card:nth-child(4) { animation-delay: .20s; }
+    .featured__card:nth-child(5) { animation-delay: .25s; }
+    .featured__card:nth-child(6) { animation-delay: .30s; }
+    .featured__card:nth-child(7) { animation-delay: .35s; }
+    .featured__card:nth-child(8) { animation-delay: .40s; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .featured__card { animation: none; }
+    }
 
     .featured__icon {
       flex-shrink: 0;
@@ -1823,7 +1847,7 @@
 
       async function readConfig() {
         const slug = getSlug();
-        if (typeof window.supabase === 'undefined' || !window.supabase.createClient) {
+        if (typeof window.supabase === 'undefined' || !window.supabase.from) {
           console.warn('[Axiumlink][Diag] Supabase SDK não disponível — usando fallback local');
           return readLocalConfig();
         }
@@ -1902,11 +1926,44 @@
         };
         const th = THEMES[st.theme] || THEMES.indigo;
 
+        /* Migração: garantir gradientStops[] a partir do legado gradientStart/End */
+        if (st.bgVariant === 'gradient' || st.bgVariant === 'glass') {
+          if (!Array.isArray(st.gradientStops) || st.gradientStops.length < 2) {
+            st.gradientStops = [
+              { color: st.gradientStart || '#6366f1', pos: 0 },
+              { color: st.gradientEnd || '#ec4899', pos: 100 }
+            ];
+          }
+        }
+
+        /* Helper: gradient CSS a partir de stops[] */
+        function _gradCSS(angle) {
+          const stops = (Array.isArray(st.gradientStops) && st.gradientStops.length >= 2
+            ? st.gradientStops : [{ color: '#6366f1', pos: 0 }, { color: '#ec4899', pos: 100 }])
+            .slice().sort((a, b) => (a.pos ?? 0) - (b.pos ?? 0));
+          return 'linear-gradient(' + (angle || st.gradientAngle || 135) + 'deg, ' +
+            stops.map(s => {
+              const alpha = s.alpha == null ? 100 : s.alpha;
+              const hex = s.color || '#6366f1';
+              if (alpha < 100) {
+                const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+                return 'rgba(' + r + ',' + g + ',' + b + ',' + (alpha/100).toFixed(2) + ') ' + (s.pos ?? 0) + '%';
+              }
+              return hex + ' ' + (s.pos ?? 0) + '%';
+            }).join(', ') + ')';
+        }
+
+        /* Cores individuais sobrepõem o tema */
+        const resolvedBg = st.pageBgColor || th.bg;
+        const resolvedInk = st.pageTextColor || th.ink;
+        const resolvedBtnBg = st.btnBgColor || th.btnbg;
+        const resolvedBtnInk = st.btnTextColor || th.btnink;
+
         /* Fundo → string única (visual.pageBg) */
-        let pageBg = th.bg;
+        let pageBg = resolvedBg;
         switch (st.bgVariant) {
           case 'gradient':
-            pageBg = 'linear-gradient(' + (st.gradientAngle || 135) + 'deg, ' + (st.gradientStart || '#6366f1') + ', ' + (st.gradientEnd || '#ec4899') + ')';
+            pageBg = _gradCSS();
             break;
           case 'mesh': {
             const c = Array.isArray(st.meshColors) && st.meshColors.length >= 2 ? st.meshColors : ['#6366f1','#ec4899','#06b6d4','#f59e0b'];
@@ -1937,7 +1994,7 @@
           }
           case 'glass':
             /* Base colorida que o veil de vidro fosco (#axGlassVeil) borrará */
-            pageBg = 'linear-gradient(' + (st.gradientAngle || 135) + 'deg, ' + (st.gradientStart || '#6366f1') + ', ' + (st.gradientEnd || '#ec4899') + ')';
+            pageBg = _gradCSS();
             break;
           case 'video':
             pageBg = '#0b1220';
@@ -1961,7 +2018,10 @@
           visual: {
             pageBg,
             bgImage: (st.bgVariant === 'image' && validImg(st.bgImageUrl)) ? st.bgImageUrl : '',
-            textColor: st.btnVariant === 'neon' ? (st.btnGlowColor || '#22d3ee') : th.btnink
+            textColor: st.btnVariant === 'neon' ? (st.btnGlowColor || '#22d3ee') : resolvedBtnInk,
+            ink: resolvedInk,
+            btnBg: resolvedBtnBg,
+            btnInk: resolvedBtnInk
           },
           design: {
             banner: { enabled: !!cfg.banner, image: cfg.banner, bgType: 'image', height: 190 }
@@ -2077,8 +2137,18 @@
          cliente escolheu uma cor de fundo explícita. */
       if (pageBg) set('--page-bg', pageBg);
       else document.documentElement.style.removeProperty('--page-bg');
-      set('--btn-text-color-global', v.textColor || v.quickText || v.cardText);
+      /* Cores individuais do tema (sobrepõem :root defaults) */
+      if (v.ink) set('--text-title', v.ink);
+      if (v.btnInk) set('--btn-text-color-global', v.btnInk);
       set('--btn-border-color', v.borderColor);
+      if (v.btnBg) {
+        set('--btn-quick-bg', v.btnBg);
+        set('--card-destaque-bg', v.btnBg);
+      }
+      if (v.btnInk) {
+        set('--btn-quick-text', v.btnInk);
+        set('--card-destaque-text', v.btnInk);
+      }
 
       /* ---- Camadas do fundo da página no <body> ---- */
       /* A imagem (visual.bgImage) fica ATRÁS; o gradiente próprio
@@ -2129,18 +2199,19 @@
           'border:1px solid rgba(255,255,255,' + ((sp.glassBorderOpacity ?? 25) / 100) + ')';
       })();
 
-      /* Subtítulo/descrições = texto neutro misturado com o fundo (tom suave).
-         Independe do "Cor dos Textos": o perfil tem as próprias opções. */
-      if (isSolidHex) {
+      /* Subtítulo/descrições = cor derivada do texto principal */
+      if (v.ink && isSolidHex) {
+        set('--text-body', mixHex(v.ink, pageBg, 0.72));
+      } else if (isSolidHex) {
         set('--text-body', mixHex('#000000', pageBg, 0.72));
       } else {
         document.documentElement.style.removeProperty('--text-body');
       }
 
-      set('--btn-quick-bg', v.quickBg);
-      set('--btn-quick-text', v.quickText);
-      set('--card-destaque-bg', v.cardBg);
-      set('--card-destaque-text', v.cardText);
+      set('--btn-quick-bg', v.quickBg || v.btnBg);
+      set('--btn-quick-text', v.quickText || v.btnInk);
+      set('--card-destaque-bg', v.cardBg || v.btnBg);
+      set('--card-destaque-text', v.cardText || v.btnInk);
 
       /* ---- Foto de perfil (URL do Storage no schema novo) ---- */
       if (p.photo) {
@@ -2429,7 +2500,7 @@
               card.style.border = '1px solid rgba(255,255,255,0.25)';
               break;
             case 'gradient':
-              card.style.background = 'linear-gradient(135deg, ' + (st.gradientStart || '#6366f1') + ', ' + (st.gradientEnd || '#ec4899') + ')';
+              card.style.background = _gradCSS(135);
               card.style.border = 'none';
               break;
             default:
@@ -2969,12 +3040,23 @@
           document.head.appendChild(s);
         }
 
-        /* Google Fonts das famílias premium */
-        if (!document.getElementById('axFonts')) {
+        /* Google Fonts — carrega apenas a fonte selecionada (lazy) */
+        const FONT_WEIGHTS = {
+          'Inter': '400;500;600;700;800',
+          'Poppins': '400;500;600;700;800',
+          'Montserrat': '400;500;600;700;800',
+          'Syne': '400;500;600;700;800',
+          'Playfair Display': '400;500;600;700;800',
+          'Space Grotesk': '400;500;600;700'
+        };
+        const selectedFont = st.font || 'Inter';
+        const fontKey = 'axFont-' + selectedFont.replace(/\s+/g, '');
+        if (!document.getElementById(fontKey)) {
           const fl = document.createElement('link');
-          fl.id = 'axFonts';
+          fl.id = fontKey;
           fl.rel = 'stylesheet';
-          fl.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&family=Montserrat:wght@400;500;600;700;800&family=Syne:wght@400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap';
+          const weights = FONT_WEIGHTS[selectedFont] || '400;600;700';
+          fl.href = 'https://fonts.googleapis.com/css2?family=' + selectedFont.replace(/\s+/g, '+') + ':wght@' + weights + '&display=swap';
           document.head.appendChild(fl);
         }
         const FONT_STACKS = {
@@ -2992,8 +3074,13 @@
         const titleEl = document.getElementById('pgTitle');
         if (titleEl) {
           titleEl.style.fontSize = (st.titleSize ?? 20) + 'px';
+          titleEl.style.fontWeight = String(st.fontWeight ?? 700);
           titleEl.style.letterSpacing = ls;
           titleEl.style.lineHeight = lh;
+        }
+        const bioEl = document.getElementById('pgSubtitle');
+        if (bioEl) {
+          bioEl.style.fontSize = (st.bioSize ?? 14) + 'px';
         }
 
         /* Fundo animado: movimento contínuo */

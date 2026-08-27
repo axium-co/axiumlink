@@ -305,6 +305,40 @@
   .swatch:hover { transform:scale(1.1); }
   .swatch.active { border-color:var(--ink); transform:scale(1.08); }
 
+  /* ===== PREMIUM PRESETS GRID ===== */
+  .presets-grid {
+    display:grid; grid-template-columns:repeat(auto-fill, minmax(130px, 1fr));
+    gap:10px;
+  }
+  .preset-card {
+    position:relative; border-radius:12px; overflow:hidden;
+    border:2px solid var(--border); cursor:pointer;
+    transition:transform .15s, border-color .15s, box-shadow .15s;
+    background:#fff;
+  }
+  .preset-card:hover { transform:translateY(-2px); border-color:var(--brand); box-shadow:0 4px 12px rgba(37,99,235,.15); }
+  .preset-card.active { border-color:var(--brand); box-shadow:0 0 0 2px rgba(37,99,235,.25); }
+  .preset-preview {
+    height:60px; display:flex; align-items:flex-end; padding:6px;
+    position:relative; overflow:hidden;
+  }
+  .preset-preview__swatches {
+    display:flex; gap:3px; z-index:1;
+  }
+  .preset-preview__swatch {
+    width:14px; height:14px; border-radius:4px;
+    border:1.5px solid rgba(255,255,255,.35); flex-shrink:0;
+  }
+  .preset-name {
+    padding:6px 8px; font-size:11px; font-weight:600; color:var(--ink);
+    text-align:center; line-height:1.2; white-space:nowrap;
+    overflow:hidden; text-overflow:ellipsis;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .preset-card { transition:none; }
+    .preset-card:hover { transform:none; }
+  }
+
   /* ===== UPLOAD DE IMAGEM (BANNER/AVATAR) ===== */
   .upload-row {
     display:flex; align-items:center; gap:12px; background:var(--bg);
@@ -654,7 +688,7 @@
     transition:transform .15s ease, box-shadow .15s ease;
     position:relative; width:100%; min-height:48px; box-sizing:border-box;
   }
-  .link-block:hover { transform:translateY(-2px); box-shadow:0 6px 18px rgba(0,0,0,.12); }
+  .link-block:hover { transform:translateY(-2px); box-shadow:0 6px 18px rgba(0,0,0,.12), 0 0 20px color-mix(in srgb, var(--p-btnbg, #111827) 20%, transparent); }
   .link-block:active { transform:translateY(0); }
 
   /* Ghost button hover - preenchimento sólido */
@@ -1130,10 +1164,46 @@
           </select>
         </div>
 
-        <!-- Tema de cores (para fundos sólidos/gradientes) -->
+        <!-- PREMIUM PRESETS -->
+        <div class="field" id="presetsSection">
+          <label>Temas Prontos</label>
+          <p class="hint" style="margin:0 0 10px; font-size:12px; color:var(--muted);">1 clique para aplicar. Depois personalize como quiser.</p>
+          <div class="presets-grid" id="presetsGrid"></div>
+        </div>
+
+        <!-- Cores individuais -->
         <div class="field" id="themeRow">
-          <label>Tema de cores</label>
-          <div class="color-swatch-row" id="themeSwatches"></div>
+          <label>Cores do Tema</label>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+            <div class="field" style="margin:0;">
+              <label style="font-size:11px;">Fundo</label>
+              <div class="color-trigger" id="pageBgColor" role="button" tabindex="0">
+                <div class="color-trigger-swatch" style="background:#f9fafb;"></div>
+                <span class="color-trigger-hex">AUTO</span>
+              </div>
+            </div>
+            <div class="field" style="margin:0;">
+              <label style="font-size:11px;">Texto</label>
+              <div class="color-trigger" id="pageTextColor" role="button" tabindex="0">
+                <div class="color-trigger-swatch" style="background:#111827;"></div>
+                <span class="color-trigger-hex">AUTO</span>
+              </div>
+            </div>
+            <div class="field" style="margin:0;">
+              <label style="font-size:11px;">Fundo Botão</label>
+              <div class="color-trigger" id="btnBgColor" role="button" tabindex="0">
+                <div class="color-trigger-swatch" style="background:#111827;"></div>
+                <span class="color-trigger-hex">AUTO</span>
+              </div>
+            </div>
+            <div class="field" style="margin:0;">
+              <label style="font-size:11px;">Texto Botão</label>
+              <div class="color-trigger" id="btnTextColor" role="button" tabindex="0">
+                <div class="color-trigger-swatch" style="background:#ffffff;"></div>
+                <span class="color-trigger-hex">AUTO</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- TIPOGRAFIA PREMIUM -->
@@ -1165,20 +1235,12 @@
           </div>
         </div>
 
-        <!-- Gradiente Personalizado (quando gradient) -->
+        <!-- Gradiente Personalizado (multi-stop) -->
         <div class="field" id="customGradientRow" style="display:none;">
-          <label>Gradiente Personalizado (2 cores)</label>
-          <div class="row-2">
-            <div class="field">
-              <label>Cor Inicial</label>
-              <div class="color-trigger" id="gradientStart" role="button" tabindex="0"><div class="color-trigger-swatch"></div><span class="color-trigger-hex">#6366F1</span></div>
-            </div>
-            <div class="field">
-              <label>Cor Final</label>
-              <div class="color-trigger" id="gradientEnd" role="button" tabindex="0"><div class="color-trigger-swatch"></div><span class="color-trigger-hex">#EC4899</span></div>
-            </div>
-          </div>
-          <div class="ds-control">
+          <label>Gradiente Personalizado</label>
+          <div id="gradientStopsContainer"></div>
+          <button class="btn-add" id="btnAddGradientStop" style="margin-top:8px;">+ Adicionar cor</button>
+          <div class="ds-control" style="margin-top:10px;">
             <label>Ângulo do Gradiente</label>
             <div class="ds-control-row">
               <input type="range" id="gradientAngle" min="0" max="360" step="1">
@@ -1425,6 +1487,22 @@
           <div class="ds-control-row">
             <input type="range" id="titleSize" min="15" max="30" step="1">
             <output class="ds-value" id="titleSizeVal">20px</output>
+          </div>
+        </div>
+
+        <div class="ds-control">
+          <label>Tamanho da bio</label>
+          <div class="ds-control-row">
+            <input type="range" id="bioSize" min="10" max="20" step="1">
+            <output class="ds-value" id="bioSizeVal">14px</output>
+          </div>
+        </div>
+
+        <div class="ds-control">
+          <label>Peso da fonte (negrito)</label>
+          <div class="ds-control-row">
+            <input type="range" id="fontWeight" min="300" max="900" step="100">
+            <output class="ds-value" id="fontWeightVal">700</output>
           </div>
         </div>
 
@@ -2033,9 +2111,18 @@
     links: [],
     style: {
       theme: 'indigo',
+      /* Cores individuais (sobrepõem o tema ao salvar) */
+      pageBgColor: '',
+      pageTextColor: '',
+      btnBgColor: '',
+      btnTextColor: '',
+      activePreset: '',
+      /* Botões */
       btnRadius: 14,
       btnShadow: 30,
       titleSize: 20,
+      bioSize: 14,
+      fontWeight: 700,
       blockGap: 10,
       glass: false,
       /* Fundo */
@@ -2043,6 +2130,10 @@
       gradientStart: '#6366f1',
       gradientEnd: '#ec4899',
       gradientAngle: 135,
+      gradientStops: [
+        { color: '#6366f1', pos: 0, alpha: 100 },
+        { color: '#ec4899', pos: 100, alpha: 100 }
+      ],
       meshColors: ['#6366f1', '#ec4899', '#06b6d4', '#f59e0b'],
       animatedColors: ['#6366f1', '#ec4899', '#06b6d4'],
       animSpeed: 20,
@@ -2149,6 +2240,7 @@
     $('slugInput').value = activeProfile?.slug?.startsWith('perfil-inicial-') ? '' : ($('slugInput').value || '');
 
     renderThemeSwatches();
+    renderPresets();
     bindStyleControls();
     if (!_editorEventsBound) {
       bindEditorEvents();
@@ -2308,6 +2400,8 @@
       setRange('btnRadius', cfg.style.btnRadius);
       setRange('btnShadow', cfg.style.btnShadow);
       setRange('titleSize', cfg.style.titleSize);
+      setRange('bioSize', cfg.style.bioSize ?? 14);
+      setRange('fontWeight', cfg.style.fontWeight ?? 700);
       setRange('blockGap', cfg.style.blockGap);
       setRange('btnGlassOpacity', cfg.style.btnGlassOpacity ?? 15);
       setRange('btnGlassBlur', cfg.style.btnGlassBlur ?? 12);
@@ -2561,6 +2655,186 @@
     rose:    { bg:'linear-gradient(180deg,#fff1f2,#ffe4e6)', ink:'#881337', btnbg:'#e11d48', btnink:'#ffffff' }
   };
 
+  /* ================================================================
+     PREMIUM PRESETS — configurações visuais completas (1 clique).
+     Cada preset define: nome, preview visual, e um patch parcial
+     de cfg.style que é mergeado no config atual ao aplicar.
+     ================================================================ */
+  const PRESETS = [
+    {
+      key: 'minimal-dark',
+      name: 'Minimalista Escuro',
+      preview: { bg: '#0f172a', text: '#f1f5f9', btn: '#1e293b', btnText: '#f1f5f9' },
+      config: {
+        theme: 'dark',
+        bgVariant: 'solid',
+        bgColor: '#0f172a',
+        textColor: '#f1f5f9',
+        btnBgColor: '#1e293b',
+        btnTextColor: '#f1f5f9',
+        font: 'Inter',
+        btnVariant: 'ghost',
+        btnShape: 'rounded',
+        btnRadius: 14,
+        btnShadowStyle: 'none',
+        letterSpacing: 0.3,
+        lineHeight: 1.5,
+        blockGap: 12,
+        titleSize: 22
+      }
+    },
+    {
+      key: 'luxo-dourado',
+      name: 'Luxo Dourado',
+      preview: { bg: '#1a1a1a', text: '#f5f0e8', btn: '#c9a84c', btnText: '#1a1a1a' },
+      config: {
+        theme: 'dark',
+        bgVariant: 'solid',
+        bgColor: '#1a1a1a',
+        textColor: '#f5f0e8',
+        btnBgColor: '#c9a84c',
+        btnTextColor: '#1a1a1a',
+        font: 'Playfair Display',
+        btnVariant: 'solid',
+        btnShape: 'rounded',
+        btnRadius: 12,
+        btnShadowStyle: 'soft',
+        btnShadow: 40,
+        letterSpacing: 0.5,
+        lineHeight: 1.6,
+        blockGap: 14,
+        titleSize: 24
+      }
+    },
+    {
+      key: 'neon-vibrante',
+      name: 'Neon Vibrante',
+      preview: { bg: '#0a0a0f', text: '#e0f2fe', btn: '#0e7490', btnText: '#00ffff' },
+      config: {
+        theme: 'dark',
+        bgVariant: 'cyberpunk',
+        cyberPrimary: '#00ffff',
+        cyberSecondary: '#ff00ff',
+        cyberGridIntensity: 25,
+        textColor: '#e0f2fe',
+        btnBgColor: '#0e7490',
+        btnTextColor: '#00ffff',
+        font: 'Space Grotesk',
+        btnVariant: 'neon',
+        btnGlowColor: '#00ffff',
+        btnShape: 'pill',
+        btnShadowStyle: 'glow',
+        btnAnimation: 'pulse',
+        letterSpacing: 0.2,
+        lineHeight: 1.4,
+        blockGap: 10,
+        titleSize: 22
+      }
+    },
+    {
+      key: 'editorial-clean',
+      name: 'Editorial Clean',
+      preview: { bg: '#ffffff', text: '#111827', btn: '#111827', btnText: '#ffffff' },
+      config: {
+        theme: 'light',
+        bgVariant: 'solid',
+        bgColor: '#ffffff',
+        textColor: '#111827',
+        btnBgColor: '#111827',
+        btnTextColor: '#ffffff',
+        font: 'Montserrat',
+        btnVariant: 'solid',
+        btnShape: 'square',
+        btnRadius: 0,
+        btnShadowStyle: 'none',
+        letterSpacing: 0.8,
+        lineHeight: 1.5,
+        blockGap: 8,
+        titleSize: 20
+      }
+    },
+    {
+      key: 'organico-fresco',
+      name: 'Orgânico Fresco',
+      preview: { bg: '#f0fdf4', text: '#14532d', btn: '#16a34a', btnText: '#ffffff' },
+      config: {
+        theme: 'forest',
+        bgVariant: 'solid',
+        bgColor: '#f0fdf4',
+        textColor: '#14532d',
+        btnBgColor: '#16a34a',
+        btnTextColor: '#ffffff',
+        font: 'Poppins',
+        btnVariant: 'solid',
+        btnShape: 'pill',
+        btnRadius: 50,
+        btnShadowStyle: 'soft',
+        btnShadow: 25,
+        btnAnimation: 'float',
+        letterSpacing: 0.2,
+        lineHeight: 1.5,
+        blockGap: 12,
+        titleSize: 21
+      }
+    },
+    {
+      key: 'sunset-warm',
+      name: 'Sunset Warm',
+      preview: { bg: '#fff7ed', text: '#7c2d12', btn: '#ea580c', btnText: '#ffffff' },
+      config: {
+        theme: 'sunset',
+        bgVariant: 'gradient',
+        gradientStart: '#fff7ed',
+        gradientEnd: '#ffedd5',
+        gradientAngle: 160,
+        textColor: '#7c2d12',
+        btnBgColor: '#ea580c',
+        btnTextColor: '#ffffff',
+        font: 'Syne',
+        btnVariant: 'solid',
+        btnShape: 'soft',
+        btnRadius: 18,
+        btnShadowStyle: 'soft',
+        btnShadow: 30,
+        letterSpacing: 0.3,
+        lineHeight: 1.5,
+        blockGap: 12,
+        titleSize: 22
+      }
+    },
+    {
+      key: 'glass-premium',
+      name: 'Glass Premium',
+      preview: { bg: '#667eea', text: '#1e293b', btn: 'rgba(255,255,255,0.25)', btnText: '#1e293b' },
+      config: {
+        theme: 'indigo',
+        bgVariant: 'gradient',
+        gradientStart: '#667eea',
+        gradientEnd: '#764ba2',
+        gradientAngle: 135,
+        textColor: '#1e293b',
+        btnBgColor: 'rgba(255,255,255,0.25)',
+        btnTextColor: '#1e293b',
+        font: 'Inter',
+        btnVariant: 'glass',
+        btnGlassOpacity: 20,
+        btnGlassBlur: 12,
+        btnShape: 'pill',
+        btnRadius: 50,
+        btnShadowStyle: 'soft',
+        btnShadow: 20,
+        glassEnabled: true,
+        glassBlur: 14,
+        glassOpacity: 25,
+        glassBorderOpacity: 20,
+        letterSpacing: 0.2,
+        lineHeight: 1.5,
+        blockGap: 12,
+        titleSize: 22
+      }
+    }
+  ];
+
   /* Texturas geométricas sobrepostas (padrões em cinza neutro +
      mix-blend-mode soft-light → adaptam-se a fundos claros e escuros) */
   const NOISE_URI = 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'120\' height=\'120\'><filter id=\'n\'><feTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'2\'/><feColorMatrix type=\'saturate\' values=\'0\'/></filter><rect width=\'120\' height=\'120\' filter=\'url(%23n)\' opacity=\'0.55\'/></svg>")';
@@ -2584,10 +2858,23 @@
   /* Gera CSS do background baseado na variante */
   function buildBackgroundCSS(st, t) {
     switch (st.bgVariant) {
-      case 'gradient':
+      case 'gradient': {
+        const stops = Array.isArray(st.gradientStops) && st.gradientStops.length >= 2
+          ? st.gradientStops.slice().sort((a, b) => (a.pos ?? 0) - (b.pos ?? 0))
+          : [{ color: st.gradientStart || '#6366f1', pos: 0 }, { color: st.gradientEnd || '#ec4899', pos: 100 }];
         return {
-          background: 'linear-gradient(' + (st.gradientAngle || 135) + 'deg, ' + (st.gradientStart || '#6366f1') + ', ' + (st.gradientEnd || '#ec4899') + ')'
+          background: 'linear-gradient(' + (st.gradientAngle || 135) + 'deg, ' +
+            stops.map(s => {
+              const alpha = s.alpha == null ? 100 : s.alpha;
+              const hex = s.color || '#6366f1';
+              if (alpha < 100) {
+                const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+                return 'rgba(' + r + ',' + g + ',' + b + ',' + (alpha/100).toFixed(2) + ') ' + (s.pos ?? 0) + '%';
+              }
+              return hex + ' ' + (s.pos ?? 0) + '%';
+            }).join(', ') + ')'
         };
+      }
       case 'mesh': {
         const colors = st.meshColors && st.meshColors.length >= 2 ? st.meshColors : ['#6366f1', '#ec4899', '#06b6d4', '#f59e0b'];
         return {
@@ -2625,12 +2912,23 @@
           backgroundSize: '100% 100%, 100% 100%, 40px 40px, 40px 40px'
         };
       }
-      case 'glass':
-        /* A "poeira" do vidro é o veil .pv-glass-veil (syncGlassVeil);
-           aqui fica só a base colorida que aparecerá borrada atrás */
+      case 'glass': {
+        const stops = Array.isArray(st.gradientStops) && st.gradientStops.length >= 2
+          ? st.gradientStops.slice().sort((a, b) => (a.pos ?? 0) - (b.pos ?? 0))
+          : [{ color: st.gradientStart || '#6366f1', pos: 0 }, { color: st.gradientEnd || '#ec4899', pos: 100 }];
         return {
-          background: 'linear-gradient(' + (st.gradientAngle || 135) + 'deg, ' + (st.gradientStart || '#6366f1') + ', ' + (st.gradientEnd || '#ec4899') + ')'
+          background: 'linear-gradient(' + (st.gradientAngle || 135) + 'deg, ' +
+            stops.map(s => {
+              const alpha = s.alpha == null ? 100 : s.alpha;
+              const hex = s.color || '#6366f1';
+              if (alpha < 100) {
+                const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+                return 'rgba(' + r + ',' + g + ',' + b + ',' + (alpha/100).toFixed(2) + ') ' + (s.pos ?? 0) + '%';
+              }
+              return hex + ' ' + (s.pos ?? 0) + '%';
+            }).join(', ') + ')'
         };
+      }
       case 'video':
         /* O <video> é gerenciado por syncBgVideo(); aqui só o fallback */
         return { backgroundColor: '#0b1220' };
@@ -2794,10 +3092,15 @@
         out.border = '1px solid rgba(255,255,255,0.25)';
         out.color = t_inkc(st);
         break;
-      case 'gradient':
-        out.background = 'linear-gradient(135deg, ' + (st.gradientStart || '#6366f1') + ', ' + (st.gradientEnd || '#ec4899') + ')';
+      case 'gradient': {
+        const _stops = Array.isArray(st.gradientStops) && st.gradientStops.length >= 2
+          ? st.gradientStops.slice().sort((a, b) => (a.pos ?? 0) - (b.pos ?? 0))
+          : [{ color: st.gradientStart || '#6366f1', pos: 0 }, { color: st.gradientEnd || '#ec4899', pos: 100 }];
+        out.background = 'linear-gradient(135deg, ' +
+          _stops.map(s => (s.color || '#6366f1') + ' ' + (s.pos ?? 0) + '%').join(', ') + ')';
         out.color = '#ffffff';
         break;
+      }
       default: /* solid */
         out.background = t_btnbg(st);
         out.color = t_btninkc(st);
@@ -2961,9 +3264,15 @@
       pvName.style.letterSpacing = ls;
       pvName.style.lineHeight = lh;
       pvName.style.fontFamily = 'inherit';
+      pvName.style.fontSize = (st.titleSize ?? 20) + 'px';
+      pvName.style.fontWeight = String(st.fontWeight ?? 700);
     }
     const pvBio = $('pvBio');
-    if (pvBio) { pvBio.style.letterSpacing = ls; pvBio.style.lineHeight = lh; }
+    if (pvBio) {
+      pvBio.style.letterSpacing = ls;
+      pvBio.style.lineHeight = lh;
+      pvBio.style.fontSize = (st.bioSize ?? 14) + 'px';
+    }
 
     /* Botões */
     const btnCSS = buildButtonCSS(st, t);
@@ -2986,8 +3295,6 @@
       Object.assign(th.style, qCSS);
     });
 
-    $('pvName').style.fontSize = (st.titleSize ?? 20) + 'px';
-
     const gap = (st.blockGap ?? 10);
     $('previewLinksList').style.display = 'flex';
     $('previewLinksList').style.flexDirection = 'column';
@@ -2997,25 +3304,199 @@
     });
   }
 
+  /* Renderiza color triggers individuais (fundo, texto, botão bg, botão texto) */
+  const COLOR_TRIGGER_IDS = ['pageBgColor', 'pageTextColor', 'btnBgColor', 'btnTextColor'];
+  const COLOR_TRIGGER_DEFAULTS = {
+    pageBgColor: '#f9fafb',
+    pageTextColor: '#111827',
+    btnBgColor: '#111827',
+    btnTextColor: '#ffffff'
+  };
+
+  function renderColorTriggers() {
+    const st = cfg.style || {};
+    COLOR_TRIGGER_IDS.forEach((id) => {
+      const val = st[id];
+      setTriggerColor(id, val || '');
+      const label = $(id)?.querySelector('.color-trigger-hex');
+      if (label) label.textContent = val ? val.toUpperCase() : 'AUTO';
+    });
+  }
+
   function renderThemeSwatches() {
-    const wrap = $('themeSwatches');
-    wrap.innerHTML = '';
-    Object.keys(THEMES).forEach((key) => {
-      const t = THEMES[key];
-      const b = document.createElement('button');
-      b.className = 'swatch' + (cfg.style?.theme === key ? ' active' : '');
-      b.title = key;
-      b.dataset.theme = key;
-      b.style.background = t.btnbg === '#ffffff' ? 'linear-gradient(135deg,#93c5fd,#3b82f6)' : t.btnbg;
-      b.addEventListener('click', () => {
-        if (!cfg.style) cfg.style = {};
-        cfg.style.theme = key;
-        renderThemeSwatches();
+    /* Legado — agora renderiza os color triggers */
+    renderColorTriggers();
+  }
+
+  /* ================================================================
+     GRADIENT STOPS — renderização dinâmica do editor multi-stop
+     ================================================================ */
+  function ensureGradientStops() {
+    if (!cfg.style) cfg.style = {};
+    if (!Array.isArray(cfg.style.gradientStops) || cfg.style.gradientStops.length < 2) {
+      /* Migra do legado gradientStart/End se existir */
+      const gs = cfg.style.gradientStart || '#6366f1';
+      const ge = cfg.style.gradientEnd || '#ec4899';
+      cfg.style.gradientStops = [
+        { color: gs, pos: 0, alpha: 100 },
+        { color: ge, pos: 100, alpha: 100 }
+      ];
+    }
+    if (cfg.style.gradientStops.length > 6) cfg.style.gradientStops.length = 6;
+    return cfg.style.gradientStops;
+  }
+
+  function renderGradientStops() {
+    const container = $('gradientStopsContainer');
+    if (!container) return;
+    const stops = ensureGradientStops();
+    container.innerHTML = '';
+
+    stops.forEach((stop, idx) => {
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex;align-items:center;gap:6px;margin-bottom:6px;';
+
+      /* Swatch de cor */
+      const swatch = document.createElement('div');
+      swatch.className = 'color-trigger';
+      swatch.role = 'button';
+      swatch.tabIndex = '0';
+      swatch.style.cssText = 'flex:0 0 auto;width:36px;height:32px;padding:4px;cursor:pointer;';
+      const swatchInner = document.createElement('div');
+      swatchInner.className = 'color-trigger-swatch';
+      swatchInner.style.background = stop.color;
+      swatch.appendChild(swatchInner);
+      swatch.addEventListener('click', () => {
+        openColorPicker(swatch, stop.color, (hex) => {
+          stop.color = hex;
+          swatchInner.style.background = hex;
+          syncGradientPreview();
+          applyThemeVars();
+          markDirty();
+        });
+      });
+
+      /* Slider de posição */
+      const posSlider = document.createElement('input');
+      posSlider.type = 'range';
+      posSlider.min = '0';
+      posSlider.max = '100';
+      posSlider.value = String(stop.pos ?? 0);
+      posSlider.style.cssText = 'flex:1;accent-color:var(--brand);';
+      const posLabel = document.createElement('span');
+      posLabel.style.cssText = 'font-size:11px;font-weight:600;color:var(--muted);min-width:28px;text-align:right;';
+      posLabel.textContent = (stop.pos ?? 0) + '%';
+      posSlider.addEventListener('input', () => {
+        stop.pos = Number(posSlider.value);
+        posLabel.textContent = stop.pos + '%';
+        syncGradientPreview();
+        markDirty();
+      });
+
+      /* Botão remover */
+      const removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.textContent = '×';
+      removeBtn.title = 'Remover cor';
+      removeBtn.style.cssText = 'width:22px;height:22px;border-radius:50%;border:none;background:rgba(0,0,0,.08);color:var(--muted);font-size:14px;cursor:pointer;flex:0 0 auto;display:flex;align-items:center;justify-content:center;';
+      if (stops.length <= 2) { removeBtn.disabled = true; removeBtn.style.opacity = '0.3'; }
+      removeBtn.addEventListener('click', () => {
+        if (stops.length <= 2) return;
+        stops.splice(idx, 1);
+        renderGradientStops();
+        syncGradientPreview();
         applyThemeVars();
         markDirty();
       });
-      wrap.appendChild(b);
+
+      row.appendChild(swatch);
+      row.appendChild(posSlider);
+      row.appendChild(posLabel);
+      row.appendChild(removeBtn);
+      container.appendChild(row);
     });
+
+    syncGradientPreview();
+  }
+
+  function syncGradientPreview() {
+    const stops = ensureGradientStops();
+    const angle = (cfg.style && cfg.style.gradientAngle) || 135;
+    const sorted = stops.slice().sort((a, b) => (a.pos ?? 0) - (b.pos ?? 0));
+    const grad = 'linear-gradient(' + angle + 'deg, ' +
+      sorted.map(s => {
+        const a = s.alpha == null ? 100 : s.alpha;
+        const hex = s.color || '#6366f1';
+        if (a < 100) {
+          const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b2 = parseInt(hex.slice(5,7),16);
+          return 'rgba(' + r + ',' + g + ',' + b2 + ',' + (a/100).toFixed(2) + ') ' + (s.pos ?? 0) + '%';
+        }
+        return hex + ' ' + (s.pos ?? 0) + '%';
+      }).join(', ') + ')';
+    /* Aplicar preview no body do admin */
+    const pvPage = $('pvPage');
+    if (pvPage && (cfg.style?.bgVariant === 'gradient')) {
+      pvPage.style.backgroundImage = grad;
+    }
+  }
+
+  /* ================================================================
+     PREMIUM PRESETS — renderização e aplicação
+     ================================================================ */
+  function renderPresets() {
+    const grid = $('presetsGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    PRESETS.forEach((preset) => {
+      const card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'preset-card' + (cfg.style?.activePreset === preset.key ? ' active' : '');
+      card.title = preset.name;
+      card.dataset.preset = preset.key;
+
+      const pv = document.createElement('div');
+      pv.className = 'preset-preview';
+      pv.style.background = preset.preview.bg;
+
+      const swatches = document.createElement('div');
+      swatches.className = 'preset-preview__swatches';
+      [preset.preview.text, preset.preview.btn, preset.preview.btnText].forEach((c) => {
+        const s = document.createElement('span');
+        s.className = 'preset-preview__swatch';
+        s.style.background = c;
+        swatches.appendChild(s);
+      });
+      pv.appendChild(swatches);
+      card.appendChild(pv);
+
+      const label = document.createElement('div');
+      label.className = 'preset-name';
+      label.textContent = preset.name;
+      card.appendChild(label);
+
+      card.addEventListener('click', () => applyPreset(preset.key));
+      grid.appendChild(card);
+    });
+  }
+
+  function applyPreset(key) {
+    const preset = PRESETS.find(p => p.key === key);
+    if (!preset) return;
+    if (!cfg.style) cfg.style = {};
+
+    /* Merge: preset config sobrescreve só os campos que define */
+    Object.keys(preset.config).forEach((k) => {
+      cfg.style[k] = preset.config[k];
+    });
+    cfg.style.activePreset = key;
+
+    /* Re-render todos os controles afetados */
+    renderPresets();
+    renderThemeSwatches();
+    reflectStyleValues();
+    updateStyleRowsVisibility();
+    applyThemeVars();
+    markDirty();
   }
 
   /* Renderiza swatches de cores customizáveis (mesh, animated) */
@@ -3324,8 +3805,9 @@
     const bgVar = st.bgVariant || 'solid';
     const btnVar = st.btnVariant || 'solid';
 
-    $('themeRow').style.display = (bgVar === 'solid' || bgVar === 'gradient') ? '' : 'none';
+    $('themeRow').style.display = '';
     $('customGradientRow').style.display = bgVar === 'gradient' ? '' : 'none';
+    if (bgVar === 'gradient') renderGradientStops();
     $('meshColorsRow').style.display = bgVar === 'mesh' ? '' : 'none';
     $('animatedColorsRow').style.display = bgVar === 'animated' ? '' : 'none';
     $('cyberpunkColorsRow').style.display = bgVar === 'cyberpunk' ? '' : 'none';
@@ -3397,34 +3879,45 @@
       markDirty();
     });
 
-    /* Tema de cores */
-    $('themeSwatches').addEventListener('click', (e) => {
-      const btn = e.target.closest('.swatch');
-      if (!btn || !btn.dataset.theme) return;
-      if (!cfg.style) cfg.style = {};
-      cfg.style.theme = btn.dataset.theme;
-      renderThemeSwatches();
-      applyThemeVars();
-      markDirty();
-    });
-
-    /* Gradiente customizado */
-    ['gradientStart', 'gradientEnd'].forEach(id => {
-      $(id).addEventListener('click', () => {
-        const current = (cfg.style && cfg.style[id]) || (id === 'gradientStart' ? '#6366f1' : '#ec4899');
-        openColorPicker($(id), current, (hex) => {
+    /* Cores individuais — 4 color triggers */
+    COLOR_TRIGGER_IDS.forEach((id) => {
+      const el = $(id);
+      if (!el) return;
+      const handler = () => {
+        const current = (cfg.style && cfg.style[id]) || COLOR_TRIGGER_DEFAULTS[id] || '#000000';
+        openColorPicker(el, current, (hex) => {
           if (!cfg.style) cfg.style = {};
           cfg.style[id] = hex;
+          cfg.style.activePreset = '';
           setTriggerColor(id, hex);
+          const label = el.querySelector('.color-trigger-hex');
+          if (label) label.textContent = hex.toUpperCase();
+          renderPresets();
           applyThemeVars();
           markDirty();
         });
+      };
+      el.addEventListener('click', handler);
+      el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handler(); } });
+    });
+
+    /* Gradiente multi-stop */
+    $('btnAddGradientStop').addEventListener('click', () => {
+      const stops = ensureGradientStops();
+      if (stops.length >= 6) return;
+      openColorPicker($('btnAddGradientStop'), '#6366f1', (hex) => {
+        const maxPos = stops.reduce((m, s) => Math.max(m, s.pos ?? 0), 0);
+        stops.push({ color: hex, pos: Math.min(maxPos + 20, 100), alpha: 100 });
+        renderGradientStops();
+        applyThemeVars();
+        markDirty();
       });
     });
     $('gradientAngle').addEventListener('input', (e) => {
       if (!cfg.style) cfg.style = {};
       cfg.style.gradientAngle = Number(e.target.value);
       $('gradientAngleVal').textContent = e.target.value + 'deg';
+      syncGradientPreview();
       applyThemeVars();
       markDirty();
     });
@@ -3648,6 +4141,8 @@
     bindRange('btnRadius', 'btnRadiusVal', (v) => v + 'px', (v) => { cfg.style.btnRadius = v; applyThemeVars(); });
     bindRange('btnShadow', 'btnShadowVal', (v) => v + '%', (v) => { cfg.style.btnShadow = v; applyThemeVars(); });
     bindRange('titleSize', 'titleSizeVal', (v) => v + 'px', (v) => { cfg.style.titleSize = v; applyThemeVars(); });
+    bindRange('bioSize', 'bioSizeVal', (v) => v + 'px', (v) => { cfg.style.bioSize = v; applyThemeVars(); });
+    bindRange('fontWeight', 'fontWeightVal', (v) => String(v), (v) => { cfg.style.fontWeight = v; applyThemeVars(); });
     bindRange('blockGap', 'blockGapVal', (v) => v + 'px', (v) => { cfg.style.blockGap = v; renderPreview(); });
 
     reflectStyleValues();
@@ -3662,12 +4157,13 @@
     $('qlShadow').value = qls.shadow;
     $('bgVariant').value = st.bgVariant || 'solid';
     $('btnVariant').value = st.btnVariant || 'solid';
-    setTriggerColor('gradientStart', st.gradientStart || '#6366f1');
-    setTriggerColor('gradientEnd', st.gradientEnd || '#ec4899');
+    renderGradientStops();
     setTriggerColor('btnGradientStart', st.btnGradientStart || '#6366f1');
     setTriggerColor('btnGradientEnd', st.btnGradientEnd || '#ec4899');
     setTriggerColor('cyberPrimary', st.cyberPrimary || '#00ffff');
     setTriggerColor('cyberSecondary', st.cyberSecondary || '#ff00ff');
+    /* Cores individuais */
+    renderColorTriggers();
     $('glassEnabled').checked = !!st.glassEnabled;
     $('bgVideoUrl').value = st.bgVideoUrl || '';
     $('bgImageUrl').value = st.bgImageUrl || '';
@@ -3683,6 +4179,8 @@
     setRange('btnGlassOpacity', st.btnGlassOpacity ?? 15);
     setRange('btnGlassBlur', st.btnGlassBlur ?? 12);
     setRange('titleSize', st.titleSize);
+    setRange('bioSize', st.bioSize ?? 14);
+    setRange('fontWeight', st.fontWeight ?? 700);
     setRange('blockGap', st.blockGap);
     setRange('gradientAngle', st.gradientAngle ?? 135);
     setRange('animSpeed', st.animSpeed ?? 20);
