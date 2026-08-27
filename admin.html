@@ -1434,6 +1434,14 @@
             </div>
           </div>
           <div class="field" style="margin:10px 0 0;">
+            <label for="addressAlign">Alinhamento</label>
+            <select id="addressAlign">
+              <option value="left">Esquerda</option>
+              <option value="center" selected>Centro</option>
+              <option value="right">Direita</option>
+            </select>
+          </div>
+          <div class="field" style="margin:10px 0 0;">
             <label>Cor do texto</label>
             <div class="color-trigger" id="addressTextColor" role="button" tabindex="0">
               <div class="color-trigger-swatch" style="background:#ffffff;"></div>
@@ -4575,6 +4583,21 @@
           addrBox.style.border = '1px solid rgba(255,255,255,.16)';
         }
         addrBox.style.color = astyle.color || '#ffffff';
+        /* Alinhamento do bloco de endereço (pf.text.address.align) */
+        const addrAlign = (pf.text && pf.text.address && pf.text.address.align) || 'center';
+        addrBox.style.display = 'flex';
+        addrBox.style.width = 'fit-content';
+        addrBox.style.justifyContent = addrAlign === 'left' ? 'flex-start' : addrAlign === 'right' ? 'flex-end' : 'center';
+        if (addrAlign === 'left') {
+          addrBox.style.marginLeft = '0';
+          addrBox.style.marginRight = 'auto';
+        } else if (addrAlign === 'right') {
+          addrBox.style.marginLeft = 'auto';
+          addrBox.style.marginRight = '0';
+        } else {
+          addrBox.style.marginLeft = 'auto';
+          addrBox.style.marginRight = 'auto';
+        }
       }
       const addrIco = $('pvAddressIco');
       if (addrIco) addrIco.hidden = !((pf.address && pf.address.showIcon) !== false);
@@ -5759,6 +5782,14 @@
       renderPreview();
       markDirty();
     });
+    safeOn('addressAlign', 'change', (e) => {
+      const pf = profileDesignRef();
+      pf.text = pf.text || {};
+      pf.text.address = pf.text.address || {};
+      pf.text.address.align = e.target.value;
+      renderPreview();
+      markDirty();
+    });
     safeOn('addressBg', 'click', () => {
       const pf = profileDesignRef();
       pf.address = pf.address || {};
@@ -5939,6 +5970,8 @@
     if (addrIconEl) addrIconEl.checked = !(pf.address && pf.address.showIcon === false);
     const addrStyleEl = $('addressStyle');
     if (addrStyleEl) addrStyleEl.value = (pf.address && pf.address.style) || 'pill';
+    const addrAlignEl = $('addressAlign');
+    if (addrAlignEl) addrAlignEl.value = (pf.text && pf.text.address && pf.text.address.align) || 'center';
     renderDesignTriggers();
   }
 

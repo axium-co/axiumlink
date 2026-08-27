@@ -2788,7 +2788,11 @@
         if (!t) return;
         if (!cfg) {
           t.style.textAlign = '';
-          if (id === 'pgAddress') t.style.justifyContent = 'center';
+          if (id === 'pgAddress') {
+            t.style.justifyContent = 'center';
+            t.style.marginLeft = '';
+            t.style.marginRight = '';
+          }
           return;
         }
         if (cfg.color) t.style.color = cfg.color;
@@ -2797,6 +2801,20 @@
         t.style.textAlign = cfg.align || '';
         if (id === 'pgAddress') {
           t.style.justifyContent = cfg.align === 'left' ? 'flex-start' : cfg.align === 'right' ? 'flex-end' : 'center';
+          /* Torna o bloco posicionável (bloco + largura própria) para o
+             alinhamento esquerda/centro/direita valer de verdade */
+          t.style.display = 'flex';
+          t.style.width = 'fit-content';
+          if (cfg.align === 'left') {
+            t.style.marginLeft = '0';
+            t.style.marginRight = 'auto';
+          } else if (cfg.align === 'right') {
+            t.style.marginLeft = 'auto';
+            t.style.marginRight = '0';
+          } else {
+            t.style.marginLeft = 'auto';
+            t.style.marginRight = 'auto';
+          }
         }
       };
       applyPubText('pgTitle', ptext.name);
