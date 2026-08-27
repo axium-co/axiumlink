@@ -316,6 +316,38 @@
     min-width:44px; text-align:right; font-size:12px; font-weight:700; color:var(--ink);
     background:var(--bg); padding:4px 7px; border-radius:7px;
   }
+  /* Sub-blocos independentes de tipografia */
+  .typo-block {
+    border:1.5px solid var(--border); border-radius:12px;
+    padding:14px; margin-bottom:14px; background:var(--bg);
+  }
+  .typo-block-page { border-color:var(--brand); }
+  .typo-block-head {
+    font-size:13px; font-weight:700; color:var(--ink);
+    margin-bottom:4px; display:flex; align-items:center; gap:6px;
+  }
+  .typo-block-hint { font-size:11px; color:var(--muted); margin-bottom:10px; }
+  .typo-block-head-mini {
+    font-size:11.5px; font-weight:700; color:var(--muted);
+    text-transform:uppercase; letter-spacing:.03em; margin-bottom:8px;
+  }
+  .ds-col { margin-bottom:10px; }
+  .ds-col-label {
+    display:block; font-size:12px; font-weight:600; color:var(--muted); margin-bottom:6px;
+  }
+  .typo-select {
+    width:100%; padding:11px 13px; border:1.5px solid var(--border);
+    border-radius:10px; font-size:14px; background:#fff; color:var(--ink);
+  }
+  /* Sub-grupos independentes de efeito vidro */
+  .glass-block {
+    border:1.5px solid var(--border); border-radius:12px;
+    padding:14px; margin:12px 0; background:var(--bg);
+  }
+  .glass-block-head {
+    font-size:13px; font-weight:700; color:var(--ink);
+    margin-bottom:6px; display:flex; align-items:center; gap:6px;
+  }
   .color-swatch-row { display:flex; gap:8px; flex-wrap:wrap; }
   .swatch {
     width:34px; height:34px; border-radius:9px; cursor:pointer;
@@ -698,6 +730,37 @@
   .pv-address-ico { font-size:11px; line-height:1; }
   .pv-banner-scrim { position:absolute; inset:0; z-index:2; pointer-events:none; }
   .pv-banner-scrim[hidden] { display:none; }
+  /* Overlay de texto/CTA sobre o banner — container posicionado de forma
+     isolada (width limitada + overflow controlado) para não vazar sobre a logo */
+  .pv-banner-overlay {
+    position:absolute; inset:0; z-index:3;
+    display:flex; box-sizing:border-box; pointer-events:none;
+  }
+  .bposer-top    { align-items:flex-start; justify-content:center; }
+  .bposer-center { align-items:center;     justify-content:center; }
+  .bposer-bottom { align-items:flex-end;   justify-content:center; }
+  .bposer-left   { justify-content:flex-start; text-align:left; }
+  .bposer-center { justify-content:center;     text-align:center; }
+  .bposer-right  { justify-content:flex-end;   text-align:right; }
+  .pv-banner-overlay-inner {
+    width:100%; max-width:100%; box-sizing:border-box;
+    display:flex; flex-direction:column; gap:6px; padding:12px 16px;
+  }
+  .pv-banner-overlay-inner.darken {
+    border-radius:12px; background:rgba(0,0,0,.35);
+  }
+  .pv-banner-overlay-title {
+    margin:0; font-size:16px; font-weight:700; color:#fff; line-height:1.3;
+    text-shadow:0 1px 4px rgba(0,0,0,.45);
+    overflow-wrap:break-word; word-break:break-word; box-sizing:border-box;
+  }
+  .pv-banner-overlay-cta {
+    display:inline-block; width:fit-content; max-width:100%; box-sizing:border-box;
+    padding:6px 16px; border-radius:999px; background:rgba(255,255,255,.9);
+    color:#0f172a; font-size:12px; font-weight:700; text-decoration:none;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .banner-cta.block { display:block; width:100%; text-align:inherit; }
 
   .pv-content { padding:20px 16px 0; max-width:560px; margin:0 auto; }
 
@@ -1311,6 +1374,32 @@
           </div>
         </div>
 
+        <div class="glass-block" id="textGlassBlock">
+          <div class="glass-block-head">💠 Efeito Vidro no fundo do texto</div>
+          <p class="hint" style="margin:-2px 0 8px;">Cria um "chip" de vidro atrás do nome e da bio.</p>
+          <div class="toggle-row" style="padding:2px 0 6px;">
+            <span class="toggle-label">Ativar efeito vidro</span>
+            <label class="switch">
+              <input type="checkbox" id="textGlassToggle">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="ds-control">
+            <label>Desfoque (Blur)</label>
+            <div class="ds-control-row">
+              <input type="range" id="textGlassBlur" min="0" max="30" step="1">
+              <output class="ds-value" id="textGlassBlurVal">10px</output>
+            </div>
+          </div>
+          <div class="ds-control">
+            <label>Opacidade do vidro</label>
+            <div class="ds-control-row">
+              <input type="range" id="textGlassOpacity" min="5" max="50" step="1">
+              <output class="ds-value" id="textGlassOpacityVal">15%</output>
+            </div>
+          </div>
+        </div>
+
         <!-- Endereço -->
         <div class="field" style="padding-top:12px; border-top:1px solid var(--bg);">
           <label style="font-size:13px; font-weight:700; color:var(--ink);">Apresentação do endereço</label>
@@ -1422,6 +1511,31 @@
             <option value="glass">Efeito Vidro (Glassmorphism)</option>
             <option value="gradient">Gradiente Suave</option>
           </select>
+        </div>
+
+        <div class="glass-block" id="iconGlassBlock">
+          <div class="glass-block-head">💠 Efeito Vidro no ícone</div>
+          <div class="toggle-row" style="padding:2px 0 6px;">
+            <span class="toggle-label">Ativar efeito vidro no ícone</span>
+            <label class="switch">
+              <input type="checkbox" id="iconGlassToggle">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="ds-control">
+            <label>Desfoque (Blur)</label>
+            <div class="ds-control-row">
+              <input type="range" id="iconGlassBlur" min="0" max="30" step="1">
+              <output class="ds-value" id="iconGlassBlurVal">12px</output>
+            </div>
+          </div>
+          <div class="ds-control">
+            <label>Opacidade do vidro</label>
+            <div class="ds-control-row">
+              <input type="range" id="iconGlassOpacity" min="5" max="50" step="1">
+              <output class="ds-value" id="iconGlassOpacityVal">12%</output>
+            </div>
+          </div>
         </div>
 
         <div class="field">
@@ -1596,18 +1710,35 @@
           </div>
         </div>
 
-        <div class="ds-control" id="btnGlassOpacityRow" style="display:none;">
-          <label>Opacidade do Vidro (botões)</label>
-          <div class="ds-control-row">
-            <input type="range" id="btnGlassOpacity" min="5" max="50" step="1">
-            <output class="ds-value" id="btnGlassOpacityVal">15%</output>
+        <div class="glass-block" id="buttonGlassBlock">
+          <div class="glass-block-head">💠 Efeito Vidro no botão</div>
+          <div class="toggle-row" style="padding:2px 0 6px;">
+            <span class="toggle-label">Ativar efeito vidro</span>
+            <label class="switch">
+              <input type="checkbox" id="buttonGlassToggle">
+              <span class="slider"></span>
+            </label>
           </div>
-        </div>
-        <div class="ds-control" id="btnGlassBlurRow" style="display:none;">
-          <label>Desfoque do Vidro (botões)</label>
-          <div class="ds-control-row">
-            <input type="range" id="btnGlassBlur" min="0" max="30" step="1">
-            <output class="ds-value" id="btnGlassBlurVal">12px</output>
+          <div class="ds-control">
+            <label>Desfoque (Blur)</label>
+            <div class="ds-control-row">
+              <input type="range" id="buttonGlassBlur" min="0" max="30" step="1">
+              <output class="ds-value" id="buttonGlassBlurVal">14px</output>
+            </div>
+          </div>
+          <div class="ds-control">
+            <label>Opacidade do vidro</label>
+            <div class="ds-control-row">
+              <input type="range" id="buttonGlassOpacity" min="5" max="50" step="1">
+              <output class="ds-value" id="buttonGlassOpacityVal">15%</output>
+            </div>
+          </div>
+          <div class="ds-control">
+            <label>Opacidade da borda</label>
+            <div class="ds-control-row">
+              <input type="range" id="buttonGlassBorderOpacity" min="0" max="100" step="1">
+              <output class="ds-value" id="buttonGlassBorderOpacityVal">25%</output>
+            </div>
           </div>
         </div>
 
@@ -1806,71 +1937,167 @@
           <button class="panel-del" data-section="style" title="Remover seção Estilo da página">🗑</button>
         </div>
         <div class="sec-body">
-        <div class="field">
-          <label for="fontFamily">Fonte da página</label>
-          <select id="fontFamily" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
-            <option value="Inter">Inter (neutra)</option>
-            <option value="Poppins">Poppins (amigável)</option>
-            <option value="Montserrat">Montserrat (corporativa)</option>
-            <option value="Syne">Syne (artística/moderna)</option>
-            <option value="Playfair Display">Playfair Display (elegante/serifa)</option>
-            <option value="Cormorant Garamond">Cormorant Garamond (serifa leve e refinada)</option>
-            <option value="Lora">Lora (serifa clássica)</option>
-            <option value="DM Serif Display">DM Serif Display (serifa editorial)</option>
-            <option value="Space Grotesk">Space Grotesk (tech)</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label for="titleFont">Fonte do título (nome)</label>
-          <select id="titleFont" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
-            <option value="">Mesma da página</option>
-            <option value="Playfair Display">Playfair Display (serifa elegante)</option>
-            <option value="Cormorant Garamond">Cormorant Garamond (serifa leve)</option>
-            <option value="DM Serif Display">DM Serif Display (serifa editorial)</option>
-            <option value="Lora">Lora (serifa clássica)</option>
-            <option value="Inter">Inter (sans neutra)</option>
-            <option value="Montserrat">Montserrat (sans corporativa)</option>
-          </select>
-        </div>
-
-        <div class="ds-control">
-          <label>Tamanho da fonte dos títulos</label>
-          <div class="ds-control-row">
-            <input type="range" id="titleSize" min="15" max="30" step="1">
-            <output class="ds-value" id="titleSizeVal">20px</output>
+        <!-- FONTE GERAL DA PÁGINA (fallback para os sub-blocos) -->
+        <div class="typo-block typo-block-page">
+          <div class="typo-block-head">📄 Fonte geral da página</div>
+          <p class="typo-block-hint">Usada como fallback para os elementos abaixo que estiverem em "Mesma da página".</p>
+          <div class="field">
+            <label for="fontFamily">Fonte da página</label>
+            <select id="fontFamily" class="typo-select">
+              <option value="Inter">Inter (neutra)</option>
+              <option value="Poppins">Poppins (amigável)</option>
+              <option value="Montserrat">Montserrat (corporativa)</option>
+              <option value="Syne">Syne (artística/moderna)</option>
+              <option value="Playfair Display">Playfair Display (elegante/serifa)</option>
+              <option value="Cormorant Garamond">Cormorant Garamond (serifa leve e refinada)</option>
+              <option value="Lora">Lora (serifa clássica)</option>
+              <option value="DM Serif Display">DM Serif Display (serifa editorial)</option>
+              <option value="Space Grotesk">Space Grotesk (tech)</option>
+            </select>
           </div>
         </div>
 
-        <div class="ds-control">
-          <label>Tamanho da bio</label>
-          <div class="ds-control-row">
-            <input type="range" id="bioSize" min="10" max="20" step="1">
-            <output class="ds-value" id="bioSizeVal">14px</output>
+        <!-- TIPOGRAFIA DO NOME -->
+        <div class="typo-block">
+          <div class="typo-block-head">👤 Tipografia do Nome</div>
+          <div class="field">
+            <label for="typoNameFont">Fonte</label>
+            <select id="typoNameFont" class="typo-select">
+              <option value="">Mesma da página</option>
+              <option value="Playfair Display">Playfair Display (serifa elegante)</option>
+              <option value="Cormorant Garamond">Cormorant Garamond (serifa leve)</option>
+              <option value="DM Serif Display">DM Serif Display (serifa editorial)</option>
+              <option value="Lora">Lora (serifa clássica)</option>
+              <option value="Inter">Inter (sans neutra)</option>
+              <option value="Montserrat">Montserrat (sans corporativa)</option>
+              <option value="Poppins">Poppins (sans amigável)</option>
+              <option value="Syne">Syne (artística/moderna)</option>
+              <option value="Space Grotesk">Space Grotesk (tech)</option>
+            </select>
+          </div>
+          <div class="ds-control">
+            <label>Tamanho da fonte</label>
+            <div class="ds-control-row">
+              <input type="range" id="typoNameSize" min="15" max="34" step="1">
+              <output class="ds-value" id="typoNameSizeVal">20px</output>
+            </div>
+          </div>
+          <div class="ds-control">
+            <label>Peso da fonte (negrito)</label>
+            <div class="ds-control-row">
+              <input type="range" id="typoNameWeight" min="300" max="900" step="100">
+              <output class="ds-value" id="typoNameWeightVal">700</output>
+            </div>
+          </div>
+          <div class="ds-control">
+            <label>Espaçamento entre letras</label>
+            <div class="ds-control-row">
+              <input type="range" id="typoNameLs" min="-1" max="5" step="0.1">
+              <output class="ds-value" id="typoNameLsVal">0px</output>
+            </div>
+          </div>
+          <div class="ds-control">
+            <label>Altura da linha</label>
+            <div class="ds-control-row">
+              <input type="range" id="typoNameLh" min="1" max="2" step="0.05">
+              <output class="ds-value" id="typoNameLhVal">1.4</output>
+            </div>
           </div>
         </div>
 
-        <div class="ds-control">
-          <label>Peso da fonte (negrito)</label>
-          <div class="ds-control-row">
-            <input type="range" id="fontWeight" min="300" max="900" step="100">
-            <output class="ds-value" id="fontWeightVal">700</output>
+        <!-- TIPOGRAFIA DA BIO -->
+        <div class="typo-block">
+          <div class="typo-block-head">📝 Tipografia da Bio</div>
+          <div class="field">
+            <label for="typoBioFont">Fonte</label>
+            <select id="typoBioFont" class="typo-select">
+              <option value="">Mesma da página</option>
+              <option value="Playfair Display">Playfair Display (serifa elegante)</option>
+              <option value="Cormorant Garamond">Cormorant Garamond (serifa leve)</option>
+              <option value="DM Serif Display">DM Serif Display (serifa editorial)</option>
+              <option value="Lora">Lora (serifa clássica)</option>
+              <option value="Inter">Inter (sans neutra)</option>
+              <option value="Montserrat">Montserrat (sans corporativa)</option>
+              <option value="Poppins">Poppins (sans amigável)</option>
+              <option value="Syne">Syne (artística/moderna)</option>
+              <option value="Space Grotesk">Space Grotesk (tech)</option>
+            </select>
+          </div>
+          <div class="ds-control">
+            <label>Tamanho da fonte</label>
+            <div class="ds-control-row">
+              <input type="range" id="typoBioSize" min="10" max="22" step="1">
+              <output class="ds-value" id="typoBioSizeVal">14px</output>
+            </div>
+          </div>
+          <div class="ds-control">
+            <label>Peso da fonte (negrito)</label>
+            <div class="ds-control-row">
+              <input type="range" id="typoBioWeight" min="300" max="900" step="100">
+              <output class="ds-value" id="typoBioWeightVal">400</output>
+            </div>
+          </div>
+          <div class="ds-control">
+            <label>Espaçamento entre letras</label>
+            <div class="ds-control-row">
+              <input type="range" id="typoBioLs" min="-1" max="5" step="0.1">
+              <output class="ds-value" id="typoBioLsVal">0px</output>
+            </div>
+          </div>
+          <div class="ds-control">
+            <label>Altura da linha</label>
+            <div class="ds-control-row">
+              <input type="range" id="typoBioLh" min="1" max="2" step="0.05">
+              <output class="ds-value" id="typoBioLhVal">1.4</output>
+            </div>
           </div>
         </div>
 
-        <div class="ds-control">
-          <label>Espaçamento entre letras</label>
-          <div class="ds-control-row">
-            <input type="range" id="letterSpacing" min="-1" max="5" step="0.1">
-            <output class="ds-value" id="letterSpacingVal">0px</output>
+        <!-- TIPOGRAFIA DOS BOTÕES DE LINK -->
+        <div class="typo-block">
+          <div class="typo-block-head">🔗 Tipografia dos Botões de Link</div>
+          <div class="field">
+            <label for="typoBtnFont">Fonte</label>
+            <select id="typoBtnFont" class="typo-select">
+              <option value="">Mesma da página</option>
+              <option value="Playfair Display">Playfair Display (serifa elegante)</option>
+              <option value="Cormorant Garamond">Cormorant Garamond (serifa leve)</option>
+              <option value="DM Serif Display">DM Serif Display (serifa editorial)</option>
+              <option value="Lora">Lora (serifa clássica)</option>
+              <option value="Inter">Inter (sans neutra)</option>
+              <option value="Montserrat">Montserrat (sans corporativa)</option>
+              <option value="Poppins">Poppins (sans amigável)</option>
+              <option value="Syne">Syne (artística/moderna)</option>
+              <option value="Space Grotesk">Space Grotesk (tech)</option>
+            </select>
           </div>
-        </div>
-
-        <div class="ds-control">
-          <label>Altura da linha</label>
-          <div class="ds-control-row">
-            <input type="range" id="lineHeight" min="1" max="2" step="0.05">
-            <output class="ds-value" id="lineHeightVal">1.4</output>
+          <div class="ds-control">
+            <label>Tamanho da fonte</label>
+            <div class="ds-control-row">
+              <input type="range" id="typoBtnSize" min="12" max="24" step="1">
+              <output class="ds-value" id="typoBtnSizeVal">15px</output>
+            </div>
+          </div>
+          <div class="ds-control">
+            <label>Peso da fonte (negrito)</label>
+            <div class="ds-control-row">
+              <input type="range" id="typoBtnWeight" min="300" max="900" step="100">
+              <output class="ds-value" id="typoBtnWeightVal">600</output>
+            </div>
+          </div>
+          <div class="ds-control">
+            <label>Espaçamento entre letras</label>
+            <div class="ds-control-row">
+              <input type="range" id="typoBtnLs" min="-1" max="5" step="0.1">
+              <output class="ds-value" id="typoBtnLsVal">0px</output>
+            </div>
+          </div>
+          <div class="ds-control">
+            <label>Altura da linha</label>
+            <div class="ds-control-row">
+              <input type="range" id="typoBtnLh" min="1" max="2" step="0.05">
+              <output class="ds-value" id="typoBtnLhVal">1.4</output>
+            </div>
           </div>
         </div>
         </div>
@@ -1901,51 +2128,6 @@
           <div class="ds-control-row">
             <input type="range" id="blockGap" min="4" max="24" step="1">
             <output class="ds-value" id="blockGapVal">10px</output>
-          </div>
-        </div>
-        </div>
-      </section>
-
-      <!-- EFEITO VIDRO -->
-      <section class="panel sec" data-section="style">
-        <div class="sec-head">
-          <button type="button" class="sec-toggle" aria-expanded="true">
-            <span class="sec-caret" aria-hidden="true">▾</span>
-            <span class="sec-ico" aria-hidden="true">💠</span>
-            <span class="sec-label">Efeito Vidro</span>
-          </button>
-          <button class="panel-del" data-section="style" title="Remover seção Estilo da página">🗑</button>
-        </div>
-        <div class="sec-body">
-        <div class="toggle-row" id="glassControlsRow" style="display:none;">
-          <span class="toggle-label">Efeito Vidro na página (Glassmorphism)</span>
-          <label class="switch">
-            <input type="checkbox" id="glassEnabled">
-            <span class="slider"></span>
-          </label>
-        </div>
-
-        <div class="ds-control" id="glassBlurRow" style="display:none;">
-          <label>Intensidade do Desfoque (Blur)</label>
-          <div class="ds-control-row">
-            <input type="range" id="glassBlur" min="0" max="40" step="1">
-            <output class="ds-value" id="glassBlurVal">8px</output>
-          </div>
-        </div>
-
-        <div class="ds-control" id="glassOpacityRow" style="display:none;">
-          <label>Opacidade do Vidro</label>
-          <div class="ds-control-row">
-            <input type="range" id="glassOpacity" min="0" max="100" step="1">
-            <output class="ds-value" id="glassOpacityVal">30%</output>
-          </div>
-        </div>
-
-        <div class="ds-control" id="glassBorderOpacityRow" style="display:none;">
-          <label>Opacidade da Borda</label>
-          <div class="ds-control-row">
-            <input type="range" id="glassBorderOpacity" min="0" max="100" step="1">
-            <output class="ds-value" id="glassBorderOpacityVal">25%</output>
           </div>
         </div>
         </div>
@@ -1982,6 +2164,7 @@
           <button id="btnBannerImageClear" style="display:none; margin-top:10px; width:100%; padding:10px; border-radius:10px; border:1.5px solid #ef4444; background:#fef2f2; color:#dc2626; font-size:13px; font-weight:600; cursor:pointer; transition:all .15s;">✕ Remover Imagem do Banner</button>
         </div>
 
+
         <!-- OVERLAY DO BANNER -->
         <div class="field" style="margin-top:8px; padding-top:12px; border-top:1px solid var(--bg);">
           <label style="font-size:13px; font-weight:700; color:var(--ink);">Texto sobre o Banner</label>
@@ -1994,6 +2177,87 @@
           </div>
 <div class="field">
             <input type="url" id="bannerOverlayCtaUrl" placeholder="URL do botão CTA">
+          </div>
+
+          <!-- ESTILO DO TEXTO SOBRE O BANNER -->
+          <div class="typo-block" style="margin-top:10px; padding-top:12px; border-top:1px solid var(--bg);">
+            <div class="typo-block-head">🎨 Estilo do texto sobre o banner</div>
+            <p class="hint" style="margin:-2px 0 8px;">Estilize o título e o CTA. Use "Posição vertical" para afastar o texto da logo.</p>
+
+            <!-- TÍTULO -->
+            <div class="typo-block-page">
+              <div class="typo-block-head-mini">Título</div>
+              <div class="ds-col">
+                <label class="ds-col-label">Cor do texto</label>
+                <div class="color-trigger" id="bannerTitleColor" role="button" tabindex="0"><div class="color-trigger-swatch" style="background:#ffffff;"></div><span class="color-trigger-hex">#FFFFFF</span></div>
+              </div>
+              <div class="ds-control">
+                <label>Tamanho da fonte</label>
+                <div class="ds-control-row">
+                  <input type="range" id="bannerTitleSize" min="10" max="40" step="1">
+                  <output class="ds-value" id="bannerTitleSizeVal">16px</output>
+                </div>
+              </div>
+              <div class="ds-control">
+                <label>Peso da fonte</label>
+                <div class="ds-control-row">
+                  <input type="range" id="bannerTitleWeight" min="400" max="900" step="100">
+                  <output class="ds-value" id="bannerTitleWeightVal">700</output>
+                </div>
+              </div>
+            </div>
+
+            <!-- CTA -->
+            <div class="typo-block-page">
+              <div class="typo-block-head-mini">Botão CTA</div>
+              <div class="ds-col">
+                <label class="ds-col-label">Cor do texto</label>
+                <div class="color-trigger" id="bannerCtaColor" role="button" tabindex="0"><div class="color-trigger-swatch" style="background:#0f172a;"></div><span class="color-trigger-hex">#0F172A</span></div>
+              </div>
+              <div class="ds-control">
+                <label>Tamanho da fonte</label>
+                <div class="ds-control-row">
+                  <input type="range" id="bannerCtaSize" min="10" max="26" step="1">
+                  <output class="ds-value" id="bannerCtaSizeVal">12px</output>
+                </div>
+              </div>
+              <div class="ds-control">
+                <label>Peso da fonte</label>
+                <div class="ds-control-row">
+                  <input type="range" id="bannerCtaWeight" min="400" max="900" step="100">
+                  <output class="ds-value" id="bannerCtaWeightVal">700</output>
+                </div>
+              </div>
+            </div>
+
+            <!-- ALINHAMENTO + POSIÇÃO -->
+            <div class="field">
+              <label for="bannerTextAlign">Alinhamento</label>
+              <select id="bannerTextAlign">
+                <option value="left">Esquerda</option>
+                <option value="center" selected>Centro</option>
+                <option value="right">Direita</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="bannerTextVpos">Posição vertical no banner</label>
+              <select id="bannerTextVpos">
+                <option value="top">Topo</option>
+                <option value="center" selected>Centro</option>
+                <option value="bottom">Base</option>
+              </select>
+              <p class="hint" style="margin-top:4px;">Use "Topo" para evitar sobrepor a logo/avatar.</p>
+            </div>
+
+            <!-- OVERLAY ESCURO ATRÁS DO TEXTO -->
+            <div class="toggle-row" style="padding:2px 0 6px;">
+              <span class="toggle-label">Overlay escuro atrás do texto</span>
+              <label class="switch">
+                <input type="checkbox" id="bannerTextDarken" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+            <p class="hint" style="margin-top:-2px;">Fundo escurecido só atrás do texto, para garantir legibilidade sobre qualquer imagem.</p>
           </div>
         </div>
 
@@ -2013,6 +2277,32 @@
             <div class="ds-control-row">
               <input type="range" id="bannerScrimOpacity" min="0" max="100" step="5">
               <output class="ds-value" id="bannerScrimOpacityVal">45%</output>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-block" id="bannerGlassBlock">
+          <div class="glass-block-head">💠 Efeito Vidro sobre o banner</div>
+          <p class="hint" style="margin:-2px 0 8px;">Aplica um "chip" de vidro atrás do texto/CTA sobre o banner.</p>
+          <div class="toggle-row" style="padding:2px 0 6px;">
+            <span class="toggle-label">Ativar efeito vidro</span>
+            <label class="switch">
+              <input type="checkbox" id="bannerGlassToggle">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="ds-control">
+            <label>Desfoque (Blur)</label>
+            <div class="ds-control-row">
+              <input type="range" id="bannerGlassBlur" min="0" max="30" step="1">
+              <output class="ds-value" id="bannerGlassBlurVal">10px</output>
+            </div>
+          </div>
+          <div class="ds-control">
+            <label>Opacidade do vidro</label>
+            <div class="ds-control-row">
+              <input type="range" id="bannerGlassOpacity" min="5" max="50" step="1">
+              <output class="ds-value" id="bannerGlassOpacityVal">20%</output>
             </div>
           </div>
         </div>
@@ -2715,13 +3005,29 @@
       btnShadowStyle: 'soft',
       btnGlassOpacity: 15,
       btnGlassBlur: 12,
+      /* Efeito vidro independente por elemento (sub-grupos) */
+      buttonGlass: { enabled: false, blur: 14, opacity: 15, borderOpacity: 25 },
+      iconGlass:   { enabled: false, blur: 12, opacity: 12 },
+      bannerGlass: { enabled: false, blur: 10, opacity: 20 },
+      textGlass:   { enabled: false, blur: 10, opacity: 15 },
+      /* Estilo do texto sobre o banner */
+      bannerText: {
+        titleColor: '', titleSize: 16, titleWeight: 700,
+        ctaColor: '', ctaSize: 12, ctaWeight: 700,
+        align: 'center', vpos: 'center', darken: true
+      },
       /* Tipografia */
       font: 'Inter',
       titleFont: '',
       layoutSpacing: 'comfy',
       quickBorderColor: '',
       letterSpacing: 0,
-      lineHeight: 1.4
+      lineHeight: 1.4,
+      /* Tipografia por elemento (sub-blocos independentes).
+         font='' significa "Mesma da página" (usa st.font como fallback). */
+      typoName: { font: '', size: 20, weight: 700, ls: 0, lh: 1.4 },
+      typoBio:  { font: '', size: 14, weight: 400, ls: 0, lh: 1.4 },
+      typoBtn:  { font: '', size: 15, weight: 600, ls: 0, lh: 1.4 }
     }
   });
 
@@ -2793,7 +3099,6 @@
     cfg.banner = cfg.banner || '';
 
     /* Controles de estilo novos: refletem o config (default ou salvo) no load */
-    $('titleFont').value = cfg.style.titleFont || '';
     $('layoutSpacing').value = cfg.style.layoutSpacing || 'comfy';
 
     $('displayName').value = cfg.profile?.displayName || '';
@@ -2965,16 +3270,11 @@
     } else if (key === 'style') {
       setRange('btnRadius', cfg.style.btnRadius);
       setRange('btnShadow', cfg.style.btnShadow);
-      setRange('titleSize', cfg.style.titleSize);
-      setRange('bioSize', cfg.style.bioSize ?? 14);
-      setRange('fontWeight', cfg.style.fontWeight ?? 700);
+      reflectTypographyInputs();
+      reflectGlassInputs();
       setRange('blockGap', cfg.style.blockGap);
-      setRange('btnGlassOpacity', cfg.style.btnGlassOpacity ?? 15);
-      setRange('btnGlassBlur', cfg.style.btnGlassBlur ?? 12);
       $('btnShadowStyle').value = cfg.style.btnShadowStyle || 'soft';
-      $('titleFont').value = cfg.style.titleFont || '';
       $('layoutSpacing').value = cfg.style.layoutSpacing || 'comfy';
-      $('glassEnabled').checked = false;
     }
   }
 
@@ -3065,6 +3365,7 @@
 
     applyThemeVars();
     applyProfileDesignToMockup();
+    applyTypographyBlocks(cfg.style || {});
 
     /* Links rápidos no preview */
     const grid = $('previewQuickGrid');
@@ -3607,26 +3908,36 @@
     const old = pvBanner.querySelector('.pv-banner-overlay');
     if (old) old.remove();
     const st = cfg.style || {};
+    const bt = Object.assign({ titleColor:'', titleSize:16, titleWeight:700, ctaColor:'', ctaSize:12, ctaWeight:700, align:'center', vpos:'center', darken:true }, st.bannerText || {});
     const title = st.bannerOverlayTitle || '';
     const cta = st.bannerOverlayCta || '';
     const ctaUrl = st.bannerOverlayCtaUrl || '';
     if (!title && !cta) return;
+    /* Container posicionado com width limitada e alinhamento controlado */
     const overlay = document.createElement('div');
-    overlay.className = 'pv-banner-overlay';
-    overlay.style.cssText = 'position:absolute;inset:0;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:12px 16px;gap:6px;';
+    overlay.className = 'pv-banner-overlay bposer-' + (bt.vpos || 'center') + ' bposer-' + (bt.align || 'center');
+    const inner = document.createElement('div');
+    inner.className = 'pv-banner-overlay-inner' + (bt.darken ? ' darken' : '');
     if (title) {
       const t = document.createElement('p');
+      t.className = 'pv-banner-overlay-title';
       t.textContent = title;
-      t.style.cssText = 'font-size:14px;font-weight:700;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.4);margin:0;line-height:1.3;';
-      overlay.appendChild(t);
+      t.style.fontSize = (bt.titleSize || 16) + 'px';
+      t.style.fontWeight = bt.titleWeight || 700;
+      t.style.color = bt.titleColor || '#ffffff';
+      inner.appendChild(t);
     }
     if (cta && ctaUrl) {
       const a = document.createElement('a');
+      a.className = 'pv-banner-overlay-cta' + (bt.align === 'center' ? '' : ' block');
       a.textContent = cta;
       a.href = ctaUrl;
-      a.style.cssText = 'display:inline-block;padding:6px 16px;border-radius:999px;background:rgba(255,255,255,.9);color:#0f172a;font-size:11px;font-weight:700;text-decoration:none;';
-      overlay.appendChild(a);
+      a.style.fontSize = (bt.ctaSize || 12) + 'px';
+      a.style.fontWeight = bt.ctaWeight || 700;
+      a.style.color = bt.ctaColor || '#0f172a';
+      inner.appendChild(a);
     }
+    overlay.appendChild(inner);
     pvBanner.appendChild(overlay);
   }
 
@@ -3977,6 +4288,116 @@
     }
   }
 
+  /* Aplica a tipografia independente de cada elemento (nome, bio, botões).
+     Cada sub-bloco tem os próprios valores; font='' significa "Mesma da
+     página" → herda a fonte geral (st.font). */
+  function applyTypographyBlocks(st) {
+    const page = $('pvPage');
+    if (!page) return;
+
+    const pvName = $('pvName');
+    if (pvName) {
+      const b = st.typoName || {};
+      pvName.style.fontFamily = b.font ? (FONT_STACKS[b.font] || 'Georgia, serif') : 'inherit';
+      pvName.style.fontSize = (b.size ?? 20) + 'px';
+      pvName.style.fontWeight = String(b.weight ?? 700);
+      pvName.style.letterSpacing = (b.ls ?? 0) + 'px';
+      pvName.style.lineHeight = String(b.lh ?? 1.4);
+    }
+
+    const pvBio = $('pvBio');
+    if (pvBio) {
+      const b = st.typoBio || {};
+      pvBio.style.fontFamily = b.font ? (FONT_STACKS[b.font] || 'Georgia, serif') : 'inherit';
+      pvBio.style.fontSize = (b.size ?? 14) + 'px';
+      pvBio.style.fontWeight = String(b.weight ?? 400);
+      pvBio.style.letterSpacing = (b.ls ?? 0) + 'px';
+      pvBio.style.lineHeight = String(b.lh ?? 1.4);
+    }
+
+    page.querySelectorAll('.link-block').forEach((el) => {
+      const b = st.typoBtn || {};
+      el.style.fontFamily = b.font ? (FONT_STACKS[b.font] || 'Georgia, serif') : 'inherit';
+      el.style.fontSize = (b.size ?? 15) + 'px';
+      el.style.fontWeight = String(b.weight ?? 600);
+      el.style.letterSpacing = (b.ls ?? 0) + 'px';
+      el.style.lineHeight = String(b.lh ?? 1.4);
+    });
+  }
+
+  /* Aplica efeito vidro independente por elemento.
+     Cada sub-grupo tem estado próprio (buttonGlass/iconGlass/bannerGlass/textGlass),
+     evitando a variável global compartilhada que bugava os botões. */
+  function applyGlassToElements(st) {
+    const page = $('pvPage');
+    if (!page) return;
+
+    /* Botões */
+    const btnG = Object.assign({ enabled: false, blur: 14, opacity: 15, borderOpacity: 25 }, st.buttonGlass || {});
+    const btnIsGlass = (st.btnVariant === 'glass') || btnG.enabled;
+    page.querySelectorAll('.link-block').forEach((el) => {
+      if (btnIsGlass) {
+        const blur = (st.btnGlassBlur != null && !btnG.enabled) ? st.btnGlassBlur : btnG.blur;
+        const opacity = (st.btnGlassOpacity != null && !btnG.enabled) ? st.btnGlassOpacity : btnG.opacity;
+        el.style.background = 'rgba(255,255,255,' + (opacity / 100) + ')';
+        el.style.backdropFilter = 'blur(' + blur + 'px)';
+        el.style.webkitBackdropFilter = 'blur(' + blur + 'px)';
+        el.style.border = '1px solid rgba(255,255,255,' + (btnG.borderOpacity / 100) + ')';
+      }
+    });
+
+    /* Ícones / links rápidos */
+    const iconG = Object.assign({ enabled: false, blur: 12, opacity: 12 }, st.iconGlass || {});
+    const qls = cfg.quickLinksStyle || {};
+    const iconIsGlass = iconG.enabled || qls.background === 'glass';
+    page.querySelectorAll('.quick-item .quick-thumb').forEach((th) => {
+      if (iconIsGlass) {
+        th.style.background = 'rgba(255,255,255,' + (iconG.opacity / 100) + ')';
+        th.style.backdropFilter = 'blur(' + iconG.blur + 'px)';
+        th.style.webkitBackdropFilter = 'blur(' + iconG.blur + 'px)';
+        th.style.border = '1px solid rgba(255,255,255,0.25)';
+      }
+    });
+
+    /* Banner: chip de vidro atrás do overlay de texto */
+    const banG = Object.assign({ enabled: false, blur: 10, opacity: 20 }, st.bannerGlass || {});
+    const ov = page.querySelector('.pv-banner-overlay');
+    if (ov) {
+      if (banG.enabled) {
+        ov.style.background = 'rgba(255,255,255,' + (banG.opacity / 100) + ')';
+        ov.style.backdropFilter = 'blur(' + banG.blur + 'px)';
+        ov.style.webkitBackdropFilter = 'blur(' + banG.blur + 'px)';
+        ov.style.borderRadius = '14px';
+        ov.style.padding = '12px 16px';
+      } else {
+        ov.style.background = '';
+        ov.style.backdropFilter = '';
+        ov.style.webkitBackdropFilter = '';
+        ov.style.borderRadius = '';
+        ov.style.padding = '';
+      }
+    }
+
+    /* Perfil: chip de vidro atrás do nome e da bio */
+    const txtG = Object.assign({ enabled: false, blur: 10, opacity: 15 }, st.textGlass || {});
+    [$('pvName'), $('pvBio')].forEach((el) => {
+      if (!el) return;
+      if (txtG.enabled) {
+        el.style.background = 'rgba(255,255,255,' + (txtG.opacity / 100) + ')';
+        el.style.backdropFilter = 'blur(' + txtG.blur + 'px)';
+        el.style.webkitBackdropFilter = 'blur(' + txtG.blur + 'px)';
+        el.style.padding = '4px 12px';
+        el.style.borderRadius = '12px';
+      } else {
+        el.style.background = '';
+        el.style.backdropFilter = '';
+        el.style.webkitBackdropFilter = '';
+        el.style.padding = '';
+        el.style.borderRadius = '';
+      }
+    });
+  }
+
   function applyThemeVars() {
     /* Estilo efetivo = defaults mesclados (sem gravar de volta: seção deletada continua fora do cfg) */
     const st = Object.assign({}, DEFAULT_CFG().style, cfg.style || {});
@@ -4023,20 +4444,7 @@
     const ls = (st.letterSpacing ?? 0) + 'px';
     const lh = String(st.lineHeight ?? 1.4);
     page.style.letterSpacing = ls;
-    const pvName = $('pvName');
-    if (pvName) {
-      pvName.style.letterSpacing = ls;
-      pvName.style.lineHeight = lh;
-      pvName.style.fontFamily = st.titleFont ? (FONT_STACKS[st.titleFont] || 'Georgia, serif') : 'inherit';
-      pvName.style.fontSize = (st.titleSize ?? 20) + 'px';
-      pvName.style.fontWeight = String(st.fontWeight ?? 700);
-    }
-    const pvBio = $('pvBio');
-    if (pvBio) {
-      pvBio.style.letterSpacing = ls;
-      pvBio.style.lineHeight = lh;
-      pvBio.style.fontSize = (st.bioSize ?? 14) + 'px';
-    }
+    applyTypographyBlocks(st);
 
     /* Botões */
     const btnCSS = buildButtonCSS(st, t);
@@ -4058,6 +4466,9 @@
     page.querySelectorAll('.quick-item .quick-thumb').forEach((th) => {
       Object.assign(th.style, qCSS);
     });
+
+    /* Efeito vidro independente por elemento (sub-grupos) */
+    applyGlassToElements(st);
 
     const gap = (st.blockGap ?? 10);
     $('previewLinksList').style.display = 'flex';
@@ -4406,6 +4817,17 @@
       cfg.style[k] = preset.config[k];
     });
 
+    /* Traduz os campos legados de tipografia do preset para os sub-blocos */
+    if (preset.config.titleSize != null || preset.config.titleFont) {
+      cfg.style.typoName = Object.assign({}, cfg.style.typoName, {
+        ...(preset.config.titleSize != null ? { size: preset.config.titleSize } : {}),
+        ...(preset.config.titleFont ? { font: preset.config.titleFont } : {})
+      });
+    }
+    if (preset.config.bioSize != null) {
+      cfg.style.typoBio = Object.assign({}, cfg.style.typoBio, { size: preset.config.bioSize });
+    }
+
     /* As 4 cores de "Cores do Tema" SEMPRE sincronizam com a paleta do preset.
        Preenche os campos que o preset não define explicitamente — senão o
        picker manteria o valor do preset anterior (parece travado). */
@@ -4753,17 +5175,8 @@
     $('bgTextureRow').style.display =
       (bgVar === 'solid' || bgVar === 'gradient' || bgVar === 'mesh' || bgVar === 'animated') ? '' : 'none';
 
-    /* Glass controls mostram quando glassEnabled, botão de vidro ou fundo de vidro */
-    const showGlass = st.glassEnabled || btnVar === 'glass' || bgVar === 'glass';
-    $('glassControlsRow').style.display = showGlass ? '' : 'none';
-    $('glassBlurRow').style.display = showGlass ? '' : 'none';
-    $('glassOpacityRow').style.display = showGlass ? '' : 'none';
-    $('glassBorderOpacityRow').style.display = showGlass ? '' : 'none';
-
-    /* Vidro exclusivo dos botões */
-    const showBtnGlass = btnVar === 'glass';
-    $('btnGlassOpacityRow').style.display = showBtnGlass ? '' : 'none';
-    $('btnGlassBlurRow').style.display = showBtnGlass ? '' : 'none';
+    /* Glass agora vive em sub-grupos por elemento (botão/ícone/banner/texto),
+       cada um com estado próprio — não há mais seção global de vidro. */
 
     /* Slider de raio só no modo Personalizado; intensidade só na sombra Suave */
     $('btnRadiusRow').style.display = (st.btnShape || 'rounded') === 'custom' ? '' : 'none';
@@ -4891,22 +5304,28 @@
       markDirty();
     });
 
-    /* Glassmorphism */
-    $('glassEnabled').addEventListener('change', (e) => {
-      if (!cfg.style) cfg.style = {};
-      cfg.style.glassEnabled = e.target.checked;
-      updateStyleRowsVisibility();
-      applyThemeVars();
-      markDirty();
-    });
-    ['glassBlur', 'glassOpacity', 'glassBorderOpacity'].forEach(id => {
-      $(id).addEventListener('input', (e) => {
+    /* Efeito vidro por elemento (sub-grupos independentes: botão/ícone/banner/texto) */
+    const GLASS_GROUPS = [
+      { key: 'buttonGlass', prefix: 'buttonGlass', blur: 14, opacity: 15, borderOpacity: 25 },
+      { key: 'iconGlass',   prefix: 'iconGlass',   blur: 12, opacity: 12, borderOpacity: null },
+      { key: 'bannerGlass', prefix: 'bannerGlass', blur: 10, opacity: 20, borderOpacity: null },
+      { key: 'textGlass',   prefix: 'textGlass',   blur: 10, opacity: 15, borderOpacity: null }
+    ];
+    GLASS_GROUPS.forEach((g) => {
+      const elRef = () => {
         if (!cfg.style) cfg.style = {};
-        cfg.style[id] = Number(e.target.value);
-        $(''+id+'Val').textContent = (id === 'glassBlur' ? e.target.value + 'px' : e.target.value + '%');
+        return (cfg.style[g.key] = cfg.style[g.key] || {});
+      };
+      $(g.prefix + 'Toggle').addEventListener('change', (e) => {
+        elRef().enabled = e.target.checked;
         applyThemeVars();
         markDirty();
       });
+      bindRange(g.prefix + 'Blur', g.prefix + 'BlurVal', (v) => v + 'px', (v) => { elRef().blur = v; applyThemeVars(); });
+      bindRange(g.prefix + 'Opacity', g.prefix + 'OpacityVal', (v) => v + '%', (v) => { elRef().opacity = v; applyThemeVars(); });
+      if (g.prefix === 'buttonGlass') {
+        bindRange(g.prefix + 'BorderOpacity', g.prefix + 'BorderOpacityVal', (v) => v + '%', (v) => { elRef().borderOpacity = v; applyThemeVars(); });
+      }
     });
 
     /* btnVariant select */
@@ -5011,12 +5430,7 @@
       applyThemeVars();
       markDirty();
     });
-    $('titleFont').addEventListener('change', (e) => {
-      if (!cfg.style) cfg.style = {};
-      cfg.style.titleFont = e.target.value;
-      applyThemeVars();
-      markDirty();
-    });
+    /* Sub-blocos de tipografia (nome, bio, botões) */
     $('layoutSpacing').addEventListener('change', (e) => {
       if (!cfg.style) cfg.style = {};
       const v = e.target.value;
@@ -5028,21 +5442,37 @@
       renderPreview();
       markDirty();
     });
-    $('letterSpacing').addEventListener('input', (e) => {
-      if (!cfg.style) cfg.style = {};
-      cfg.style.letterSpacing = Number(e.target.value);
-      $('letterSpacingVal').textContent = Number(e.target.value).toFixed(1) + 'px';
-      applyThemeVars();
-      markDirty();
+    const BLOCK_CFG = [
+      { key: 'typoName', prefix: 'typoName' },
+      { key: 'typoBio',  prefix: 'typoBio'  },
+      { key: 'typoBtn',  prefix: 'typoBtn'  }
+    ];
+    const BLOCK_FIELDS = {
+      Size:   { prop: 'size',   fmt: (v) => v + 'px' },
+      Weight: { prop: 'weight', fmt: (v) => String(v) },
+      Ls:     { prop: 'ls',     fmt: (v) => Number(v).toFixed(1) + 'px' },
+      Lh:     { prop: 'lh',     fmt: (v) => Number(v).toFixed(2) }
+    };
+    BLOCK_CFG.forEach((bc) => {
+      Object.keys(BLOCK_FIELDS).forEach((field) => {
+        const f = BLOCK_FIELDS[field];
+        const id = bc.prefix + field;
+        bindRange(id, id + 'Val', f.fmt, (v) => {
+          if (!cfg.style) cfg.style = {};
+          cfg.style[bc.key] = cfg.style[bc.key] || {};
+          cfg.style[bc.key][f.prop] = v;
+          applyTypographyBlocks(Object.assign({}, DEFAULT_CFG().style, cfg.style || {}));
+          markDirty();
+        });
+      });
+      $(bc.prefix + 'Font').addEventListener('change', (e) => {
+        if (!cfg.style) cfg.style = {};
+        cfg.style[bc.key] = cfg.style[bc.key] || {};
+        cfg.style[bc.key].font = e.target.value;
+        applyThemeVars();
+        markDirty();
+      });
     });
-    $('lineHeight').addEventListener('input', (e) => {
-      if (!cfg.style) cfg.style = {};
-      cfg.style.lineHeight = Number(e.target.value);
-      $('lineHeightVal').textContent = Number(e.target.value).toFixed(2);
-      applyThemeVars();
-      markDirty();
-    });
-
     /* Glow Neon + Forma + Animação dos botões */
     $('btnGlowColor').addEventListener('click', () => {
       const current = (cfg.style && cfg.style.btnGlowColor) || '#22d3ee';
@@ -5069,9 +5499,6 @@
       applyThemeVars();
       markDirty();
     });
-    /* Vidro dedicado dos botões */
-    bindRange('btnGlassOpacity', 'btnGlassOpacityVal', (v) => v + '%', (v) => { if (!cfg.style) cfg.style = {}; cfg.style.btnGlassOpacity = v; applyThemeVars(); });
-    bindRange('btnGlassBlur', 'btnGlassBlurVal', (v) => v + 'px', (v) => { if (!cfg.style) cfg.style = {}; cfg.style.btnGlassBlur = v; applyThemeVars(); });
     $('btnAnimation').addEventListener('change', (e) => {
       if (!cfg.style) cfg.style = {};
       cfg.style.btnAnimation = e.target.value;
@@ -5113,9 +5540,6 @@
     /* Controles originais */
     bindRange('btnRadius', 'btnRadiusVal', (v) => v + 'px', (v) => { cfg.style.btnRadius = v; applyThemeVars(); });
     bindRange('btnShadow', 'btnShadowVal', (v) => v + '%', (v) => { cfg.style.btnShadow = v; applyThemeVars(); });
-    bindRange('titleSize', 'titleSizeVal', (v) => v + 'px', (v) => { cfg.style.titleSize = v; applyThemeVars(); });
-    bindRange('bioSize', 'bioSizeVal', (v) => v + 'px', (v) => { cfg.style.bioSize = v; applyThemeVars(); });
-    bindRange('fontWeight', 'fontWeightVal', (v) => String(v), (v) => { cfg.style.fontWeight = v; applyThemeVars(); });
     bindRange('blockGap', 'blockGapVal', (v) => v + 'px', (v) => { cfg.style.blockGap = v; renderPreview(); });
 
     /* Overlay do banner */
@@ -5126,6 +5550,28 @@
         renderBannerOverlay();
         markDirty();
       });
+    });
+
+    /* Estilo do texto sobre o banner (bannerText) */
+    const btRef = () => {
+      if (!cfg.style) cfg.style = {};
+      return (cfg.style.bannerText = cfg.style.bannerText || {});
+    };
+    const btRW = (key, val) => { if (val !== undefined) btRef()[key] = val; renderBannerOverlay(); };
+    bindRange('bannerTitleSize', 'bannerTitleSizeVal', (v) => v + 'px',  (v) => btRW('titleSize', v));
+    bindRange('bannerTitleWeight','bannerTitleWeightVal', (v) => '' + v, (v) => btRW('titleWeight', v));
+    bindRange('bannerCtaSize', 'bannerCtaSizeVal', (v) => v + 'px',  (v) => btRW('ctaSize', v));
+    bindRange('bannerCtaWeight','bannerCtaWeightVal', (v) => '' + v, (v) => btRW('ctaWeight', v));
+    $('#bannerTextAlign').addEventListener('change', (e) => { btRW('align', e.target.value); markDirty(); });
+    $('#bannerTextVpos').addEventListener('change', (e) => { btRW('vpos', e.target.value); markDirty(); });
+    $('#bannerTextDarken').addEventListener('change', (e) => { btRW('darken', e.target.checked); markDirty(); });
+    $('#bannerTitleColor').addEventListener('click', () => {
+      const cur = btRef().titleColor || '#ffffff';
+      openColorPicker($('bannerTitleColor'), cur, (hex) => { btRef().titleColor = hex; setTriggerColor('bannerTitleColor', hex); renderBannerOverlay(); markDirty(); });
+    });
+    $('#bannerCtaColor').addEventListener('click', () => {
+      const cur = btRef().ctaColor || '#0f172a';
+      openColorPicker($('bannerCtaColor'), cur, (hex) => { btRef().ctaColor = hex; setTriggerColor('bannerCtaColor', hex); renderBannerOverlay(); markDirty(); });
     });
 
     /* Imagem do banner (cfg.banner) */
@@ -5330,6 +5776,50 @@
     reflectStyleValues();
   }
 
+  /* Reflete os valores dos sub-blocos de tipografia nos controles.
+     Faz migração única dos campos legados (titleSize/bioSize/titleFont/
+     fontWeight/letterSpacing/lineHeight) para os novos sub-blocos. */
+  function reflectTypographyInputs() {
+    const st = (cfg.style = cfg.style || {});
+    if (st.typoName == null) st.typoName = { font: st.titleFont || '', size: st.titleSize, weight: st.fontWeight, ls: st.letterSpacing, lh: st.lineHeight };
+    if (st.typoBio == null)  st.typoBio  = { font: '', size: st.bioSize, weight: 400, ls: st.letterSpacing, lh: st.lineHeight };
+    if (st.typoBtn == null)  st.typoBtn  = { font: '', size: 15, weight: st.fontWeight, ls: st.letterSpacing, lh: st.lineHeight };
+
+    const fields = [
+      { key: 'typoName', prefix: 'typoName', d: { font: '', size: 20, weight: 700, ls: 0, lh: 1.4 } },
+      { key: 'typoBio',  prefix: 'typoBio',  d: { font: '', size: 14, weight: 400, ls: 0, lh: 1.4 } },
+      { key: 'typoBtn',  prefix: 'typoBtn',  d: { font: '', size: 15, weight: 600, ls: 0, lh: 1.4 } }
+    ];
+    fields.forEach((b) => {
+      const t = st[b.key] || {};
+      $(b.prefix + 'Font').value = t.font != null ? t.font : b.d.font;
+      setRange(b.prefix + 'Size',   t.size   != null ? t.size   : b.d.size);
+      setRange(b.prefix + 'Weight', t.weight != null ? t.weight : b.d.weight);
+      setRange(b.prefix + 'Ls',     t.ls     != null ? t.ls     : b.d.ls);
+      setRange(b.prefix + 'Lh',     t.lh     != null ? t.lh     : b.d.lh);
+    });
+  }
+
+  /* Reflete os valores dos sub-grupos de efeito vidro nos controles. */
+  function reflectGlassInputs() {
+    const st = (cfg.style = cfg.style || {});
+    const groups = [
+      { key: 'buttonGlass', prefix: 'buttonGlass', blur: 14, opacity: 15, borderOpacity: 25 },
+      { key: 'iconGlass',   prefix: 'iconGlass',   blur: 12, opacity: 12, borderOpacity: null },
+      { key: 'bannerGlass', prefix: 'bannerGlass', blur: 10, opacity: 20, borderOpacity: null },
+      { key: 'textGlass',   prefix: 'textGlass',   blur: 10, opacity: 15, borderOpacity: null }
+    ];
+    groups.forEach((g) => {
+      const t = st[g.key] || {};
+      $(g.prefix + 'Toggle').checked = !!t.enabled;
+      setRange(g.prefix + 'Blur', t.blur != null ? t.blur : g.blur);
+      setRange(g.prefix + 'Opacity', t.opacity != null ? t.opacity : g.opacity);
+      if (g.prefix === 'buttonGlass') {
+        setRange(g.prefix + 'BorderOpacity', t.borderOpacity != null ? t.borderOpacity : g.borderOpacity);
+      }
+    });
+  }
+
   /* Reflete os valores salvos do perfil atual nos controles (sem recriar listeners) */
   function reflectStyleValues() {
     const st = cfg.style || {};
@@ -5358,13 +5848,11 @@
     setTriggerColor('cyberSecondary', st.cyberSecondary || '#ff00ff');
     /* Cores individuais */
     renderColorTriggers();
-    $('glassEnabled').checked = !!st.glassEnabled;
     $('bgVideoUrl').value = st.bgVideoUrl || '';
     setRange('bgVideoOpacity', st.bgVideoOpacity ?? 100);
     $('bgImageUrl').value = st.bgImageUrl || '';
     $('bgTexture').value = st.bgTexture || 'none';
     $('fontFamily').value = st.font || 'Inter';
-    $('titleFont').value = st.titleFont || '';
     $('layoutSpacing').value = st.layoutSpacing || 'comfy';
     setTriggerColor('btnGlowColor', st.btnGlowColor || '#22d3ee');
     $('btnShape').value = st.btnShape || 'rounded';
@@ -5373,27 +5861,29 @@
 
     setRange('btnRadius', st.btnRadius);
     setRange('btnShadow', st.btnShadow);
-    setRange('btnGlassOpacity', st.btnGlassOpacity ?? 15);
-    setRange('btnGlassBlur', st.btnGlassBlur ?? 12);
-    setRange('titleSize', st.titleSize);
-    setRange('bioSize', st.bioSize ?? 14);
-    setRange('fontWeight', st.fontWeight ?? 700);
+    reflectGlassInputs();
+    reflectTypographyInputs();
     setRange('blockGap', st.blockGap);
     setRange('gradientAngle', st.gradientAngle ?? 135);
     setRange('animSpeed', st.animSpeed ?? 20);
     setRange('cyberGridIntensity', st.cyberGridIntensity ?? 30);
-    setRange('glassBlur', st.glassBlur ?? 8);
-    setRange('glassOpacity', st.glassOpacity ?? 30);
-    setRange('glassBorderOpacity', st.glassBorderOpacity ?? 25);
     setRange('btnGradientAngle', st.btnGradientAngle ?? 135);
     setRange('bgTextureOpacity', st.bgTextureOpacity ?? 30);
-    setRange('letterSpacing', st.letterSpacing ?? 0);
-    setRange('lineHeight', st.lineHeight ?? 1.4);
 
     /* Overlay do banner */
     $('bannerOverlayTitle').value = st.bannerOverlayTitle || '';
     $('bannerOverlayCta').value = st.bannerOverlayCta || '';
     $('bannerOverlayCtaUrl').value = st.bannerOverlayCtaUrl || '';
+    const bt = Object.assign({ titleColor:'', titleSize:16, titleWeight:700, ctaColor:'', ctaSize:12, ctaWeight:700, align:'center', vpos:'center', darken:true }, st.bannerText || {});
+    setTriggerColor('bannerTitleColor', bt.titleColor || '#ffffff');
+    setTriggerColor('bannerCtaColor', bt.ctaColor || '#0f172a');
+    setRange('bannerTitleSize', bt.titleSize);
+    setRange('bannerTitleWeight', bt.titleWeight);
+    setRange('bannerCtaSize', bt.ctaSize);
+    setRange('bannerCtaWeight', bt.ctaWeight);
+    $('bannerTextAlign').value = bt.align;
+    $('bannerTextVpos').value = bt.vpos;
+    $('bannerTextDarken').checked = !!bt.darken;
     renderBannerOverlay();
 
     /* Personalização de Perfil/Banner (cfg.design) */
