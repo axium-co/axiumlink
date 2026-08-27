@@ -242,6 +242,25 @@
   }
   .panel-del:hover { background:#fee2e2; color:var(--danger); }
 
+  /* ===== SEÇÕES COLAPSÁVEIS (accordion do painel) ===== */
+  .sec-head {
+    display:flex; align-items:center; gap:8px;
+    padding-right:44px; /* reserva espaço para o botão de remover */
+  }
+  .sec-toggle {
+    flex:1; display:flex; align-items:center; gap:9px; min-height:22px;
+    padding:0; border:none; background:none; cursor:pointer;
+    font-family:inherit; font-size:15px; font-weight:700; color:var(--ink); text-align:left;
+  }
+  .sec-toggle .sec-caret {
+    display:inline-block; font-size:11px; color:var(--muted); flex-shrink:0;
+    transition:transform .2s ease;
+  }
+  .panel.sec.collapsed .sec-toggle .sec-caret { transform:rotate(-90deg); }
+  .panel.sec.collapsed .sec-body { display:none; }
+  .sec-ico { font-size:17px; line-height:1; }
+  .sec-count { margin-left:auto; font-size:12px; font-weight:700; color:var(--muted); white-space:nowrap; }
+
   .add-section-bar {
     display:flex; margin-bottom:18px; position:relative;
   }
@@ -463,6 +482,10 @@
   .btn-crop-ok { background:var(--brand); color:#fff; }
 
   /* ===== PREVIEW (PHONE MOCKUP) ===== */
+  /* A coluna de preview estica até a altura da linha do grid (que é definida
+     pela coluna de edição, mais alta). Só assim o position:sticky do mockup
+     tem espaço de sobra para "viajar" junto com o scroll da lista. */
+  .preview-col { align-self:stretch; position:relative; }
   .preview-sticky { position:sticky; top:86px; }
   .phone-mockup {
     --pv-w: min(360px, calc(100vw * 0.5));
@@ -854,7 +877,7 @@
   @media (max-width:900px) {
     .admin-shell { max-width:100%; }
     .admin-layout { grid-template-columns:1fr; padding:14px; gap:14px; }
-    .preview-col { order:-1; }
+    .preview-col { order:-1; align-self:auto; }
     .preview-sticky { position:static; }
     .phone-mockup {
       --pv-w: min(340px, calc(100vw * 0.72));
@@ -1117,11 +1140,17 @@
         <div class="add-menu" id="addMenu"></div>
       </div>
 
-      <!-- PERFIL -->
-      <section class="panel">
-        <button class="panel-del" data-section="profile" title="Remover seção Perfil">🗑</button>
-        <h2 class="panel-title"><span>👤</span> Perfil</h2>
-
+<!-- PERFIL -->
+      <section class="panel sec" data-section="profile">
+        <div class="sec-head">
+          <button type="button" class="sec-toggle" aria-expanded="true">
+            <span class="sec-caret" aria-hidden="true">▾</span>
+            <span class="sec-ico" aria-hidden="true">👤</span>
+            <span class="sec-label">Perfil</span>
+          </button>
+          <button class="panel-del" data-section="profile" title="Remover seção Perfil">🗑</button>
+        </div>
+        <div class="sec-body">
         <div class="upload-row">
           <div class="upload-thumb" id="avatarPreview">👤</div>
           <div class="upload-info">
@@ -1135,7 +1164,7 @@
           <button class="btn-mini" id="btnAvatarClear">Remover foto</button>
         </p>
 
-        <div class="field" style="margin-top:14px;">
+        <div class="field">
           <label for="displayName">Nome de exibição</label>
           <input type="text" id="displayName" placeholder="Seu nome ou marca" maxlength="60">
         </div>
@@ -1157,23 +1186,37 @@
             <button class="btn-mini" id="btnFaviconClear">Remover</button>
           </p>
         </div>
+        </div>
       </section>
 
       <!-- LINKS -->
-      <section class="panel">
-        <button class="panel-del" data-section="links" title="Remover seção Seus links">🗑</button>
-        <div class="list-head">
-          <h2 class="panel-title" style="margin:0;"><span>🔗</span> Seus links</h2>
-          <strong id="linksCount">0 itens</strong>
+      <section class="panel sec" data-section="links">
+        <div class="sec-head">
+          <button type="button" class="sec-toggle" aria-expanded="true">
+            <span class="sec-caret" aria-hidden="true">▾</span>
+            <span class="sec-ico" aria-hidden="true">🔗</span>
+            <span class="sec-label">Seus links</span>
+          </button>
+          <strong class="sec-count" id="linksCount">0 itens</strong>
+          <button class="panel-del" data-section="links" title="Remover seção Seus links">🗑</button>
         </div>
-        <div id="linksList"></div>
+        <div class="sec-body">
+        <div id="linksList" style="margin-bottom:12px;"></div>
         <button class="btn-add" id="btnAddLink">+ Adicionar link</button>
+        </div>
       </section>
 
       <!-- LINKS RÁPIDOS -->
-      <section class="panel">
-        <button class="panel-del" data-section="quick" title="Remover seção Links rápidos">🗑</button>
-        <h2 class="panel-title"><span>⚡</span> Links rápidos</h2>
+      <section class="panel sec" data-section="quick">
+        <div class="sec-head">
+          <button type="button" class="sec-toggle" aria-expanded="true">
+            <span class="sec-caret" aria-hidden="true">▾</span>
+            <span class="sec-ico" aria-hidden="true">⚡</span>
+            <span class="sec-label">Links rápidos</span>
+          </button>
+          <button class="panel-del" data-section="quick" title="Remover seção Links rápidos">🗑</button>
+        </div>
+        <div class="sec-body">
         <p class="hint" style="margin:-6px 0 12px;">Aparecem como atalhos redondos no topo da página.</p>
 
         <!-- Estilo exclusivo dos atalhos compactos -->
@@ -1266,12 +1309,20 @@
           <input type="color" id="quickColor" value="#6366f1" style="width:100%; height:38px; border:1.5px solid var(--border); border-radius:10px; background:#fff; padding:4px; cursor:pointer;">
         </div>
         <button class="btn-add" id="btnAddQuick">+ Adicionar atalho</button>
+        </div>
       </section>
 
-      <!-- PERSONALIZAÇÃO DE BOTÕES -->
-      <section class="panel" id="btnStylePanel">
-        <h2 class="panel-title"><span>🔘</span> Personalização de Botões</h2>
-
+      <!-- ESTILO DO BOTÃO -->
+      <section class="panel sec" data-section="style">
+        <div class="sec-head">
+          <button type="button" class="sec-toggle" aria-expanded="true">
+            <span class="sec-caret" aria-hidden="true">▾</span>
+            <span class="sec-ico" aria-hidden="true">🔘</span>
+            <span class="sec-label">Estilo do Botão</span>
+          </button>
+          <button class="panel-del" data-section="style" title="Remover seção Estilo da página">🗑</button>
+        </div>
+        <div class="sec-body">
         <div class="field">
           <label>Variante do Botão</label>
           <select id="btnVariant" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
@@ -1385,45 +1436,39 @@
           </div>
         </div>
 
-        <div class="ds-control">
-          <label>Tamanho da fonte dos títulos</label>
-          <div class="ds-control-row">
-            <input type="range" id="titleSize" min="15" max="30" step="1">
-            <output class="ds-value" id="titleSizeVal">20px</output>
+        <div class="field">
+          <label>Cores do Botão</label>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+            <div class="field" style="margin:0;">
+              <label style="font-size:11px;">Fundo</label>
+              <div class="color-trigger" id="btnBgColor" role="button" tabindex="0">
+                <div class="color-trigger-swatch" style="background:#111827;"></div>
+                <span class="color-trigger-hex">AUTO</span>
+              </div>
+            </div>
+            <div class="field" style="margin:0;">
+              <label style="font-size:11px;">Texto</label>
+              <div class="color-trigger" id="btnTextColor" role="button" tabindex="0">
+                <div class="color-trigger-swatch" style="background:#ffffff;"></div>
+                <span class="color-trigger-hex">AUTO</span>
+              </div>
+            </div>
           </div>
         </div>
-
-        <div class="ds-control">
-          <label>Tamanho da bio</label>
-          <div class="ds-control-row">
-            <input type="range" id="bioSize" min="10" max="20" step="1">
-            <output class="ds-value" id="bioSizeVal">14px</output>
-          </div>
-        </div>
-
-        <div class="ds-control">
-          <label>Peso da fonte (negrito)</label>
-          <div class="ds-control-row">
-            <input type="range" id="fontWeight" min="300" max="900" step="100">
-            <output class="ds-value" id="fontWeightVal">700</output>
-          </div>
-        </div>
-
-        <div class="ds-control">
-          <label>Espaçamento entre blocos</label>
-          <div class="ds-control-row">
-            <input type="range" id="blockGap" min="4" max="24" step="1">
-            <output class="ds-value" id="blockGapVal">10px</output>
-          </div>
         </div>
       </section>
 
-      <!-- ESTILO -->
-      <section class="panel" id="stylePanel">
-        <button class="panel-del" data-section="style" title="Remover seção Estilo da página">🗑</button>
-        <h2 class="panel-title"><span>🎨</span> Estilo da página</h2>
-
-        <!-- Tipo de Fundo -->
+      <!-- TEMA E FUNDO -->
+      <section class="panel sec" data-section="style">
+        <div class="sec-head">
+          <button type="button" class="sec-toggle" aria-expanded="true">
+            <span class="sec-caret" aria-hidden="true">▾</span>
+            <span class="sec-ico" aria-hidden="true">🎨</span>
+            <span class="sec-label">Tema e Fundo</span>
+          </button>
+          <button class="panel-del" data-section="style" title="Remover seção Estilo da página">🗑</button>
+        </div>
+        <div class="sec-body">
         <div class="field">
           <label>Tipo de Fundo</label>
           <select id="bgVariant" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
@@ -1446,7 +1491,7 @@
           <div class="presets-grid" id="presetsGrid"></div>
         </div>
 
-        <!-- Cores individuais -->
+        <!-- Cores da página -->
         <div class="field" id="themeRow">
           <label>Cores do Tema</label>
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
@@ -1464,74 +1509,6 @@
                 <span class="color-trigger-hex">AUTO</span>
               </div>
             </div>
-            <div class="field" style="margin:0;">
-              <label style="font-size:11px;">Fundo Botão</label>
-              <div class="color-trigger" id="btnBgColor" role="button" tabindex="0">
-                <div class="color-trigger-swatch" style="background:#111827;"></div>
-                <span class="color-trigger-hex">AUTO</span>
-              </div>
-            </div>
-            <div class="field" style="margin:0;">
-              <label style="font-size:11px;">Texto Botão</label>
-              <div class="color-trigger" id="btnTextColor" role="button" tabindex="0">
-                <div class="color-trigger-swatch" style="background:#ffffff;"></div>
-                <span class="color-trigger-hex">AUTO</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- TIPOGRAFIA PREMIUM -->
-        <div class="field">
-          <label for="fontFamily">Fonte da página</label>
-          <select id="fontFamily" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
-            <option value="Inter">Inter (neutra)</option>
-            <option value="Poppins">Poppins (amigável)</option>
-            <option value="Montserrat">Montserrat (corporativa)</option>
-            <option value="Syne">Syne (artística/moderna)</option>
-            <option value="Playfair Display">Playfair Display (elegante/serifa)</option>
-            <option value="Cormorant Garamond">Cormorant Garamond (serifa leve e refinada)</option>
-            <option value="Lora">Lora (serifa clássica)</option>
-            <option value="DM Serif Display">DM Serif Display (serifa editorial)</option>
-            <option value="Space Grotesk">Space Grotesk (tech)</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label for="titleFont">Fonte do título (nome)</label>
-          <select id="titleFont" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
-            <option value="">Mesma da página</option>
-            <option value="Playfair Display">Playfair Display (serifa elegante)</option>
-            <option value="Cormorant Garamond">Cormorant Garamond (serifa leve)</option>
-            <option value="DM Serif Display">DM Serif Display (serifa editorial)</option>
-            <option value="Lora">Lora (serifa clássica)</option>
-            <option value="Inter">Inter (sans neutra)</option>
-            <option value="Montserrat">Montserrat (sans corporativa)</option>
-          </select>
-        </div>
-
-        <div class="ds-control">
-          <label>Espaçamento da página</label>
-          <select id="layoutSpacing" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
-            <option value="compact">Compacto (mais denso)</option>
-            <option value="comfy">Confortável (equilibrado)</option>
-            <option value="airy">Espaçado (respira)</option>
-          </select>
-        </div>
-
-        <div class="ds-control">
-          <label>Espaçamento entre letras</label>
-          <div class="ds-control-row">
-            <input type="range" id="letterSpacing" min="-1" max="5" step="0.1">
-            <output class="ds-value" id="letterSpacingVal">0px</output>
-          </div>
-        </div>
-
-        <div class="ds-control">
-          <label>Altura da linha</label>
-          <div class="ds-control-row">
-            <input type="range" id="lineHeight" min="1" max="2" step="0.05">
-            <output class="ds-value" id="lineHeightVal">1.4</output>
           </div>
         </div>
 
@@ -1640,8 +1617,131 @@
             </div>
           </div>
         </div>
+        </div>
+      </section>
 
-        <!-- Glassmorphism Controls -->
+      <!-- TIPOGRAFIA -->
+      <section class="panel sec" data-section="style">
+        <div class="sec-head">
+          <button type="button" class="sec-toggle" aria-expanded="true">
+            <span class="sec-caret" aria-hidden="true">▾</span>
+            <span class="sec-ico" aria-hidden="true">🔤</span>
+            <span class="sec-label">Tipografia</span>
+          </button>
+          <button class="panel-del" data-section="style" title="Remover seção Estilo da página">🗑</button>
+        </div>
+        <div class="sec-body">
+        <div class="field">
+          <label for="fontFamily">Fonte da página</label>
+          <select id="fontFamily" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+            <option value="Inter">Inter (neutra)</option>
+            <option value="Poppins">Poppins (amigável)</option>
+            <option value="Montserrat">Montserrat (corporativa)</option>
+            <option value="Syne">Syne (artística/moderna)</option>
+            <option value="Playfair Display">Playfair Display (elegante/serifa)</option>
+            <option value="Cormorant Garamond">Cormorant Garamond (serifa leve e refinada)</option>
+            <option value="Lora">Lora (serifa clássica)</option>
+            <option value="DM Serif Display">DM Serif Display (serifa editorial)</option>
+            <option value="Space Grotesk">Space Grotesk (tech)</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="titleFont">Fonte do título (nome)</label>
+          <select id="titleFont" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+            <option value="">Mesma da página</option>
+            <option value="Playfair Display">Playfair Display (serifa elegante)</option>
+            <option value="Cormorant Garamond">Cormorant Garamond (serifa leve)</option>
+            <option value="DM Serif Display">DM Serif Display (serifa editorial)</option>
+            <option value="Lora">Lora (serifa clássica)</option>
+            <option value="Inter">Inter (sans neutra)</option>
+            <option value="Montserrat">Montserrat (sans corporativa)</option>
+          </select>
+        </div>
+
+        <div class="ds-control">
+          <label>Tamanho da fonte dos títulos</label>
+          <div class="ds-control-row">
+            <input type="range" id="titleSize" min="15" max="30" step="1">
+            <output class="ds-value" id="titleSizeVal">20px</output>
+          </div>
+        </div>
+
+        <div class="ds-control">
+          <label>Tamanho da bio</label>
+          <div class="ds-control-row">
+            <input type="range" id="bioSize" min="10" max="20" step="1">
+            <output class="ds-value" id="bioSizeVal">14px</output>
+          </div>
+        </div>
+
+        <div class="ds-control">
+          <label>Peso da fonte (negrito)</label>
+          <div class="ds-control-row">
+            <input type="range" id="fontWeight" min="300" max="900" step="100">
+            <output class="ds-value" id="fontWeightVal">700</output>
+          </div>
+        </div>
+
+        <div class="ds-control">
+          <label>Espaçamento entre letras</label>
+          <div class="ds-control-row">
+            <input type="range" id="letterSpacing" min="-1" max="5" step="0.1">
+            <output class="ds-value" id="letterSpacingVal">0px</output>
+          </div>
+        </div>
+
+        <div class="ds-control">
+          <label>Altura da linha</label>
+          <div class="ds-control-row">
+            <input type="range" id="lineHeight" min="1" max="2" step="0.05">
+            <output class="ds-value" id="lineHeightVal">1.4</output>
+          </div>
+        </div>
+        </div>
+      </section>
+
+      <!-- LAYOUT -->
+      <section class="panel sec" data-section="style">
+        <div class="sec-head">
+          <button type="button" class="sec-toggle" aria-expanded="true">
+            <span class="sec-caret" aria-hidden="true">▾</span>
+            <span class="sec-ico" aria-hidden="true">📐</span>
+            <span class="sec-label">Layout</span>
+          </button>
+          <button class="panel-del" data-section="style" title="Remover seção Estilo da página">🗑</button>
+        </div>
+        <div class="sec-body">
+        <div class="ds-control">
+          <label>Espaçamento da página</label>
+          <select id="layoutSpacing" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+            <option value="compact">Compacto (mais denso)</option>
+            <option value="comfy">Confortável (equilibrado)</option>
+            <option value="airy">Espaçado (respira)</option>
+          </select>
+        </div>
+
+        <div class="ds-control">
+          <label>Espaçamento entre blocos</label>
+          <div class="ds-control-row">
+            <input type="range" id="blockGap" min="4" max="24" step="1">
+            <output class="ds-value" id="blockGapVal">10px</output>
+          </div>
+        </div>
+        </div>
+      </section>
+
+      <!-- EFEITO VIDRO -->
+      <section class="panel sec" data-section="style">
+        <div class="sec-head">
+          <button type="button" class="sec-toggle" aria-expanded="true">
+            <span class="sec-caret" aria-hidden="true">▾</span>
+            <span class="sec-ico" aria-hidden="true">💠</span>
+            <span class="sec-label">Efeito Vidro</span>
+          </button>
+          <button class="panel-del" data-section="style" title="Remover seção Estilo da página">🗑</button>
+        </div>
+        <div class="sec-body">
         <div class="toggle-row" id="glassControlsRow" style="display:none;">
           <span class="toggle-label">Efeito Vidro na página (Glassmorphism)</span>
           <label class="switch">
@@ -1673,9 +1773,21 @@
             <output class="ds-value" id="glassBorderOpacityVal">25%</output>
           </div>
         </div>
+        </div>
+      </section>
 
-        <!-- IMAGEM DO BANNER -->
-        <div class="field" style="margin-top:8px; padding-top:12px; border-top:1px solid var(--bg);">
+      <!-- BANNER -->
+      <section class="panel sec" data-section="style">
+        <div class="sec-head">
+          <button type="button" class="sec-toggle" aria-expanded="true">
+            <span class="sec-caret" aria-hidden="true">▾</span>
+            <span class="sec-ico" aria-hidden="true">🖼️</span>
+            <span class="sec-label">Banner</span>
+          </button>
+          <button class="panel-del" data-section="style" title="Remover seção Estilo da página">🗑</button>
+        </div>
+        <div class="sec-body">
+        <div class="field">
           <label style="font-size:13px; font-weight:700; color:var(--ink);">Imagem do Banner</label>
           <p class="hint" style="margin-bottom:10px;">Imagem de fundo do banner (opcional). Os textos abaixo aparecem por cima dela.</p>
           <div class="upload-row">
@@ -1708,6 +1820,7 @@
           <div class="field">
             <input type="url" id="bannerOverlayCtaUrl" placeholder="URL do botão CTA">
           </div>
+        </div>
         </div>
       </section>
     </aside>
@@ -5171,6 +5284,16 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
     /* Deletar seções (lixeira de cada card) */
     document.querySelectorAll('.panel-del').forEach((btn) => {
       btn.addEventListener('click', () => deleteSection(btn.dataset.section));
+    });
+
+    /* Accordion: recolher/expandir seções do painel */
+    document.querySelectorAll('.panel.sec .sec-toggle').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const panel = btn.closest('.panel.sec');
+        if (!panel) return;
+        const collapsed = panel.classList.toggle('collapsed');
+        btn.setAttribute('aria-expanded', String(!collapsed));
+      });
     });
 
     /* Menu "+ Adicionar seção" */
