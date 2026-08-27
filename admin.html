@@ -5144,7 +5144,7 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
           return;
         }
       }
-      window.open('/?slug=' + encodeURIComponent(slug), '_blank');
+      window.open(publicUrlForSlug(slug), '_blank');
     });
 
     /* Sair */
@@ -5157,7 +5157,7 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
     $('pvShareBtn').addEventListener('click', async () => {
       const activeProfile = window.userProfiles?.find(p => p.id === window.currentProfileId);
       const slug = activeProfile?.slug;
-      const url = slug ? location.origin + '/?slug=' + encodeURIComponent(slug) : location.origin;
+      const url = slug ? publicUrlForSlug(slug) : location.origin;
       try {
         if (navigator.share) await navigator.share({ title: 'Axiumlink', url });
         else { await navigator.clipboard.writeText(url); showToast('Link copiado!'); }
@@ -5477,7 +5477,12 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
     if (!el) return;
     const activeProfile = window.userProfiles?.find(p => p.id === window.currentProfileId);
     const slug = activeProfile?.slug;
-    el.textContent = slug ? ('://seulink.com/' + slug) : '://seulink.com';
+    el.textContent = slug ? publicUrlForSlug(slug) : location.origin;
+  }
+
+  /* URL pública limpa: /<slug> (o rewrite do vercel.json entrega index.html) */
+  function publicUrlForSlug(slug) {
+    return location.origin + '/' + encodeURIComponent(slug);
   }
 
 

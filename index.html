@@ -920,6 +920,44 @@
     .skel-card:nth-child(5) { animation-delay: .25s; }
     .skel-card:nth-child(6) { animation-delay: .3s; }
 
+    /* ---- Estado público: perfil não encontrado / sem slug / erro ---- */
+    .pg-status {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 10px;
+      padding: 72px 24px 56px;
+      max-width: 420px;
+      margin: 0 auto;
+    }
+    .pg-status:not([hidden]) { display: flex; }
+    .pg-status .pg-status__icon {
+      width: 64px; height: 64px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 50%;
+      background: color-mix(in srgb, var(--card-fg, #1f2937) 8%, transparent);
+      color: var(--btn-text-color-global, var(--text-title, #1f2937));
+    }
+    .pg-status h2 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-title, #1f2937);
+    }
+    .pg-status p {
+      margin: 0;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      color: color-mix(in srgb, var(--text-title, #1f2937) 72%, transparent);
+    }
+    .pg-status a {
+      margin-top: 6px;
+      color: var(--btn-text-color-global, var(--text-title, #1f2937));
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
     @media (prefers-reduced-motion: reduce) {
       .featured__card { animation: none; }
     }
@@ -1761,6 +1799,20 @@
     <div class="skel-card"></div>
     <div class="skel-card"></div>
   </div>
+
+  <!-- Estado público — substitui o conteúdo quando não há perfil para renderizar -->
+  <div id="pgStatus" class="pg-status" hidden>
+    <div class="pg-status__icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="8" x2="12" y2="12" />
+        <line x1="12" y1="16" x2="12.01" y2="16" />
+      </svg>
+    </div>
+    <h2 id="pgStatusTitle">Perfil não encontrado</h2>
+    <p id="pgStatusText">Este endereço não possui uma página publicada.</p>
+    <a id="pgStatusLink" href="/admin">Gerenciar minha página</a>
+  </div>
   <main class="page">
     <div class="page-flow" id="pageFlow">
 
@@ -2079,78 +2131,80 @@
        Atualiza as CSS Variables (:root) e os textos/links da página.
        ================================================================ */
     (function () {
-      /* STORAGE_KEY namespaced por slug — impede que dados de clientes
-         diferentes se misturem no mesmo browser. */
-      function getStorageKey() {
-        return 'axiumlink-preview-v1-' + (getSlug() || 'default');
-      }
+      /* Estado da busca pública — sem fallback, sem dados hardcoded. */
+      const STATUS = {
+        NOSLUG: 'noslug',
+        NOTFOUND: 'notfound',
+        ERROR: 'error'
+      };
 
       function getSlug() {
         const params = new URLSearchParams(window.location.search);
-        return (params.get('s') || params.get('slug') || '').trim();
+        const fromQuery = (params.get('s') || params.get('slug') || '').trim();
+        if (fromQuery) return fromQuery;
+        /* URLs limpas /<slug> (rewrite do Vercel entrega o index.html sem
+           alterar a barra de endereço) — deriva o slug do caminho. */
+        const segments = window.location.pathname.split('/').filter(Boolean);
+        const last = segments[segments.length - 1] || '';
+        if (last && !last.includes('.')) {
+          try { return decodeURIComponent(last); } catch (e) { return last; }
+        }
+        return '';
       }
 
-      function readLocalConfig() {
-        let saved = null;
-        try { saved = JSON.parse(localStorage.getItem(getStorageKey()) || 'null'); } catch (e) {}
-        const defaults = (typeof window.AXIUMLINK_CONFIG !== 'undefined' && window.AXIUMLINK_CONFIG)
-          ? window.AXIUMLINK_CONFIG
-          : null;
-        return saved || defaults;
-      }
-
+      /* A página pública é 100% dinâmica: o perfil renderizado é SEMPRE o
+         cliente de public.clients cujo slug veio na URL. Não há fallback
+         para localStorage nem para o config.js estático — se o slug não
+         existir, mostramos "Perfil não encontrado". */
       async function readConfig() {
         const slug = getSlug();
-        if (typeof window.supabase === 'undefined' || !window.supabase.from) {
-          console.warn('[Axiumlink][Diag] Supabase SDK não disponível — usando fallback local');
-          return readLocalConfig();
-        }
         if (!slug) {
-          console.warn('[Axiumlink][Diag] Acesso sem slug (?s=). Usando fallback local.');
-          return readLocalConfig();
+          console.warn('[Axiumlink][Diag] Nenhum slug informado na URL.');
+          return { ok: false, code: STATUS.NOSLUG };
         }
+        if (typeof window.supabase === 'undefined' || !window.supabase.from) {
+          console.error('[Axiumlink][Diag] Supabase SDK não disponível — sem rede para buscar o perfil.');
+          return {
+            ok: false,
+            code: STATUS.ERROR,
+            message: 'O serviço de dados não está disponível no momento. Tente novamente em instantes.'
+          };
+        }
+        let clientData = null;
         try {
-          const { data: clientData, error } = await supabase
+          const { data, error } = await window.supabase
             .from('clients')
             .select('*')
             .eq('slug', slug)
-            .single();
-          if (error) {
-            if (error.code === 'PGRST116') {
-              console.warn('[Axiumlink][Diag] Slug "' + slug + '" não encontrado no Supabase. Usando fallback local.');
-              return readLocalConfig();
-            }
-            throw error;
-          }
-          if (clientData && clientData.config) {
-            const cfg = typeof clientData.config === 'string'
-              ? JSON.parse(clientData.config)
-              : clientData.config;
-            if (cfg && typeof cfg === 'object') {
-              cfg._clientNome = String(clientData.nome || '').trim();
-              console.log('[Axiumlink][Diag] Config carregado do Supabase para slug "' + slug + '":', {
-                bgVariant: cfg.style?.bgVariant,
-                bgImageUrl: cfg.style?.bgImageUrl ? '(possui URL)' : '(vazio)',
-                theme: cfg.style?.theme,
-                displayName: cfg.profile?.displayName,
-                linksCount: Array.isArray(cfg.links) ? cfg.links.length : 0
-              });
-              return cfg;
-            }
-            console.warn('[Axiumlink][Diag] Client encontrado mas campo "config" vazio.');
-          } else {
-            console.warn('[Axiumlink][Diag] Slug "' + slug + '" existe mas sem config. Usando fallback local.');
-          }
+            .maybeSingle();
+          if (error) throw error;
+          clientData = data || null;
         } catch (e) {
-          console.error('[Axiumlink][Diag] Erro ao buscar config:', e.message || e);
-          if (e instanceof TypeError && e.message.includes('Failed to fetch')) {
-            console.error('[Axiumlink][Diag] Rede indisponível ou CORS bloqueado.');
-          } else if (e.code === '42P01') {
-            console.error('[Axiumlink][Diag] Tabela public.clients não existe.');
+          console.error('[Axiumlink][Diag] Erro ao buscar perfil:', e.message || e);
+          if (e.code === '42P01') {
+            console.error('[Axiumlink][Diag] Tabela public.clients não existe. Verifique as políticas RLS.');
           }
+          return {
+            ok: false,
+            code: STATUS.ERROR,
+            message: 'Não foi possível carregar o perfil. Tente novamente em instantes.'
+          };
         }
-        console.warn('[Axiumlink][Diag] Fallback: usando config local/estático.');
-        return readLocalConfig();
+        if (!clientData) {
+          console.warn('[Axiumlink][Diag] Slug "' + slug + '" não encontrado no Supabase.');
+          return { ok: false, code: STATUS.NOTFOUND };
+        }
+        let cfg = clientData.config;
+        if (typeof cfg === 'string') {
+          try { cfg = JSON.parse(cfg); } catch (e) { cfg = null; }
+        }
+        if (!cfg || typeof cfg !== 'object') {
+          console.warn('[Axiumlink][Diag] Slug "' + slug + '" existe mas sem config válida.');
+          return { ok: false, code: STATUS.NOTFOUND };
+        }
+        cfg._clientNome = String(clientData.nome || '').trim();
+        console.log('[Axiumlink][Diag] Config carregado do Supabase para slug "' + slug + '".');
+        return { ok: true, config: cfg };
       }
 
       /* ================================================================
@@ -2329,6 +2383,16 @@
         /* Esconde skeleton loader */
         const skel = document.getElementById('pgSkeleton');
         if (skel) skel.classList.add('hidden');
+
+        /* Um perfil válido chegou: garante que o conteúdo e o estado de
+           status público voltem ao normal (um applyConfig pode ocorrer
+           depois de um showPublicStatus, ex.: preview do admin). */
+        const statusEl = document.getElementById('pgStatus');
+        if (statusEl) statusEl.hidden = true;
+        const mainEl = document.querySelector('main.page');
+        if (mainEl) mainEl.hidden = false;
+        const footerEl = document.querySelector('.site-footer');
+        if (footerEl) footerEl.hidden = false;
 
         /* ---- SEO / OG Dinâmico ---- */
         const displayName = (cfg.profile?.displayName || cfg.profile?.name || '').trim();
@@ -2711,16 +2775,21 @@
       applyPubText('pgSubtitle', ptext.bio);
       applyPubText('pgAddress', ptext.address);
 
-      /* Estilos do bloco endereço */
+      /* Estilos do bloco endereço — some quando o perfil não tem endereço
+         (nunca exibe o placeholder hardcoded do HTML) */
       const addrEl = document.getElementById('pgAddress');
-      const addr = ptext.address;
-      if (addrEl && addr) {
-        if (addr.blockRadius) addrEl.style.borderRadius = addr.blockRadius;
-        if (addr.blockBg) addrEl.style.background = addr.blockBg;
-        if (addr.blockBorderColor != null && addr.blockBorderWidth != null) {
-          addrEl.style.border = addr.blockBorderWidth + 'px solid ' + addr.blockBorderColor;
+      const addrStyle = ptext.address;
+      const hasAddr = !!(flat.profileAddress || '').trim();
+      if (addrEl) {
+        addrEl.hidden = !hasAddr;
+        if (hasAddr && addrStyle) {
+          if (addrStyle.blockRadius) addrEl.style.borderRadius = addrStyle.blockRadius;
+          if (addrStyle.blockBg) addrEl.style.background = addrStyle.blockBg;
+          if (addrStyle.blockBorderColor != null && addrStyle.blockBorderWidth != null) {
+            addrEl.style.border = addrStyle.blockBorderWidth + 'px solid ' + addrStyle.blockBorderColor;
+          }
+          if (addrStyle.blockFont) addrEl.style.fontFamily = addrStyle.blockFont;
         }
-        if (addr.blockFont) addrEl.style.fontFamily = addr.blockFont;
       }
 
       /* Alinhamento do nome também rege a linha do selo de verificado */
@@ -3794,27 +3863,64 @@
 
       /* API pública — permite reaplicar um payload novo a qualquer momento */
       window.applyAxiumlinkConfig = async function (payload) {
-        return applyConfig(payload || await readConfig());
+        if (payload) return applyConfig(payload);
+        const result = await readConfig();
+        if (result && result.ok && result.config) return applyConfig(result.config);
+        showPublicStatus(result);
       };
 
-      readConfig().then(applyConfig).catch(function (err) {
+      /* Estado público quando não há perfil para renderizar */
+      function showPublicStatus(state) {
+        const skeleton = document.getElementById('pgSkeleton');
+        if (skeleton) skeleton.classList.add('hidden');
+        const statusEl = document.getElementById('pgStatus');
+        const title = document.getElementById('pgStatusTitle');
+        const text = document.getElementById('pgStatusText');
+        const link = document.getElementById('pgStatusLink');
+        const mainEl = document.querySelector('main.page');
+        const footerEl = document.querySelector('.site-footer');
+        if (statusEl) statusEl.hidden = false;
+        if (mainEl) mainEl.hidden = true;
+        if (footerEl) footerEl.hidden = true;
+
+        /* Sem perfil: remove qualquer texto/endereço fixo do HTML */
+        document.querySelectorAll('[data-bind]').forEach((el) => { el.textContent = ''; });
+        const addrEl = document.getElementById('pgAddress');
+        if (addrEl) addrEl.hidden = true;
+        document.title = 'Perfil não encontrado · Axiumlink';
+        if (state && state.code === 'noslug') {
+          document.title = 'Axiumlink';
+          if (title) title.textContent = 'Nenhum perfil informado';
+          if (text) text.textContent = (state.message || 'Acesse a página por um endereço, por exemplo: /seu-codigo.');
+          if (link) link.textContent = 'Criar minha página';
+        } else if (state && state.code === 'error') {
+          if (title) title.textContent = 'Não foi possível carregar o perfil';
+          if (text) text.textContent = (state.message || 'Tente novamente em instantes.');
+        } else {
+          if (title) title.textContent = 'Perfil não encontrado';
+          if (text) text.textContent = (state && state.message) || 'Este endereço não possui uma página publicada.';
+        }
+      }
+
+      function handleConfigResult(result) {
+        if (result && result.ok && result.config) return applyConfig(result.config);
+        showPublicStatus(result);
+      }
+
+      readConfig().then(handleConfigResult).catch(function (err) {
         console.error('[Axiumlink] Erro ao aplicar configurações:', err);
+        showPublicStatus({ ok: false, code: STATUS.ERROR });
       });
 
-      /* Re-busca do Supabase a cada 30s para refletir edições do admin */
+      /* Re-busca do Supabase a cada 30s para refletir edições do admin.
+         Só reaplica se um perfil válido voltar — em erro transitório a
+         página já renderizada permanece intacta. */
       setInterval(async () => {
         try {
           const fresh = await readConfig();
-          if (fresh) applyConfig(fresh);
+          if (fresh && fresh.ok && fresh.config) applyConfig(fresh.config);
         } catch (e) { /* silent */ }
       }, 30000);
-
-      /* Sincronização entre abas via storage event */
-      window.addEventListener('storage', (e) => {
-        if (e.key === getStorageKey() && e.newValue) {
-          try { applyConfig(JSON.parse(e.newValue)); } catch (err) {}
-        }
-      });
 
       /* Sincronização via BroadcastChannel — contrato compartilhado com o
          admin: canal 'axiumlink-sync-<slug>', mensagem { config }.
@@ -3827,14 +3933,14 @@
             try { applyConfig(incoming); } catch (err) {}
           }
         };
-      } catch (e) { /* BroadcastChannel não suportado — storage event continua ativo */ }
+      } catch (e) { /* BroadcastChannel não suportado — sem sync entre abas */ }
 
       /* Refetch imediato quando a aba volta ao foco (mobile: troca de app) */
       const refetchOnFocus = async () => {
         if (document.visibilityState !== 'visible') return;
         try {
           const fresh = await readConfig();
-          if (fresh) applyConfig(fresh);
+          if (fresh && fresh.ok && fresh.config) applyConfig(fresh.config);
         } catch (e) { /* silent */ }
       };
       document.addEventListener('visibilitychange', refetchOnFocus);
