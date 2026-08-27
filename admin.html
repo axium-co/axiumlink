@@ -1145,6 +1145,10 @@
           <textarea id="bio" placeholder="Conte em uma frase o que você faz" maxlength="160"></textarea>
         </div>
         <div class="field">
+          <label for="address">Endereço/Localização</label>
+          <input type="text" id="address" placeholder="Rua, bairro e cidade" maxlength="120">
+        </div>
+        <div class="field">
           <label>Favicon personalizado (opcional)</label>
           <small style="display:block;margin-bottom:6px;color:var(--muted);">Ícone da aba do navegador. PNG 32x32.</small>
           <button class="btn-mini" id="btnFaviconPick" style="width:100%;">Escolher…</button>
@@ -1608,6 +1612,27 @@
             <input type="range" id="glassBorderOpacity" min="0" max="100" step="1">
             <output class="ds-value" id="glassBorderOpacityVal">25%</output>
           </div>
+        </div>
+
+        <!-- IMAGEM DO BANNER -->
+        <div class="field" style="margin-top:8px; padding-top:12px; border-top:1px solid var(--bg);">
+          <label style="font-size:13px; font-weight:700; color:var(--ink);">Imagem do Banner</label>
+          <p class="hint" style="margin-bottom:10px;">Imagem de fundo do banner (opcional). Os textos abaixo aparecem por cima dela.</p>
+          <div class="upload-row">
+            <div class="upload-thumb" id="bannerImageThumb">🖼️</div>
+            <div class="upload-info">
+              <strong>Imagem de capa</strong>
+              <small id="bannerImageInfoDefault">JPG ou PNG. Enviada para a nuvem e aplicada atrás dos textos.</small>
+              <small id="bannerImageInfoActive" style="display:none; color:var(--brand); font-weight:600;">✓ Imagem ativa — clique abaixo para trocar ou remover.</small>
+            </div>
+            <button class="btn-mini" id="btnBannerImagePick">Escolher</button>
+          </div>
+          <input type="file" id="bannerImageInput" accept="image/*" hidden>
+          <div class="field" style="margin-top:10px;">
+            <label for="bannerImageUrl">ou cole uma URL</label>
+            <input type="url" id="bannerImageUrl" placeholder="https://exemplo.com/banner.jpg">
+          </div>
+          <button id="btnBannerImageClear" style="display:none; margin-top:10px; width:100%; padding:10px; border-radius:10px; border:1.5px solid #ef4444; background:#fef2f2; color:#dc2626; font-size:13px; font-weight:600; cursor:pointer; transition:all .15s;">✕ Remover Imagem do Banner</button>
         </div>
 
         <!-- OVERLAY DO BANNER -->
@@ -2240,7 +2265,7 @@
   };
 
   const DEFAULT_CFG = () => ({
-    profile: { displayName: '', bio: '', avatar: '' },
+    profile: { displayName: '', bio: '', avatar: '', address: '' },
     banner: '',
     quick: [],
     quickLinksStyle: { format: 'circle', background: 'solid', shadow: 'soft' },
@@ -2315,7 +2340,7 @@
 
   /* Registro das seções removíveis: chave do JSONB → card do painel */
   const SECTION_DEFS = {
-    profile: { label: 'Perfil',           ico: '👤', def: () => ({ displayName: '', bio: '', avatar: '' }) },
+    profile: { label: 'Perfil',           ico: '👤', def: () => ({ displayName: '', bio: '', avatar: '', address: '' }) },
     links:   { label: 'Seus links',       ico: '🔗', def: () => [] },
     quick:   { label: 'Links rápidos',    ico: '⚡', def: () => [] },
     style:   { label: 'Estilo da página', ico: '🎨', def: () => DEFAULT_CFG().style }
@@ -2365,7 +2390,7 @@
     }
 
     /* Garante estrutura mínima para que event handlers não falhem */
-    cfg.profile = cfg.profile || { displayName: '', bio: '', avatar: '' };
+    cfg.profile = cfg.profile || { displayName: '', bio: '', avatar: '', address: '' };
     cfg.quick = cfg.quick || [];
     cfg.links = cfg.links || [];
     cfg.style = cfg.style || DEFAULT_CFG().style;
@@ -2373,6 +2398,7 @@
 
     $('displayName').value = cfg.profile?.displayName || '';
     $('bio').value = cfg.profile?.bio || '';
+    $('address').value = cfg.profile?.address || '';
     if (cfg.profile?.favicon) $('faviconHint').style.display = 'block';
     const activeProfile = window.userProfiles?.find(p => p.id === window.currentProfileId);
     $('slugInput').value = activeProfile?.slug?.startsWith('perfil-inicial-') ? '' : ($('slugInput').value || '');
@@ -2533,6 +2559,7 @@
     if (key === 'profile') {
       $('displayName').value = cfg.profile.displayName || '';
       $('bio').value = cfg.profile.bio || '';
+      $('address').value = cfg.profile.address || '';
       $('avatarHintRow').style.display = cfg.profile.avatar ? 'block' : 'none';
       $('faviconHint').style.display = cfg.profile.favicon ? 'block' : 'none';
     } else if (key === 'style') {
@@ -2630,6 +2657,9 @@
     } else {
       bannerBox.classList.add('no-banner');
     }
+    syncBannerImageControls();
+    const bannerUrlEl = $('bannerImageUrl');
+    if (bannerUrlEl) bannerUrlEl.value = cfg.banner || '';
     renderBannerOverlay();
 
     applyThemeVars();
@@ -3330,6 +3360,36 @@
         thumb.appendChild(im);
       }
       thumb.querySelector('img').src = st.bgImageUrl;
+      if (btnClear) btnClear.style.display = 'block';
+      if (infoDefault) infoDefault.style.display = 'none';
+      if (infoActive) infoActive.style.display = 'block';
+    } else {
+      const oldImg = thumb.querySelector('img');
+      if (oldImg) oldImg.remove();
+      if (!thumb.textContent.trim()) thumb.textContent = '🖼️';
+      if (btnClear) btnClear.style.display = 'none';
+      if (infoDefault) infoDefault.style.display = '';
+      if (infoActive) infoActive.style.display = 'none';
+    }
+  }
+
+  /* Atualiza miniatura, botão remover e hints da linha Imagem do Banner */
+  function syncBannerImageControls() {
+    const thumb = $('bannerImageThumb');
+    const btnClear = $('btnBannerImageClear');
+    const infoDefault = $('bannerImageInfoDefault');
+    const infoActive = $('bannerImageInfoActive');
+    if (!thumb) return;
+    const hasImage = !!cfg.banner;
+    if (hasImage) {
+      if (!thumb.querySelector('img')) {
+        thumb.innerHTML = '';
+        const im = document.createElement('img');
+        im.alt = '';
+        im.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block;';
+        thumb.appendChild(im);
+      }
+      thumb.querySelector('img').src = cfg.banner;
       if (btnClear) btnClear.style.display = 'block';
       if (infoDefault) infoDefault.style.display = 'none';
       if (infoActive) infoActive.style.display = 'block';
@@ -4442,6 +4502,37 @@
       });
     });
 
+    /* Imagem do banner (cfg.banner) */
+    $('btnBannerImagePick').addEventListener('click', () => $('bannerImageInput').click());
+    $('bannerImageInput').addEventListener('change', async (e) => {
+      const file = e.target.files?.[0];
+      e.target.value = '';
+      if (!file) return;
+      showToast('Enviando imagem do banner...');
+      try {
+        const publicUrl = await uploadFileToStorage(file, 'banner');
+        cfg.banner = publicUrl;
+        renderPreview();
+        markDirty();
+        showToast('Banner atualizado!');
+      } catch (err) {
+        console.error('[Axiumlink] Upload do banner falhou:', err.message);
+        showToast('Falha no upload: ' + err.message);
+      }
+    });
+    $('bannerImageUrl').addEventListener('input', (e) => {
+      cfg.banner = e.target.value.trim();
+      renderPreview();
+      markDirty();
+    });
+    $('btnBannerImageClear').addEventListener('click', () => {
+      cfg.banner = '';
+      $('bannerImageUrl').value = '';
+      renderPreview();
+      markDirty();
+      showToast('Imagem do banner removida');
+    });
+
     reflectStyleValues();
   }
 
@@ -4716,6 +4807,12 @@
       markDirty();
     });
 
+    $('address').addEventListener('input', (e) => {
+      cfg.profile.address = e.target.value;
+      renderPreview();
+      markDirty();
+    });
+
     /* Avatar */
     $('btnAvatarPick').addEventListener('click', () => $('avatarInput').click());
     $('avatarInput').addEventListener('change', (e) => {
@@ -4723,8 +4820,8 @@
       if (file) openCrop(file, 'Ajustar foto de perfil', 'circle', async (dataUrl) => {
         showToast('Enviando imagem...');
         try {
-          const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'avatar');
-          cfg.profile = cfg.profile || { displayName: '', bio: '', avatar: '' };
+const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'avatar');
+          cfg.profile = cfg.profile || { displayName: '', bio: '', avatar: '', address: '' };
           cfg.profile.avatar = publicUrl;
           $('avatarHintRow').style.display = 'block';
           renderPreview();
