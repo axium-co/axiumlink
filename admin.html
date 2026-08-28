@@ -4666,6 +4666,16 @@
       pvBio.style.lineHeight = String(b.lh ?? 1.4);
     }
 
+    const pvAddr = $('pvAddress');
+    if (pvAddr) {
+      const b = profileElem('address');
+      pvAddr.style.fontFamily = b.font ? (FONT_STACKS[b.font] || 'Georgia, serif') : 'inherit';
+      pvAddr.style.fontSize = (b.size ?? 12) + 'px';
+      pvAddr.style.fontWeight = String(b.weight ?? 600);
+      pvAddr.style.letterSpacing = (b.ls ?? 0) + 'px';
+      pvAddr.style.lineHeight = String(b.lh ?? 1.4);
+    }
+
     page.querySelectorAll('.link-block').forEach((el) => {
       const b = st.typoBtn || {};
       el.style.fontFamily = b.font ? (FONT_STACKS[b.font] || 'Georgia, serif') : 'inherit';
@@ -4740,7 +4750,7 @@
     name:    { font: '', size: 20, weight: 700, ls: 0, lh: 1.4, color: '', align: 'center', bg: '', radius: 10, padding: [4, 14] },
     bio:     { font: '', size: 14, weight: 400, ls: 0, lh: 1.4, color: '', align: 'center', bg: '', radius: 10, padding: [4, 14] },
     address: { font: '', size: 12, weight: 600, ls: 0, lh: 1.4, color: '', align: 'center', bg: '', radius: 999, padding: [8, 16] },
-    avatar:  { shape: 'circle', radius: 999, borderStyle: 'solid', borderWidth: 4, borderColor: '#ffffff', shadowOn: true, shadowBlur: 24, shadowSpread: -10, glowColor: '', glowAlpha: 35 }
+    avatar:  { size: 96, shape: 'circle', radius: 999, borderStyle: 'solid', borderWidth: 4, borderColor: '#ffffff', shadowOn: true, shadowX: 0, shadowY: 12, shadowBlur: 24, shadowSpread: -10, shadowColor: '#000000', shadowAlpha: 50, glowOn: false, glowColor: '', glowIntensity: 35 }
   };
   function profileElem(key) {
     cfg.design = cfg.design || {};
@@ -4772,6 +4782,41 @@
       if (tbio.align) d.align = tbio.align;
       if (tb.weight != null) d.weight = tb.weight;
       else if (tbio.weight != null) d.weight = tbio.weight;
+    } else if (key === 'address') {
+      const taddr = (pf.text && pf.text.address) || {};
+      const astyle = pf.address || {};
+      if (taddr.blockFont) d.font = taddr.blockFont;
+      if (taddr.size != null) d.size = taddr.size;
+      if (taddr.weight != null) d.weight = taddr.weight;
+      if (taddr.ls != null) d.ls = taddr.ls;
+      if (taddr.lh != null) d.lh = taddr.lh;
+      if (taddr.color) d.color = taddr.color;
+      if (taddr.align) d.align = taddr.align;
+      if (taddr.blockRadius != null) d.radius = parseInt(String(taddr.blockRadius), 10) || d.radius;
+      if (astyle.bg) d.bg = astyle.bg;
+    } else if (key === 'avatar') {
+      const av = pf;
+      if (av.size != null) d.size = av.size;
+      if (av.shape) d.shape = av.shape;
+      if (av.borderStyle) d.borderStyle = av.borderStyle;
+      if (av.borderWidth != null) d.borderWidth = av.borderWidth;
+      if (av.borderColor) d.borderColor = av.borderColor;
+      if (av.shadowOn != null) d.shadowOn = av.shadowOn;
+      if (av.shadowX != null) d.shadowX = av.shadowX;
+      if (av.shadowY != null) d.shadowY = av.shadowY;
+      if (av.shadowBlur != null) d.shadowBlur = av.shadowBlur;
+      if (av.shadowSpread != null) d.shadowSpread = av.shadowSpread;
+      if (av.shadowColor) d.shadowColor = av.shadowColor;
+      if (av.shadowAlpha != null) d.shadowAlpha = av.shadowAlpha;
+      if (av.glowOn != null) d.glowOn = av.glowOn;
+      if (av.glowColor) d.glowColor = av.glowColor;
+      if (av.glowIntensity != null) d.glowIntensity = av.glowIntensity;
+      else if (av.glowAlpha != null) d.glowIntensity = av.glowAlpha;
+      if (d.shape !== 'circle') {
+        const pRadius = av.radius || {};
+        if (pRadius.tl != null) d.radius = pRadius.tl;
+        else if (pRadius.br != null) d.radius = pRadius.br;
+      }
     }
     el[key] = d;
     return el[key];
@@ -4832,13 +4877,14 @@
        Bio usa cfg.style.bioGlass (fallback textGlass) + elem.bio. */
     const nameCfg = profileElem('name');
     const bioCfg = profileElem('bio');
-    const chipFor = (el, g, pad, radius, bg) => {
+    const chipFor = (el, g, pad, radius, bg, align) => {
       if (!el) return;
       if (g.enabled || bg) {
         el.style.setProperty('display', 'inline-block');
         el.style.width = 'fit-content';
-        el.style.marginLeft = 'auto';
-        el.style.marginRight = 'auto';
+        if (align === 'left') { el.style.marginLeft = '0'; el.style.marginRight = 'auto'; }
+        else if (align === 'right') { el.style.marginLeft = 'auto'; el.style.marginRight = '0'; }
+        else { el.style.marginLeft = 'auto'; el.style.marginRight = 'auto'; }
       } else {
         el.style.removeProperty('display');
         el.style.width = '';
@@ -4868,6 +4914,16 @@
       borderGlow: 40, shadowDepth: 18, highlight: true, noise: false
     }, (st.bioGlass || st.textGlass || {}));
     chipFor($('pvBio'), bioG, bioCfg.padding || [4, 14], bioCfg.radius != null ? bioCfg.radius : 10, bioCfg.bg || '');
+
+    /* Endereço: chip INDEPENDENTE (addressGlass + elem.address).
+       Cobre tipografia transparente já aplicada em applyTypographyBlocks;
+       aqui assume pílula/vidro/fundo/padding/raio/alinhamento do próprio. */
+    const addrCfg = profileElem('address');
+    const addrG = Object.assign({
+      enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff',
+      borderGlow: 40, shadowDepth: 18, highlight: true, noise: false
+    }, st.addressGlass || {});
+    chipFor($('pvAddress'), addrG, addrCfg.padding || [8, 16], addrCfg.radius != null ? addrCfg.radius : 999, addrCfg.bg || '', addrCfg.align);
   }
 
   function applyThemeVars() {
@@ -4973,28 +5029,38 @@
     const dp = cfg.design || (cfg.design = {});
     const pf = dp.profile || (dp.profile = {});
 
-    /* Avatar: formato + borda */
+    /* Avatar: formato + borda + sombra + glow — 100% via elem.avatar */
     const av = $('pvAvatar');
     if (av) {
-      const pRadius = pf.radius || {};
-      const hasShape = !!pf.shape || Object.keys(pRadius).some((k) => pRadius[k] != null);
-      let radiusCSS = '50%';
-      if (hasShape) {
-        radiusCSS = (pRadius.tl == null ? 14 : pRadius.tl) + 'px ' + (pRadius.tr == null ? 14 : pRadius.tr) + 'px '
-          + (pRadius.br == null ? 14 : pRadius.br) + 'px ' + (pRadius.bl == null ? 14 : pRadius.bl) + 'px';
+      const aCfg = profileElem('avatar');
+      const shape = aCfg.shape || 'circle';
+      if (shape === 'circle') av.style.borderRadius = '50%';
+      else if (shape === 'square') av.style.borderRadius = '0px';
+      else av.style.borderRadius = (aCfg.radius != null ? aCfg.radius : 14) + 'px';
+      av.style.border = (aCfg.borderStyle === 'none' || !aCfg.borderWidth)
+        ? 'none'
+        : (aCfg.borderWidth || 4) + 'px ' + (aCfg.borderStyle || 'solid') + ' ' + (aCfg.borderColor || '#ffffff');
+      const shadows = [];
+      if (aCfg.glowOn && aCfg.glowColor) {
+        shadows.push('0 0 ' + (aCfg.glowIntensity != null ? aCfg.glowIntensity : 35) + 'px ' + aCfg.glowColor);
       }
-      av.style.borderRadius = radiusCSS;
-      if (pf.borderOn) {
-        av.style.border = (pf.borderWidth || 3) + 'px solid ' + (pf.borderColor || '#ffffff');
-      } else {
-        av.style.border = 'none';
+      if (aCfg.shadowOn !== false) {
+        shadows.push(
+          (aCfg.shadowX != null ? aCfg.shadowX : 0) + 'px '
+          + (aCfg.shadowY != null ? aCfg.shadowY : 12) + 'px '
+          + (aCfg.shadowBlur != null ? aCfg.shadowBlur : 24) + 'px '
+          + (aCfg.shadowSpread != null ? aCfg.shadowSpread : -10) + 'px '
+          + rgbaCss(aCfg.shadowColor || '#000000', (aCfg.shadowAlpha == null ? 50 : aCfg.shadowAlpha) / 100)
+        );
       }
+      av.style.boxShadow = shadows.length ? shadows.join(', ') : 'none';
     }
 
     /* Tamanho do avatar (contém também a sobreposição do banner) */
     const wrap = $('pvAvatarWrap');
     if (wrap) {
-      const size = pf.size || 96;
+      const avCfg = profileElem('avatar');
+      const size = avCfg.size || 96;
       wrap.style.width = size + 'px';
       wrap.style.height = size + 'px';
       wrap.style.marginTop = -(size / 2) + 'px';
@@ -5035,34 +5101,12 @@
       const showAddr = hasAddrRaw && pf.addrShow !== false;
       addrBox.hidden = !showAddr;
       if (showAddr) {
-        const astyle = pf.address || {};
+        const aCfg = profileElem('address');
         const addrText = $('pvAddressText');
         if (addrText) addrText.textContent = cfg.profile.address;
-        if (astyle.style === 'plain') {
-          addrBox.style.borderRadius = '8px';
-          addrBox.style.background = astyle.bg || 'transparent';
-          addrBox.style.border = '1px solid rgba(0,0,0,0)';
-        } else {
-          addrBox.style.borderRadius = '999px';
-          addrBox.style.background = astyle.bg || 'rgba(12,14,22,.82)';
-          addrBox.style.border = '1px solid rgba(255,255,255,.16)';
-        }
-        addrBox.style.color = astyle.color || '#ffffff';
-        /* Alinhamento do bloco de endereço (pf.text.address.align) */
-        const addrAlign = (pf.text && pf.text.address && pf.text.address.align) || 'center';
-        addrBox.style.display = 'flex';
-        addrBox.style.width = 'fit-content';
-        addrBox.style.justifyContent = addrAlign === 'left' ? 'flex-start' : addrAlign === 'right' ? 'flex-end' : 'center';
-        if (addrAlign === 'left') {
-          addrBox.style.marginLeft = '0';
-          addrBox.style.marginRight = 'auto';
-        } else if (addrAlign === 'right') {
-          addrBox.style.marginLeft = 'auto';
-          addrBox.style.marginRight = '0';
-        } else {
-          addrBox.style.marginLeft = 'auto';
-          addrBox.style.marginRight = 'auto';
-        }
+        /* Pílula/fundo/raio/padding/alinhamento/vidro são exclusivos do
+           chip (applyGlassToElements → chipFor com elem.address + addressGlass). */
+        addrBox.style.color = aCfg.color || '#ffffff';
       }
       const addrIco = $('pvAddressIco');
       if (addrIco) addrIco.hidden = !((pf.address && pf.address.showIcon) !== false);
@@ -7579,6 +7623,107 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
     });
     safeOn('btnCropOk', 'click', confirmCrop);
   });
+
+  /* ================================================================
+     [DEV] Hooks de teste headless (jsdom) — não usados em produção.
+     Expostos em window.* para os testes não dependerem de escopo.
+     ================================================================ */
+  const __styleKeys = [
+    'font-family','font-size','font-weight','letter-spacing','line-height','color','text-align',
+    'background','background-image','padding','border-radius','border','box-shadow','text-shadow',
+    'backdrop-filter','-webkit-backdrop-filter','display','width','height','margin-left','margin-right','justify-content'
+  ];
+  const __avStyleKeys = [
+    '--avatar-s','--glass-pad','--glass-bg','--glass-border','--glass-blur',
+    '--shadow-x','--shadow-y','--shadow-blur','--shadow-spread','--shadow-color'
+  ];
+  const __norm = (x) => {
+    if (Array.isArray(x)) return x.map(__norm);
+    if (x && typeof x === 'object') {
+      const o = {};
+      Object.keys(x).sort().forEach((k) => { o[k] = __norm(x[k]); });
+      return o;
+    }
+    return x;
+  };
+  const __clone = (v) => JSON.parse(JSON.stringify(v));
+  window.__axEditor = {
+    init(fixture) {
+      _cloudConfigToLoad = fixture ? __clone(fixture) : null;
+      initEditor();
+    },
+    cfg() { return cfg; },
+    dom(id) {
+      const el = $(id);
+      if (!el) return null;
+      const out = {};
+      __styleKeys.forEach((p) => { const val = el.style.getPropertyValue(p); if (val) out[p] = val; });
+      __avStyleKeys.forEach((p) => { const val = el.style.getPropertyValue(p); if (val) out[p] = val; });
+      const cs = String(el.className || '');
+      if (cs) out._class = cs;
+      out._hidden = !!el.hidden;
+      return out;
+    }
+  };
+  const __ELEM_KEYS = ['name', 'bio', 'address', 'avatar'];
+  const __DOM_OF = { name: 'pvName', bio: 'pvBio', address: 'pvAddress', avatar: 'pvAvatar' };
+  const __GLASS_OF = { name: 'nameGlass', bio: 'bioGlass', address: 'addressGlass' };
+  const __TEST = {
+    name: { font: 'Playfair Display', size: 31, weight: 900, ls: 2, lh: 1.15, color: '#0a1234', align: 'right', bg: '#aabbcc', radius: 26, padding: [14, 26] },
+    bio: { font: 'Syne', size: 23, weight: 800, ls: 1.5, lh: 1.7, color: '#441100', align: 'right', bg: '#ff00aa', radius: 0, padding: [0, 10] },
+    address: { font: 'Space Grotesk', size: 19, weight: 300, ls: 3, lh: 0.9, color: '#00ff11', align: 'right', bg: '#ff00ff', radius: 30, padding: [1, 2] },
+    avatar: { size: 148, shape: 'square', radius: 6, borderStyle: 'dashed', borderWidth: 8, borderColor: '#ff0000', shadowOn: false, shadowSpread: 9, shadowColor: '#000000', shadowAlpha: 97, glowOn: true, glowColor: '#00ddff', glowIntensity: 80 }
+  };
+  const __TEST_GLASS = {
+    enabled: true, blur: 39, saturate: 240, opacity: 48, color: '#102030',
+    borderGlow: 95, shadowDepth: 55, highlight: false, noise: true
+  };
+  const __same = (a, b) => JSON.stringify(__norm(a)) === JSON.stringify(__norm(b));
+
+  window.__espelhoIndependencia = function (elKey) {
+    __ELEM_KEYS.forEach((k) => profileElem(k));
+    const cfgB = __clone(cfg.design.profile.elem || {});
+    const glsB = {};
+    Object.keys(__GLASS_OF).forEach((k) => { glsB[k] = __clone((cfg.style && cfg.style[__GLASS_OF[k]]) || {}); });
+    const domB = {};
+    Object.keys(__DOM_OF).forEach((k) => { domB[k] = window.__axEditor.dom(__DOM_OF[k]); });
+
+    Object.assign(profileElem(elKey), __clone(__TEST[elKey]));
+    if (__GLASS_OF[elKey]) { cfg.style = cfg.style || {}; cfg.style[__GLASS_OF[elKey]] = __clone(__TEST_GLASS); }
+    renderPreview();
+
+    const cfgA = __clone(cfg.design.profile.elem || {});
+    const glsA = {};
+    Object.keys(__GLASS_OF).forEach((k) => { glsA[k] = __clone((cfg.style && cfg.style[__GLASS_OF[k]]) || {}); });
+    const domA = {};
+    Object.keys(__DOM_OF).forEach((k) => { domA[k] = window.__axEditor.dom(__DOM_OF[k]); });
+
+    const checks = [];
+    __ELEM_KEYS.filter((k) => k !== elKey).forEach((k) => {
+      checks.push({ ok: __same(cfgB[k], cfgA[k]), label: 'dados: element ' + k.toUpperCase() + ' intacto' });
+    });
+    Object.keys(__GLASS_OF).filter((k) => k !== elKey).forEach((k) => {
+      checks.push({ ok: __same(glsB[k], glsA[k]), label: 'dados: glass ' + k.toUpperCase() + ' intacto' });
+    });
+    __ELEM_KEYS.filter((k) => k !== elKey).forEach((k) => {
+      checks.push({ ok: __same(domB[k], domA[k]), label: 'DOM: preview ' + k.toUpperCase() + ' intacto' });
+    });
+    const merged = __clone(__TEST[elKey]);
+    Object.keys(cfgB[elKey] || {}).forEach((pk) => { if (merged[pk] === undefined) merged[pk] = cfgB[elKey][pk]; });
+    checks.push({ ok: __same(cfgA[elKey], merged), label: 'dados: element ' + elKey.toUpperCase() + ' aplicado e persistido' });
+    checks.push({ ok: !__same(domA[elKey], domB[elKey]), label: 'DOM: preview ' + elKey.toUpperCase() + ' MUDOU (aplica config)' });
+
+    cfg.design.profile.elem = cfgB;
+    if (__GLASS_OF[elKey]) cfg.style[__GLASS_OF[elKey]] = glsB[elKey];
+    renderPreview();
+    return { element: elKey, checks, targetApplied: !__same(domA[elKey], domB[elKey]) };
+  };
+
+  window.__migracaoAdmin = function () {
+    const out = {};
+    __ELEM_KEYS.forEach((k) => { out[k] = __clone(profileElem(k)); });
+    return out;
+  };
 
   console.log('%c[Axiumlink] Editor carregado.', 'color:#16a34a;font-weight:bold');
 </script>

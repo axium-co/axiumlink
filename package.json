@@ -1,5 +1,11 @@
 {
   "dependencies": {
     "@omniroute/opencode-provider": "^0.1.0"
+  },
+  "devDependencies": {
+    "jsdom": "^26.1.0"
+  },
+  "scripts": {
+    "test": "node test/independencia.mjs"
   }
 }

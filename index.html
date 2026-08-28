@@ -2738,30 +2738,58 @@
 
       /* ---- Avatar/perfil (design.profile) ---- */
       const pf = (cfg.design && cfg.design.profile) || {};
+      /* Configuração independente do avatar. Precede o elem.avatar;
+         senão migra o formato legado (design.profile) e persiste. */
+      const pElemAvatar = (() => {
+        const pb = pf;
+        if (pb.elem && pb.elem.avatar) return pb.elem.avatar;
+        if (!pb.elem) pb.elem = {};
+        const base = {
+          size: pb.size != null ? pb.size : 96,
+          shape: pb.shape || 'circle',
+          radius: 999,
+          borderStyle: pb.borderStyle || 'solid',
+          borderWidth: pb.borderWidth != null ? pb.borderWidth : 4,
+          borderColor: pb.borderColor || '#ffffff',
+          shadowOn: pb.shadowOn !== false,
+          shadowX: pb.shadowX != null ? pb.shadowX : 0,
+          shadowY: pb.shadowY != null ? pb.shadowY : 12,
+          shadowBlur: pb.shadowBlur != null ? pb.shadowBlur : 24,
+          shadowSpread: pb.shadowSpread != null ? pb.shadowSpread : -10,
+          shadowColor: pb.shadowColor || '#000000',
+          shadowAlpha: pb.shadowAlpha != null ? pb.shadowAlpha : 50,
+          glowOn: pb.glowOn != null ? pb.glowOn : false,
+          glowColor: pb.glowColor || '',
+          glowIntensity: pb.glowIntensity != null ? pb.glowIntensity : (pb.glowAlpha != null ? pb.glowAlpha : 35)
+        };
+        if (base.shape !== 'circle') {
+          const pr = pb.radius || {};
+          if (pr.tl != null) base.radius = pr.tl;
+          else if (pr.br != null) base.radius = pr.br;
+        }
+        return (pb.elem.avatar = base);
+      })();
       const pgAvatarCard = document.getElementById('pgAvatarCard');
       const pgAvatarEl = pgAvatarCard ? pgAvatarCard.querySelector('.profile__avatar') : null;
       if (pgAvatarCard && pgAvatarEl) {
-        const pRadius = pf.radius || {};
-        const hasShape = !!pf.shape || Object.keys(pRadius).some((k) => pRadius[k] != null);
-        let pRadiusCSS = '50%';
-        if (hasShape) {
-          pRadiusCSS = (pRadius.tl == null ? 14 : pRadius.tl) + 'px ' + (pRadius.tr == null ? 14 : pRadius.tr) + 'px ' + (pRadius.br == null ? 14 : pRadius.br) + 'px ' + (pRadius.bl == null ? 14 : pRadius.bl) + 'px';
-        }
+        const aRadius = pElemAvatar.shape === 'circle' ? '50%'
+          : pElemAvatar.shape === 'square' ? '0px'
+          : (pElemAvatar.radius != null ? pElemAvatar.radius : 14) + 'px';
         /* O .profile__avatar tem border-radius:50% !important no CSS (círculo
            padrão). Quando o usuário escolhe um formato, precisamos vencer o
            !important — por isso setProperty(..., 'important'). */
-        if (hasShape) {
-          pgAvatarEl.style.setProperty('border-radius', pRadiusCSS, 'important');
-        } else {
+        if (pElemAvatar.shape === 'circle') {
           pgAvatarEl.style.removeProperty('border-radius');
-        }
-        pgAvatarEl.style.border = (pf.borderStyle === 'none' || !pf.borderWidth)
-          ? 'none'
-          : (pf.borderWidth || 3) + 'px ' + (pf.borderStyle || 'solid') + ' ' + (pf.borderColor || 'var(--page-bg)');
-        if (hasShape) {
-          pgAvatarCard.style.setProperty('border-radius', pRadiusCSS, 'important');
         } else {
+          pgAvatarEl.style.setProperty('border-radius', aRadius, 'important');
+        }
+        pgAvatarEl.style.border = (pElemAvatar.borderStyle === 'none' || !pElemAvatar.borderWidth)
+          ? 'none'
+          : (pElemAvatar.borderWidth || 4) + 'px ' + (pElemAvatar.borderStyle || 'solid') + ' ' + (pElemAvatar.borderColor || 'var(--page-bg)');
+        if (pElemAvatar.shape === 'circle') {
           pgAvatarCard.style.removeProperty('border-radius');
+        } else {
+          pgAvatarCard.style.setProperty('border-radius', aRadius, 'important');
         }
 
         if (pf.glass) {
@@ -2776,12 +2804,12 @@
           pgAvatarCard.style.setProperty('--glass-blur', '0px');
         }
 
-        if (pf.shadowOn !== false) {
-          pgAvatarCard.style.setProperty('--shadow-x', (pf.shadowX || 0) + 'px');
-          pgAvatarCard.style.setProperty('--shadow-y', (pf.shadowY || 12) + 'px');
-          pgAvatarCard.style.setProperty('--shadow-blur', (pf.shadowBlur || 24) + 'px');
-          pgAvatarCard.style.setProperty('--shadow-spread', (pf.shadowSpread || -10) + 'px');
-          pgAvatarCard.style.setProperty('--shadow-color', toRgba(pf.shadowColor || '#000000', pf.shadowAlpha == null ? 50 : pf.shadowAlpha));
+        if (pElemAvatar.shadowOn !== false) {
+          pgAvatarCard.style.setProperty('--shadow-x', (pElemAvatar.shadowX != null ? pElemAvatar.shadowX : 0) + 'px');
+          pgAvatarCard.style.setProperty('--shadow-y', (pElemAvatar.shadowY != null ? pElemAvatar.shadowY : 12) + 'px');
+          pgAvatarCard.style.setProperty('--shadow-blur', (pElemAvatar.shadowBlur != null ? pElemAvatar.shadowBlur : 24) + 'px');
+          pgAvatarCard.style.setProperty('--shadow-spread', (pElemAvatar.shadowSpread != null ? pElemAvatar.shadowSpread : -10) + 'px');
+          pgAvatarCard.style.setProperty('--shadow-color', toRgba(pElemAvatar.shadowColor || '#000000', pElemAvatar.shadowAlpha == null ? 50 : pElemAvatar.shadowAlpha));
           pgAvatarCard.classList.add('avatar-ring');
         } else {
           pgAvatarCard.style.setProperty('--shadow-x', '0px');
@@ -2791,6 +2819,13 @@
           pgAvatarCard.style.setProperty('--shadow-color', 'rgba(0, 0, 0, 0)');
           pgAvatarCard.classList.remove('avatar-ring');
         }
+
+        /* Glow (halo) do avatar — box-shadow inline quando ativo */
+        if (pElemAvatar.glowOn && pElemAvatar.glowColor) {
+          pgAvatarCard.style.boxShadow = '0 0 ' + (pElemAvatar.glowIntensity != null ? pElemAvatar.glowIntensity : 35) + 'px ' + pElemAvatar.glowColor;
+        } else {
+          pgAvatarCard.style.removeProperty('box-shadow');
+        }
       }
 
       const pgHeader = document.getElementById('pageProfile');
@@ -2799,7 +2834,7 @@
       /* Tamanho do avatar: sobrescreve --avatar-s (raiz .profile). Só quando
          configurado; senão mantém o responsivo do CSS (96/112/76px). */
       if (pgHeader) {
-        if (pf.size) pgHeader.style.setProperty('--avatar-s', pf.size + 'px');
+        if (pElemAvatar.size) pgHeader.style.setProperty('--avatar-s', pElemAvatar.size + 'px');
         else pgHeader.style.removeProperty('--avatar-s');
       }
 
@@ -2841,7 +2876,6 @@
       };
       applyPubText('pgTitle', ptext.name);
       applyPubText('pgSubtitle', ptext.bio);
-      applyPubText('pgAddress', ptext.address);
 
       /* ---- Glassmorphism PREMIUM reutilizável ----
          Aplica o MESMO receituário de vidro do preview do admin em qualquer
@@ -2890,7 +2924,7 @@
         el.classList.toggle('gx-noise', !!g.noise);
       }
 
-      /* Nome: chip INDEPENDENTE (nameGlass + elem.name). Bio: textGlass. */
+      /* Nome: chip INDEPENDENTE (nameGlass + elem.name). Bio: bioGlass + elem.bio. */
       const neoGlass = { enabled:false, blur:20, saturate:180, opacity:16, color:'#ffffff', borderGlow:40, shadowDepth:18, highlight:true, noise:false };
       const pElemName = (() => {
         if (!pf.elem) pf.elem = {};
@@ -2909,17 +2943,54 @@
           bg: '', radius: 10, padding: [4, 14]
         });
       })();
+      const pElemBio = (() => {
+        if (!pf.elem) pf.elem = {};
+        if (pf.elem.bio) return pf.elem.bio;
+        const s2 = (cfg._premium || {});
+        const tb = s2.typoBio || {};
+        const tbio = ptext.bio || {};
+        return (pf.elem.bio = {
+          font: tb.font != null ? tb.font : '',
+          size: tb.size != null ? tb.size : (s2.bioSize != null ? s2.bioSize : 14),
+          weight: tb.weight != null ? tb.weight : (tbio.weight != null ? tbio.weight : 400),
+          ls: tb.ls != null ? tb.ls : 0,
+          lh: tb.lh != null ? tb.lh : 1.4,
+          color: tbio.color || '',
+          align: tbio.align || 'center',
+          bg: '', radius: 10, padding: [4, 14]
+        });
+      })();
+      const pElemAddress = (() => {
+        if (!pf.elem) pf.elem = {};
+        if (pf.elem.address) return pf.elem.address;
+        const taddr = ptext.address || {};
+        const astyle = pf.address || {};
+        return (pf.elem.address = {
+          font: taddr.blockFont || '',
+          size: taddr.size != null ? taddr.size : 12,
+          weight: taddr.weight != null ? taddr.weight : 600,
+          ls: taddr.ls != null ? taddr.ls : 0,
+          lh: taddr.lh != null ? taddr.lh : 1.4,
+          color: taddr.color || '',
+          align: taddr.align || 'center',
+          bg: astyle.bg || 'rgba(12,14,22,.82)',
+          radius: taddr.blockRadius != null ? (parseInt(String(taddr.blockRadius), 10) || 999) : (astyle.style === 'plain' ? 8 : 999),
+          padding: [8, 16]
+        });
+      })();
       const mkGlass = (cfg2, a, b) => Object.assign({}, neoGlass, (cfg2[a] || cfg2[b] || {}));
       const nameGlass = mkGlass((cfg.style || {}), 'nameGlass', 'textGlass');
       const bioGlass = mkGlass((cfg.style || {}), 'textGlass', null);
-      const chipFor = (el, g, pad, radius, solidBg) => {
+      const addressGlass = mkGlass((cfg.style || {}), 'addressGlass', null);
+      const chipFor = (el, g, pad, radius, solidBg, align) => {
         if (!el) return;
         const M = el.style;
         if (g.enabled || solidBg) {
           M.setProperty('display', 'inline-block');
           M.width = 'fit-content';
-          M.marginLeft = 'auto';
-          M.marginRight = 'auto';
+          if (align === 'left') { M.marginLeft = '0'; M.marginRight = 'auto'; }
+          else if (align === 'right') { M.marginLeft = 'auto'; M.marginRight = '0'; }
+          else { M.marginLeft = 'auto'; M.marginRight = 'auto'; }
         } else {
           M.removeProperty('display');
           M.width = ''; M.marginLeft = ''; M.marginRight = '';
@@ -2932,39 +3003,21 @@
         else { M.removeProperty('background'); }
       };
       chipFor(document.getElementById('pgTitle'), nameGlass, pElemName.padding || [4, 14], pElemName.radius != null ? pElemName.radius : 10, pElemName.bg || '');
-      chipFor(document.getElementById('pgSubtitle'), bioGlass, [4, 14], 10, '');
+      chipFor(document.getElementById('pgSubtitle'), bioGlass, pElemBio.padding || [4, 14], pElemBio.radius != null ? pElemBio.radius : 10, pElemBio.bg || '');
 
       /* Estilos do bloco endereço — some quando o perfil não tem endereço
-         (nunca exibe o placeholder hardcoded do HTML) */
+         (nunca exibe o placeholder hardcoded do HTML). Quando exibido,
+         usa 100% elem.address + addressGlass (padrão independente). */
       const addrEl = document.getElementById('pgAddress');
-      const addrStyle = ptext.address;
-      const addrPres = pf.address || {};
       const hasAddr = !!(flat.profileAddress || '').trim();
       if (addrEl) {
         addrEl.hidden = !(hasAddr && pf.addrShow !== false);
         if (hasAddr) {
-          /* Estilos de apresentação do endereço (painel): pílula ou texto
-             simples + cor de fundo/texto. Quando vazios, mantém o padrão. */
-          if (addrPres.style === 'plain') {
-            addrEl.style.borderRadius = addrPres.radius || '8px';
-            addrEl.style.background = addrPres.bg || 'transparent';
-            addrEl.style.border = '1px solid rgba(0,0,0,0)';
-          } else {
-            if (addrPres.bg || addrPres.color || addrPres.radius) addrEl.style.borderRadius = '999px';
-            addrEl.style.background = addrPres.bg || '';
-            addrEl.style.border = '';
-          }
-          addrEl.style.color = addrPres.color || '';
+          const aCfg = pElemAddress;
+          if (aCfg.color) addrEl.style.color = aCfg.color;
           const addrIconEl = addrEl.querySelector('svg');
-          if (addrIconEl) addrIconEl.style.display = (addrPres.showIcon === false) ? 'none' : '';
-          if (addrStyle) {
-            if (addrStyle.blockRadius) addrEl.style.borderRadius = addrStyle.blockRadius;
-            if (addrStyle.blockBg) addrEl.style.background = addrStyle.blockBg;
-            if (addrStyle.blockBorderColor != null && addrStyle.blockBorderWidth != null) {
-              addrEl.style.border = addrStyle.blockBorderWidth + 'px solid ' + addrStyle.blockBorderColor;
-            }
-            if (addrStyle.blockFont) addrEl.style.fontFamily = addrStyle.blockFont;
-          }
+          if (addrIconEl) addrIconEl.style.display = (pf.address && pf.address.showIcon === false) ? 'none' : '';
+          chipFor(addrEl, addressGlass, aCfg.padding || [8, 16], aCfg.radius != null ? aCfg.radius : 999, aCfg.bg || '', aCfg.align);
         }
       }
 
@@ -3890,8 +3943,23 @@
           if (pElemName.color) titleEl.style.color = pElemName.color;
         }
         const bioEl = document.getElementById('pgSubtitle');
-        if (bioEl) {
-          bioEl.style.fontSize = (st.bioSize ?? 14) + 'px';
+        if (bioEl && typeof pElemBio !== 'undefined' && pElemBio) {
+          bioEl.style.fontSize = (pElemBio.size != null ? pElemBio.size : 14) + 'px';
+          bioEl.style.fontWeight = String(pElemBio.weight != null ? pElemBio.weight : 400);
+          bioEl.style.letterSpacing = (pElemBio.ls != null ? pElemBio.ls : 0) + 'px';
+          bioEl.style.lineHeight = String(pElemBio.lh != null ? pElemBio.lh : 1.4);
+          if (pElemBio.font) bioEl.style.fontFamily = FONT_STACKS[pElemBio.font] || 'Georgia, serif';
+          else bioEl.style.removeProperty('font-family');
+          if (pElemBio.color) bioEl.style.color = pElemBio.color;
+          bioEl.style.textAlign = pElemBio.align || '';
+        }
+        const addrElTypo = addrEl;
+        if (addrElTypo && hasAddr && typeof pElemAddress !== 'undefined' && pElemAddress) {
+          addrElTypo.style.fontFamily = pElemAddress.font ? (FONT_STACKS[pElemAddress.font] || 'Georgia, serif') : '';
+          addrElTypo.style.fontSize = (pElemAddress.size != null ? pElemAddress.size : 12) + 'px';
+          addrElTypo.style.fontWeight = String(pElemAddress.weight != null ? pElemAddress.weight : 600);
+          addrElTypo.style.letterSpacing = (pElemAddress.ls != null ? pElemAddress.ls : 0) + 'px';
+          addrElTypo.style.lineHeight = String(pElemAddress.lh != null ? pElemAddress.lh : 1.4);
         }
 
         /* Fundo animado: movimento contínuo */
@@ -4172,10 +4240,103 @@
         } catch (e) { /* silent */ }
       };
       document.addEventListener('visibilitychange', refetchOnFocus);
-      window.addEventListener('focus', refetchOnFocus);
+window.addEventListener('focus', refetchOnFocus);
+
+      /* ============================================================
+         [DEV] Hooks de teste público (jsdom) — não usados em produção.
+         Exposição window.__alaPublica para validar independência.
+         ============================================================ */
+      const __styleKeys = [
+        'font-family','font-size','font-weight','letter-spacing','line-height','color','text-align',
+        'background','background-image','padding','border-radius','border','box-shadow','text-shadow',
+        'backdrop-filter','-webkit-backdrop-filter','display','width','height','margin-left','margin-right','justify-content'
+      ];
+      const __avStyleKeys = [
+        '--avatar-s','--glass-pad','--glass-bg','--glass-border','--glass-blur',
+        '--shadow-x','--shadow-y','--shadow-blur','--shadow-spread','--shadow-color'
+      ];
+      const __norm = (x) => {
+        if (Array.isArray(x)) return x.map(__norm);
+        if (x && typeof x === 'object') {
+          const o = {};
+          Object.keys(x).sort().forEach((k) => { o[k] = __norm(x[k]); });
+          return o;
+        }
+        return x;
+      };
+      const __clone = (v) => JSON.parse(JSON.stringify(v));
+      const __domSnapshot = (sel) => {
+        const __keep = (el, out, prefix) => {
+          if (!el) return;
+          __styleKeys.forEach((p) => { const val = el.style.getPropertyValue(p); if (val) out[prefix + p] = val; });
+          __avStyleKeys.forEach((p) => { const val = el.style.getPropertyValue(p); if (val) out[prefix + p] = val; });
+          const cs = String(el.className || '');
+          if (cs) out[prefix + '_class'] = cs;
+          out[prefix + '_hidden'] = !!el.hidden;
+        };
+        const out = {};
+        if (sel === '#pgAvatar') {
+          __keep(document.querySelector('#pgAvatarCard'), out, 'card.');
+          __keep(document.querySelector('#pgAvatarCard .profile__avatar'), out, 'el.');
+          __keep(document.querySelector('#pageProfile'), out, 'page.');
+          return out;
+        }
+        const el = document.querySelector(sel);
+        if (!el) return null;
+        __keep(el, out, '');
+        return out;
+      };
+      const __ELEM_KEYS = ['name', 'bio', 'address', 'avatar'];
+      const __DOM_OF = { name: '#pgTitle', bio: '#pgSubtitle', address: '#pgAddress', avatar: '#pgAvatar' };
+      const __GLASS_OF = { name: 'nameGlass', bio: 'bioGlass', address: 'addressGlass' };
+      const __TEST = {
+        name: { font: 'Playfair Display', size: 31, weight: 900, ls: 2, lh: 1.15, color: '#0a1234', align: 'right', bg: '#aabbcc', radius: 26, padding: [14, 26] },
+        bio: { font: 'Syne', size: 23, weight: 800, ls: 1.5, lh: 1.7, color: '#441100', align: 'right', bg: '#ff00aa', radius: 0, padding: [0, 10] },
+        address: { font: 'Space Grotesk', size: 19, weight: 300, ls: 3, lh: 0.9, color: '#00ff11', align: 'right', bg: '#ff00ff', radius: 30, padding: [1, 2] },
+        avatar: { size: 148, shape: 'square', radius: 6, borderStyle: 'dashed', borderWidth: 8, borderColor: '#ff0000', shadowOn: false, shadowSpread: 9, shadowColor: '#000000', shadowAlpha: 97, glowOn: true, glowColor: '#00ddff', glowIntensity: 80 }
+      };
+      const __TEST_GLASS = {
+        enabled: true, blur: 39, saturate: 240, opacity: 48, color: '#102030',
+        borderGlow: 95, shadowDepth: 55, highlight: false, noise: true
+      };
+      const __eq = (a, b) => JSON.stringify(__norm(a)) === JSON.stringify(__norm(b));
+      const __TEXT_PROPS = [
+        'font-family','font-size','font-weight','letter-spacing','line-height','color','text-align',
+        'padding','border-radius','background','background-image','display','width','height',
+        'margin-left','margin-right','justify-content'
+      ];
+      window.__alaPublica = {
+        dom: __domSnapshot,
+        aplicar(payload) { applyConfig(__clone(payload)); },
+        espelho(baseline, elKey) {
+          applyConfig(__clone(baseline));
+          const before = {};
+          Object.keys(__DOM_OF).forEach((k) => { before[k] = __domSnapshot(__DOM_OF[k]); });
+          const v = __clone(baseline);
+          v.design = v.design || {}; v.design.profile = v.design.profile || {};
+          v.design.profile.elem = v.design.profile.elem || {};
+          v.design.profile.elem[elKey] = Object.assign(__clone(v.design.profile.elem[elKey] || {}), __clone(__TEST[elKey]));
+          if (__GLASS_OF[elKey]) { v.style = v.style || {}; v.style[__GLASS_OF[elKey]] = __clone(__TEST_GLASS); }
+          applyConfig(v);
+          const after = {};
+          Object.keys(__DOM_OF).forEach((k) => { after[k] = __domSnapshot(__DOM_OF[k]); });
+          const others = __ELEM_KEYS.filter((k) => k !== elKey).map((k) => ({
+            ok: __eq(before[k], after[k]),
+            label: 'DOM público: ' + k.toUpperCase() + ' (' + __DOM_OF[k] + ') intacto'
+          }));
+          const delta = Object.keys(after[elKey] || {}).filter((k) => !__eq(before[elKey] && before[elKey][k], after[elKey][k]));
+          const textApplied = delta.some((k) => __TEXT_PROPS.some((t) => k === t || k.indexOf('.' + t) >= 0));
+          applyConfig(__clone(baseline));
+          return { element: elKey, targetApplied: textApplied, deltaKeys: delta, others };
+        }
+      };
+      window.__alaPublica.ready = readConfig().then((r) => {
+        if (r && r.ok && r.config) applyConfig(r.config);
+        else if (r) showPublicStatus(r);
+      }).catch(() => { /* já logado pelo fluxo real */ });
+
     })();
   </script>
-
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function () {
