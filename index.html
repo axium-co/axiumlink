@@ -2821,6 +2821,44 @@
       applyPubText('pgSubtitle', ptext.bio);
       applyPubText('pgAddress', ptext.address);
 
+      /* ---- Efeito Vidro no fundo do texto (nome/bio) ----
+         Glassmorphism real: backdrop-filter borra o que está atrás do chip.
+         Alpha do branco limitado (0.10–0.28) p/ nunca virar chapado; borda
+         sutil + sombra dão o reflexo de vidro. Espelha o preview do admin. */
+      const tg = (cfg.style && cfg.style.textGlass) || {};
+      const applyTextGlass = (el) => {
+        if (!el) return;
+        if (tg.enabled) {
+          const alpha = Math.min(0.28, Math.max(0.1, (tg.opacity || 16) / 100));
+          const blur = tg.blur || 0;
+          el.style.setProperty('display', 'inline-block');
+          el.style.width = 'fit-content';
+          el.style.marginLeft = 'auto';
+          el.style.marginRight = 'auto';
+          el.style.background = 'rgba(255,255,255,' + alpha.toFixed(3) + ')';
+          el.style.backdropFilter = 'blur(' + blur + 'px)';
+          el.style.webkitBackdropFilter = 'blur(' + blur + 'px)';
+          el.style.border = '1px solid rgba(255,255,255,0.3)';
+          el.style.boxShadow = '0 4px 24px rgba(0,0,0,0.1)';
+          el.style.padding = '4px 14px';
+          el.style.borderRadius = '10px';
+        } else {
+          el.style.removeProperty('display');
+          el.style.width = '';
+          el.style.marginLeft = '';
+          el.style.marginRight = '';
+          el.style.background = '';
+          el.style.backdropFilter = '';
+          el.style.webkitBackdropFilter = '';
+          el.style.border = '';
+          el.style.boxShadow = '';
+          el.style.padding = '';
+          el.style.borderRadius = '';
+        }
+      };
+      applyTextGlass(document.getElementById('pgTitle'));
+      applyTextGlass(document.getElementById('pgSubtitle'));
+
       /* Estilos do bloco endereço — some quando o perfil não tem endereço
          (nunca exibe o placeholder hardcoded do HTML) */
       const addrEl = document.getElementById('pgAddress');
