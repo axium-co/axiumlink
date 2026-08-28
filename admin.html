@@ -2504,6 +2504,68 @@
       </div>
     </div>
   </div>
+
+  <!-- MODAL DE EDIÇÃO DE ATALHO RÁPIDO -->
+  <div class="block-modal-backdrop" id="quickModal">
+    <div class="block-modal">
+      <div class="block-modal-head">
+        <h3 id="quickModalTitle">Editar atalho</h3>
+        <button class="icon-btn del" id="btnQuickDelete" title="Excluir atalho" style="display:none;">🗑️</button>
+      </div>
+      <div class="row-2">
+        <div class="field">
+          <label for="quickModalLabel">Nome</label>
+          <input type="text" id="quickModalLabel" placeholder="Ex.: Loja" maxlength="20">
+        </div>
+        <div class="field">
+          <label for="quickModalUrl">URL</label>
+          <input type="url" id="quickModalUrl" placeholder="https://...">
+        </div>
+      </div>
+      <div class="field">
+        <label for="quickModalIcon">Ícone do Atalho</label>
+        <select id="quickModalIcon" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+          <option value="">Sem ícone (usar imagem padrão)</option>
+          <optgroup label="Redes sociais">
+            <option value="instagram">Instagram</option>
+            <option value="whatsapp">WhatsApp</option>
+            <option value="tiktok">TikTok</option>
+            <option value="youtube">YouTube</option>
+            <option value="email">E-mail</option>
+            <option value="telefone">Telefone</option>
+            <option value="pix">PIX</option>
+          </optgroup>
+          <optgroup label="Negócios e serviços">
+            <option value="loja">Loja / Shopping Bag</option>
+            <option value="estetica">Estética / Beleza</option>
+            <option value="barbearia">Barbearia / Cortes</option>
+            <option value="clinica">Clínica / Saúde (cruz)</option>
+            <option value="saude">Saúde / Coração</option>
+            <option value="food">Restaurante / Comida</option>
+            <option value="gym">Academia / Fitness</option>
+            <option value="musica">Música</option>
+            <option value="arte">Arte / Galeria</option>
+            <option value="pet">Pet Shop</option>
+            <option value="educacao">Educação / Curso</option>
+            <option value="servicos">Serviços / Manutenção</option>
+            <option value="camera">Fotografia / Vídeo</option>
+            <option value="agenda">Agenda / Consultas</option>
+            <option value="pagamento">Pagamento / Cartão</option>
+            <option value="brinde">Presentes / Kits</option>
+            <option value="viagem">Viagem / Agência</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="field">
+        <label for="quickModalColor">Cor da borda deste atalho (opcional)</label>
+        <input type="color" id="quickModalColor" value="#6366f1" style="width:100%; height:38px; border:1.5px solid var(--border); border-radius:10px; background:#fff; padding:4px; cursor:pointer;">
+      </div>
+      <div style="display:flex; gap:10px; margin-top:18px;">
+        <button class="btn-mini" id="btnQuickCancel" style="flex:1; padding:12px;">Cancelar</button>
+        <button id="btnQuickSave" style="flex:2; padding:12px; border:none; border-radius:10px; background:var(--brand); color:#fff; font-size:14px; font-weight:700; cursor:pointer;">Salvar atalho</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -3394,6 +3456,7 @@
     (cfg.quick || []).forEach((q, i) => {
       const a = document.createElement('a');
       a.className = 'quick-item';
+      a.dataset.quickIndex = i;
       a.href = q.url || '#';
       a.target = '_blank';
       a.rel = 'noopener noreferrer';
@@ -4495,12 +4558,26 @@
 
     /* Estilo exclusivo dos atalhos rápidos (quickLinksStyle) */
     const qCSS = buildQuickCSS(st, cfg.quickLinksStyle);
+    const applyQuickItemColors = () => {
+      page.querySelectorAll('.quick-item .quick-thumb').forEach((th) => {
+        const item = th.closest('.quick-item');
+        const idx = item ? Number(item.dataset.quickIndex) : -1;
+        const q = (idx >= 0 && cfg.quick[idx]) ? cfg.quick[idx] : null;
+        const qc = (q && q.color) || '';
+        if (qc) {
+          th.style.border = '1.5px solid ' + qc;
+          th.style.borderColor = qc;
+        }
+      });
+    };
     page.querySelectorAll('.quick-item .quick-thumb').forEach((th) => {
       Object.assign(th.style, qCSS);
     });
+    applyQuickItemColors();
 
     /* Efeito vidro independente por elemento (sub-grupos) */
     applyGlassToElements(st);
+    applyQuickItemColors();
 
     const gap = (st.blockGap ?? 10);
     $('previewLinksList').style.display = 'flex';
@@ -6143,11 +6220,69 @@
         renderPreview();
       });
 
+      const editBtn = document.createElement('button');
+      editBtn.className = 'icon-btn';
+      editBtn.title = 'Editar atalho';
+      editBtn.textContent = '✏️';
+      editBtn.addEventListener('click', () => openQuickModal(i));
+
+      const actions = document.createElement('div');
+      actions.className = 'link-item-actions';
+      actions.appendChild(editBtn);
+      actions.appendChild(delBtn);
+
       row.appendChild(main);
-      row.appendChild(delBtn);
+      row.appendChild(actions);
       list.appendChild(row);
     });
   }
+
+  /* ================================================================
+     MODAL DE ATALHO RÁPIDO (criar/editar sem apagar e recriar)
+     ================================================================ */
+  let _quickEditIndex = null;
+
+  function openQuickModal(index) {
+    _quickEditIndex = index;
+    const q = (index == null) ? {} : (cfg.quick[index] || {});
+
+    $('quickModalTitle').textContent = (index == null) ? 'Novo atalho' : 'Editar atalho';
+    $('btnQuickDelete').style.display = (index == null) ? 'none' : 'flex';
+    $('quickModalLabel').value = q.label || '';
+    $('quickModalUrl').value = q.url || '';
+    $('quickModalIcon').value = q.icon || '';
+    $('quickModalColor').value = q.color || '#6366f1';
+
+    $('quickModal').classList.add('open');
+    setTimeout(() => { try { $('quickModalLabel').focus(); } catch (_) {} }, 60);
+  }
+
+  function closeQuickModal() {
+    $('quickModal').classList.remove('open');
+    _quickEditIndex = null;
+  }
+
+  const saveQuick = () => {
+    const label = $('quickModalLabel').value.trim();
+    const url = $('quickModalUrl').value.trim();
+    if (!label || !url) { showToast('Preencha nome e URL do atalho'); return; }
+
+    cfg.quick = cfg.quick || [];
+    const entry = {
+      label,
+      url,
+      icon: $('quickModalIcon').value || '',
+      color: $('quickModalColor').value || '',
+      img: (_quickEditIndex != null && cfg.quick[_quickEditIndex]) ? (cfg.quick[_quickEditIndex].img || '') : ''
+    };
+    if (_quickEditIndex == null) cfg.quick.push(entry);
+    else cfg.quick[_quickEditIndex] = entry;
+
+    closeQuickModal();
+    markDirty();
+    renderQuickList();
+    renderPreview();
+  };
 
   /* ================================================================
      MODAL DO BLOCO
@@ -6286,6 +6421,23 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
     };
     safeOn('btnAddQuick', 'click', addQuick);
     safeOn('quickUrl', 'keydown', (e) => { if (e.key === 'Enter') addQuick(); });
+
+    /* Edição de atalho (modal) */
+    safeOn('btnQuickSave', 'click', saveQuick);
+    safeOn('btnQuickCancel', 'click', closeQuickModal);
+    safeOn('quickModal', 'click', (e) => {
+      if (e.target === $('quickModal')) closeQuickModal();
+    });
+    safeOn('btnQuickDelete', 'click', () => {
+      if (_quickEditIndex == null) return;
+      if (!confirm('Excluir este atalho?')) return;
+      cfg.quick.splice(_quickEditIndex, 1);
+      closeQuickModal();
+      markDirty();
+      renderQuickList();
+      renderPreview();
+    });
+    safeOn('quickModalUrl', 'keydown', (e) => { if (e.key === 'Enter') saveQuick(); });
 
     /* Blocos */
     safeOn('btnAddLink', 'click', () => openBlockModal(null));
