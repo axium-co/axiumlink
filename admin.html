@@ -1341,24 +1341,266 @@
           </div>
         </div>
 
-        <!-- Nome de exibição -->
+        <!-- ═══ PERSONALIZAR NOME (independente da Bio/Endereço/Avatar) ═══ -->
         <div class="field" style="padding-top:12px; border-top:1px solid var(--bg);">
-          <label style="font-size:13px; font-weight:700; color:var(--ink);">Nome de exibição</label>
-          <div class="row-2">
+          <label style="font-size:13px; font-weight:700; color:var(--ink);">Personalizar Nome</label>
+          <p class="hint" style="margin:-2px 0 8px;">Configuração completa e independente do Nome — não afeta Bio, Endereço ou Avatar.</p>
+
+          <details style="margin-top:2px;">
+            <summary style="cursor:pointer;font-size:13px;font-weight:700;color:var(--ink);">Tipografia &amp; cor do texto</summary>
+            <div class="ds-control">
+              <label for="nameFont">Fonte</label>
+              <select id="nameFont" class="typo-select">
+                <option value="">Mesma da página</option>
+                <option value="Playfair Display">Playfair Display (serifa elegante)</option>
+                <option value="Cormorant Garamond">Cormorant Garamond (serifa leve)</option>
+                <option value="DM Serif Display">DM Serif Display (serifa editorial)</option>
+                <option value="Lora">Lora (serifa clássica)</option>
+                <option value="Inter">Inter (sans neutra)</option>
+                <option value="Montserrat">Montserrat (sans corporativa)</option>
+                <option value="Poppins">Poppins (sans amigável)</option>
+                <option value="Syne">Syne (artística/moderna)</option>
+                <option value="Space Grotesk">Space Grotesk (tech)</option>
+              </select>
+            </div>
+            <div class="ds-control">
+              <label>Tamanho da fonte</label>
+              <div class="ds-control-row">
+                <input type="range" id="nameSize" min="15" max="34" step="1">
+                <output class="ds-value" id="nameSizeVal">20px</output>
+              </div>
+            </div>
+            <div class="ds-control">
+              <label>Peso da fonte (negrito)</label>
+              <div class="ds-control-row">
+                <input type="range" id="nameWeight" min="300" max="900" step="100">
+                <output class="ds-value" id="nameWeightVal">700</output>
+              </div>
+            </div>
+            <div class="ds-control">
+              <label>Espaçamento entre letras</label>
+              <div class="ds-control-row">
+                <input type="range" id="nameLs" min="-1" max="5" step="0.1">
+                <output class="ds-value" id="nameLsVal">0px</output>
+              </div>
+            </div>
+            <div class="ds-control">
+              <label>Altura da linha</label>
+              <div class="ds-control-row">
+                <input type="range" id="nameLh" min="1" max="2" step="0.05">
+                <output class="ds-value" id="nameLhVal">1.4</output>
+              </div>
+            </div>
+            <div class="row-2">
+              <div class="field" style="margin:10px 0 0;">
+                <label>Cor do texto</label>
+                <div class="color-trigger" id="nameColor" role="button" tabindex="0">
+                  <div class="color-trigger-swatch" style="background:#dc2626;"></div>
+                  <span class="color-trigger-hex">AUTO</span>
+                </div>
+              </div>
+              <div class="field" style="margin:10px 0 0;">
+                <label for="nameAlign">Alinhamento</label>
+                <select id="nameAlign">
+                  <option value="left">Esquerda</option>
+                  <option value="center" selected>Centro</option>
+                  <option value="right">Direita</option>
+                </select>
+              </div>
+            </div>
+          </details>
+
+          <details style="margin-top:6px;">
+            <summary style="cursor:pointer;font-size:13px;font-weight:700;color:var(--ink);">Chip — fundo, forma e espaçamento</summary>
+            <p class="hint" style="margin:6px 0 8px;">Preenchimento quando o Efeito Vidro estiver ativado (ou uma cor de fundo definida).</p>
             <div class="field" style="margin:10px 0 0;">
-              <label>Cor do texto</label>
-              <div class="color-trigger" id="nameColor" role="button" tabindex="0">
-                <div class="color-trigger-swatch" style="background:#dc2626;"></div>
+              <label>Fundo do chip (se vazio, usa o vidro)</label>
+              <div class="color-trigger" id="nameBg" role="button" tabindex="0">
+                <div class="color-trigger-swatch" style="background:#ffffff;"></div>
                 <span class="color-trigger-hex">AUTO</span>
               </div>
             </div>
-            <div class="field" style="margin:10px 0 0;">
-              <label for="nameAlign">Alinhamento</label>
-              <select id="nameAlign">
-                <option value="left">Esquerda</option>
-                <option value="center" selected>Centro</option>
-                <option value="right">Direita</option>
+            <div class="ds-control">
+              <label>Formato (border-radius)</label>
+              <div class="ds-control-row">
+                <input type="range" id="nameRadius" min="0" max="30" step="1">
+                <output class="ds-value" id="nameRadiusVal">10px</output>
+              </div>
+            </div>
+            <div class="row-2">
+              <div class="field" style="margin:10px 0 0;">
+                <label for="namePadV">Padding vertical</label>
+                <div class="ds-control-row">
+                  <input type="range" id="namePadV" min="0" max="20" step="1">
+                  <output class="ds-value" id="namePadVVal">4px</output>
+                </div>
+              </div>
+              <div class="field" style="margin:10px 0 0;">
+                <label for="namePadH">Padding horizontal</label>
+                <div class="ds-control-row">
+                  <input type="range" id="namePadH" min="0" max="32" step="1">
+                  <output class="ds-value" id="namePadHVal">14px</output>
+                </div>
+              </div>
+            </div>
+          </details>
+        </div>
+
+        <!-- Efeito Vidro do NOME (independente) -->
+        <div class="glass-block" id="nameGlassBlock" style="margin-top:8px;">
+          <div class="glass-block-head">💠 Efeito Vidro do Nome</div>
+          <p class="hint" style="margin:-2px 0 8px;">Cria o chip de vidro atrás do Nome — independente da Bio e demais elementos.</p>
+          <div class="toggle-row" style="padding:2px 0 6px;">
+            <span class="toggle-label">Ativar efeito vidro</span>
+            <label class="switch">
+              <input type="checkbox" id="nameGlassToggle">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="ds-control">
+            <label>Desfoque (Blur)</label>
+            <div class="ds-control-row">
+              <input type="range" id="nameGlassBlur" min="0" max="40" step="1">
+              <output class="ds-value" id="nameGlassBlurVal">20px</output>
+            </div>
+          </div>
+          <div class="ds-control">
+            <label>Opacidade do vidro</label>
+            <div class="ds-control-row">
+              <input type="range" id="nameGlassOpacity" min="5" max="50" step="1">
+              <output class="ds-value" id="nameGlassOpacityVal">16%</output>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ PERSONALIZAR BIO (independente do Nome/Endereço/Avatar) ═══ -->
+        <div class="field" style="padding-top:12px; border-top:1px solid var(--bg);" id="bioPersonalizeBlock">
+          <label style="font-size:13px; font-weight:700; color:var(--ink);">Personalizar Bio</label>
+          <p class="hint" style="margin:-2px 0 8px;">Configuração completa e independente da Bio — não afeta Nome, Endereço ou Avatar.</p>
+
+          <details style="margin-top:2px;">
+            <summary style="cursor:pointer;font-size:13px;font-weight:700;color:var(--ink);">Tipografia &amp; cor do texto</summary>
+            <div class="ds-control">
+              <label for="bioFont">Fonte</label>
+              <select id="bioFont" class="typo-select">
+                <option value="">Mesma da página</option>
+                <option value="Playfair Display">Playfair Display (serifa elegante)</option>
+                <option value="Cormorant Garamond">Cormorant Garamond (serifa leve)</option>
+                <option value="DM Serif Display">DM Serif Display (serifa editorial)</option>
+                <option value="Lora">Lora (serifa clássica)</option>
+                <option value="Inter">Inter (sans neutra)</option>
+                <option value="Montserrat">Montserrat (sans corporativa)</option>
+                <option value="Poppins">Poppins (sans amigável)</option>
+                <option value="Syne">Syne (artística/moderna)</option>
+                <option value="Space Grotesk">Space Grotesk (tech)</option>
               </select>
+            </div>
+            <div class="ds-control">
+              <label>Tamanho da fonte</label>
+              <div class="ds-control-row">
+                <input type="range" id="bioSize" min="11" max="26" step="1">
+                <output class="ds-value" id="bioSizeVal">14px</output>
+              </div>
+            </div>
+            <div class="ds-control">
+              <label>Peso da fonte (negrito)</label>
+              <div class="ds-control-row">
+                <input type="range" id="bioWeight" min="300" max="900" step="100">
+                <output class="ds-value" id="bioWeightVal">400</output>
+              </div>
+            </div>
+            <div class="ds-control">
+              <label>Espaçamento entre letras</label>
+              <div class="ds-control-row">
+                <input type="range" id="bioLs" min="-1" max="5" step="0.1">
+                <output class="ds-value" id="bioLsVal">0px</output>
+              </div>
+            </div>
+            <div class="ds-control">
+              <label>Altura da linha</label>
+              <div class="ds-control-row">
+                <input type="range" id="bioLh" min="1" max="2" step="0.05">
+                <output class="ds-value" id="bioLhVal">1.4</output>
+              </div>
+            </div>
+            <div class="row-2">
+              <div class="field" style="margin:10px 0 0;">
+                <label>Cor do texto</label>
+                <div class="color-trigger" id="bioColor" role="button" tabindex="0">
+                  <div class="color-trigger-swatch" style="background:#dc2626;"></div>
+                  <span class="color-trigger-hex">AUTO</span>
+                </div>
+              </div>
+              <div class="field" style="margin:10px 0 0;">
+                <label for="bioAlign">Alinhamento</label>
+                <select id="bioAlign">
+                  <option value="left">Esquerda</option>
+                  <option value="center" selected>Centro</option>
+                  <option value="right">Direita</option>
+                </select>
+              </div>
+            </div>
+          </details>
+
+          <details style="margin-top:6px;">
+            <summary style="cursor:pointer;font-size:13px;font-weight:700;color:var(--ink);">Chip — fundo, forma e espaçamento</summary>
+            <p class="hint" style="margin:6px 0 8px;">Preenchimento quando o Efeito Vidro estiver ativado (ou uma cor de fundo definida).</p>
+            <div class="field" style="margin:10px 0 0;">
+              <label>Fundo do chip (se vazio, usa o vidro)</label>
+              <div class="color-trigger" id="bioBg" role="button" tabindex="0">
+                <div class="color-trigger-swatch" style="background:#ffffff;"></div>
+                <span class="color-trigger-hex">AUTO</span>
+              </div>
+            </div>
+            <div class="ds-control">
+              <label>Formato (border-radius)</label>
+              <div class="ds-control-row">
+                <input type="range" id="bioRadius" min="0" max="30" step="1">
+                <output class="ds-value" id="bioRadiusVal">10px</output>
+              </div>
+            </div>
+            <div class="row-2">
+              <div class="field" style="margin:10px 0 0;">
+                <label for="bioPadV">Padding vertical</label>
+                <div class="ds-control-row">
+                  <input type="range" id="bioPadV" min="0" max="20" step="1">
+                  <output class="ds-value" id="bioPadVVal">4px</output>
+                </div>
+              </div>
+              <div class="field" style="margin:10px 0 0;">
+                <label for="bioPadH">Padding horizontal</label>
+                <div class="ds-control-row">
+                  <input type="range" id="bioPadH" min="0" max="32" step="1">
+                  <output class="ds-value" id="bioPadHVal">14px</output>
+                </div>
+              </div>
+            </div>
+          </details>
+        </div>
+
+        <!-- Efeito Vidro da BIO (independente) -->
+        <div class="glass-block" id="bioGlassBlock" style="margin-top:8px;">
+          <div class="glass-block-head">💠 Efeito Vidro da Bio</div>
+          <p class="hint" style="margin:-2px 0 8px;">Cria o chip de vidro atrás da Bio — independente do Nome e demais elementos.</p>
+          <div class="toggle-row" style="padding:2px 0 6px;">
+            <span class="toggle-label">Ativar efeito vidro</span>
+            <label class="switch">
+              <input type="checkbox" id="bioGlassToggle">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="ds-control">
+            <label>Desfoque (Blur)</label>
+            <div class="ds-control-row">
+              <input type="range" id="bioGlassBlur" min="0" max="40" step="1">
+              <output class="ds-value" id="bioGlassBlurVal">20px</output>
+            </div>
+          </div>
+          <div class="ds-control">
+            <label>Opacidade do vidro</label>
+            <div class="ds-control-row">
+              <input type="range" id="bioGlassOpacity" min="5" max="50" step="1">
+              <output class="ds-value" id="bioGlassOpacityVal">16%</output>
             </div>
           </div>
         </div>
@@ -3112,6 +3354,11 @@
       iconGlass:   { enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false },
       bannerGlass: { enabled: false, blur: 20, saturate: 180, opacity: 18, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false },
       textGlass:   { enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false },
+      /* Efeito vidro INDEPENDENTE do Nome (separado do textGlass, que ficou só da Bio).
+         Config de texto do elemento mora em design.profile.elem.<elem>. */
+      nameGlass:   { enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false },
+      /* Efeito vidro INDEPENDENTE da Bio (separado do Nome). */
+      bioGlass:    { enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false },
       /* Estilo do texto sobre o banner */
       bannerText: {
         titleColor: '', titleSize: 16, titleWeight: 700,
@@ -4400,7 +4647,8 @@
 
     const pvName = $('pvName');
     if (pvName) {
-      const b = st.typoName || {};
+      /* Nome lê a tipografia do seu próprio elemento (elem.name) — INDEPENDENTE. */
+      const b = profileElem('name');
       pvName.style.fontFamily = b.font ? (FONT_STACKS[b.font] || 'Georgia, serif') : 'inherit';
       pvName.style.fontSize = (b.size ?? 20) + 'px';
       pvName.style.fontWeight = String(b.weight ?? 700);
@@ -4410,7 +4658,7 @@
 
     const pvBio = $('pvBio');
     if (pvBio) {
-      const b = st.typoBio || {};
+      const b = profileElem('bio');
       pvBio.style.fontFamily = b.font ? (FONT_STACKS[b.font] || 'Georgia, serif') : 'inherit';
       pvBio.style.fontSize = (b.size ?? 14) + 'px';
       pvBio.style.fontWeight = String(b.weight ?? 400);
@@ -4483,6 +4731,52 @@
     el.classList.toggle('gx-noise', !!g.noise);
   }
 
+  /* ===== Perfil: personalização INDEPENDENTE por elemento =====
+     Cada elemento (nome/bio/endereco/avatar) tem seu próprio objeto COMPLETO
+     em cfg.design.profile.elem.<elem>. profileElem(nome) garante a existência
+     (com migração única dos campos compartilhados antigos) e devolve a ref.
+     O vidro do Nome fica em cfg.style.nameGlass (separado do textGlass da Bio). */
+  const ELEM_DEFAULTS = {
+    name:    { font: '', size: 20, weight: 700, ls: 0, lh: 1.4, color: '', align: 'center', bg: '', radius: 10, padding: [4, 14] },
+    bio:     { font: '', size: 14, weight: 400, ls: 0, lh: 1.4, color: '', align: 'center', bg: '', radius: 10, padding: [4, 14] },
+    address: { font: '', size: 12, weight: 600, ls: 0, lh: 1.4, color: '', align: 'center', bg: '', radius: 999, padding: [8, 16] },
+    avatar:  { shape: 'circle', radius: 999, borderStyle: 'solid', borderWidth: 4, borderColor: '#ffffff', shadowOn: true, shadowBlur: 24, shadowSpread: -10, glowColor: '', glowAlpha: 35 }
+  };
+  function profileElem(key) {
+    cfg.design = cfg.design || {};
+    cfg.design.profile = cfg.design.profile || {};
+    const el = (cfg.design.profile.elem = cfg.design.profile.elem || {});
+    if (el[key]) return el[key];
+    const d = Object.assign({}, ELEM_DEFAULTS[key] || {});
+    d.padding = (ELEM_DEFAULTS[key] && ELEM_DEFAULTS[key].padding) ? ELEM_DEFAULTS[key].padding.slice() : [4, 14];
+    const st = Object.assign({}, DEFAULT_CFG().style, cfg.style || {});
+    const pf = cfg.design.profile;
+    if (key === 'name') {
+      const tn = st.typoName || {};
+      if (tn.font != null) d.font = tn.font;
+      if (tn.size != null) d.size = tn.size; else if (st.titleSize != null) d.size = st.titleSize;
+      if (tn.weight != null) d.weight = tn.weight; else if (st.fontWeight != null) d.weight = st.fontWeight;
+      if (tn.ls != null) d.ls = tn.ls; else if (st.letterSpacing != null) d.ls = st.letterSpacing;
+      if (tn.lh != null) d.lh = tn.lh; else if (st.lineHeight != null) d.lh = st.lineHeight;
+      const tname = (pf.text && pf.text.name) || {};
+      if (tname.color) d.color = tname.color;
+      if (tname.align) d.align = tname.align;
+    } else if (key === 'bio') {
+      const tb = st.typoBio || {};
+      if (tb.font != null) d.font = tb.font;
+      if (tb.size != null) d.size = tb.size; else if (st.bioSize != null) d.size = st.bioSize;
+      if (tb.ls != null) d.ls = tb.ls;
+      if (tb.lh != null) d.lh = tb.lh;
+      const tbio = (pf.text && pf.text.bio) || {};
+      if (tbio.color) d.color = tbio.color;
+      if (tbio.align) d.align = tbio.align;
+      if (tb.weight != null) d.weight = tb.weight;
+      else if (tbio.weight != null) d.weight = tbio.weight;
+    }
+    el[key] = d;
+    return el[key];
+  }
+
   /* Aplica efeito vidro independente por elemento.
      Cada sub-grupo tem estado próprio (buttonGlass/iconGlass/bannerGlass/textGlass),
      evitando a variável global compartilhada que bugava os botões. */
@@ -4533,35 +4827,47 @@
       }
     }
 
-    /* Perfil: chip de vidro atrás do nome e da bio.
-       O chip encolhe para caber no texto (largura automática) e permanece
-       centralizado — mesmo comportamento do chip do Nome na página pública
-       (chipTextGlass). Sem isso, o <p> block da bio esticava full-width. */
-    const txtG = Object.assign({
-      enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff',
-      borderGlow: 40, shadowDepth: 18, highlight: true, noise: false
-    }, st.textGlass || {});
-    const chipGlass = (el) => {
+    /* Perfil: chip de vidro atrás do Nome e da Bio — INDEPENDENTES.
+       Nome usa cfg.style.nameGlass + elem.name.
+       Bio usa cfg.style.bioGlass (fallback textGlass) + elem.bio. */
+    const nameCfg = profileElem('name');
+    const bioCfg = profileElem('bio');
+    const chipFor = (el, g, pad, radius, bg) => {
       if (!el) return;
-      if (txtG.enabled) {
+      if (g.enabled || bg) {
         el.style.setProperty('display', 'inline-block');
         el.style.width = 'fit-content';
         el.style.marginLeft = 'auto';
         el.style.marginRight = 'auto';
-        el.style.padding = '4px 14px';
-        el.style.borderRadius = '10px';
       } else {
         el.style.removeProperty('display');
         el.style.width = '';
         el.style.marginLeft = '';
         el.style.marginRight = '';
-        el.style.padding = '';
-        el.style.borderRadius = '';
       }
-      applyGlass(el, txtG);
+      el.style.padding = pad[0] + 'px ' + pad[1] + 'px';
+      el.style.borderRadius = radius + 'px';
+      applyGlass(el, g);
+      if (g.enabled) {
+        el.style.removeProperty('background');
+      } else if (bg) {
+        el.style.background = bg;
+        el.style.backgroundImage = 'none';
+      } else {
+        el.style.removeProperty('background');
+        el.style.removeProperty('backgroundImage');
+      }
     };
-    chipGlass($('pvName'));
-    chipGlass($('pvBio'));
+    const nameG = Object.assign({
+      enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff',
+      borderGlow: 40, shadowDepth: 18, highlight: true, noise: false
+    }, st.nameGlass || {});
+    chipFor($('pvName'), nameG, nameCfg.padding || [4, 14], nameCfg.radius != null ? nameCfg.radius : 10, nameCfg.bg || '');
+    const bioG = Object.assign({
+      enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff',
+      borderGlow: 40, shadowDepth: 18, highlight: true, noise: false
+    }, (st.bioGlass || st.textGlass || {}));
+    chipFor($('pvBio'), bioG, bioCfg.padding || [4, 14], bioCfg.radius != null ? bioCfg.radius : 10, bioCfg.bg || '');
   }
 
   function applyThemeVars() {
@@ -4701,22 +5007,22 @@
       verified.style.background = pf.verifiedColor ? pf.verifiedColor : '#6366f1';
     }
 
-    /* Nome: cor do texto + alinhamento */
+    /* Nome: cor do texto + alinhamento — lê do próprio elem.name (INDEPENDENTE) */
     const name = $('pvName');
     if (name) {
-      const ntext = (pf.text && pf.text.name) || {};
+      const ntext = profileElem('name');
       name.style.color = ntext.color || '';
     }
     const nameRow = document.querySelector('.pv-name-row');
     if (nameRow) {
-      const na = (pf.text && pf.text.name && pf.text.name.align);
+      const na = profileElem('name').align;
       nameRow.style.justifyContent = na === 'left' ? 'flex-start' : na === 'right' ? 'flex-end' : 'center';
     }
 
-    /* Bio: cor + negrito + alinhamento */
+    /* Bio: cor + peso + alinhamento (independentes via elem.bio) */
     const bio = $('pvBio');
     if (bio) {
-      const btext = (pf.text && pf.text.bio) || {};
+      const btext = profileElem('bio');
       bio.style.color = btext.color || '';
       bio.style.fontWeight = btext.weight ? String(btext.weight) : '400';
       bio.style.textAlign = btext.align || 'center';
@@ -4800,10 +5106,19 @@
     const vLabel = $('verifiedColor')?.querySelector('.color-trigger-hex');
     if (vLabel) vLabel.textContent = pf.verifiedColor ? pf.verifiedColor.toUpperCase() : 'AUTO';
 
-    setTriggerColor('nameColor', (pf.text && pf.text.name && pf.text.name.color) || '');
-    const nameColor = (pf.text && pf.text.name && pf.text.name.color) || '';
+    setTriggerColor('nameColor', profileElem('name').color || '');
+    const nameColor = profileElem('name').color || '';
     const nLabel = $('nameColor')?.querySelector('.color-trigger-hex');
     if (nLabel) nLabel.textContent = nameColor ? nameColor.toUpperCase() : 'AUTO';
+
+    setTriggerColor('nameBg', profileElem('name').bg || '');
+    const nmBg = profileElem('name').bg || '';
+    const nmBgEl = $('nameBg');
+    if (nmBgEl) {
+      const bLabel = nmBgEl.querySelector('.color-trigger-hex');
+      setTriggerColor('nameBg', nmBg);
+      if (bLabel) bLabel.textContent = nmBg ? nmBg.toUpperCase() : 'AUTO';
+    }
 
     setTriggerColor('bioColor', (pf.text && pf.text.bio && pf.text.bio.color) || '');
     const bioColor = (pf.text && pf.text.bio && pf.text.bio.color) || '';
@@ -5504,7 +5819,9 @@
       { key: 'buttonGlass', prefix: 'buttonGlass', blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: 25 },
       { key: 'iconGlass',   prefix: 'iconGlass',   blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: null },
       { key: 'bannerGlass', prefix: 'bannerGlass', blur: 20, saturate: 180, opacity: 18, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: null },
-      { key: 'textGlass',   prefix: 'textGlass',   blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: null }
+      { key: 'textGlass',   prefix: 'textGlass',   blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: null },
+      { key: 'nameGlass',   prefix: 'nameGlass',   blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: null },
+      { key: 'bioGlass',   prefix: 'bioGlass',   blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: null }
     ];
 
     /* Injeta os controles premium de vidro em TODOS os blocos (reuso).
@@ -5943,25 +6260,39 @@
     });
 
     safeOn('nameColor', 'click', () => {
-      const pf = profileDesignRef();
-      pf.text = pf.text || {};
-      pf.text.name = pf.text.name || {};
-      const current = pf.text.name.color || '#dc2626';
+      const nm = profileElem('name');
+      const current = nm.color || '#dc2626';
       openColorPicker($('nameColor'), current, (hex) => {
-        pf.text.name.color = hex;
+        nm.color = hex;
         renderPreview();
         renderDesignTriggers();
         markDirty();
       });
     });
     safeOn('nameAlign', 'change', (e) => {
-      const pf = profileDesignRef();
-      pf.text = pf.text || {};
-      pf.text.name = pf.text.name || {};
-      pf.text.name.align = e.target.value;
+      profileElem('name').align = e.target.value;
       renderPreview();
       markDirty();
     });
+    /* Controles completos do elemento Nome — gravam em elem.name (INDEPENDENTE) */
+    safeOn('nameFont', 'change', (e) => { profileElem('name').font = e.target.value; applyThemeVars(); markDirty(); });
+    bindRange('nameSize', 'nameSizeVal', (v) => v + 'px', (v) => { profileElem('name').size = v; applyThemeVars(); });
+    bindRange('nameWeight', 'nameWeightVal', (v) => String(v), (v) => { profileElem('name').weight = v; applyThemeVars(); });
+    bindRange('nameLs', 'nameLsVal', (v) => Number(v).toFixed(1) + 'px', (v) => { profileElem('name').ls = v; applyThemeVars(); });
+    bindRange('nameLh', 'nameLhVal', (v) => Number(v).toFixed(2), (v) => { profileElem('name').lh = v; applyThemeVars(); });
+    safeOn('nameBg', 'click', () => {
+      const nm = profileElem('name');
+      const current = nm.bg || '#ffffff';
+      openColorPicker($('nameBg'), current, (hex) => {
+        nm.bg = hex;
+        setTriggerColor('nameBg', hex);
+        renderPreview();
+        markDirty();
+      });
+    });
+    bindRange('nameRadius', 'nameRadiusVal', (v) => v + 'px', (v) => { profileElem('name').radius = v; applyThemeVars(); });
+    bindRange('namePadV', 'namePadVVal', (v) => v + 'px', (v) => { const nm = profileElem('name'); nm.padding = nm.padding || [4, 14]; nm.padding[0] = v; applyThemeVars(); });
+    bindRange('namePadH', 'namePadHVal', (v) => v + 'px', (v) => { const nm = profileElem('name'); nm.padding = nm.padding || [4, 14]; nm.padding[1] = v; applyThemeVars(); });
 
     safeOn('bioBold', 'change', (e) => {
       const pf = profileDesignRef();
@@ -6091,7 +6422,9 @@
       { key: 'buttonGlass', prefix: 'buttonGlass', blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: 25 },
       { key: 'iconGlass',   prefix: 'iconGlass',   blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: null },
       { key: 'bannerGlass', prefix: 'bannerGlass', blur: 20, saturate: 180, opacity: 18, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: null },
-      { key: 'textGlass',   prefix: 'textGlass',   blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: null }
+      { key: 'textGlass',   prefix: 'textGlass',   blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: null },
+      { key: 'nameGlass',   prefix: 'nameGlass',   blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: null },
+      { key: 'bioGlass',   prefix: 'bioGlass',   blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: null }
     ];
     groups.forEach((g) => {
       const t = st[g.key] || {};
@@ -6205,7 +6538,17 @@
     const boldEl = $('bioBold');
     if (boldEl) boldEl.checked = !!((pf.text && pf.text.bio && pf.text.bio.weight) && pf.text.bio.weight >= 600);
     const nameAlignEl = $('nameAlign');
-    if (nameAlignEl) nameAlignEl.value = (pf.text && pf.text.name && pf.text.name.align) || 'center';
+    if (nameAlignEl) nameAlignEl.value = profileElem('name').align || 'center';
+    /* Reflete os controles do elemento Nome (elem.name) */
+    const nmR = profileElem('name');
+    if ($('nameFont')) $('nameFont').value = nmR.font || '';
+    if ($('nameSize')) setRange('nameSize', nmR.size);
+    if ($('nameWeight')) setRange('nameWeight', nmR.weight);
+    if ($('nameLs')) setRange('nameLs', nmR.ls);
+    if ($('nameLh')) setRange('nameLh', nmR.lh);
+    if ($('nameRadius')) setRange('nameRadius', nmR.radius);
+    if ($('namePadV')) setRange('namePadV', (nmR.padding && nmR.padding[0]) != null ? nmR.padding[0] : 4);
+    if ($('namePadH')) setRange('namePadH', (nmR.padding && nmR.padding[1]) != null ? nmR.padding[1] : 14);
     const bioAlignEl = $('bioAlign');
     if (bioAlignEl) bioAlignEl.value = (pf.text && pf.text.bio && pf.text.bio.align) || 'center';
     const addrShowEl = $('addressShow');

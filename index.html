@@ -2890,29 +2890,49 @@
         el.classList.toggle('gx-noise', !!g.noise);
       }
 
-      /* Nome/bio como chip (mantém centralização própria desses elementos) */
-      const tg = (cfg.style && cfg.style.textGlass) || {};
-      const chipTextGlass = (el) => {
+      /* Nome: chip INDEPENDENTE (nameGlass + elem.name). Bio: textGlass. */
+      const neoGlass = { enabled:false, blur:20, saturate:180, opacity:16, color:'#ffffff', borderGlow:40, shadowDepth:18, highlight:true, noise:false };
+      const pElemName = (() => {
+        if (!pf.elem) pf.elem = {};
+        if (pf.elem.name) return pf.elem.name;
+        const s2 = (cfg._premium || {});
+        const tn = s2.typoName || {};
+        const tname = ptext.name || {};
+        return (pf.elem.name = {
+          font: tn.font != null ? tn.font : '',
+          size: tn.size != null ? tn.size : (s2.titleSize != null ? s2.titleSize : 20),
+          weight: tn.weight != null ? tn.weight : (s2.fontWeight != null ? s2.fontWeight : 700),
+          ls: tn.ls != null ? tn.ls : (s2.letterSpacing != null ? s2.letterSpacing : 0),
+          lh: tn.lh != null ? tn.lh : (s2.lineHeight != null ? s2.lineHeight : 1.4),
+          color: tname.color || '',
+          align: tname.align || 'center',
+          bg: '', radius: 10, padding: [4, 14]
+        });
+      })();
+      const mkGlass = (cfg2, a, b) => Object.assign({}, neoGlass, (cfg2[a] || cfg2[b] || {}));
+      const nameGlass = mkGlass((cfg.style || {}), 'nameGlass', 'textGlass');
+      const bioGlass = mkGlass((cfg.style || {}), 'textGlass', null);
+      const chipFor = (el, g, pad, radius, solidBg) => {
         if (!el) return;
-        if (tg.enabled) {
-          el.style.setProperty('display', 'inline-block');
-          el.style.width = 'fit-content';
-          el.style.marginLeft = 'auto';
-          el.style.marginRight = 'auto';
-          el.style.padding = '4px 14px';
-          el.style.borderRadius = '10px';
+        const M = el.style;
+        if (g.enabled || solidBg) {
+          M.setProperty('display', 'inline-block');
+          M.width = 'fit-content';
+          M.marginLeft = 'auto';
+          M.marginRight = 'auto';
         } else {
-          el.style.removeProperty('display');
-          el.style.width = '';
-          el.style.marginLeft = '';
-          el.style.marginRight = '';
-          el.style.padding = '';
-          el.style.borderRadius = '';
+          M.removeProperty('display');
+          M.width = ''; M.marginLeft = ''; M.marginRight = '';
         }
-        applyGlass(el, tg);
+        M.padding = pad[0] + 'px ' + pad[1] + 'px';
+        M.borderRadius = radius + 'px';
+        applyGlass(el, g);
+        if (g.enabled) { M.removeProperty('background'); }
+        else if (solidBg) { M.background = solidBg; M.backgroundImage = 'none'; }
+        else { M.removeProperty('background'); }
       };
-      chipTextGlass(document.getElementById('pgTitle'));
-      chipTextGlass(document.getElementById('pgSubtitle'));
+      chipFor(document.getElementById('pgTitle'), nameGlass, pElemName.padding || [4, 14], pElemName.radius != null ? pElemName.radius : 10, pElemName.bg || '');
+      chipFor(document.getElementById('pgSubtitle'), bioGlass, [4, 14], 10, '');
 
       /* Estilos do bloco endereço — some quando o perfil não tem endereço
          (nunca exibe o placeholder hardcoded do HTML) */
@@ -3859,13 +3879,15 @@
         const lh = String(st.lineHeight ?? 1.4);
         document.body.style.letterSpacing = ls;
         const titleEl = document.getElementById('pgTitle');
-        if (titleEl) {
-          titleEl.style.fontSize = (st.titleSize ?? 20) + 'px';
-          titleEl.style.fontWeight = String(st.fontWeight ?? 700);
-          titleEl.style.letterSpacing = ls;
-          titleEl.style.lineHeight = lh;
-          if (st.titleFont) titleEl.style.fontFamily = FONT_STACKS[st.titleFont] || 'Georgia, serif';
+        if (titleEl && typeof pElemName !== 'undefined' && pElemName) {
+          titleEl.style.fontSize = (pElemName.size != null ? pElemName.size : 20) + 'px';
+          titleEl.style.fontWeight = String(pElemName.weight != null ? pElemName.weight : 700);
+          titleEl.style.letterSpacing = (pElemName.ls != null ? pElemName.ls : 0) + 'px';
+          titleEl.style.lineHeight = String(pElemName.lh != null ? pElemName.lh : 1.4);
+          if (pElemName.font) titleEl.style.fontFamily = FONT_STACKS[pElemName.font] || 'Georgia, serif';
+          else if (st.titleFont) titleEl.style.fontFamily = FONT_STACKS[st.titleFont] || 'Georgia, serif';
           else titleEl.style.removeProperty('font-family');
+          if (pElemName.color) titleEl.style.color = pElemName.color;
         }
         const bioEl = document.getElementById('pgSubtitle');
         if (bioEl) {
