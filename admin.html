@@ -4533,13 +4533,35 @@
       }
     }
 
-    /* Perfil: chip de vidro atrás do nome e da bio */
+    /* Perfil: chip de vidro atrás do nome e da bio.
+       O chip encolhe para caber no texto (largura automática) e permanece
+       centralizado — mesmo comportamento do chip do Nome na página pública
+       (chipTextGlass). Sem isso, o <p> block da bio esticava full-width. */
     const txtG = Object.assign({
       enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff',
       borderGlow: 40, shadowDepth: 18, highlight: true, noise: false
     }, st.textGlass || {});
-    applyGlass($('pvName'), txtG);
-    applyGlass($('pvBio'), txtG);
+    const chipGlass = (el) => {
+      if (!el) return;
+      if (txtG.enabled) {
+        el.style.setProperty('display', 'inline-block');
+        el.style.width = 'fit-content';
+        el.style.marginLeft = 'auto';
+        el.style.marginRight = 'auto';
+        el.style.padding = '4px 14px';
+        el.style.borderRadius = '10px';
+      } else {
+        el.style.removeProperty('display');
+        el.style.width = '';
+        el.style.marginLeft = '';
+        el.style.marginRight = '';
+        el.style.padding = '';
+        el.style.borderRadius = '';
+      }
+      applyGlass(el, txtG);
+    };
+    chipGlass($('pvName'));
+    chipGlass($('pvBio'));
   }
 
   function applyThemeVars() {
