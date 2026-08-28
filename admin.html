@@ -330,7 +330,28 @@
   .typo-block-head-mini {
     font-size:11.5px; font-weight:700; color:var(--muted);
     text-transform:uppercase; letter-spacing:.03em; margin-bottom:8px;
+
   }
+  /* ===== Blocos expansíveis por elemento (Perfil) ===== */
+  .elem-block {
+    border:1.5px solid var(--border); border-radius:14px;
+    margin-top:10px; background:var(--bg); overflow:hidden;
+  }
+  .elem-block > summary {
+    display:flex; align-items:center; gap:8px; cursor:pointer;
+    padding:11px 14px; font-size:14px; font-weight:700; color:var(--ink);
+    list-style:none; user-select:none;
+  }
+  .elem-block > summary::-webkit-details-marker { display:none; }
+  .elem-block > summary::before { content:'▾'; font-size:12px; color:var(--muted); transition:transform .18s ease; }
+  .elem-block:not([open]) > summary::before { transform:rotate(-90deg); }
+  .elem-block > summary .elem-ico { font-size:15px; line-height:1; }
+  .elem-block > .elem-body { padding:0 14px 14px; }
+  .elem-block .elem-section-title {
+    display:block; font-size:11.5px; font-weight:700; color:var(--muted);
+    text-transform:uppercase; letter-spacing:.04em; margin:12px 0 6px;
+  }
+  .elem-block .glass-block { margin-top:12px; }
   .ds-col { margin-bottom:10px; }
   .ds-col-label {
     display:block; font-size:12px; font-weight:600; color:var(--muted); margin-bottom:6px;
@@ -1279,49 +1300,6 @@
           <input type="text" id="address" placeholder="Rua, bairro e cidade" maxlength="120">
         </div>
 
-        <!-- Moldura do avatar -->
-        <div class="field" style="margin-top:8px; padding-top:12px; border-top:1px solid var(--bg);">
-          <label style="font-size:13px; font-weight:700; color:var(--ink);">Moldura do avatar</label>
-          <div class="toggle-row" style="padding-top:4px;">
-            <span class="toggle-label">Borda colorida no avatar</span>
-            <label class="switch">
-              <input type="checkbox" id="avatarBorder">
-              <span class="slider"></span>
-            </label>
-          </div>
-          <div class="row-2">
-            <div class="field" style="margin:10px 0 0;">
-              <label for="avatarShape">Formato</label>
-              <select id="avatarShape">
-                <option value="square">Quadrado</option>
-                <option value="rounded">Arredondado</option>
-                <option value="circle">Círculo</option>
-              </select>
-            </div>
-            <div class="field" style="margin:10px 0 0;">
-              <label>Cor da borda</label>
-              <div class="color-trigger" id="avatarBorderColor" role="button" tabindex="0">
-                <div class="color-trigger-swatch" style="background:#ffffff;"></div>
-                <span class="color-trigger-hex">AUTO</span>
-              </div>
-            </div>
-          </div>
-          <div class="ds-control" style="margin-top:12px;">
-            <label>Espessura da borda</label>
-            <div class="ds-control-row">
-              <input type="range" id="avatarBorderWidth" min="1" max="10" step="1">
-              <output class="ds-value" id="avatarBorderWidthVal">3px</output>
-            </div>
-          </div>
-          <div class="ds-control" style="margin-top:12px;">
-            <label>Tamanho do avatar</label>
-            <div class="ds-control-row">
-              <input type="range" id="avatarSize" min="48" max="160" step="2">
-              <output class="ds-value" id="avatarSizeVal">96px</output>
-            </div>
-          </div>
-        </div>
-
         <!-- Selo de verificado -->
         <div class="field" style="padding-top:12px; border-top:1px solid var(--bg);">
           <label style="font-size:13px; font-weight:700; color:var(--ink);">Selo de verificado</label>
@@ -1341,12 +1319,11 @@
           </div>
         </div>
 
-        <!-- ═══ PERSONALIZAR NOME (independente da Bio/Endereço/Avatar) ═══ -->
-        <div class="field" style="padding-top:12px; border-top:1px solid var(--bg);">
-          <label style="font-size:13px; font-weight:700; color:var(--ink);">Personalizar Nome</label>
-          <p class="hint" style="margin:-2px 0 8px;">Configuração completa e independente do Nome — não afeta Bio, Endereço ou Avatar.</p>
-
-          <details style="margin-top:2px;">
+        <!-- ═══ BLOCOS EXPANSÍVEIS: NOME, BIO, ENDEREÇO, AVATAR ═══ -->
+        <details class="elem-block" open>
+          <summary><span class="elem-ico">👤</span> Nome</summary>
+          <div class="elem-body">
+          <details>
             <summary style="cursor:pointer;font-size:13px;font-weight:700;color:var(--ink);">Tipografia &amp; cor do texto</summary>
             <div class="ds-control">
               <label for="nameFont">Fonte</label>
@@ -1444,10 +1421,9 @@
               </div>
             </div>
           </details>
-        </div>
 
-        <!-- Efeito Vidro do NOME (independente) -->
-        <div class="glass-block" id="nameGlassBlock" style="margin-top:8px;">
+          <span class="elem-section-title">Efeito Vidro do Nome</span>
+          <div class="glass-block" id="nameGlassBlock">
           <div class="glass-block-head">💠 Efeito Vidro do Nome</div>
           <p class="hint" style="margin:-2px 0 8px;">Cria o chip de vidro atrás do Nome — independente da Bio e demais elementos.</p>
           <div class="toggle-row" style="padding:2px 0 6px;">
@@ -1471,14 +1447,13 @@
               <output class="ds-value" id="nameGlassOpacityVal">16%</output>
             </div>
           </div>
-        </div>
+          </div>
+        </details>
 
-        <!-- ═══ PERSONALIZAR BIO (independente do Nome/Endereço/Avatar) ═══ -->
-        <div class="field" style="padding-top:12px; border-top:1px solid var(--bg);" id="bioPersonalizeBlock">
-          <label style="font-size:13px; font-weight:700; color:var(--ink);">Personalizar Bio</label>
-          <p class="hint" style="margin:-2px 0 8px;">Configuração completa e independente da Bio — não afeta Nome, Endereço ou Avatar.</p>
-
-          <details style="margin-top:2px;">
+        <details class="elem-block">
+          <summary><span class="elem-ico">💬</span> Bio</summary>
+          <div class="elem-body">
+          <details>
             <summary style="cursor:pointer;font-size:13px;font-weight:700;color:var(--ink);">Tipografia &amp; cor do texto</summary>
             <div class="ds-control">
               <label for="bioFont">Fonte</label>
@@ -1576,10 +1551,9 @@
               </div>
             </div>
           </details>
-        </div>
 
-        <!-- Efeito Vidro da BIO (independente) -->
-        <div class="glass-block" id="bioGlassBlock" style="margin-top:8px;">
+          <span class="elem-section-title">Efeito Vidro da Bio</span>
+          <div class="glass-block" id="bioGlassBlock">
           <div class="glass-block-head">💠 Efeito Vidro da Bio</div>
           <p class="hint" style="margin:-2px 0 8px;">Cria o chip de vidro atrás da Bio — independente do Nome e demais elementos.</p>
           <div class="toggle-row" style="padding:2px 0 6px;">
@@ -1603,65 +1577,16 @@
               <output class="ds-value" id="bioGlassOpacityVal">16%</output>
             </div>
           </div>
-        </div>
+</div>
+          </div>
+        </details>
 
-        <!-- Bio -->
-        <div class="field" style="padding-top:12px; border-top:1px solid var(--bg);">
-          <label style="font-size:13px; font-weight:700; color:var(--ink);">Bio</label>
-          <div class="toggle-row" style="padding-top:4px;">
-            <span class="toggle-label">Texto em negrito</span>
-            <label class="switch">
-              <input type="checkbox" id="bioBold">
-              <span class="slider"></span>
-            </label>
-          </div>
-          <div class="field" style="margin:10px 0 0;">
-            <label>Cor do texto da bio</label>
-            <div class="color-trigger" id="bioColor" role="button" tabindex="0">
-              <div class="color-trigger-swatch" style="background:#334155;"></div>
-              <span class="color-trigger-hex">AUTO</span>
-            </div>
-          </div>
-          <div class="field" style="margin:10px 0 0;">
-            <label for="bioAlign">Alinhamento</label>
-            <select id="bioAlign">
-              <option value="left">Esquerda</option>
-              <option value="center" selected>Centro</option>
-              <option value="right">Direita</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="glass-block" id="textGlassBlock">
-          <div class="glass-block-head">💠 Efeito Vidro no fundo do texto</div>
-          <p class="hint" style="margin:-2px 0 8px;">Cria um "chip" de vidro (glassmorphism) atrás do nome e da bio — o conteúdo de trás aparece desfocado através dele.</p>
-          <div class="toggle-row" style="padding:2px 0 6px;">
-            <span class="toggle-label">Ativar efeito vidro</span>
-            <label class="switch">
-              <input type="checkbox" id="textGlassToggle">
-              <span class="slider"></span>
-            </label>
-          </div>
-          <div class="ds-control">
-            <label>Desfoque (Blur)</label>
-            <div class="ds-control-row">
-              <input type="range" id="textGlassBlur" min="0" max="40" step="1">
-              <output class="ds-value" id="textGlassBlurVal">20px</output>
-            </div>
-          </div>
-          <div class="ds-control">
-            <label>Opacidade do vidro</label>
-            <div class="ds-control-row">
-              <input type="range" id="textGlassOpacity" min="5" max="50" step="1">
-              <output class="ds-value" id="textGlassOpacityVal">16%</output>
-            </div>
-          </div>
-        </div>
-
-        <!-- Endereço -->
-        <div class="field" style="padding-top:12px; border-top:1px solid var(--bg);">
-          <label style="font-size:13px; font-weight:700; color:var(--ink);">Apresentação do endereço</label>
-          <div class="toggle-row" style="padding-top:4px;">
+        <!-- ═══ ENDEREÇO ═══ -->
+        <details class="elem-block">
+          <summary><span class="elem-ico">📍</span> Endereço</summary>
+          <div class="elem-body">
+          <span class="elem-section-title">Exibição</span>
+          <div class="toggle-row">
             <span class="toggle-label">Mostrar endereço na página</span>
             <label class="switch">
               <input type="checkbox" id="addressShow">
@@ -1675,38 +1600,214 @@
               <span class="slider"></span>
             </label>
           </div>
+
+          <span class="elem-section-title">Tipografia &amp; cor do texto</span>
+          <div class="ds-control">
+            <label for="addressFont">Fonte</label>
+            <select id="addressFont" class="typo-select">
+              <option value="">Mesma da página</option>
+              <option value="Playfair Display">Playfair Display (serifa elegante)</option>
+              <option value="Cormorant Garamond">Cormorant Garamond (serifa leve)</option>
+              <option value="DM Serif Display">DM Serif Display (serifa editorial)</option>
+              <option value="Lora">Lora (serifa clássica)</option>
+              <option value="Inter">Inter (sans neutra)</option>
+              <option value="Montserrat">Montserrat (sans corporativa)</option>
+              <option value="Poppins">Poppins (sans amigável)</option>
+              <option value="Syne">Syne (artística/moderna)</option>
+              <option value="Space Grotesk">Space Grotesk (tech)</option>
+            </select>
+          </div>
+          <div class="ds-control">
+            <label>Tamanho da fonte</label>
+            <div class="ds-control-row">
+              <input type="range" id="addressSize" min="10" max="24" step="1">
+              <output class="ds-value" id="addressSizeVal">12px</output>
+            </div>
+          </div>
+          <div class="ds-control">
+            <label>Peso da fonte (negrito)</label>
+            <div class="ds-control-row">
+              <input type="range" id="addressWeight" min="300" max="900" step="100">
+              <output class="ds-value" id="addressWeightVal">600</output>
+            </div>
+          </div>
+          <div class="ds-control">
+            <label>Espaçamento entre letras</label>
+            <div class="ds-control-row">
+              <input type="range" id="addressLs" min="-1" max="5" step="0.1">
+              <output class="ds-value" id="addressLsVal">0px</output>
+            </div>
+          </div>
+          <div class="ds-control">
+            <label>Altura da linha</label>
+            <div class="ds-control-row">
+              <input type="range" id="addressLh" min="1" max="2" step="0.05">
+              <output class="ds-value" id="addressLhVal">1.4</output>
+            </div>
+          </div>
           <div class="row-2">
             <div class="field" style="margin:10px 0 0;">
-              <label for="addressStyle">Estilo</label>
-              <select id="addressStyle">
-                <option value="pill">Pílula (pill)</option>
-                <option value="plain">Texto simples</option>
+              <label>Cor do texto</label>
+              <div class="color-trigger" id="addressTextColor" role="button" tabindex="0">
+                <div class="color-trigger-swatch" style="background:#ffffff;"></div>
+                <span class="color-trigger-hex">AUTO</span>
+              </div>
+            </div>
+            <div class="field" style="margin:10px 0 0;">
+              <label for="addressAlign">Alinhamento</label>
+              <select id="addressAlign">
+                <option value="left">Esquerda</option>
+                <option value="center" selected>Centro</option>
+                <option value="right">Direita</option>
+              </select>
+            </div>
+          </div>
+
+          <span class="elem-section-title">Chip — fundo, forma e espaçamento</span>
+          <div class="field" style="margin:10px 0 0;">
+            <label>Fundo do chip (se vazio, usa o vidro)</label>
+            <div class="color-trigger" id="addressBg" role="button" tabindex="0">
+              <div class="color-trigger-swatch" style="background:#0c0e16;"></div>
+              <span class="color-trigger-hex">AUTO</span>
+            </div>
+          </div>
+          <div class="ds-control">
+            <label>Formato (border-radius)</label>
+            <div class="ds-control-row">
+              <input type="range" id="addressRadius" min="0" max="30" step="1">
+              <output class="ds-value" id="addressRadiusVal">20px</output>
+            </div>
+          </div>
+          <div class="row-2">
+            <div class="field" style="margin:10px 0 0;">
+              <label for="addressPadV">Padding vertical</label>
+              <div class="ds-control-row">
+                <input type="range" id="addressPadV" min="0" max="20" step="1">
+                <output class="ds-value" id="addressPadVVal">8px</output>
+              </div>
+            </div>
+            <div class="field" style="margin:10px 0 0;">
+              <label for="addressPadH">Padding horizontal</label>
+              <div class="ds-control-row">
+                <input type="range" id="addressPadH" min="0" max="32" step="1">
+                <output class="ds-value" id="addressPadHVal">16px</output>
+              </div>
+            </div>
+          </div>
+
+          <span class="elem-section-title">Efeito Vidro do Endereço</span>
+          <div class="glass-block" id="addressGlassBlock">
+            <div class="glass-block-head">💠 Efeito Vidro do Endereço</div>
+            <p class="hint" style="margin:-2px 0 8px;">Cria o chip de vidro atrás do Endereço — independente dos demais elementos.</p>
+            <div class="toggle-row" style="padding:2px 0 6px;">
+              <span class="toggle-label">Ativar efeito vidro</span>
+              <label class="switch">
+                <input type="checkbox" id="addressGlassToggle">
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="ds-control">
+              <label>Desfoque (Blur)</label>
+              <div class="ds-control-row">
+                <input type="range" id="addressGlassBlur" min="0" max="40" step="1">
+                <output class="ds-value" id="addressGlassBlurVal">20px</output>
+              </div>
+            </div>
+            <div class="ds-control">
+              <label>Opacidade do vidro</label>
+              <div class="ds-control-row">
+                <input type="range" id="addressGlassOpacity" min="5" max="50" step="1">
+                <output class="ds-value" id="addressGlassOpacityVal">16%</output>
+              </div>
+            </div>
+          </div>
+          </div>
+        </details>
+
+        <!-- ═══ AVATAR ═══ -->
+        <details class="elem-block">
+          <summary><span class="elem-ico">🖼</span> Avatar</summary>
+          <div class="elem-body">
+          <span class="elem-section-title">Formato &amp; borda</span>
+          <div class="row-2">
+            <div class="field" style="margin:10px 0 0;">
+              <label for="avatarShape">Formato</label>
+              <select id="avatarShape">
+                <option value="square">Quadrado</option>
+                <option value="rounded">Arredondado</option>
+                <option value="circle" selected>Círculo</option>
               </select>
             </div>
             <div class="field" style="margin:10px 0 0;">
-              <label>Cor de fundo</label>
-              <div class="color-trigger" id="addressBg" role="button" tabindex="0">
-                <div class="color-trigger-swatch" style="background:#0c0e16;"></div>
+              <label>Cor da borda</label>
+              <div class="color-trigger" id="avatarBorderColor" role="button" tabindex="0">
+                <div class="color-trigger-swatch" style="background:#ffffff;"></div>
                 <span class="color-trigger-hex">AUTO</span>
               </div>
             </div>
           </div>
-          <div class="field" style="margin:10px 0 0;">
-            <label for="addressAlign">Alinhamento</label>
-            <select id="addressAlign">
-              <option value="left">Esquerda</option>
-              <option value="center" selected>Centro</option>
-              <option value="right">Direita</option>
-            </select>
+          <div class="toggle-row">
+            <span class="toggle-label">Borda colorida no avatar</span>
+            <label class="switch">
+              <input type="checkbox" id="avatarBorder" checked>
+              <span class="slider"></span>
+            </label>
           </div>
-          <div class="field" style="margin:10px 0 0;">
-            <label>Cor do texto</label>
-            <div class="color-trigger" id="addressTextColor" role="button" tabindex="0">
-              <div class="color-trigger-swatch" style="background:#ffffff;"></div>
-              <span class="color-trigger-hex">AUTO</span>
+          <div class="ds-control">
+            <label>Espessura da borda</label>
+            <div class="ds-control-row">
+              <input type="range" id="avatarBorderWidth" min="1" max="10" step="1">
+              <output class="ds-value" id="avatarBorderWidthVal">4px</output>
             </div>
           </div>
-        </div>
+          <div class="ds-control">
+            <label>Tamanho do avatar</label>
+            <div class="ds-control-row">
+              <input type="range" id="avatarSize" min="48" max="160" step="2">
+              <output class="ds-value" id="avatarSizeVal">96px</output>
+            </div>
+          </div>
+
+          <span class="elem-section-title">Sombra</span>
+          <div class="toggle-row">
+            <span class="toggle-label">Sombra projetada</span>
+            <label class="switch">
+              <input type="checkbox" id="avatarShadow" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="ds-control">
+            <label>Intensidade (blur)</label>
+            <div class="ds-control-row">
+              <input type="range" id="avatarShadowBlur" min="0" max="60" step="1">
+              <output class="ds-value" id="avatarShadowBlurVal">24px</output>
+            </div>
+          </div>
+
+          <span class="elem-section-title">Glow (halo colorido)</span>
+          <div class="toggle-row">
+            <span class="toggle-label">Ativar halo neon</span>
+            <label class="switch">
+              <input type="checkbox" id="avatarGlow">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="field" style="margin:10px 0 0;">
+            <label>Cor do halo</label>
+            <div class="color-trigger" id="avatarGlowColor" role="button" tabindex="0">
+              <div class="color-trigger-swatch" style="background:#22d3ee;"></div>
+              <span class="color-trigger-hex">#22D3EE</span>
+            </div>
+          </div>
+          <div class="ds-control">
+            <label>Intensidade</label>
+            <div class="ds-control-row">
+              <input type="range" id="avatarGlowIntensity" min="10" max="120" step="2">
+              <output class="ds-value" id="avatarGlowIntensityVal">35</output>
+            </div>
+          </div>
+          </div>
+        </details>
         <div class="field">
           <label>Favicon personalizado (opcional)</label>
           <small style="display:block;margin-bottom:6px;color:var(--muted);">Ícone da aba do navegador. PNG 32x32.</small>
@@ -2220,102 +2321,6 @@
               <option value="DM Serif Display">DM Serif Display (serifa editorial)</option>
               <option value="Space Grotesk">Space Grotesk (tech)</option>
             </select>
-          </div>
-        </div>
-
-        <!-- TIPOGRAFIA DO NOME -->
-        <div class="typo-block">
-          <div class="typo-block-head">👤 Tipografia do Nome</div>
-          <div class="field">
-            <label for="typoNameFont">Fonte</label>
-            <select id="typoNameFont" class="typo-select">
-              <option value="">Mesma da página</option>
-              <option value="Playfair Display">Playfair Display (serifa elegante)</option>
-              <option value="Cormorant Garamond">Cormorant Garamond (serifa leve)</option>
-              <option value="DM Serif Display">DM Serif Display (serifa editorial)</option>
-              <option value="Lora">Lora (serifa clássica)</option>
-              <option value="Inter">Inter (sans neutra)</option>
-              <option value="Montserrat">Montserrat (sans corporativa)</option>
-              <option value="Poppins">Poppins (sans amigável)</option>
-              <option value="Syne">Syne (artística/moderna)</option>
-              <option value="Space Grotesk">Space Grotesk (tech)</option>
-            </select>
-          </div>
-          <div class="ds-control">
-            <label>Tamanho da fonte</label>
-            <div class="ds-control-row">
-              <input type="range" id="typoNameSize" min="15" max="34" step="1">
-              <output class="ds-value" id="typoNameSizeVal">20px</output>
-            </div>
-          </div>
-          <div class="ds-control">
-            <label>Peso da fonte (negrito)</label>
-            <div class="ds-control-row">
-              <input type="range" id="typoNameWeight" min="300" max="900" step="100">
-              <output class="ds-value" id="typoNameWeightVal">700</output>
-            </div>
-          </div>
-          <div class="ds-control">
-            <label>Espaçamento entre letras</label>
-            <div class="ds-control-row">
-              <input type="range" id="typoNameLs" min="-1" max="5" step="0.1">
-              <output class="ds-value" id="typoNameLsVal">0px</output>
-            </div>
-          </div>
-          <div class="ds-control">
-            <label>Altura da linha</label>
-            <div class="ds-control-row">
-              <input type="range" id="typoNameLh" min="1" max="2" step="0.05">
-              <output class="ds-value" id="typoNameLhVal">1.4</output>
-            </div>
-          </div>
-        </div>
-
-        <!-- TIPOGRAFIA DA BIO -->
-        <div class="typo-block">
-          <div class="typo-block-head">📝 Tipografia da Bio</div>
-          <div class="field">
-            <label for="typoBioFont">Fonte</label>
-            <select id="typoBioFont" class="typo-select">
-              <option value="">Mesma da página</option>
-              <option value="Playfair Display">Playfair Display (serifa elegante)</option>
-              <option value="Cormorant Garamond">Cormorant Garamond (serifa leve)</option>
-              <option value="DM Serif Display">DM Serif Display (serifa editorial)</option>
-              <option value="Lora">Lora (serifa clássica)</option>
-              <option value="Inter">Inter (sans neutra)</option>
-              <option value="Montserrat">Montserrat (sans corporativa)</option>
-              <option value="Poppins">Poppins (sans amigável)</option>
-              <option value="Syne">Syne (artística/moderna)</option>
-              <option value="Space Grotesk">Space Grotesk (tech)</option>
-            </select>
-          </div>
-          <div class="ds-control">
-            <label>Tamanho da fonte</label>
-            <div class="ds-control-row">
-              <input type="range" id="typoBioSize" min="10" max="22" step="1">
-              <output class="ds-value" id="typoBioSizeVal">14px</output>
-            </div>
-          </div>
-          <div class="ds-control">
-            <label>Peso da fonte (negrito)</label>
-            <div class="ds-control-row">
-              <input type="range" id="typoBioWeight" min="300" max="900" step="100">
-              <output class="ds-value" id="typoBioWeightVal">400</output>
-            </div>
-          </div>
-          <div class="ds-control">
-            <label>Espaçamento entre letras</label>
-            <div class="ds-control-row">
-              <input type="range" id="typoBioLs" min="-1" max="5" step="0.1">
-              <output class="ds-value" id="typoBioLsVal">0px</output>
-            </div>
-          </div>
-          <div class="ds-control">
-            <label>Altura da linha</label>
-            <div class="ds-control-row">
-              <input type="range" id="typoBioLh" min="1" max="2" step="0.05">
-              <output class="ds-value" id="typoBioLhVal">1.4</output>
-            </div>
           </div>
         </div>
 
@@ -5863,9 +5868,9 @@
       { key: 'buttonGlass', prefix: 'buttonGlass', blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: 25 },
       { key: 'iconGlass',   prefix: 'iconGlass',   blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: null },
       { key: 'bannerGlass', prefix: 'bannerGlass', blur: 20, saturate: 180, opacity: 18, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: null },
-      { key: 'textGlass',   prefix: 'textGlass',   blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: null },
       { key: 'nameGlass',   prefix: 'nameGlass',   blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: null },
-      { key: 'bioGlass',   prefix: 'bioGlass',   blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: null }
+      { key: 'bioGlass',   prefix: 'bioGlass',   blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: null },
+      { key: 'addressGlass', prefix: 'addressGlass', blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: null }
     ];
 
     /* Injeta os controles premium de vidro em TODOS os blocos (reuso).
@@ -6070,8 +6075,6 @@
       markDirty();
     });
     const BLOCK_CFG = [
-      { key: 'typoName', prefix: 'typoName' },
-      { key: 'typoBio',  prefix: 'typoBio'  },
       { key: 'typoBtn',  prefix: 'typoBtn'  }
     ];
     const BLOCK_FIELDS = {
@@ -6250,41 +6253,51 @@
     };
 
     safeOn('avatarBorder', 'change', (e) => {
-      const pf = profileDesignRef();
-      pf.borderOn = e.target.checked;
-      pf.borderStyle = pf.borderOn ? 'solid' : 'none';
+      const aCfg = profileElem('avatar');
+      aCfg.borderStyle = e.target.checked ? 'solid' : 'none';
       renderPreview();
       renderDesignTriggers();
       markDirty();
     });
     safeOn('avatarShape', 'change', (e) => {
-      const pf = profileDesignRef();
-      const big = e.target.value === 'circle' ? 999 : (e.target.value === 'rounded' ? 14 : 0);
-      pf.shape = e.target.value;
-      pf.radius = { tl: big, tr: big, br: big, bl: big };
+      const aCfg = profileElem('avatar');
+      aCfg.shape = e.target.value;
+      aCfg.radius = e.target.value === 'circle' ? 999 : (e.target.value === 'rounded' ? 14 : 0);
       renderPreview();
       markDirty();
     });
     bindRange('avatarBorderWidth', 'avatarBorderWidthVal', (v) => v + 'px', (v) => {
-      const pf = profileDesignRef();
-      pf.borderWidth = v;
+      profileElem('avatar').borderWidth = v;
       renderPreview();
     });
     safeOn('avatarBorderColor', 'click', () => {
-      const pf = profileDesignRef();
-      const current = pf.borderColor || '#ffffff';
+      const aCfg = profileElem('avatar');
+      const current = aCfg.borderColor || '#ffffff';
       openColorPicker($('avatarBorderColor'), current, (hex) => {
-        pf.borderColor = hex;
+        aCfg.borderColor = hex;
         renderPreview();
         renderDesignTriggers();
         markDirty();
       });
     });
     bindRange('avatarSize', 'avatarSizeVal', (v) => v + 'px', (v) => {
-      const pf = profileDesignRef();
-      pf.size = v;
+      profileElem('avatar').size = v;
       renderPreview();
     });
+    safeOn('avatarShadow', 'change', (e) => { profileElem('avatar').shadowOn = e.target.checked; renderPreview(); markDirty(); });
+    bindRange('avatarShadowBlur', 'avatarShadowBlurVal', (v) => v + 'px', (v) => { profileElem('avatar').shadowBlur = v; renderPreview(); });
+    safeOn('avatarGlow', 'change', (e) => { profileElem('avatar').glowOn = e.target.checked; renderPreview(); markDirty(); });
+    safeOn('avatarGlowColor', 'click', () => {
+      const aCfg = profileElem('avatar');
+      const current = aCfg.glowColor || '#22d3ee';
+      openColorPicker($('avatarGlowColor'), current, (hex) => {
+        aCfg.glowColor = hex;
+        renderPreview();
+        renderDesignTriggers();
+        markDirty();
+      });
+    });
+    bindRange('avatarGlowIntensity', 'avatarGlowIntensityVal', (v) => String(v), (v) => { profileElem('avatar').glowIntensity = v; renderPreview(); });
 
     safeOn('profileVerified', 'change', (e) => {
       cfg.profile = cfg.profile || {};
@@ -6338,34 +6351,40 @@
     bindRange('namePadV', 'namePadVVal', (v) => v + 'px', (v) => { const nm = profileElem('name'); nm.padding = nm.padding || [4, 14]; nm.padding[0] = v; applyThemeVars(); });
     bindRange('namePadH', 'namePadHVal', (v) => v + 'px', (v) => { const nm = profileElem('name'); nm.padding = nm.padding || [4, 14]; nm.padding[1] = v; applyThemeVars(); });
 
-    safeOn('bioBold', 'change', (e) => {
-      const pf = profileDesignRef();
-      pf.text = pf.text || {};
-      pf.text.bio = pf.text.bio || {};
-      pf.text.bio.weight = e.target.checked ? 700 : 400;
-      renderPreview();
-      markDirty();
-    });
+    /* Controles completos do elemento Bio — gravam em elem.bio (INDEPENDENTE) */
+    safeOn('bioFont', 'change', (e) => { profileElem('bio').font = e.target.value; applyThemeVars(); markDirty(); });
+    bindRange('bioSize', 'bioSizeVal', (v) => v + 'px', (v) => { profileElem('bio').size = v; applyThemeVars(); });
+    bindRange('bioWeight', 'bioWeightVal', (v) => String(v), (v) => { profileElem('bio').weight = v; applyThemeVars(); });
+    bindRange('bioLs', 'bioLsVal', (v) => Number(v).toFixed(1) + 'px', (v) => { profileElem('bio').ls = v; applyThemeVars(); });
+    bindRange('bioLh', 'bioLhVal', (v) => Number(v).toFixed(2), (v) => { profileElem('bio').lh = v; applyThemeVars(); });
     safeOn('bioColor', 'click', () => {
-      const pf = profileDesignRef();
-      pf.text = pf.text || {};
-      pf.text.bio = pf.text.bio || {};
-      const current = pf.text.bio.color || '#334155';
+      const bm = profileElem('bio');
+      const current = bm.color || '#334155';
       openColorPicker($('bioColor'), current, (hex) => {
-        pf.text.bio.color = hex;
+        bm.color = hex;
         renderPreview();
         renderDesignTriggers();
         markDirty();
       });
     });
     safeOn('bioAlign', 'change', (e) => {
-      const pf = profileDesignRef();
-      pf.text = pf.text || {};
-      pf.text.bio = pf.text.bio || {};
-      pf.text.bio.align = e.target.value;
+      profileElem('bio').align = e.target.value;
       renderPreview();
       markDirty();
     });
+    safeOn('bioBg', 'click', () => {
+      const bm = profileElem('bio');
+      const current = bm.bg || '#ffffff';
+      openColorPicker($('bioBg'), current, (hex) => {
+        bm.bg = hex;
+        setTriggerColor('bioBg', hex);
+        renderPreview();
+        markDirty();
+      });
+    });
+    bindRange('bioRadius', 'bioRadiusVal', (v) => v + 'px', (v) => { profileElem('bio').radius = v; applyThemeVars(); });
+    bindRange('bioPadV', 'bioPadVVal', (v) => v + 'px', (v) => { const bm = profileElem('bio'); bm.padding = bm.padding || [4, 14]; bm.padding[0] = v; applyThemeVars(); });
+    bindRange('bioPadH', 'bioPadHVal', (v) => v + 'px', (v) => { const bm = profileElem('bio'); bm.padding = bm.padding || [4, 14]; bm.padding[1] = v; applyThemeVars(); });
 
     safeOn('addressShow', 'change', (e) => {
       const pf = profileDesignRef();
@@ -6380,43 +6399,40 @@
       renderPreview();
       markDirty();
     });
-    safeOn('addressStyle', 'change', (e) => {
-      const pf = profileDesignRef();
-      pf.address = pf.address || {};
-      pf.address.style = e.target.value;
-      renderPreview();
-      markDirty();
-    });
     safeOn('addressAlign', 'change', (e) => {
-      const pf = profileDesignRef();
-      pf.text = pf.text || {};
-      pf.text.address = pf.text.address || {};
-      pf.text.address.align = e.target.value;
+      profileElem('address').align = e.target.value;
       renderPreview();
       markDirty();
     });
     safeOn('addressBg', 'click', () => {
-      const pf = profileDesignRef();
-      pf.address = pf.address || {};
-      const current = pf.address.bg || '#0c0e16';
+      const am = profileElem('address');
+      const current = am.bg || '#0c0e16';
       openColorPicker($('addressBg'), current, (hex) => {
-        pf.address.bg = hex;
+        am.bg = hex;
+        setTriggerColor('addressBg', hex);
         renderPreview();
-        renderDesignTriggers();
         markDirty();
       });
     });
     safeOn('addressTextColor', 'click', () => {
-      const pf = profileDesignRef();
-      pf.address = pf.address || {};
-      const current = pf.address.color || '#ffffff';
+      const am = profileElem('address');
+      const current = am.color || '#ffffff';
       openColorPicker($('addressTextColor'), current, (hex) => {
-        pf.address.color = hex;
+        am.color = hex;
         renderPreview();
         renderDesignTriggers();
         markDirty();
       });
     });
+    /* Controles completos do elemento Endereço — gravam em elem.address (INDEPENDENTE) */
+    safeOn('addressFont', 'change', (e) => { profileElem('address').font = e.target.value; applyThemeVars(); markDirty(); });
+    bindRange('addressSize', 'addressSizeVal', (v) => v + 'px', (v) => { profileElem('address').size = v; applyThemeVars(); });
+    bindRange('addressWeight', 'addressWeightVal', (v) => String(v), (v) => { profileElem('address').weight = v; applyThemeVars(); });
+    bindRange('addressLs', 'addressLsVal', (v) => Number(v).toFixed(1) + 'px', (v) => { profileElem('address').ls = v; applyThemeVars(); });
+    bindRange('addressLh', 'addressLhVal', (v) => Number(v).toFixed(2), (v) => { profileElem('address').lh = v; applyThemeVars(); });
+    bindRange('addressRadius', 'addressRadiusVal', (v) => v + 'px', (v) => { profileElem('address').radius = v; applyThemeVars(); });
+    bindRange('addressPadV', 'addressPadVVal', (v) => v + 'px', (v) => { const am = profileElem('address'); am.padding = am.padding || [8, 16]; am.padding[0] = v; applyThemeVars(); });
+    bindRange('addressPadH', 'addressPadHVal', (v) => v + 'px', (v) => { const am = profileElem('address'); am.padding = am.padding || [8, 16]; am.padding[1] = v; applyThemeVars(); });
 
     safeOn('bannerScrim', 'change', (e) => {
       const dp = cfg.design || (cfg.design = {});
@@ -6445,8 +6461,6 @@
     if (st.typoBtn == null)  st.typoBtn  = { font: '', size: 15, weight: st.fontWeight, ls: st.letterSpacing, lh: st.lineHeight };
 
     const fields = [
-      { key: 'typoName', prefix: 'typoName', d: { font: '', size: 20, weight: 700, ls: 0, lh: 1.4 } },
-      { key: 'typoBio',  prefix: 'typoBio',  d: { font: '', size: 14, weight: 400, ls: 0, lh: 1.4 } },
       { key: 'typoBtn',  prefix: 'typoBtn',  d: { font: '', size: 15, weight: 600, ls: 0, lh: 1.4 } }
     ];
     fields.forEach((b) => {
@@ -6466,9 +6480,9 @@
       { key: 'buttonGlass', prefix: 'buttonGlass', blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: 25 },
       { key: 'iconGlass',   prefix: 'iconGlass',   blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: null },
       { key: 'bannerGlass', prefix: 'bannerGlass', blur: 20, saturate: 180, opacity: 18, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: null },
-      { key: 'textGlass',   prefix: 'textGlass',   blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: null },
       { key: 'nameGlass',   prefix: 'nameGlass',   blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: null },
-      { key: 'bioGlass',   prefix: 'bioGlass',   blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: null }
+      { key: 'bioGlass',   prefix: 'bioGlass',   blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: null },
+      { key: 'addressGlass', prefix: 'addressGlass', blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: null }
     ];
     groups.forEach((g) => {
       const t = st[g.key] || {};
@@ -6572,15 +6586,17 @@
     const dp = cfg.design || (cfg.design = {});
     const pf = dp.profile || (dp.profile = {});
     const shapeEl = $('avatarShape');
-    if (shapeEl) shapeEl.value = pf.shape || 'circle';
+    if (shapeEl) shapeEl.value = profileElem('avatar').shape || 'circle';
     const borderEl = $('avatarBorder');
-    if (borderEl) borderEl.checked = !!pf.borderOn;
-    if ($('avatarBorderWidth')) setRange('avatarBorderWidth', pf.borderWidth == null ? 3 : pf.borderWidth);
-    if ($('avatarSize')) setRange('avatarSize', pf.size == null ? 96 : pf.size);
+    if (borderEl) borderEl.checked = profileElem('avatar').borderStyle !== 'none';
+    if ($('avatarBorderWidth')) setRange('avatarBorderWidth', profileElem('avatar').borderWidth == null ? 4 : profileElem('avatar').borderWidth);
+    if ($('avatarSize')) setRange('avatarSize', profileElem('avatar').size == null ? 96 : profileElem('avatar').size);
+    if ($('avatarShadow')) $('avatarShadow').checked = profileElem('avatar').shadowOn !== false;
+    if ($('avatarShadowBlur')) setRange('avatarShadowBlur', profileElem('avatar').shadowBlur == null ? 24 : profileElem('avatar').shadowBlur);
+    if ($('avatarGlow')) $('avatarGlow').checked = !!profileElem('avatar').glowOn;
+    if ($('avatarGlowIntensity')) setRange('avatarGlowIntensity', profileElem('avatar').glowIntensity == null ? 35 : profileElem('avatar').glowIntensity);
     const verifiedEl = $('profileVerified');
     if (verifiedEl) verifiedEl.checked = !!(cfg.profile && cfg.profile.verified);
-    const boldEl = $('bioBold');
-    if (boldEl) boldEl.checked = !!((pf.text && pf.text.bio && pf.text.bio.weight) && pf.text.bio.weight >= 600);
     const nameAlignEl = $('nameAlign');
     if (nameAlignEl) nameAlignEl.value = profileElem('name').align || 'center';
     /* Reflete os controles do elemento Nome (elem.name) */
@@ -6593,16 +6609,36 @@
     if ($('nameRadius')) setRange('nameRadius', nmR.radius);
     if ($('namePadV')) setRange('namePadV', (nmR.padding && nmR.padding[0]) != null ? nmR.padding[0] : 4);
     if ($('namePadH')) setRange('namePadH', (nmR.padding && nmR.padding[1]) != null ? nmR.padding[1] : 14);
+    /* Reflete os controles do elemento Bio (elem.bio) */
+    const bmR = profileElem('bio');
+    if ($('bioFont')) $('bioFont').value = bmR.font || '';
+    if ($('bioSize')) setRange('bioSize', bmR.size);
+    if ($('bioWeight')) setRange('bioWeight', bmR.weight);
+    if ($('bioLs')) setRange('bioLs', bmR.ls);
+    if ($('bioLh')) setRange('bioLh', bmR.lh);
     const bioAlignEl = $('bioAlign');
-    if (bioAlignEl) bioAlignEl.value = (pf.text && pf.text.bio && pf.text.bio.align) || 'center';
+    if (bioAlignEl) bioAlignEl.value = bmR.align || 'center';
+    if ($('bioBg')) setTriggerColor('bioBg', bmR.bg || '');
+    if ($('bioRadius')) setRange('bioRadius', bmR.radius);
+    if ($('bioPadV')) setRange('bioPadV', (bmR.padding && bmR.padding[0]) != null ? bmR.padding[0] : 4);
+    if ($('bioPadH')) setRange('bioPadH', (bmR.padding && bmR.padding[1]) != null ? bmR.padding[1] : 14);
     const addrShowEl = $('addressShow');
     if (addrShowEl) addrShowEl.checked = pf.addrShow !== false;
     const addrIconEl = $('addressIcon');
     if (addrIconEl) addrIconEl.checked = !(pf.address && pf.address.showIcon === false);
-    const addrStyleEl = $('addressStyle');
-    if (addrStyleEl) addrStyleEl.value = (pf.address && pf.address.style) || 'pill';
+    /* Reflete os controles do elemento Endereço (elem.address) */
+    const amR = profileElem('address');
+    if ($('addressFont')) $('addressFont').value = amR.font || '';
+    if ($('addressSize')) setRange('addressSize', amR.size);
+    if ($('addressWeight')) setRange('addressWeight', amR.weight);
+    if ($('addressLs')) setRange('addressLs', amR.ls);
+    if ($('addressLh')) setRange('addressLh', amR.lh);
     const addrAlignEl = $('addressAlign');
-    if (addrAlignEl) addrAlignEl.value = (pf.text && pf.text.address && pf.text.address.align) || 'center';
+    if (addrAlignEl) addrAlignEl.value = amR.align || 'center';
+    if ($('addressBg')) setTriggerColor('addressBg', amR.bg || '');
+    if ($('addressRadius')) setRange('addressRadius', amR.radius);
+    if ($('addressPadV')) setRange('addressPadV', (amR.padding && amR.padding[0]) != null ? amR.padding[0] : 8);
+    if ($('addressPadH')) setRange('addressPadH', (amR.padding && amR.padding[1]) != null ? amR.padding[1] : 16);
     renderDesignTriggers();
   }
 
