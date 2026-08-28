@@ -207,18 +207,6 @@ async function publicoVidrosExtras() {
         c.quick = [{ label: 'Instagram', url: 'https://ig.com' }];
         return c;
       }
-    },
-    {
-      nome: 'banner (bannerGlass #ff8800)',
-      sel: '#pgBanner',
-      frag: 'rgba(255,136,0,0.22)',
-      make: () => {
-        const c = JSON.parse(JSON.stringify(NEW_CONFIG));
-        c.banner = 'https://exemplo.com/banner.jpg';
-        c.design = { banner: { enabled: true, bgType: 'image', image: 'https://exemplo.com/banner.jpg', height: 190 } };
-        c.style = Object.assign({}, c.style, { bannerGlass: { enabled: true, blur: 20, opacity: 22, color: '#ff8800' } });
-        return c;
-      }
     }
   ];
   const row = { config: NEW_CONFIG, slug: 'teste' };
@@ -233,6 +221,22 @@ async function publicoVidrosExtras() {
     const bg = (snap && (snap['background-image'] || snap['background'])) || '';
     ok(bg.indexOf(cso.frag) >= 0, cso.nome + ' chega à página — ' + bg.slice(0, 40));
   }
+
+  /* BANNER COM IMAGEM + VIDRO ATIVO: a imagem precisa ficar VIVA no
+     #pgBanner e o vidro virar CHIP no overlay (espelho do mockup admin).
+     Antes, o vidro era aplicado no #pgBanner e apagava a imagem. */
+  log('\n━━━ [PÚBLICO] Banner: imagem + vidro (chip no overlay) ━━━');
+  const cB = JSON.parse(JSON.stringify(NEW_CONFIG));
+  cB.banner = 'https://exemplo.com/banner.jpg';
+  cB.design = { banner: { enabled: true, bgType: 'image', image: 'https://exemplo.com/banner.jpg', height: 190, overlayTitle: 'Conheça a AXIUM' } };
+  cB.style = Object.assign({}, cB.style, { bannerGlass: { enabled: true, blur: 20, opacity: 22, color: '#ff8800' } });
+  window.__alaPublica.aplicar(cB);
+  const bSnap = window.__alaPublica.dom('#pgBanner') || {};
+  const oSnap = window.__alaPublica.dom('#pgBannerOverlay') || {};
+  ok(/^url\(/.test(bSnap['background-image'] || ''), 'banner com vidro: imagem segue como background do #pgBanner');
+  ok(String(bSnap._class || '').indexOf('gx-panel') < 0, 'banner com vidro: #pgBanner SEM vidro no próprio elemento');
+  ok((oSnap['background-image'] || oSnap['background'] || '').indexOf('rgba(255,136,0,0.22)') >= 0, 'banner com vidro: chip de vidro aplicado no #pgBannerOverlay (rgba #ff8800)');
+  ok(oSnap['border-radius'] === '14px' && oSnap['padding'] === '12px 16px', 'banner com vidro: overlay com raio 14px e padding 12 16 (espelho do admin)');
 }
 
 /* ================================================================

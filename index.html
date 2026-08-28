@@ -2671,27 +2671,30 @@
         } else {
           pgBanner.hidden = false;
 
-          /* Fundo próprio do banner — vidro > tipo escolhido (cor sólida,
-             gradiente próprio ou imagem). Independe do fundo da página. */
+          /* Fundo próprio do banner — sempre aplicado conforme o tipo
+             (cor sólida, gradiente próprio ou IMAGEM), independente do vidro.
+             A imagem usa longhands (background-image/size/position) — o
+             shorthand "url(...) center / cover" era ilegível em parsers
+             estritos e frágil. */
           const bglass = !!bn.glass || !!((cfg.style && cfg.style.bannerGlass) || {}).enabled;
           const btype = bn.bgType || 'gradient';
 
           pgBanner.style.setProperty('--banner-h', (bn.height || 190) + 'px');
 
-          if (bglass) {
-            /* Vidro premium do banner (grupo bannerGlass; fallback legado bn.glass*) */
-            const bgrp = Object.assign({}, (cfg.style && cfg.style.bannerGlass) || {});
-            if (!bgrp.enabled) {
-              bgrp.enabled = true;
-              if (bgrp.blur == null) bgrp.blur = bn.glassBlur || 20;
-            }
-            applyGlass(pgBanner, bgrp);
-          } else if (btype === 'solid') {
+          if (btype === 'solid') {
             applyGlass(pgBanner, { enabled: false });
             pgBanner.style.background = bn.color || '#1e293b';
+            pgBanner.style.backgroundSize = '';
+            pgBanner.style.backgroundPosition = '';
+            pgBanner.style.backgroundRepeat = '';
           } else if (btype === 'image' && bn.image) {
             applyGlass(pgBanner, { enabled: false });
-            pgBanner.style.background = "url('" + bn.image + "') center / cover no-repeat";
+            pgBanner.style.background = 'transparent';
+            pgBanner.style.backgroundImage = "url('" + bn.image + "')";
+            pgBanner.style.backgroundSize = 'cover';
+            pgBanner.style.backgroundPosition = 'center';
+            pgBanner.style.backgroundRepeat = 'no-repeat';
+            pgBanner.style.backgroundColor = bn.color || '#1e293b';
           } else {
             applyGlass(pgBanner, { enabled: false });
             const bstops = (Array.isArray(bn.stops) && bn.stops.length >= 2)
@@ -2703,6 +2706,32 @@
                 ];
             pgBanner.style.background = 'linear-gradient(' + (bn.angle || 135) + 'deg, '
               + bstops.map((s) => toRgba(s.color || '#0f172a', s.alpha == null ? 100 : s.alpha) + ' ' + (s.pos == null ? 0 : s.pos) + '%').join(', ') + ')';
+            pgBanner.style.backgroundSize = '';
+            pgBanner.style.backgroundPosition = '';
+            pgBanner.style.backgroundRepeat = '';
+          }
+
+          /* Vidro do banner = chip no OVERLAY (título/CTA), como no mockup do
+             editor (admin.html: applyGlass no .pv-banner-overlay). Aplicar o
+             vidro no #pgBanner apagava a imagem de fundo (só sobrava o
+             gradiente). */
+          const bannerOverlayEl = document.getElementById('pgBannerOverlay');
+          if (bannerOverlayEl) {
+            if (bglass) {
+              /* Grupo bannerGlass; fallback legado bn.glass* */
+              const bgrp = Object.assign({}, (cfg.style && cfg.style.bannerGlass) || {});
+              if (!bgrp.enabled) {
+                bgrp.enabled = true;
+                if (bgrp.blur == null) bgrp.blur = bn.glassBlur || 20;
+              }
+              applyGlass(bannerOverlayEl, bgrp);
+              bannerOverlayEl.style.borderRadius = '14px';
+              bannerOverlayEl.style.padding = '12px 16px';
+            } else {
+              applyGlass(bannerOverlayEl, { enabled: false });
+              bannerOverlayEl.style.borderRadius = '';
+              bannerOverlayEl.style.padding = '';
+            }
           }
 
           const scrim = document.getElementById('pgScrim');
