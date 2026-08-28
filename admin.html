@@ -899,6 +899,22 @@
     pointer-events:none;
   }
 
+  /* ===== Glassmorphism PREMIUM reutilizável (.gx-panel) =====
+     As propriedades dinâmicas vêm do applyGlass() via style inline;
+     aqui só ficam os pseudo-elementos que não podem ser setados inline:
+     ::before = reflexo de luz no topo, ::after = textura de ruído. */
+  .gx-panel { position:relative; z-index:0; }
+  .gx-highlight::before {
+    content:''; position:absolute; inset:0; border-radius:inherit;
+    pointer-events:none; z-index:-1;
+    background:linear-gradient(180deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.05) 42%, rgba(255,255,255,0) 68%);
+  }
+  .gx-noise::after {
+    content:''; position:absolute; inset:0; border-radius:inherit;
+    pointer-events:none; z-index:-1; opacity:0.035;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/><feColorMatrix type='saturate' values='0'/></filter><rect width='120' height='120' filter='url(%23n)'/></svg>");
+  }
+
   .pv-footer {
     text-align:center; font-size:11px; opacity:.55; margin-top:30px; padding-top:16px;
   }
@@ -1387,8 +1403,8 @@
           <div class="ds-control">
             <label>Desfoque (Blur)</label>
             <div class="ds-control-row">
-              <input type="range" id="textGlassBlur" min="0" max="30" step="1">
-              <output class="ds-value" id="textGlassBlurVal">16px</output>
+              <input type="range" id="textGlassBlur" min="0" max="40" step="1">
+              <output class="ds-value" id="textGlassBlurVal">20px</output>
             </div>
           </div>
           <div class="ds-control">
@@ -1533,15 +1549,15 @@
           <div class="ds-control">
             <label>Desfoque (Blur)</label>
             <div class="ds-control-row">
-              <input type="range" id="iconGlassBlur" min="0" max="30" step="1">
-              <output class="ds-value" id="iconGlassBlurVal">12px</output>
+              <input type="range" id="iconGlassBlur" min="0" max="40" step="1">
+              <output class="ds-value" id="iconGlassBlurVal">20px</output>
             </div>
           </div>
           <div class="ds-control">
             <label>Opacidade do vidro</label>
             <div class="ds-control-row">
               <input type="range" id="iconGlassOpacity" min="5" max="50" step="1">
-              <output class="ds-value" id="iconGlassOpacityVal">12%</output>
+              <output class="ds-value" id="iconGlassOpacityVal">16%</output>
             </div>
           </div>
         </div>
@@ -1730,15 +1746,15 @@
           <div class="ds-control">
             <label>Desfoque (Blur)</label>
             <div class="ds-control-row">
-              <input type="range" id="buttonGlassBlur" min="0" max="30" step="1">
-              <output class="ds-value" id="buttonGlassBlurVal">14px</output>
+              <input type="range" id="buttonGlassBlur" min="0" max="40" step="1">
+              <output class="ds-value" id="buttonGlassBlurVal">20px</output>
             </div>
           </div>
           <div class="ds-control">
             <label>Opacidade do vidro</label>
             <div class="ds-control-row">
               <input type="range" id="buttonGlassOpacity" min="5" max="50" step="1">
-              <output class="ds-value" id="buttonGlassOpacityVal">15%</output>
+              <output class="ds-value" id="buttonGlassOpacityVal">16%</output>
             </div>
           </div>
           <div class="ds-control">
@@ -2302,15 +2318,15 @@
           <div class="ds-control">
             <label>Desfoque (Blur)</label>
             <div class="ds-control-row">
-              <input type="range" id="bannerGlassBlur" min="0" max="30" step="1">
-              <output class="ds-value" id="bannerGlassBlurVal">10px</output>
+              <input type="range" id="bannerGlassBlur" min="0" max="40" step="1">
+              <output class="ds-value" id="bannerGlassBlurVal">20px</output>
             </div>
           </div>
           <div class="ds-control">
             <label>Opacidade do vidro</label>
             <div class="ds-control-row">
               <input type="range" id="bannerGlassOpacity" min="5" max="50" step="1">
-              <output class="ds-value" id="bannerGlassOpacityVal">20%</output>
+              <output class="ds-value" id="bannerGlassOpacityVal">18%</output>
             </div>
           </div>
         </div>
@@ -3088,11 +3104,14 @@
       btnShadowStyle: 'soft',
       btnGlassOpacity: 15,
       btnGlassBlur: 12,
-      /* Efeito vidro independente por elemento (sub-grupos) */
-      buttonGlass: { enabled: false, blur: 14, opacity: 15, borderOpacity: 25 },
-      iconGlass:   { enabled: false, blur: 12, opacity: 12 },
-      bannerGlass: { enabled: false, blur: 10, opacity: 20 },
-      textGlass:   { enabled: false, blur: 16, opacity: 16 },
+      /* Efeito vidro independente por elemento (sub-grupos) —
+         perfil PREMIUM reutilizável: cada grupo usa o MESMO shape de
+         config (blur, saturate, opacity, color, borderGlow, shadowDepth,
+         highlight, noise) consumido por applyGlass(). */
+      buttonGlass: { enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: 25 },
+      iconGlass:   { enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false },
+      bannerGlass: { enabled: false, blur: 20, saturate: 180, opacity: 18, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false },
+      textGlass:   { enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false },
       /* Estilo do texto sobre o banner */
       bannerText: {
         titleColor: '', titleSize: 16, titleWeight: 700,
@@ -4409,6 +4428,61 @@
     });
   }
 
+  /* ===== Glassmorphism PREMIUM reutilizável =====
+     applyGlass(el, g) aplica o mesmo "receituário" de vidro em QUALQUER
+     elemento (nome/bio, botões, ícones/atalhos, banner). O config g segue
+     o shape: { enabled, blur, saturate, opacity, color, borderGlow,
+     shadowDepth, highlight, noise }. Todas as propriedades são 100%
+     customizáveis; os defaults já entregam um resultado premium. */
+  function rgbaCss(hex, alpha) {
+    const [r, gg, b] = hexToRgb(hex || '#ffffff');
+    return 'rgba(' + r + ',' + gg + ',' + b + ',' + (Math.round(alpha * 1000) / 1000) + ')';
+  }
+
+  function applyGlass(el, g) {
+    if (!el) return;
+    g = Object.assign({
+      enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff',
+      borderGlow: 40, shadowDepth: 18, highlight: true, noise: false
+    }, g || {});
+
+    if (!g.enabled) {
+      ['background', 'backgroundImage', 'backdropFilter', 'webkitBackdropFilter',
+       'border', 'boxShadow', 'textShadow'].forEach((p) => { el.style[p] = ''; });
+      el.classList.remove('gx-panel', 'gx-highlight', 'gx-noise');
+      return;
+    }
+
+    const color = g.color || '#ffffff';
+    const aHi = Math.min(0.34, Math.max(0.06, (g.opacity || 16) / 100));
+    const aLo = Math.max(0.02, aHi * 0.3);
+    const blur = g.blur || 0;
+    const sat = g.saturate || 180;
+    const glow = (g.borderGlow == null ? 40 : g.borderGlow) / 100;
+    const depth = (g.shadowDepth == null ? 18 : g.shadowDepth) / 100;
+
+    const boxShadow = [
+      'inset 0 1px 1px ' + rgbaCss('#ffffff', 0.8 * glow),
+      'inset 0 -1px 1px ' + rgbaCss('#ffffff', 0.28 * glow),
+      '0 ' + Math.round(10 * depth) + 'px ' + Math.round(34 * depth) + 'px ' + rgbaCss('#000000', 0.16 * depth),
+      '0 ' + Math.round(2 * depth) + 'px ' + Math.round(7 * depth) + 'px ' + rgbaCss('#000000', 0.12 * depth)
+    ].join(', ');
+
+    Object.assign(el.style, {
+      background: 'linear-gradient(135deg, ' + rgbaCss(color, aHi) + ' 0%, ' + rgbaCss(color, aLo) + ' 100%)',
+      backgroundImage: 'linear-gradient(135deg, ' + rgbaCss(color, aHi) + ' 0%, ' + rgbaCss(color, aLo) + ' 100%)',
+      backdropFilter: 'blur(' + blur + 'px) saturate(' + sat + '%)',
+      webkitBackdropFilter: 'blur(' + blur + 'px) saturate(' + sat + '%)',
+      border: '1px solid ' + rgbaCss(color, Math.max(0.14, 0.5 * glow)),
+      boxShadow: boxShadow,
+      textShadow: '0 1px 2px ' + rgbaCss('#000000', 0.22)
+    });
+
+    el.classList.add('gx-panel');
+    el.classList.toggle('gx-highlight', !!g.highlight);
+    el.classList.toggle('gx-noise', !!g.noise);
+  }
+
   /* Aplica efeito vidro independente por elemento.
      Cada sub-grupo tem estado próprio (buttonGlass/iconGlass/bannerGlass/textGlass),
      evitando a variável global compartilhada que bugava os botões. */
@@ -4417,80 +4491,55 @@
     if (!page) return;
 
     /* Botões */
-    const btnG = Object.assign({ enabled: false, blur: 14, opacity: 15, borderOpacity: 25 }, st.buttonGlass || {});
+    let btnG = Object.assign({
+      enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff',
+      borderGlow: 40, shadowDepth: 18, highlight: true, noise: false
+    }, st.buttonGlass || {});
     const btnIsGlass = (st.btnVariant === 'glass') || btnG.enabled;
-    page.querySelectorAll('.link-block').forEach((el) => {
-      if (btnIsGlass) {
-        const blur = (st.btnGlassBlur != null && !btnG.enabled) ? st.btnGlassBlur : btnG.blur;
-        const opacity = (st.btnGlassOpacity != null && !btnG.enabled) ? st.btnGlassOpacity : btnG.opacity;
-        el.style.background = 'rgba(255,255,255,' + (opacity / 100) + ')';
-        el.style.backdropFilter = 'blur(' + blur + 'px)';
-        el.style.webkitBackdropFilter = 'blur(' + blur + 'px)';
-        el.style.border = '1px solid rgba(255,255,255,' + (btnG.borderOpacity / 100) + ')';
-      }
-    });
+    if (btnIsGlass && !btnG.enabled && (st.btnGlassBlur != null || st.btnGlassOpacity != null)) {
+      btnG = Object.assign({}, btnG, {
+        enabled: true,
+        blur: st.btnGlassBlur != null ? st.btnGlassBlur : btnG.blur,
+        opacity: st.btnGlassOpacity != null ? st.btnGlassOpacity : btnG.opacity
+      });
+    }
+    page.querySelectorAll('.link-block').forEach((el) => applyGlass(el, btnG));
 
     /* Ícones / links rápidos */
-    const iconG = Object.assign({ enabled: false, blur: 12, opacity: 12 }, st.iconGlass || {});
+    const iconG = Object.assign({
+      enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff',
+      borderGlow: 40, shadowDepth: 18, highlight: true, noise: false
+    }, st.iconGlass || {});
     const qls = cfg.quickLinksStyle || {};
     const iconIsGlass = iconG.enabled || qls.background === 'glass';
     page.querySelectorAll('.quick-item .quick-thumb').forEach((th) => {
-      if (iconIsGlass) {
-        th.style.background = 'rgba(255,255,255,' + (iconG.opacity / 100) + ')';
-        th.style.backdropFilter = 'blur(' + iconG.blur + 'px)';
-        th.style.webkitBackdropFilter = 'blur(' + iconG.blur + 'px)';
-        th.style.border = '1px solid rgba(255,255,255,0.25)';
-      }
+      applyGlass(th, iconIsGlass ? iconG : { enabled: false });
     });
 
     /* Banner: chip de vidro atrás do overlay de texto */
-    const banG = Object.assign({ enabled: false, blur: 10, opacity: 20 }, st.bannerGlass || {});
+    const banG = Object.assign({
+      enabled: false, blur: 20, saturate: 180, opacity: 18, color: '#ffffff',
+      borderGlow: 40, shadowDepth: 18, highlight: true, noise: false
+    }, st.bannerGlass || {});
     const ov = page.querySelector('.pv-banner-overlay');
     if (ov) {
+      applyGlass(ov, banG);
       if (banG.enabled) {
-        ov.style.background = 'rgba(255,255,255,' + (banG.opacity / 100) + ')';
-        ov.style.backdropFilter = 'blur(' + banG.blur + 'px)';
-        ov.style.webkitBackdropFilter = 'blur(' + banG.blur + 'px)';
         ov.style.borderRadius = '14px';
         ov.style.padding = '12px 16px';
       } else {
-        ov.style.background = '';
-        ov.style.backdropFilter = '';
-        ov.style.webkitBackdropFilter = '';
         ov.style.borderRadius = '';
         ov.style.padding = '';
       }
     }
 
     /* Perfil: chip de vidro atrás do nome e da bio */
-    const txtG = Object.assign({ enabled: false, blur: 16, opacity: 16 }, st.textGlass || {});
-    const applyTextGlass = (el) => {
-      if (!el) return;
-      if (txtG.enabled) {
-        /* Glassmorphism real: backdrop-filter borra o que está ATRÁS do
-           elemento. Alpha do branco limitado ao intervalo 0.10–0.28 para
-           nunca virar chapado; borda sutil + sombra dão o "reflexo" de vidro. */
-        const alpha = Math.min(0.28, Math.max(0.1, (txtG.opacity || 16) / 100));
-        const blur = txtG.blur || 0;
-        el.style.background = 'rgba(255,255,255,' + alpha.toFixed(3) + ')';
-        el.style.backdropFilter = 'blur(' + blur + 'px)';
-        el.style.webkitBackdropFilter = 'blur(' + blur + 'px)';
-        el.style.border = '1px solid rgba(255,255,255,0.3)';
-        el.style.boxShadow = '0 4px 24px rgba(0,0,0,0.1)';
-        el.style.padding = '4px 14px';
-        el.style.borderRadius = '10px';
-      } else {
-        el.style.background = '';
-        el.style.backdropFilter = '';
-        el.style.webkitBackdropFilter = '';
-        el.style.border = '';
-        el.style.boxShadow = '';
-        el.style.padding = '';
-        el.style.borderRadius = '';
-      }
-    };
-    applyTextGlass($('pvName'));
-    applyTextGlass($('pvBio'));
+    const txtG = Object.assign({
+      enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff',
+      borderGlow: 40, shadowDepth: 18, highlight: true, noise: false
+    }, st.textGlass || {});
+    applyGlass($('pvName'), txtG);
+    applyGlass($('pvBio'), txtG);
   }
 
   function applyThemeVars() {
@@ -5430,11 +5479,66 @@
 
     /* Efeito vidro por elemento (sub-grupos independentes: botão/ícone/banner/texto) */
     const GLASS_GROUPS = [
-      { key: 'buttonGlass', prefix: 'buttonGlass', blur: 14, opacity: 15, borderOpacity: 25 },
-      { key: 'iconGlass',   prefix: 'iconGlass',   blur: 12, opacity: 12, borderOpacity: null },
-      { key: 'bannerGlass', prefix: 'bannerGlass', blur: 10, opacity: 20, borderOpacity: null },
-      { key: 'textGlass',   prefix: 'textGlass',   blur: 16, opacity: 16, borderOpacity: null }
+      { key: 'buttonGlass', prefix: 'buttonGlass', blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: 25 },
+      { key: 'iconGlass',   prefix: 'iconGlass',   blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: null },
+      { key: 'bannerGlass', prefix: 'bannerGlass', blur: 20, saturate: 180, opacity: 18, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: null },
+      { key: 'textGlass',   prefix: 'textGlass',   blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: null }
     ];
+
+    /* Injeta os controles premium de vidro em TODOS os blocos (reuso).
+       Marcado no dataset do bloco para rodar apenas uma vez por prefixo. */
+    GLASS_GROUPS.forEach((g) => {
+      const blockEl = $(g.key + 'Block');
+      if (!blockEl || blockEl.dataset.gxp) return;
+      blockEl.dataset.gxp = '1';
+
+      const acc = document.createElement('details');
+      acc.className = 'gx-advanced';
+      acc.style.marginTop = '6px';
+      acc.style.padding = '8px';
+      acc.style.border = '1px solid var(--border)';
+      acc.style.borderRadius = '10px';
+      const sum = document.createElement('summary');
+      sum.style.cssText = 'cursor:pointer;font-size:13px;font-weight:700;color:var(--ink);';
+      sum.textContent = 'Avançado (glassmorphism premium)';
+      acc.appendChild(sum);
+
+      const d = (label, inner) => {
+        const box = document.createElement('div');
+        box.className = 'ds-control';
+        box.innerHTML = '<label>' + label + '</label><div class="ds-control-row">' + inner + '</div>';
+        return box;
+      };
+      const range = (id, val, min, max, suffix) =>
+        '<input type="range" id="' + id + '" min="' + min + '" max="' + max + '" step="1">' +
+        '<output class="ds-value" id="' + id + 'Val">' + val + (suffix || '') + '</output>';
+
+      acc.appendChild(d('Intensidade de cor (saturate)', range(g.prefix + 'GlassSaturate', g.saturate, 100, 250, '%')));
+      acc.appendChild(d('Intensidade do brilho da borda', range(g.prefix + 'GlassBorderGlow', g.borderGlow, 0, 100, '%')));
+      acc.appendChild(d('Profundidade da sombra', range(g.prefix + 'GlassShadow', g.shadowDepth, 0, 60, '')));
+
+      const colBox = document.createElement('div');
+      colBox.className = 'field';
+      colBox.style.marginTop = '8px';
+      colBox.innerHTML = '<label>Cor do vidro (tint)</label>' +
+        '<div class="color-trigger" id="' + g.prefix + 'GlassColor" role="button" tabindex="0">' +
+        '<div class="color-trigger-swatch" style="background:' + g.color + ';"></div>' +
+        '<span class="color-trigger-hex">' + g.color.toUpperCase() + '</span></div>';
+      acc.appendChild(colBox);
+
+      const mkToggle = (id, label) => {
+        const row = document.createElement('div');
+        row.className = 'toggle-row';
+        row.innerHTML = '<span class="toggle-label">' + label + '</span>' +
+          '<label class="switch"><input type="checkbox" id="' + id + '"><span class="slider"></span></label>';
+        return row;
+      };
+      acc.appendChild(mkToggle(g.prefix + 'GlassHighlight', 'Reflexo de luz no topo'));
+      acc.appendChild(mkToggle(g.prefix + 'GlassNoise', 'Textura sutil (ruído)'));
+
+      blockEl.appendChild(acc);
+    });
+
     GLASS_GROUPS.forEach((g) => {
       const elRef = () => {
         if (!cfg.style) cfg.style = {};
@@ -5447,9 +5551,25 @@
       });
       bindRange(g.prefix + 'Blur', g.prefix + 'BlurVal', (v) => v + 'px', (v) => { elRef().blur = v; applyThemeVars(); });
       bindRange(g.prefix + 'Opacity', g.prefix + 'OpacityVal', (v) => v + '%', (v) => { elRef().opacity = v; applyThemeVars(); });
-      if (g.prefix === 'buttonGlass') {
+      if (g.borderOpacity != null) {
         bindRange(g.prefix + 'BorderOpacity', g.prefix + 'BorderOpacityVal', (v) => v + '%', (v) => { elRef().borderOpacity = v; applyThemeVars(); });
       }
+      bindRange(g.prefix + 'GlassSaturate', g.prefix + 'GlassSaturateVal', (v) => v + '%', (v) => { elRef().saturate = v; applyThemeVars(); });
+      bindRange(g.prefix + 'GlassBorderGlow', g.prefix + 'GlassBorderGlowVal', (v) => v + '%', (v) => { elRef().borderGlow = v; applyThemeVars(); });
+      bindRange(g.prefix + 'GlassShadow', g.prefix + 'GlassShadowVal', (v) => String(v), (v) => { elRef().shadowDepth = v; applyThemeVars(); });
+      safeOn(g.prefix + 'GlassHighlight', 'change', (e) => { elRef().highlight = e.target.checked; applyThemeVars(); markDirty(); });
+      safeOn(g.prefix + 'GlassNoise', 'change', (e) => { elRef().noise = e.target.checked; applyThemeVars(); markDirty(); });
+      safeOn(g.prefix + 'GlassColor', 'click', () => {
+        const cur = (cfg.style[g.key] && cfg.style[g.key].color) || g.color;
+        openColorPicker($(g.prefix + 'GlassColor'), cur, (hex) => {
+          elRef().color = hex;
+          setTriggerColor(g.prefix + 'GlassColor', hex);
+          const tx = $(g.prefix + 'GlassColor') && $(g.prefix + 'GlassColor').querySelector('.color-trigger-hex');
+          if (tx) tx.textContent = hex.toUpperCase();
+          applyThemeVars();
+          markDirty();
+        });
+      });
     });
 
     /* btnVariant select */
@@ -5946,18 +6066,32 @@
   function reflectGlassInputs() {
     const st = (cfg.style = cfg.style || {});
     const groups = [
-      { key: 'buttonGlass', prefix: 'buttonGlass', blur: 14, opacity: 15, borderOpacity: 25 },
-      { key: 'iconGlass',   prefix: 'iconGlass',   blur: 12, opacity: 12, borderOpacity: null },
-      { key: 'bannerGlass', prefix: 'bannerGlass', blur: 10, opacity: 20, borderOpacity: null },
-      { key: 'textGlass',   prefix: 'textGlass',   blur: 16, opacity: 16, borderOpacity: null }
+      { key: 'buttonGlass', prefix: 'buttonGlass', blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: 25 },
+      { key: 'iconGlass',   prefix: 'iconGlass',   blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: null },
+      { key: 'bannerGlass', prefix: 'bannerGlass', blur: 20, saturate: 180, opacity: 18, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: null },
+      { key: 'textGlass',   prefix: 'textGlass',   blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: null }
     ];
     groups.forEach((g) => {
       const t = st[g.key] || {};
       $(g.prefix + 'Toggle').checked = !!t.enabled;
       setRange(g.prefix + 'Blur', t.blur != null ? t.blur : g.blur);
       setRange(g.prefix + 'Opacity', t.opacity != null ? t.opacity : g.opacity);
-      if (g.prefix === 'buttonGlass') {
+      if (g.borderOpacity != null) {
         setRange(g.prefix + 'BorderOpacity', t.borderOpacity != null ? t.borderOpacity : g.borderOpacity);
+      }
+      setRange(g.prefix + 'GlassSaturate', t.saturate != null ? t.saturate : g.saturate);
+      setRange(g.prefix + 'GlassBorderGlow', t.borderGlow != null ? t.borderGlow : g.borderGlow);
+      setRange(g.prefix + 'GlassShadow', t.shadowDepth != null ? t.shadowDepth : g.shadowDepth);
+      const hl = $(g.prefix + 'GlassHighlight');
+      if (hl) hl.checked = t.highlight != null ? !!t.highlight : g.highlight;
+      const ns = $(g.prefix + 'GlassNoise');
+      if (ns) ns.checked = t.noise != null ? !!t.noise : g.noise;
+      const gC = $(g.prefix + 'GlassColor');
+      if (gC) {
+        const col = t.color || g.color;
+        setTriggerColor(g.prefix + 'GlassColor', col);
+        const tx = gC.querySelector('.color-trigger-hex');
+        if (tx) tx.textContent = col.toUpperCase();
       }
     });
   }

@@ -806,6 +806,22 @@
       .ax-particles span { animation: none; }
     }
 
+    /* ===== Glassmorphism PREMIUM reutilizável (.gx-panel) =====
+       As propriedades dinâmicas vêm do applyGlass() via style inline;
+       aqui só ficam os pseudo-elementos que não podem ser setados inline:
+       ::before = reflexo de luz no topo, ::after = textura de ruído. */
+    .gx-panel { position:relative; z-index:0; }
+    .gx-highlight::before {
+      content:''; position:absolute; inset:0; border-radius:inherit;
+      pointer-events:none; z-index:-1;
+      background:linear-gradient(180deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.05) 42%, rgba(255,255,255,0) 68%);
+    }
+    .gx-noise::after {
+      content:''; position:absolute; inset:0; border-radius:inherit;
+      pointer-events:none; z-index:-1; opacity:0.035;
+      background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/><feColorMatrix type='saturate' values='0'/></filter><rect width='120' height='120' filter='url(%23n)'/></svg>");
+    }
+
     /* ================================================================
        CARDS DE LINK PRINCIPAIS (ícone à esquerda, texto, seta)
        ================================================================ */
@@ -2656,21 +2672,27 @@
 
           /* Fundo próprio do banner — vidro > tipo escolhido (cor sólida,
              gradiente próprio ou imagem). Independe do fundo da página. */
-          const bglass = !!bn.glass;
+          const bglass = !!bn.glass || !!((cfg.style && cfg.style.bannerGlass) || {}).enabled;
           const btype = bn.bgType || 'gradient';
 
           pgBanner.style.setProperty('--banner-h', (bn.height || 190) + 'px');
-          pgBanner.style.backdropFilter = bglass ? 'blur(' + (bn.glassBlur || 18) + 'px)' : '';
-          pgBanner.style.webkitBackdropFilter = pgBanner.style.backdropFilter;
 
           if (bglass) {
-            /* Vidro: fundo RGBA translúcido para o backdrop-filter aparecer */
-            pgBanner.style.background = 'rgba(255, 255, 255, 0.2)';
+            /* Vidro premium do banner (grupo bannerGlass; fallback legado bn.glass*) */
+            const bgrp = Object.assign({}, (cfg.style && cfg.style.bannerGlass) || {});
+            if (!bgrp.enabled) {
+              bgrp.enabled = true;
+              if (bgrp.blur == null) bgrp.blur = bn.glassBlur || 20;
+            }
+            applyGlass(pgBanner, bgrp);
           } else if (btype === 'solid') {
+            applyGlass(pgBanner, { enabled: false });
             pgBanner.style.background = bn.color || '#1e293b';
           } else if (btype === 'image' && bn.image) {
+            applyGlass(pgBanner, { enabled: false });
             pgBanner.style.background = "url('" + bn.image + "') center / cover no-repeat";
           } else {
+            applyGlass(pgBanner, { enabled: false });
             const bstops = (Array.isArray(bn.stops) && bn.stops.length >= 2)
               ? bn.stops
               : [
@@ -2821,25 +2843,62 @@
       applyPubText('pgSubtitle', ptext.bio);
       applyPubText('pgAddress', ptext.address);
 
-      /* ---- Efeito Vidro no fundo do texto (nome/bio) ----
-         Glassmorphism real: backdrop-filter borra o que está atrás do chip.
-         Alpha do branco limitado (0.10–0.28) p/ nunca virar chapado; borda
-         sutil + sombra dão o reflexo de vidro. Espelha o preview do admin. */
+      /* ---- Glassmorphism PREMIUM reutilizável ----
+         Aplica o MESMO receituário de vidro do preview do admin em qualquer
+         elemento. Config shape: { enabled, blur, saturate, opacity, color,
+         borderGlow, shadowDepth, highlight, noise }. Valores 100% editáveis. */
+      function rgbaCss(hex, alpha) {
+        const [r, gg, b] = hexToRgb(hex || '#ffffff');
+        return 'rgba(' + r + ',' + gg + ',' + b + ',' + (Math.round(alpha * 1000) / 1000) + ')';
+      }
+      function applyGlass(el, g) {
+        if (!el) return;
+        g = Object.assign({
+          enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff',
+          borderGlow: 40, shadowDepth: 18, highlight: true, noise: false
+        }, g || {});
+        if (!g.enabled) {
+          ['background', 'backgroundImage', 'backdropFilter', 'webkitBackdropFilter',
+           'border', 'boxShadow', 'textShadow'].forEach((p) => { el.style[p] = ''; });
+          el.classList.remove('gx-panel', 'gx-highlight', 'gx-noise');
+          return;
+        }
+        const color = g.color || '#ffffff';
+        const aHi = Math.min(0.34, Math.max(0.06, (g.opacity || 16) / 100));
+        const aLo = Math.max(0.02, aHi * 0.3);
+        const blur = g.blur || 0;
+        const sat = g.saturate || 180;
+        const glow = (g.borderGlow == null ? 40 : g.borderGlow) / 100;
+        const depth = (g.shadowDepth == null ? 18 : g.shadowDepth) / 100;
+        const boxShadow = [
+          'inset 0 1px 1px ' + rgbaCss('#ffffff', 0.8 * glow),
+          'inset 0 -1px 1px ' + rgbaCss('#ffffff', 0.28 * glow),
+          '0 ' + Math.round(10 * depth) + 'px ' + Math.round(34 * depth) + 'px ' + rgbaCss('#000000', 0.16 * depth),
+          '0 ' + Math.round(2 * depth) + 'px ' + Math.round(7 * depth) + 'px ' + rgbaCss('#000000', 0.12 * depth)
+        ].join(', ');
+        Object.assign(el.style, {
+          background: 'linear-gradient(135deg, ' + rgbaCss(color, aHi) + ' 0%, ' + rgbaCss(color, aLo) + ' 100%)',
+          backgroundImage: 'linear-gradient(135deg, ' + rgbaCss(color, aHi) + ' 0%, ' + rgbaCss(color, aLo) + ' 100%)',
+          backdropFilter: 'blur(' + blur + 'px) saturate(' + sat + '%)',
+          webkitBackdropFilter: 'blur(' + blur + 'px) saturate(' + sat + '%)',
+          border: '1px solid ' + rgbaCss(color, Math.max(0.14, 0.5 * glow)),
+          boxShadow: boxShadow,
+          textShadow: '0 1px 2px ' + rgbaCss('#000000', 0.22)
+        });
+        el.classList.add('gx-panel');
+        el.classList.toggle('gx-highlight', !!g.highlight);
+        el.classList.toggle('gx-noise', !!g.noise);
+      }
+
+      /* Nome/bio como chip (mantém centralização própria desses elementos) */
       const tg = (cfg.style && cfg.style.textGlass) || {};
-      const applyTextGlass = (el) => {
+      const chipTextGlass = (el) => {
         if (!el) return;
         if (tg.enabled) {
-          const alpha = Math.min(0.28, Math.max(0.1, (tg.opacity || 16) / 100));
-          const blur = tg.blur || 0;
           el.style.setProperty('display', 'inline-block');
           el.style.width = 'fit-content';
           el.style.marginLeft = 'auto';
           el.style.marginRight = 'auto';
-          el.style.background = 'rgba(255,255,255,' + alpha.toFixed(3) + ')';
-          el.style.backdropFilter = 'blur(' + blur + 'px)';
-          el.style.webkitBackdropFilter = 'blur(' + blur + 'px)';
-          el.style.border = '1px solid rgba(255,255,255,0.3)';
-          el.style.boxShadow = '0 4px 24px rgba(0,0,0,0.1)';
           el.style.padding = '4px 14px';
           el.style.borderRadius = '10px';
         } else {
@@ -2847,17 +2906,13 @@
           el.style.width = '';
           el.style.marginLeft = '';
           el.style.marginRight = '';
-          el.style.background = '';
-          el.style.backdropFilter = '';
-          el.style.webkitBackdropFilter = '';
-          el.style.border = '';
-          el.style.boxShadow = '';
           el.style.padding = '';
           el.style.borderRadius = '';
         }
+        applyGlass(el, tg);
       };
-      applyTextGlass(document.getElementById('pgTitle'));
-      applyTextGlass(document.getElementById('pgSubtitle'));
+      chipTextGlass(document.getElementById('pgTitle'));
+      chipTextGlass(document.getElementById('pgSubtitle'));
 
       /* Estilos do bloco endereço — some quando o perfil não tem endereço
          (nunca exibe o placeholder hardcoded do HTML) */
@@ -3004,12 +3059,19 @@
               card.style.border = '1.5px solid ' + (edge || thBtnbg2);
               card.style.color = edge || thBtnbg2;
               break;
-            case 'glass':
-              card.style.background = 'rgba(255,255,255,0.15)';
-              card.style.backdropFilter = 'blur(12px)';
-              card.style.webkitBackdropFilter = 'blur(12px)';
-              card.style.border = edge ? '1.5px solid ' + edge : '1px solid rgba(255,255,255,0.25)';
+            case 'glass': {
+              /* Vidro premium dos atalhos (grupo iconGlass; mesmo receituário
+                 do applyGlass). A cor da borda por atalho (edge) vence depois. */
+              const igrp = Object.assign({}, (cfg.style && cfg.style.iconGlass) || {});
+              igrp.enabled = true;
+              if (igrp.blur == null) igrp.blur = 12;
+              if (igrp.opacity == null) igrp.opacity = 15;
+              applyGlass(card, igrp);
+              card.style.border = edge
+                ? '1.5px solid ' + edge
+                : '1px solid ' + rgbaCss(igrp.color || '#ffffff', Math.max(0.14, 0.5 * ((igrp.borderGlow ?? 40) / 100)));
               break;
+            }
             case 'gradient':
               card.style.background = _gradCSS(135);
               card.style.border = edge ? '1.5px solid ' + edge : 'none';
@@ -3018,18 +3080,22 @@
               card.style.background = thBtnbg2;
               card.style.border = edge ? '1.5px solid ' + edge : 'none';
           }
-          switch (s.shadow) {
-            case 'none':
-              card.style.boxShadow = 'none';
-              card.style.filter = '';
-              break;
-            case 'glow':
-              if (isHex) { card.style.filter = 'drop-shadow(0 0 8px currentColor)'; card.style.boxShadow = 'none'; }
-              else { card.style.boxShadow = '0 0 14px currentColor'; card.style.filter = ''; }
-              break;
-            default:
-              card.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-              card.style.filter = '';
+          /* Vidro usa a sombra premium do grupo iconGlass (applyGlass) —
+             o setting Sombra global (s.shadow) não sobrescreve. */
+          if (s.background !== 'glass') {
+            switch (s.shadow) {
+              case 'none':
+                card.style.boxShadow = 'none';
+                card.style.filter = '';
+                break;
+              case 'glow':
+                if (isHex) { card.style.filter = 'drop-shadow(0 0 8px currentColor)'; card.style.boxShadow = 'none'; }
+                else { card.style.boxShadow = '0 0 14px currentColor'; card.style.filter = ''; }
+                break;
+              default:
+                card.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+                card.style.filter = '';
+            }
           }
         });
 
@@ -3878,15 +3944,32 @@
         function buildBtn() {
           switch (st.btnVariant) {
             case 'glass': {
-              /* Vidro dedicado dos botões (fallback: legados do fundo) */
-              const bl = (st.btnGlassBlur ?? st.glassBlur ?? 12) + 'px';
+              /* Vidro premium dos botões (grupo buttonGlass; fallback legado
+                 use os mesmos valores do applyGlass). */
+              const bgrp = (cfg.style && cfg.style.buttonGlass) || {};
+              const col = bgrp.color || '#ffffff';
+              const op = bgrp.opacity != null ? bgrp.opacity : (st.btnGlassOpacity ?? st.glassOpacity ?? 15);
+              const aHi = Math.min(0.34, Math.max(0.06, op / 100));
+              const aLo = Math.max(0.02, aHi * 0.3);
+              const bl = (bgrp.blur != null ? bgrp.blur : (st.btnGlassBlur ?? st.glassBlur ?? 12)) + 'px';
+              const sat = bgrp.saturate ?? 180;
+              const glow = (bgrp.borderGlow ?? 40) / 100;
+              const depth = (bgrp.shadowDepth ?? 18) / 100;
+              const grd = 'linear-gradient(135deg, ' + rgbaCss(col, aHi) + ' 0%, ' + rgbaCss(col, aLo) + ' 100%)';
+              const gShadow = [
+                'inset 0 1px 1px ' + rgbaCss('#ffffff', 0.8 * glow),
+                'inset 0 -1px 1px ' + rgbaCss('#ffffff', 0.28 * glow),
+                '0 ' + Math.round(10 * depth) + 'px ' + Math.round(34 * depth) + 'px ' + rgbaCss('#000000', 0.16 * depth),
+                '0 ' + Math.round(2 * depth) + 'px ' + Math.round(7 * depth) + 'px ' + rgbaCss('#000000', 0.12 * depth)
+              ].join(', ');
               return {
-                background: 'rgba(255,255,255,' + ((st.btnGlassOpacity ?? st.glassOpacity ?? 15)/100) + ')',
+                background: grd,
                 color: thInk,
-                backdropFilter: 'blur(' + bl + ')',
-                webkitBackdropFilter: 'blur(' + bl + ')',
-                border: '1px solid rgba(255,255,255,0.25)',
-                boxShadow: shadow,
+                backdropFilter: 'blur(' + bl + ') saturate(' + sat + '%)',
+                webkitBackdropFilter: 'blur(' + bl + ') saturate(' + sat + '%)',
+                border: '1px solid ' + rgbaCss(col, Math.max(0.14, 0.5 * glow)),
+                boxShadow: gShadow,
+                textShadow: '0 1px 2px ' + rgbaCss('#000000', 0.22),
                 ...shape
               };
             }
@@ -3931,6 +4014,14 @@
             Object.assign(el.style, shape);
           }
           el.style.setProperty('--ui-bg', btnCSS.background);
+          if (st.btnVariant === 'glass') {
+            const bgrp = (cfg.style && cfg.style.buttonGlass) || {};
+            el.classList.add('gx-panel');
+            el.classList.toggle('gx-highlight', !!(bgrp.highlight != null ? bgrp.highlight : true));
+            el.classList.toggle('gx-noise', !!bgrp.noise);
+          } else {
+            el.classList.remove('gx-panel', 'gx-highlight', 'gx-noise');
+          }
           el.classList.remove(...ANIMS);
           if (btnAnim === 'pulse') el.classList.add('ax-anim-pulse');
           else if (btnAnim === 'float') el.classList.add('ax-anim-float');
