@@ -3916,8 +3916,13 @@
 
         /* Estilo global dos botões (variantes novas) */
         const T2 = getComputedStyle(document.documentElement);
-        const thBtnbg = { indigo:'#111827', light:'#2563eb', dark:'#1f2937', sunset:'#ea580c', ocean:'#0891b2', forest:'#16a34a', rose:'#e11d48' }[st.theme] || '#111827';
-        const thInk   = { indigo:'#111827', light:'#1f2937', dark:'#e5e7eb', sunset:'#7c2d12', ocean:'#164e63', forest:'#14532d', rose:'#881337' }[st.theme] || '#111827';
+        const thBtnbg  = { indigo:'#111827', light:'#2563eb', dark:'#1f2937', sunset:'#ea580c', ocean:'#0891b2', forest:'#16a34a', rose:'#e11d48' }[st.theme] || '#111827';
+        const thInk    = { indigo:'#111827', light:'#1f2937', dark:'#e5e7eb', sunset:'#7c2d12', ocean:'#164e63', forest:'#14532d', rose:'#881337' }[st.theme] || '#111827';
+        const thBtnink = { indigo:'#ffffff', light:'#ffffff', dark:'#f9fafb', sunset:'#ffffff', ocean:'#ffffff', forest:'#ffffff', rose:'#ffffff' }[st.theme] || '#ffffff';
+        /* Mesmas cores resolvidas do preview (admin: t.btnbg / t.btnink). */
+        const resolvedBtnBg  = st.btnBgColor || thBtnbg;
+        const resolvedBtnInk = st.btnTextColor || thBtnink;
+        const resolvedInk    = st.pageTextColor || thInk;
         const SHAPES = {
           square:    { borderRadius: '0px' },
           soft:      { borderRadius: '6px' },
@@ -3964,7 +3969,7 @@
               ].join(', ');
               return {
                 background: grd,
-                color: thInk,
+                color: resolvedInk,
                 backdropFilter: 'blur(' + bl + ') saturate(' + sat + '%)',
                 webkitBackdropFilter: 'blur(' + bl + ') saturate(' + sat + '%)',
                 border: '1px solid ' + rgbaCss(col, Math.max(0.14, 0.5 * glow)),
@@ -3976,15 +3981,15 @@
             case 'neumorphic':
               return {
                 background: /^#0/.test(thBtnbg) ? '#1f2937' : '#e0e5ec',
-                color: thInk,
+                color: resolvedInk,
                 border: 'none',
                 boxShadow: shadow,
                 ...shape
               };
             case 'ghost':
-              return { background:'transparent', color:thBtnbg, border:'2px solid '+thBtnbg, boxShadow:shadow, ...shape };
+              return { background:'transparent', color:resolvedBtnBg, border:'2px solid '+resolvedBtnBg, boxShadow:shadow, ...shape };
             case 'gradient-soft': {
-              const gBase = (/^#/.test(st.btnBgColor || '')) ? st.btnBgColor : thBtnbg;
+              const gBase = (/^#/.test(st.btnBgColor || '')) ? st.btnBgColor : resolvedBtnBg;
               return { background:'linear-gradient(140deg,'+mixHex(gBase,'#ffffff',0.22)+','+mixHex(gBase,'#000000',0.16)+')', color:'#ffffff', border:'1px solid rgba(255,255,255,0.15)', boxShadow:shadow, ...shape };
             }
             case 'gradient':
@@ -3994,7 +3999,7 @@
               return { background:'transparent', color:g, border:'2px solid '+g, boxShadow:shadow, ...shape };
             }
             default:
-              return { background:thBtnbg, color:'#ffffff', border:'none', boxShadow:shadow, ...shape };
+              return { background:resolvedBtnBg, color:resolvedBtnInk, border:'none', boxShadow:shadow, ...shape };
           }
         }
 
