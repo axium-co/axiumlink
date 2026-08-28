@@ -2335,6 +2335,7 @@
         const result = {
           _adapted: true,
           _premium: st,
+          style: st,
           _qls: cfg.quickLinksStyle || null,
           profile: {
             name: String(cfg._clientNome || p.displayName || '').trim(),
@@ -2980,7 +2981,7 @@
       })();
       const mkGlass = (cfg2, a, b) => Object.assign({}, neoGlass, (cfg2[a] || cfg2[b] || {}));
       const nameGlass = mkGlass((cfg.style || {}), 'nameGlass', 'textGlass');
-      const bioGlass = mkGlass((cfg.style || {}), 'textGlass', null);
+      const bioGlass = mkGlass((cfg.style || {}), 'bioGlass', 'textGlass');
       const addressGlass = mkGlass((cfg.style || {}), 'addressGlass', null);
       const chipFor = (el, g, pad, radius, solidBg, align) => {
         if (!el) return;

@@ -5531,6 +5531,9 @@
     const rgb = hexToRgb(initialHex);
     const [ih, is, iv] = rgbToHsv(rgb[0], rgb[1], rgb[2]);
     let hue = ih, sat = is, val = iv;
+    /* Hex "exibido" — prefere corresponder exatamente ao campo digitado
+       (o round-trip RGB⇒HSV⇒RGB pode desviar 1/255 no canal). */
+    let _lastHex = null;
 
     const pop = document.createElement('div');
     pop.className = 'cp-popover';
@@ -5610,6 +5613,7 @@
       hueCursor.style.left = (hue / 360 * 100) + '%';
       preview.style.background = hex;
       hexInput.value = hex.toUpperCase();
+      _lastHex = hex;
       swRow.querySelectorAll('.cp-sw').forEach(sw => {
         sw.classList.toggle('active', sw.dataset.hex.toUpperCase() === hex.toUpperCase());
       });
@@ -5664,6 +5668,8 @@
         const [r, g, b] = hexToRgb(v);
         [hue, sat, val] = rgbToHsv(r, g, b);
         updateAll();
+        _lastHex = v.toLowerCase();
+        hexInput.value = v.toUpperCase();
       }
     });
 
@@ -5683,8 +5689,14 @@
 
     /* OK / Cancel */
     okBtn.addEventListener('click', () => {
-      const [r, g, b] = hsvToRgb(hue, sat, val);
-      onChange(rgbToHex(r, g, b));
+      /* Aplica o hex exibido (fonte da verdade). Quando o campo não tem
+         hex válido, reconverte HSV→RGB para não aplicar nada quebrado. */
+      if (_lastHex) {
+        onChange(_lastHex);
+      } else {
+        const [r, g, b] = hsvToRgb(hue, sat, val);
+        onChange(rgbToHex(r, g, b));
+      }
       closeColorPicker();
     });
     cancelBtn.addEventListener('click', closeColorPicker);

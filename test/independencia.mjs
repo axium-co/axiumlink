@@ -124,6 +124,89 @@ async function migracaoPublica() {
   });
 }
 
+async function publicoVidros() {
+  log('\n━━━ [PÚBLICO] Cores dos vidros (name/bio/address) chegam na página ━━━');
+  const row = { config: NEW_CONFIG, slug: 'teste' };
+  const { window, errors } = await boot(INDEX_PATH, {
+    supabase: supabaseStub(row),
+    url: 'https://axiumlink.test/?s=teste'
+  });
+  if (errors.length) { failures++; log('   ❌ Erros de boot:', errors.join(' | ')); return; }
+  window.__alaPublica.aplicar(NEW_CONFIG);
+  const before = window.__alaPublica.dom('#pgTitle');
+  ok(before && !(before['background']), '#pgTitle sem vidro no baseline (adaptNewSchema não inventa cor)');
+
+  const c = JSON.parse(JSON.stringify(NEW_CONFIG));
+  c.style = c.style || {};
+  c.style.nameGlass = { enabled: true, opacity: 30, color: '#00aa77' };
+  c.style.bioGlass = { enabled: true, opacity: 30, color: '#aa3300' };
+  c.style.addressGlass = { enabled: true, opacity: 30, color: '#4400ff' };
+  window.__alaPublica.aplicar(c);
+
+  [
+    ['#pgTitle', 'rgba(0,170,119', 'nameGlass #00aa77'],
+    ['#pgSubtitle', 'rgba(170,51,0', 'bioGlass #aa3300'],
+    ['#pgAddress', 'rgba(68,0,255', 'addressGlass #4400ff']
+  ].forEach(([sel, frag, label]) => {
+    const s = window.__alaPublica.dom(sel);
+    const bg = (s && (s['background-image'] || s['background'])) || '';
+    ok(bg.indexOf(frag) >= 0, sel + ' usa ' + label + ' (background contém ' + frag + '…) — ' + bg.slice(0, 40));
+  });
+}
+
+async function publicoVidrosExtras() {
+  log('\n━━━ [PÚBLICO] Vidros: botão/ícone/banner aplicam cor na página ━━━');
+  const casos = [
+    {
+      nome: 'botão (buttonGlass #102030)',
+      sel: '.featured__card, .quick__item',
+      frag: 'rgba(16,32,48,0.16)',
+      make: () => {
+        const c = JSON.parse(JSON.stringify(NEW_CONFIG));
+        c.style = Object.assign({}, c.style, { btnVariant: 'glass', buttonGlass: { enabled: true, opacity: 16, color: '#102030' } });
+        c.links = [{ id: 'l1', title: 'Meu site', url: 'https://exemplo.com' }];
+        return c;
+      }
+    },
+    {
+      nome: 'ícone (iconGlass #224466)',
+      sel: '.featured__card, .quick__item',
+      frag: 'rgba(34,68,102,0.15)',
+      make: () => {
+        const c = JSON.parse(JSON.stringify(NEW_CONFIG));
+        c.style = Object.assign({}, c.style, { iconGlass: { enabled: true, blur: 12, opacity: 15, color: '#224466' } });
+        c.quickLinksStyle = { format: 'circle', background: 'glass', shadow: 'soft', borderColor: '' };
+        c.quick = [{ label: 'Instagram', url: 'https://ig.com' }];
+        return c;
+      }
+    },
+    {
+      nome: 'banner (bannerGlass #ff8800)',
+      sel: '#pgBanner',
+      frag: 'rgba(255,136,0,0.22)',
+      make: () => {
+        const c = JSON.parse(JSON.stringify(NEW_CONFIG));
+        c.banner = 'https://exemplo.com/banner.jpg';
+        c.design = { banner: { enabled: true, bgType: 'image', image: 'https://exemplo.com/banner.jpg', height: 190 } };
+        c.style = Object.assign({}, c.style, { bannerGlass: { enabled: true, blur: 20, opacity: 22, color: '#ff8800' } });
+        return c;
+      }
+    }
+  ];
+  const row = { config: NEW_CONFIG, slug: 'teste' };
+  const { window, errors } = await boot(INDEX_PATH, {
+    supabase: supabaseStub(row),
+    url: 'https://axiumlink.test/?s=teste'
+  });
+  if (errors.length) { failures++; log('   ❌ Erros de boot:', errors.join(' | ')); return; }
+  for (const cso of casos) {
+    window.__alaPublica.aplicar(cso.make());
+    const snap = window.__alaPublica.dom(cso.sel);
+    const bg = (snap && (snap['background-image'] || snap['background'])) || '';
+    ok(bg.indexOf(cso.frag) >= 0, cso.nome + ' chega à página — ' + bg.slice(0, 40));
+  }
+}
+
 /* ================================================================
    Main
    ================================================================ */
@@ -135,11 +218,15 @@ async function main() {
     for (const k of ELEM_KEYS) await adminElemento(k);
   } else if (only === '--public') {
     for (const k of ELEM_KEYS) await publicoElemento(k);
+    await publicoVidros();
+    await publicoVidrosExtras();
   } else {
     for (const k of ELEM_KEYS) await adminElemento(k);
     for (const k of ELEM_KEYS) await publicoElemento(k);
     await migracaoAdmin();
     await migracaoPublica();
+    await publicoVidros();
+    await publicoVidrosExtras();
   }
 
   log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
