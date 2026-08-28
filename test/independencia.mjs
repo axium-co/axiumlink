@@ -240,6 +240,55 @@ async function publicoVidrosExtras() {
 }
 
 /* ================================================================
+   LINKS — IMAGEM CUSTOMIZADA COMO BOTÃO (link.customButtonImage)
+   A imagem inteira vira o botão no preview admin e na página pública;
+   botão sem imagem continua com o design da plataforma.
+   ================================================================ */
+async function linksImagemCustomizada() {
+  log('\n━━━ [ADMIN] Links: imagem customizada como botão (preview) ━━━');
+  const CFG_A = JSON.parse(JSON.stringify(NEW_CONFIG));
+  CFG_A.links = [
+    { id: 'l1', title: 'Site', url: 'https://site.com', type: 'site', iconAlign: 'left' },
+    { id: 'l2', title: 'WhatsApp', url: 'https://wa.me/1', customButtonImage: 'https://cdn.axium.test/btn-wa.png' }
+  ];
+  const { window: wA, errors: errA } = await boot(ADMIN_PATH, {
+    supabase: supabaseStub(null),
+    url: 'https://axiumlink.test/admin.html'
+  });
+  if (errA.length) { failures++; log('   ❌ Erros de boot admin:', errA.join(' | ')); return; }
+  wA.__axEditor.init(CFG_A);
+  const dA = wA.document;
+  ok(dA.querySelectorAll('#previewLinksList .link-block-customimg').length === 1, 'admin mockup: 1 botão com imagem customizada');
+  ok((dA.querySelector('#previewLinksList .link-block-customimg img') || {}).getAttribute?.('src') === 'https://cdn.axium.test/btn-wa.png', 'admin mockup: <img src> = URL do botão');
+  ok(dA.querySelectorAll('#previewLinksList .link-block:not(.link-block-customimg)').length === 1, 'admin mockup: botão normal continua como plataforma');
+  ok(dA.querySelector('#previewLinksList .link-block-customimg').getAttribute('href') === 'https://wa.me/1', 'admin mockup: âncora leva para a URL do link');
+
+  log('\n━━━ [PÚBLICO] Links: imagem customizada como botão ━━━');
+  const CFG_P = JSON.parse(JSON.stringify(NEW_CONFIG));
+  CFG_P.links = [
+    { id: 'l1', title: 'Site', url: 'https://site.com', type: 'site', iconAlign: 'left' },
+    { id: 'l2', title: 'WhatsApp', url: 'https://wa.me/1', customButtonImage: 'https://cdn.axium.test/btn-wa.png' },
+    { id: 'l3', title: 'Vídeo', url: 'https://youtube.com/watch?v=abc', cardStyle: 'video', customButtonImage: 'https://cdn.axium.test/btn-vid.png' }
+  ];
+  const { window: wP } = await boot(INDEX_PATH, {
+    supabase: supabaseStub({ config: CFG_P, slug: 'teste' }),
+    url: 'https://axiumlink.test/?s=teste'
+  });
+  wP.__alaPublica.aplicar(CFG_P);
+  const dP = wP.document;
+  ok(dP.querySelectorAll('#pgLinks .featured__card').length === 3, 'público: 3 botões listados');
+  ok(dP.querySelectorAll('.pg-links-list .featured__card--customimg').length === 2, 'público: 2 botões são imagem customizada');
+  const ca = dP.querySelector('.pg-links-list .featured__card--customimg');
+  ok(ca && ca.getAttribute('href') === 'https://wa.me/1', 'público: âncora da imagem leva para a URL do link');
+  ok(ca && (ca.querySelector('img') || {}).getAttribute?.('src') === 'https://cdn.axium.test/btn-wa.png', 'público: <img src> = URL do botão');
+  ok(ca && (ca.querySelector('img') || {}).getAttribute('loading') === 'lazy', 'público: imagem carregada com lazy');
+  const vids = dP.querySelectorAll('.pg-links-list .featured__card--customimg');
+  ok(vids.length >= 2 && vids[1].getAttribute('href') === 'https://youtube.com/watch?v=abc', 'público: vídeo com imagem vira botão clicável (âncora)');
+  const norm = dP.querySelector('.pg-links-list a.featured__card:not(.featured__card--customimg)');
+  ok(norm && norm.querySelector('.featured__icon') && norm.querySelector('.featured__body'), 'público: botão normal mantém ícone + texto da plataforma');
+}
+
+/* ================================================================
    Main
    ================================================================ */
 async function main() {
@@ -252,6 +301,7 @@ async function main() {
     for (const k of ELEM_KEYS) await publicoElemento(k);
     await publicoVidros();
     await publicoVidrosExtras();
+    await linksImagemCustomizada();
   } else {
     for (const k of ELEM_KEYS) await adminElemento(k);
     for (const k of ELEM_KEYS) await publicoElemento(k);
@@ -259,6 +309,7 @@ async function main() {
     await migracaoPublica();
     await publicoVidros();
     await publicoVidrosExtras();
+    await linksImagemCustomizada();
   }
 
   log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');

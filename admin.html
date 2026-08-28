@@ -1164,6 +1164,38 @@
     .pd-main { padding: 36px 16px; }
     .pd-title { font-size: 21px; }
   }
+/* Botão de link com IMAGEM CUSTOMIZADA (link.customButtonImage):
+     a imagem inteira VIRA o botão — remove o "chrome" da plataforma,
+     largura do container, altura conforme proporção (nunca distorce). */
+  .link-block.link-block-customimg {
+    display: block;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    min-height: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    overflow: hidden;
+    border-radius: var(--radius-lg, 14px);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    text-decoration: none;
+  }
+  .link-block.link-block-customimg:hover,
+  .link-block.link-block-customimg:active {
+    transform: none;
+    box-shadow: none;
+  }
+  .link-block-customimg .link-block-customimg-img,
+  .link-block-customimg img {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    object-position: center;
+    border: none;
+  }
 </style>
 </head>
 <body>
@@ -2769,6 +2801,24 @@
           <option value="right">À Direita</option>
         </select>
       </div>
+      <div class="field">
+        <label for="blockBtnDesign">Design do botão</label>
+        <select id="blockBtnDesign" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+          <option value="padrao">Padrão (gerado pela plataforma)</option>
+          <option value="imagem">Imagem customizada (a imagem vira o botão)</option>
+        </select>
+      </div>
+      <div class="field" id="blockImagePanel" style="display:none;">
+        <label>Imagem do botão (substitui ícone, cor de fundo e texto)</label>
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+          <div class="upload-thumb" id="blockImageThumb">🖼️</div>
+          <button class="btn-mini" id="btnBlockImagePick" style="flex:1; width:100%;">Escolher imagem…</button>
+          <input type="file" id="blockImageInput" accept="image/*" hidden>
+        </div>
+        <label for="blockCustomImageUrl">ou cole uma URL</label>
+        <input type="url" id="blockCustomImageUrl" placeholder="https://exemplo.com/botao.png">
+        <small>Enviada para a nuvem e exibida como o botão COMPLETO (sem ícone/texto gerados).</small>
+      </div>
 
       <div style="display:flex; gap:10px; margin-top:18px;">
         <button class="btn-mini" id="btnBlockCancel" style="flex:1; padding:12px;">Cancelar</button>
@@ -3794,6 +3844,25 @@
       if (!isVideo) a.href = l.url || '#';
       a.target = '_blank';
       a.rel = 'noopener noreferrer';
+
+      /* Imagem customizada: a imagem inteira VIRA o botão (espelho do público).
+         Âncora própria: funciona mesmo quando cardStyle==='video' (aí o `a`
+         original nasceria como <div> e não seria clicável). */
+      if (l.customButtonImage) {
+        const ca = document.createElement('a');
+        ca.className = 'link-block link-block-customimg';
+        ca.href = l.url || '#';
+        ca.target = '_blank';
+        ca.rel = 'noopener noreferrer';
+        const cimg = document.createElement('img');
+        cimg.className = 'link-block-customimg-img';
+        cimg.src = l.customButtonImage;
+        cimg.alt = l.title || 'Botão personalizado';
+        ca.appendChild(cimg);
+        ca.addEventListener('click', (ev) => ev.preventDefault());
+        list.appendChild(ca);
+        return;
+      }
 
       if (l.cardStyle === 'highlight') {
         a.classList.add('featured__card--highlight');
@@ -6739,6 +6808,12 @@
         catBadge.textContent = l.category;
         tt.appendChild(catBadge);
       }
+      if (l.customButtonImage) {
+        const imgBadge = document.createElement('span');
+        imgBadge.style.cssText = 'margin-left:6px;font-size:10px;padding:1px 6px;border-radius:8px;background:#22c55e;color:#fff;font-weight:600;vertical-align:middle;';
+        imgBadge.textContent = 'Imagem';
+        tt.appendChild(imgBadge);
+      }
       const uu = document.createElement('div');
       uu.className = 'link-item-url';
       uu.textContent = l.url || '';
@@ -6902,6 +6977,7 @@
      MODAL DO BLOCO
      ================================================================ */
   let _pendingBlockIcon = null;
+  let _pendingBlockImage = '';
 
   function openBlockModal(index) {
     editingBlockIndex = index;
@@ -6920,6 +6996,10 @@
     $('blockCategory').value = l.category || '';
     $('blockIconAlign').value = l.iconAlign || 'left';
     _pendingBlockIcon = l.iconImg || null;
+    _pendingBlockImage = l.customButtonImage || '';
+    $('blockBtnDesign').value = l.customButtonImage ? 'imagem' : 'padrao';
+    $('blockCustomImageUrl').value = l.customButtonImage || '';
+    updateBlockImageUI();
 
     /* Popula datalist de categorias existentes */
     const catList = $('categoryDatalist');
@@ -6938,6 +7018,24 @@
   function closeBlockModal() {
     $('blockModal').classList.remove('open');
     editingBlockIndex = null;
+  }
+
+  /* Mostra/oculta o painel da imagem customizada e o thumbnail atual */
+  function updateBlockImageUI() {
+    const panel = $('blockImagePanel');
+    if (panel) panel.style.display = $('blockBtnDesign').value === 'imagem' ? 'block' : 'none';
+    const thumb = $('blockImageThumb');
+    if (thumb) {
+      thumb.innerHTML = '';
+      if (_pendingBlockImage) {
+        const im = document.createElement('img');
+        im.src = _pendingBlockImage;
+        im.alt = '';
+        thumb.appendChild(im);
+      } else {
+        thumb.textContent = '🖼️';
+      }
+    }
   }
 
   function bindEditorEvents() {
@@ -7076,6 +7174,33 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
       e.target.value = '';
     });
 
+    /* Imagem customizada do botão (Design do botão) */
+    safeOn('blockBtnDesign', 'change', () => updateBlockImageUI());
+    safeOn('btnBlockImagePick', 'click', () => $('blockImageInput').click());
+    safeOn('blockImageInput', 'change', async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      showToast('Enviando imagem do botão...');
+      try {
+        const publicUrl = await uploadFileToStorage(file, 'linkbtn');
+        _pendingBlockImage = publicUrl;
+        $('blockCustomImageUrl').value = publicUrl;
+        updateBlockImageUI();
+        showToast('Imagem pronta — salve o bloco');
+      } catch (err) {
+        console.error('[Axiumlink] Upload da imagem do botão falhou:', err.message);
+        showToast('Falha no upload: ' + err.message);
+      }
+      e.target.value = '';
+    });
+    safeOn('blockCustomImageUrl', 'input', (e) => {
+      const v = e.target.value.trim();
+      if ($('blockBtnDesign').value === 'imagem') {
+        _pendingBlockImage = v;
+        updateBlockImageUI();
+      }
+    });
+
     const submitBlock = () => {
       const title = $('blockTitle').value.trim();
       const url = $('blockUrl').value.trim();
@@ -7094,7 +7219,8 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
         category: $('blockCategory').value.trim() || '',
         icon: _pendingBlockIcon ? '' : ($('blockType').value || ''),
         iconImg: _pendingBlockIcon || '',
-        iconAlign: $('blockIconAlign').value || 'left'
+        iconAlign: $('blockIconAlign').value || 'left',
+        customButtonImage: ($('blockBtnDesign').value === 'imagem') ? (_pendingBlockImage || '') : ''
       };
 
       cfg.links = cfg.links || [];

@@ -1796,6 +1796,41 @@
     }
   </style>
 
+  <!-- Botão de link com IMAGEM CUSTOMIZADA (link.customButtonImage):
+       a imagem inteira VIRA o botão — fase final da cascata para vencer
+       os estilos do .featured__card padrão (largura do container, altura
+       conforme a proporção da imagem, nunca distorce). -->
+  <style>
+    .featured__card.featured__card--customimg {
+      display: block;
+      width: 100%;
+      padding: 0;
+      margin: 0;
+      min-height: 0 !important;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      overflow: hidden;
+      align-items: stretch;
+      text-decoration: none;
+    }
+    .featured__card.featured__card--customimg::after { display: none; }
+    .featured__card.featured__card--customimg:hover,
+    .featured__card.featured__card--customimg:active {
+      transform: none;
+      box-shadow: none;
+      border-color: transparent;
+    }
+    .featured__card--customimg .featured__customimg,
+    .featured__card.featured__card--customimg img {
+      display: block;
+      width: 100%;
+      height: auto;
+      object-fit: contain;
+      object-position: center;
+    }
+  </style>
+
   <!-- Supabase SDK + inicialização -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="js/env.js"></script>
@@ -2371,6 +2406,7 @@
                 type: l.type || l.icon || '',
                 url: l.url,
                 image: l.iconImg || null,
+                customImage: l.customButtonImage || null,
                 iconAlign: l.iconAlign || null,
                 sub: l.sub || null,
                 animation: l.animation || null,
@@ -3643,7 +3679,29 @@
             else if (link.iconAlign === 'right') a.classList.add('ia-right');
             applyButtonWidth(a, link.width);
 
-            if (link.cardStyle === 'highlight') {
+            /* Imagem customizada como design COMPLETO do botão: a imagem
+               inteira vira o botão (substitui ícone/cor/texto da plataforma).
+               Âncora própria: clicável mesmo quando cardStyle==='video' (nesse
+               caso o `a` original nasceria como <div>). Espelho do admin. */
+            if (link.customImage) {
+              const ca = document.createElement('a');
+              ca.className = 'featured__card featured__card--customimg';
+              ca.href = linkHref(link.url, linkType);
+              ca.target = '_blank';
+              ca.rel = 'noopener';
+              ca.setAttribute('aria-label', displayTitle);
+              ca.title = link.url || displayTitle;
+              if (link.animation && link.animation !== 'none') ca.classList.add('anim-' + link.animation);
+              applyButtonWidth(ca, link.width);
+              const cimg = document.createElement('img');
+              cimg.className = 'featured__customimg';
+              cimg.src = link.customImage;
+              cimg.alt = displayTitle;
+              cimg.loading = 'lazy';
+              cimg.setAttribute('loading', 'lazy');
+              ca.appendChild(cimg);
+              wrap.appendChild(ca);
+            } else if (link.cardStyle === 'highlight') {
               a.classList.add('featured__card--highlight');
               const body = document.createElement('span');
               body.className = 'featured__body';
