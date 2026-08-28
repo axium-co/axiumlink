@@ -1796,22 +1796,25 @@
     }
   </style>
 
-  <!-- Botão de link com IMAGEM CUSTOMIZADA (link.customButtonImage):
-       a imagem inteira VIRA o botão — fase final da cascata para vencer
-       os estilos do .featured__card padrão (largura do container, altura
-       conforme a proporção da imagem, nunca distorce). -->
+  <!-- Botão com IMAGEM CUSTOMIZADA (link.customButtonImage): herda o MESMO
+       sistema de layout do botão padrão (.featured__card dentro de
+       .pg-links--list — largura 100%, stretch, centralização), trocando
+       apenas o conteúdo visual: altura controlada por --customimg-h
+       (default 84px, ajustável no admin) e imagem preenchendo o botão com
+       object-fit: cover (corta excedente, nunca distorce). -->
   <style>
     .featured__card.featured__card--customimg {
-      display: block;
-      width: 100%;
+      position: relative;
       padding: 0;
       margin: 0;
-      min-height: 0 !important;
-      background: transparent;
       border: none;
       box-shadow: none;
       overflow: hidden;
-      align-items: stretch;
+      box-sizing: border-box;
+      min-width: 0;
+      height: var(--customimg-h, 84px);
+      min-height: var(--customimg-h, 84px);
+      background: transparent;
       text-decoration: none;
     }
     .featured__card.featured__card--customimg::after { display: none; }
@@ -1821,12 +1824,14 @@
       box-shadow: none;
       border-color: transparent;
     }
-    .featured__card--customimg .featured__customimg,
-    .featured__card.featured__card--customimg img {
-      display: block;
+    .featured__card.featured__card--customimg .featured__customimg {
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 100%;
-      height: auto;
-      object-fit: contain;
+      height: 100%;
+      display: block;
+      object-fit: cover;
       object-position: center;
     }
   </style>
@@ -2407,6 +2412,7 @@
                 url: l.url,
                 image: l.iconImg || null,
                 customImage: l.customButtonImage || null,
+                customHeight: (l.customButtonHeight && Number(l.customButtonHeight) > 40) ? Number(l.customButtonHeight) : null,
                 iconAlign: l.iconAlign || null,
                 sub: l.sub || null,
                 animation: l.animation || null,
@@ -3693,6 +3699,8 @@
               ca.title = link.url || displayTitle;
               if (link.animation && link.animation !== 'none') ca.classList.add('anim-' + link.animation);
               applyButtonWidth(ca, link.width);
+              const h = Number(link.customHeight);
+              ca.style.setProperty('--customimg-h', (h > 40 ? h : 84) + 'px');
               const cimg = document.createElement('img');
               cimg.className = 'featured__customimg';
               cimg.src = link.customImage;

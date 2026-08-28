@@ -249,7 +249,7 @@ async function linksImagemCustomizada() {
   const CFG_A = JSON.parse(JSON.stringify(NEW_CONFIG));
   CFG_A.links = [
     { id: 'l1', title: 'Site', url: 'https://site.com', type: 'site', iconAlign: 'left' },
-    { id: 'l2', title: 'WhatsApp', url: 'https://wa.me/1', customButtonImage: 'https://cdn.axium.test/btn-wa.png' }
+    { id: 'l2', title: 'WhatsApp', url: 'https://wa.me/1', customButtonImage: 'https://cdn.axium.test/btn-wa.png', customButtonHeight: 96 }
   ];
   const { window: wA, errors: errA } = await boot(ADMIN_PATH, {
     supabase: supabaseStub(null),
@@ -262,12 +262,15 @@ async function linksImagemCustomizada() {
   ok((dA.querySelector('#previewLinksList .link-block-customimg img') || {}).getAttribute?.('src') === 'https://cdn.axium.test/btn-wa.png', 'admin mockup: <img src> = URL do botão');
   ok(dA.querySelectorAll('#previewLinksList .link-block:not(.link-block-customimg)').length === 1, 'admin mockup: botão normal continua como plataforma');
   ok(dA.querySelector('#previewLinksList .link-block-customimg').getAttribute('href') === 'https://wa.me/1', 'admin mockup: âncora leva para a URL do link');
+  const cA = dA.querySelector('#previewLinksList .link-block-customimg');
+  ok(cA && cA.className.indexOf('link-block') >= 0 && cA.style.getPropertyValue('--customimg-h') === '96px', 'admin mockup: altura customizada 96px aplicada via var');
+  ok(dA.defaultView.getComputedStyle(cA.querySelector('img')).objectFit === 'cover', 'admin mockup: <img> preenche o botão com object-fit cover');
 
   log('\n━━━ [PÚBLICO] Links: imagem customizada como botão ━━━');
   const CFG_P = JSON.parse(JSON.stringify(NEW_CONFIG));
   CFG_P.links = [
     { id: 'l1', title: 'Site', url: 'https://site.com', type: 'site', iconAlign: 'left' },
-    { id: 'l2', title: 'WhatsApp', url: 'https://wa.me/1', customButtonImage: 'https://cdn.axium.test/btn-wa.png' },
+    { id: 'l2', title: 'WhatsApp', url: 'https://wa.me/1', customButtonImage: 'https://cdn.axium.test/btn-wa.png', customButtonHeight: 120 },
     { id: 'l3', title: 'Vídeo', url: 'https://youtube.com/watch?v=abc', cardStyle: 'video', customButtonImage: 'https://cdn.axium.test/btn-vid.png' }
   ];
   const { window: wP } = await boot(INDEX_PATH, {
@@ -282,8 +285,12 @@ async function linksImagemCustomizada() {
   ok(ca && ca.getAttribute('href') === 'https://wa.me/1', 'público: âncora da imagem leva para a URL do link');
   ok(ca && (ca.querySelector('img') || {}).getAttribute?.('src') === 'https://cdn.axium.test/btn-wa.png', 'público: <img src> = URL do botão');
   ok(ca && (ca.querySelector('img') || {}).getAttribute('loading') === 'lazy', 'público: imagem carregada com lazy');
+  ok(ca && ca.className.indexOf('featured__card') >= 0 && ca.style.getPropertyValue('--customimg-h') === '120px', 'público: layout do botão padrão mantido + altura customizada 120px via var');
+  const caImg = ca.querySelector('img');
+  ok(dP.defaultView.getComputedStyle(caImg).objectFit === 'cover', 'público: <img> preenche o botão com object-fit cover');
   const vids = dP.querySelectorAll('.pg-links-list .featured__card--customimg');
   ok(vids.length >= 2 && vids[1].getAttribute('href') === 'https://youtube.com/watch?v=abc', 'público: vídeo com imagem vira botão clicável (âncora)');
+  ok((vids[1].style.getPropertyValue('--customimg-h')) === '84px', 'público: default de altura 84px quando não definida');
   const norm = dP.querySelector('.pg-links-list a.featured__card:not(.featured__card--customimg)');
   ok(norm && norm.querySelector('.featured__icon') && norm.querySelector('.featured__body'), 'público: botão normal mantém ícone + texto da plataforma');
 }
