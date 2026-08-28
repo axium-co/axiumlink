@@ -5095,10 +5095,15 @@
       const ntext = profileElem('name');
       name.style.color = ntext.color || '';
     }
+    /* Selo de verificado FICA JUNTO do nome: quem posiciona a dupla é o
+       justify-content do row (nome+selo andam juntos). As margens:auto do
+       chip do Nome expulsavam o selo para o extremo esquerdo. */
     const nameRow = document.querySelector('.pv-name-row');
     if (nameRow) {
       const na = profileElem('name').align;
       nameRow.style.justifyContent = na === 'left' ? 'flex-start' : na === 'right' ? 'flex-end' : 'center';
+      const pvNameEl = $('pvName');
+      if (pvNameEl) { pvNameEl.style.marginLeft = ''; pvNameEl.style.marginRight = ''; }
     }
 
     /* Bio: cor + peso + alinhamento (independentes via elem.bio) */

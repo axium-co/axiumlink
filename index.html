@@ -3045,6 +3045,11 @@
       if (nameRow) {
         const na = pElemName.align || (ptext.name && ptext.name.align) || '';
         nameRow.style.justifyContent = na === 'left' ? 'flex-start' : na === 'right' ? 'flex-end' : 'center';
+        /* O chip do Nome (width fit-content) e o selo de verificado precisam
+           mover JUNTOS pelo justify-content do row. As margens:auto do chip
+           (posicionamento de bloco) expulsavam o selo para o extremo esquerdo. */
+        const tEl = document.getElementById('pgTitle');
+        if (tEl) { tEl.style.marginLeft = ''; tEl.style.marginRight = ''; }
       }
 
       function toRgba(hex, alpha) {

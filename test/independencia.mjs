@@ -159,7 +159,11 @@ async function publicoVidros() {
   const norm = (v) => { if (v === 'auto') return 'auto'; if (!v) return ''; const nv = parseFloat(v); return (nv === 0 || v === '0') ? '0' : v; };
   const isLeftBlk = (s) => norm(s && s['margin-left']) === '0' && norm(s && s['margin-right']) === 'auto';
   const isRightBlk = (s) => norm(s && s['margin-left']) === 'auto' && norm(s && s['margin-right']) === '0';
-  ok(isRightBlk(window.__alaPublica.dom('#pgTitle')), '#pgTitle align=right -> bloco à direita (ml=auto, mr=0)');
+  ok(isLeftBlk(window.__alaPublica.dom('#pgSubtitle')), '#pgSubtitle align=left -> bloco à esquerda (ml=0, mr=auto)');
+  const nRow = window.__alaPublica.dom('.profile__name-row');
+  ok(nRow && nRow['justify-content'] === 'flex-end', '#pgTitle align=right -> .profile__name-row justify-content flex-end');
+  const nSt = window.__alaPublica.dom('#pgTitle');
+  ok(nSt && norm(nSt['margin-left']) === '' && norm(nSt['margin-right']) === '', '#pgTitle sem margens auto (row move nome+selo juntos)');
   ok(isLeftBlk(window.__alaPublica.dom('#pgSubtitle')), '#pgSubtitle align=left -> bloco à esquerda (ml=0, mr=auto)');
   const addrAl = window.__alaPublica.dom('#pgAddress');
   ok(addrAl && addrAl['align-self'] === 'flex-start', '#pgAddress align=left -> align-self flex-start (flex-column .profile__info)');
