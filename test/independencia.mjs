@@ -161,17 +161,21 @@ async function publicoVidros() {
   const isRightBlk = (s) => norm(s && s['margin-left']) === 'auto' && norm(s && s['margin-right']) === '0';
   ok(isRightBlk(window.__alaPublica.dom('#pgTitle')), '#pgTitle align=right -> bloco à direita (ml=auto, mr=0)');
   ok(isLeftBlk(window.__alaPublica.dom('#pgSubtitle')), '#pgSubtitle align=left -> bloco à esquerda (ml=0, mr=auto)');
-  ok(isLeftBlk(window.__alaPublica.dom('#pgAddress')), '#pgAddress align=left -> bloco à esquerda (ml=0, mr=auto)');
+  const addrAl = window.__alaPublica.dom('#pgAddress');
+  ok(addrAl && addrAl['align-self'] === 'flex-start', '#pgAddress align=left -> align-self flex-start (flex-column .profile__info)');
 
   const c2 = JSON.parse(JSON.stringify(NEW_CONFIG));
   c2.style = c2.style || {};
   c2.design.profile.elem.bio.align = 'left';
   c2.design.profile.elem.name.align = 'right';
+  c2.design.profile.elem.address.align = 'center';
   window.__alaPublica.aplicar(c2);
   const bio2 = window.__alaPublica.dom('#pgSubtitle');
   ok(bio2 && bio2['text-align'] === 'left', '#pgSubtitle text-align=left mesmo sem chip (sem vidro)');
   const n2 = window.__alaPublica.dom('#pgTitle');
   ok(n2 && n2['text-align'] === 'right', '#pgTitle text-align=right mesmo sem chip (sem vidro)');
+  const addr2 = window.__alaPublica.dom('#pgAddress');
+  ok(addr2 && addr2['align-self'] === 'center', '#pgAddress align=center sem chip -> align-self center');
 }
 
 async function publicoVidrosExtras() {

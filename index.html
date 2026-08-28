@@ -2987,7 +2987,10 @@
         if (!el) return;
         const M = el.style;
         if (g.enabled || solidBg) {
-          M.setProperty('display', 'inline-block');
+          /* display block (NÃO inline-block): margin auto só centraliza
+             elementos block-level; chip inline ficava ancorado à esquerda
+             no browser real (margens auto = 0 no inline). */
+          M.setProperty('display', 'block');
           M.width = 'fit-content';
           if (align === 'left') { M.marginLeft = '0'; M.marginRight = 'auto'; }
           else if (align === 'right') { M.marginLeft = 'auto'; M.marginRight = '0'; }
@@ -3019,6 +3022,12 @@
           const addrIconEl = addrEl.querySelector('svg');
           if (addrIconEl) addrIconEl.style.display = (pf.address && pf.address.showIcon === false) ? 'none' : '';
           chipFor(addrEl, addressGlass, aCfg.padding || [8, 16], aCfg.radius != null ? aCfg.radius : 999, aCfg.bg || '', aCfg.align);
+          /* O container (.profile__info) é flex-column align-items:center:
+             o eixo horizontal de um item flex rege via align-self, senão
+             esquerda/direita não surtem efeito no browser real. */
+          addrEl.style.alignSelf = aCfg.align === 'left' ? 'flex-start' : aCfg.align === 'right' ? 'flex-end' : 'center';
+          addrEl.style.marginLeft = '';
+          addrEl.style.marginRight = '';
         }
       }
 
@@ -4251,7 +4260,7 @@ window.addEventListener('focus', refetchOnFocus);
       const __styleKeys = [
         'font-family','font-size','font-weight','letter-spacing','line-height','color','text-align',
         'background','background-image','padding','border-radius','border','box-shadow','text-shadow',
-        'backdrop-filter','-webkit-backdrop-filter','display','width','height','margin-left','margin-right','justify-content'
+        'backdrop-filter','-webkit-backdrop-filter','display','width','height','margin-left','margin-right','justify-content','align-self'
       ];
       const __avStyleKeys = [
         '--avatar-s','--glass-pad','--glass-bg','--glass-border','--glass-blur',

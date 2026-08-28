@@ -4885,7 +4885,9 @@
     const chipFor = (el, g, pad, radius, bg, align) => {
       if (!el) return;
       if (g.enabled || bg) {
-        el.style.setProperty('display', 'inline-block');
+        /* display block (NÃO inline-block): margin auto só centraliza em
+           elementos block-level; chip inline ficava à esquerda no browser. */
+        el.style.setProperty('display', 'block');
         el.style.width = 'fit-content';
         if (align === 'left') { el.style.marginLeft = '0'; el.style.marginRight = 'auto'; }
         else if (align === 'right') { el.style.marginLeft = 'auto'; el.style.marginRight = '0'; }
@@ -5112,6 +5114,13 @@
         /* Pílula/fundo/raio/padding/alinhamento/vidro são exclusivos do
            chip (applyGlassToElements → chipFor com elem.address + addressGlass). */
         addrBox.style.color = aCfg.color || '#ffffff';
+        /* Posiciona a pílula pelo próprio align mesmo sem chip de fundo
+           (o mockup pv-page é bloco; margens regem). alignSelf é inócuo. */
+        const aAlign = aCfg.align;
+        addrBox.style.alignSelf = aAlign === 'left' ? 'flex-start' : aAlign === 'right' ? 'flex-end' : 'center';
+        if (aAlign === 'left') { addrBox.style.marginLeft = '0'; addrBox.style.marginRight = 'auto'; }
+        else if (aAlign === 'right') { addrBox.style.marginLeft = 'auto'; addrBox.style.marginRight = '0'; }
+        else { addrBox.style.marginLeft = 'auto'; addrBox.style.marginRight = 'auto'; }
       }
       const addrIco = $('pvAddressIco');
       if (addrIco) addrIco.hidden = !((pf.address && pf.address.showIcon) !== false);
