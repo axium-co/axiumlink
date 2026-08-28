@@ -4913,12 +4913,12 @@
       enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff',
       borderGlow: 40, shadowDepth: 18, highlight: true, noise: false
     }, st.nameGlass || {});
-    chipFor($('pvName'), nameG, nameCfg.padding || [4, 14], nameCfg.radius != null ? nameCfg.radius : 10, nameCfg.bg || '');
+    chipFor($('pvName'), nameG, nameCfg.padding || [4, 14], nameCfg.radius != null ? nameCfg.radius : 10, nameCfg.bg || '', nameCfg.align);
     const bioG = Object.assign({
       enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff',
       borderGlow: 40, shadowDepth: 18, highlight: true, noise: false
     }, (st.bioGlass || st.textGlass || {}));
-    chipFor($('pvBio'), bioG, bioCfg.padding || [4, 14], bioCfg.radius != null ? bioCfg.radius : 10, bioCfg.bg || '');
+    chipFor($('pvBio'), bioG, bioCfg.padding || [4, 14], bioCfg.radius != null ? bioCfg.radius : 10, bioCfg.bg || '', bioCfg.align);
 
     /* Endereço: chip INDEPENDENTE (addressGlass + elem.address).
        Cobre tipografia transparente já aplicada em applyTypographyBlocks;

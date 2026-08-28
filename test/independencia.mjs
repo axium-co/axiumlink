@@ -141,6 +141,9 @@ async function publicoVidros() {
   c.style.nameGlass = { enabled: true, opacity: 30, color: '#00aa77' };
   c.style.bioGlass = { enabled: true, opacity: 30, color: '#aa3300' };
   c.style.addressGlass = { enabled: true, opacity: 30, color: '#4400ff' };
+  c.design.profile.elem.name.align = 'right';
+  c.design.profile.elem.bio.align = 'left';
+  c.design.profile.elem.address.align = 'left';
   window.__alaPublica.aplicar(c);
 
   [
@@ -152,6 +155,23 @@ async function publicoVidros() {
     const bg = (s && (s['background-image'] || s['background'])) || '';
     ok(bg.indexOf(frag) >= 0, sel + ' usa ' + label + ' (background contém ' + frag + '…) — ' + bg.slice(0, 40));
   });
+
+  const norm = (v) => { if (v === 'auto') return 'auto'; if (!v) return ''; const nv = parseFloat(v); return (nv === 0 || v === '0') ? '0' : v; };
+  const isLeftBlk = (s) => norm(s && s['margin-left']) === '0' && norm(s && s['margin-right']) === 'auto';
+  const isRightBlk = (s) => norm(s && s['margin-left']) === 'auto' && norm(s && s['margin-right']) === '0';
+  ok(isRightBlk(window.__alaPublica.dom('#pgTitle')), '#pgTitle align=right -> bloco à direita (ml=auto, mr=0)');
+  ok(isLeftBlk(window.__alaPublica.dom('#pgSubtitle')), '#pgSubtitle align=left -> bloco à esquerda (ml=0, mr=auto)');
+  ok(isLeftBlk(window.__alaPublica.dom('#pgAddress')), '#pgAddress align=left -> bloco à esquerda (ml=0, mr=auto)');
+
+  const c2 = JSON.parse(JSON.stringify(NEW_CONFIG));
+  c2.style = c2.style || {};
+  c2.design.profile.elem.bio.align = 'left';
+  c2.design.profile.elem.name.align = 'right';
+  window.__alaPublica.aplicar(c2);
+  const bio2 = window.__alaPublica.dom('#pgSubtitle');
+  ok(bio2 && bio2['text-align'] === 'left', '#pgSubtitle text-align=left mesmo sem chip (sem vidro)');
+  const n2 = window.__alaPublica.dom('#pgTitle');
+  ok(n2 && n2['text-align'] === 'right', '#pgTitle text-align=right mesmo sem chip (sem vidro)');
 }
 
 async function publicoVidrosExtras() {

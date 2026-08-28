@@ -3003,8 +3003,8 @@
         else if (solidBg) { M.background = solidBg; M.backgroundImage = 'none'; }
         else { M.removeProperty('background'); }
       };
-      chipFor(document.getElementById('pgTitle'), nameGlass, pElemName.padding || [4, 14], pElemName.radius != null ? pElemName.radius : 10, pElemName.bg || '');
-      chipFor(document.getElementById('pgSubtitle'), bioGlass, pElemBio.padding || [4, 14], pElemBio.radius != null ? pElemBio.radius : 10, pElemBio.bg || '');
+      chipFor(document.getElementById('pgTitle'), nameGlass, pElemName.padding || [4, 14], pElemName.radius != null ? pElemName.radius : 10, pElemName.bg || '', pElemName.align);
+      chipFor(document.getElementById('pgSubtitle'), bioGlass, pElemBio.padding || [4, 14], pElemBio.radius != null ? pElemBio.radius : 10, pElemBio.bg || '', pElemBio.align);
 
       /* Estilos do bloco endereço — some quando o perfil não tem endereço
          (nunca exibe o placeholder hardcoded do HTML). Quando exibido,
@@ -3034,7 +3034,7 @@
       /* Alinhamento do nome também rege a linha do selo de verificado */
       const nameRow = document.querySelector('.profile__name-row');
       if (nameRow) {
-        const na = ptext.name && ptext.name.align;
+        const na = pElemName.align || (ptext.name && ptext.name.align) || '';
         nameRow.style.justifyContent = na === 'left' ? 'flex-start' : na === 'right' ? 'flex-end' : 'center';
       }
 
@@ -3942,6 +3942,7 @@
           else if (st.titleFont) titleEl.style.fontFamily = FONT_STACKS[st.titleFont] || 'Georgia, serif';
           else titleEl.style.removeProperty('font-family');
           if (pElemName.color) titleEl.style.color = pElemName.color;
+          titleEl.style.textAlign = pElemName.align || 'center';
         }
         const bioEl = document.getElementById('pgSubtitle');
         if (bioEl && typeof pElemBio !== 'undefined' && pElemBio) {
