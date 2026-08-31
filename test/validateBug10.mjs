@@ -186,10 +186,52 @@ export async function run() {
     }
   }
 
+  /* ================================================================
+     5) Camada de demonstração de blur (só mockup do admin)
+        Em fundo chapado o backdrop-filter é invisível; a camada
+        .pv-glass-demo põe formas coloridas ATRÁS dos chips para o
+        desfoque ficar perceptível no preview (nunca vai ao site público).
+     ================================================================ */
+  async function glassDemo() {
+    console.log('\n━━━ BUG 10 — camada de demo do blur (mockup admin) ━━━');
+    const cfg = (variant, anyGlass) => {
+      const c = JSON.parse(JSON.stringify(NEW_CONFIG));
+      c.style = Object.assign({}, c.style, {
+        theme: 'indigo', pageBgColor: '#11111f', bgVariant: variant,
+        nameGlass: { enabled:anyGlass, blur:20, saturate:180, opacity:40, color:'#ffffff', borderGlow:40, shadowDepth:18, highlight:false, noise:false }
+      });
+      c.links = [{id:'s1',title:'Site',url:'https://site.com'}];
+      return c;
+    };
+
+    const demoSolid = () => {
+      const { window:w } = boot(ADMIN_PATH, { supabase: supabaseStub(null), url: 'https://axiumlink.test/admin.html' });
+      w.__axEditor.init(cfg('solid', true));
+      const demo = w.document.getElementById('pvPage').querySelector('.pv-glass-demo');
+      return demo ? demo.querySelectorAll('i').length : 0;
+    };
+    check('admin solid+vidro: demo presente com 5 formas', demoSolid() === 5, 'i=' + demoSolid());
+
+    const demoNoGlass = () => {
+      const { window:w } = boot(ADMIN_PATH, { supabase: supabaseStub(null), url: 'https://axiumlink.test/admin.html' });
+      w.__axEditor.init(cfg('solid', false));
+      return !!w.document.getElementById('pvPage').querySelector('.pv-glass-demo');
+    };
+    check('admin solid sem vidro: demo ausente', demoNoGlass() === false);
+
+    const demoGrad = () => {
+      const { window:w } = boot(ADMIN_PATH, { supabase: supabaseStub(null), url: 'https://axiumlink.test/admin.html' });
+      w.__axEditor.init(cfg('gradient', true));
+      return !!w.document.getElementById('pvPage').querySelector('.pv-glass-demo');
+    };
+    check('admin gradiente+vidro: demo ausente (blur já visível)', demoGrad() === false);
+  }
+
   await borderOpacity();
   await mesh();
   await avatarGlass();
   await regressao();
+  await glassDemo();
 
   console.log(`\n  ✅ BUG 10 Passed: ${pass}  |  ❌ Failed: ${fail}`);
   return fail;
