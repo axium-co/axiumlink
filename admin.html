@@ -321,6 +321,9 @@
   .ds-control > label { display:block; font-size:12px; font-weight:600; color:var(--muted); margin-bottom:6px; }
   .ds-control-row { display:flex; align-items:center; gap:10px; }
   .ds-control-row input[type="range"] { flex:1; accent-color:var(--brand); }
+  .ds-control.is-disabled { opacity:0.45; pointer-events:none; }
+  select.is-disabled, input.is-disabled { opacity:0.45; pointer-events:none; }
+  .color-trigger.is-disabled { opacity:0.45; pointer-events:none; cursor:not-allowed; }
   .ds-value {
     min-width:44px; text-align:right; font-size:12px; font-weight:700; color:var(--ink);
     background:var(--bg); padding:4px 7px; border-radius:7px;
@@ -2836,6 +2839,50 @@
         <small>A imagem preenche a largura do botão com a altura escolhida, cortando o excedente sem distorcer.</small>
       </div>
 
+      <div class="field" id="blockTypoPanel" style="margin-top:8px; padding-top:12px; border-top:1px solid var(--bg);">
+        <label style="font-size:13px; font-weight:700; color:var(--ink);">Tipografia do texto do botão</label>
+        <p class="hint" style="margin-bottom:10px;">Estiliza o texto (título/descrição) deste botão. Não se aplica a botões com imagem customizada.</p>
+        <div class="field">
+          <label for="blockTypoFont">Fonte</label>
+          <select id="blockTypoFont" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+            <option value="">Mesma da página</option>
+            <option value="Playfair Display">Playfair Display (serifa elegante)</option>
+            <option value="Cormorant Garamond">Cormorant Garamond (serifa leve)</option>
+            <option value="DM Serif Display">DM Serif Display (serifa editorial)</option>
+            <option value="Lora">Lora (serifa clássica)</option>
+            <option value="Inter">Inter (sans neutra)</option>
+            <option value="Montserrat">Montserrat (sans corporativa)</option>
+            <option value="Poppins">Poppins (sans amigável)</option>
+            <option value="Syne">Syne (artística/moderna)</option>
+            <option value="Space Grotesk">Space Grotesk (tech)</option>
+          </select>
+        </div>
+        <div class="ds-control">
+          <label>Tamanho da fonte</label>
+          <div class="ds-control-row">
+            <input type="range" id="blockTypoSize" min="12" max="24" step="1">
+            <output class="ds-value" id="blockTypoSizeVal">15px</output>
+          </div>
+        </div>
+        <div class="ds-control">
+          <label>Peso da fonte (negrito)</label>
+          <div class="ds-control-row">
+            <input type="range" id="blockTypoWeight" min="300" max="900" step="100">
+            <output class="ds-value" id="blockTypoWeightVal">600</output>
+          </div>
+        </div>
+        <div class="field">
+          <label style="font-size:11px;">Cor do texto</label>
+          <div class="color-trigger" id="blockTextColor" role="button" tabindex="0">
+            <div class="color-trigger-swatch" style="background:#ffffff;"></div>
+            <span class="color-trigger-hex">AUTO</span>
+          </div>
+        </div>
+        <small id="blockTypoNotApp" style="display:none; color:#94a3b8; background:var(--bg); padding:8px 10px; border-radius:8px; font-size:12px; line-height:1.5;">
+          Não aplicável a botões com imagem customizada — este botão usa a própria imagem, sem texto da plataforma. Controle a altura abaixo em &quot;Alcance de imagem&quot;.
+        </small>
+      </div>
+
       <div style="display:flex; gap:10px; margin-top:18px;">
         <button class="btn-mini" id="btnBlockCancel" style="flex:1; padding:12px;">Cancelar</button>
         <button id="btnBlockSave" style="flex:2; padding:12px; border:none; border-radius:10px; background:var(--brand); color:#fff; font-size:14px; font-weight:700; cursor:pointer;">Salvar bloco</button>
@@ -3978,6 +4025,7 @@
         a.appendChild(head);
 
         a.addEventListener('click', (ev) => ev.preventDefault());
+        applyLinkTextTypo(a, l);
         list.appendChild(a);
       }
     });
@@ -3987,6 +4035,31 @@
     /* Reconstruiu o DOM → reaplica estilos (atalhos/botões) de imediato.
        Idempotente: chamadas duplicadas com applyThemeVars não acumulam nada. */
     applyThemeVars();
+  }
+
+  /* Overrides por-link de tipografia do texto do botão (BUG 6). Só se aplica
+     a botões padrão (não-imagem customizada): o botão com imagem não tem texto. */
+  function applyLinkTextTypo(a, l) {
+    if (!a || !l) return;
+    if (a.classList.contains('link-block-customimg')) return;
+    if (l.id) a.dataset.linkId = l.id;
+    if (l.linkFont) a.style.fontFamily = `"${l.linkFont}", system-ui, sans-serif`;
+    if (l.linkFontSize) a.style.fontSize = l.linkFontSize + 'px';
+    if (l.linkFontWeight) a.style.fontWeight = String(l.linkFontWeight);
+    if (l.linkTextColor) a.style.color = l.linkTextColor;
+  }
+
+  /* Reaplica a tipografia por-link DEPOIS que applyThemeVars sobrepõe os estilos
+     globais dos botões (buildButtonCSS/applyTypographyBlocks limpam o inline). */
+  function reapplyLinkTypo(scope) {
+    const page = scope || $('pvPage');
+    if (!page) return;
+    page.querySelectorAll('.link-block').forEach((el) => {
+      const lid = el.dataset.linkId;
+      if (!lid) return;
+      const lk = (cfg.links || []).find((x) => x.id === lid);
+      if (lk) applyLinkTextTypo(el, lk);
+    });
   }
 
   function placeholderFor(i) {
@@ -5125,6 +5198,9 @@
     [...$('previewLinksList').children].forEach((child, i) => {
       child.style.marginBottom = i === $('previewLinksList').children.length - 1 ? '0' : gap + 'px';
     });
+
+    /* Tipografia por-link volta por cima dos estilos globais dos botões (BUG 6) */
+    reapplyLinkTypo($('pvPage'));
   }
 
   /* Aplica o design de perfil/banner (cfg.design) ao mockup celular.
@@ -7002,6 +7078,7 @@
   let _pendingBlockIcon = null;
   let _pendingBlockImage = '';
   let _pendingBlockHeight = 84;
+  let _pendingBlockTextColor = '';
 
   function openBlockModal(index) {
     editingBlockIndex = index;
@@ -7026,6 +7103,17 @@
     _pendingBlockHeight = (Number(l.customButtonHeight) > 40) ? Number(l.customButtonHeight) : 84;
     $('blockCustomHeight').value = _pendingBlockHeight;
     $('blockCustomHeightVal').textContent = _pendingBlockHeight + 'px';
+    /* Tipografia por-link (override opcional do texto do botão) */
+    $('blockTypoFont').value = l.linkFont || '';
+    $('blockTypoSize').value = (Number(l.linkFontSize) >= 12 && Number(l.linkFontSize) <= 24) ? Number(l.linkFontSize) : 15;
+    $('blockTypoSizeVal').textContent = $('blockTypoSize').value + 'px';
+    $('blockTypoWeight').value = (Number(l.linkFontWeight) >= 300 && Number(l.linkFontWeight) <= 900) ? Number(l.linkFontWeight) : 600;
+    $('blockTypoWeightVal').textContent = $('blockTypoWeight').value;
+    const ltColor = l.linkTextColor || '';
+    _pendingBlockTextColor = ltColor;
+    setTriggerColor('blockTextColor', ltColor || '#ffffff');
+    const ltLabel = $('blockTextColor')?.querySelector('.color-trigger-hex');
+    if (ltLabel) ltLabel.textContent = ltColor ? ltColor.toUpperCase() : 'AUTO';
     updateBlockImageUI();
 
     /* Popula datalist de categorias existentes */
@@ -7069,6 +7157,20 @@
       _pendingBlockHeight = Number(hSlider.value);
       hVal.textContent = _pendingBlockHeight + 'px';
     }
+    /* Botão com imagem customizada não tem texto da plataforma: desabilita
+       os controles de tipografia do texto e mostra aviso (BUG 6). */
+    const isImg = $('blockBtnDesign').value === 'imagem';
+    ['blockTypoFont', 'blockTypoSize', 'blockTypoWeight', 'blockTextColor'].forEach((id) => {
+      const el = $(id);
+      if (el) {
+        const cs = el.classList;
+        el.disabled = !!isImg;
+        cs.toggle('disabled', !!isImg);
+        cs.toggle('is-disabled', !!isImg);
+      }
+    });
+    const notApp = $('blockTypoNotApp');
+    if (notApp) notApp.style.display = isImg ? 'block' : 'none';
   }
 
   function bindEditorEvents() {
@@ -7210,6 +7312,17 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
     /* Imagem customizada do botão (Design do botão) */
     safeOn('blockBtnDesign', 'change', () => updateBlockImageUI());
     safeOn('blockCustomHeight', 'input', () => updateBlockImageUI());
+    safeOn('blockTypoSize', 'input', (e) => { const o = $('blockTypoSizeVal'); if (o) o.textContent = e.target.value + 'px'; });
+    safeOn('blockTypoWeight', 'input', (e) => { const o = $('blockTypoWeightVal'); if (o) o.textContent = e.target.value; });
+    safeOn('blockTextColor', 'click', () => {
+      const cur = _pendingBlockTextColor || '#ffffff';
+      openColorPicker($('blockTextColor'), cur, (hex) => {
+        _pendingBlockTextColor = hex;
+        setTriggerColor('blockTextColor', hex);
+        const label = $('blockTextColor')?.querySelector('.color-trigger-hex');
+        if (label) label.textContent = hex.toUpperCase();
+      });
+    });
     safeOn('btnBlockImagePick', 'click', () => $('blockImageInput').click());
     safeOn('blockImageInput', 'change', async (e) => {
       const file = e.target.files?.[0];
@@ -7256,7 +7369,11 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
         iconImg: _pendingBlockIcon || '',
         iconAlign: $('blockIconAlign').value || 'left',
         customButtonImage: ($('blockBtnDesign').value === 'imagem') ? (_pendingBlockImage || '') : '',
-        customButtonHeight: ($('blockBtnDesign').value === 'imagem') ? _pendingBlockHeight : null
+        customButtonHeight: ($('blockBtnDesign').value === 'imagem') ? _pendingBlockHeight : null,
+        linkFont: $('blockTypoFont').value || '',
+        linkFontSize: (Number($('blockTypoSize').value) >= 12) ? Number($('blockTypoSize').value) : null,
+        linkFontWeight: (Number($('blockTypoWeight').value) >= 300) ? Number($('blockTypoWeight').value) : null,
+        linkTextColor: _pendingBlockTextColor || ''
       };
 
       cfg.links = cfg.links || [];

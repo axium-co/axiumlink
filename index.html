@@ -2416,7 +2416,11 @@
                 iconAlign: l.iconAlign || null,
                 sub: l.sub || null,
                 animation: l.animation || null,
-                width: l.width || null
+                width: l.width || null,
+                linkFont: l.linkFont || null,
+                linkFontSize: l.linkFontSize || null,
+                linkFontWeight: l.linkFontWeight || null,
+                linkTextColor: l.linkTextColor || null
               }))
             : undefined,
           quickActions: Array.isArray(cfg.quick)
@@ -3405,6 +3409,29 @@
         }
       }
 
+      /* Overrides por-link de tipografia do texto do botão (BUG 6). Só se aplica
+         a botões padrão (não-imagem customizada): o botão com imagem não tem texto. */
+      function applyLinkTextTypoPublic(btn, link) {
+        if (!btn || !link) return;
+        if (btn.classList.contains('featured__card--customimg')) return;
+        if (link.id) btn.dataset.linkId = link.id;
+        if (link.linkFont) btn.style.fontFamily = '"' + link.linkFont + '", system-ui, sans-serif';
+        if (link.linkFontSize) btn.style.fontSize = link.linkFontSize + 'px';
+        if (link.linkFontWeight) btn.style.fontWeight = String(link.linkFontWeight);
+        if (link.linkTextColor) btn.style.color = link.linkTextColor;
+      }
+
+      function reapplyLinkTypoPublic() {
+        const container = document.getElementById('pgLinks');
+        if (!container) return;
+        container.querySelectorAll('.featured__card').forEach((el) => {
+          const lid = el.dataset.linkId;
+          if (!lid) return;
+          const lk = (cfg.links || []).find((x) => String(x.id) === lid);
+          if (lk) applyLinkTextTypoPublic(el, lk);
+        });
+      }
+
       const LINK_TYPE_KEYS = ['whatsapp', 'instagram', 'localizacao', 'telefone', 'site', 'outro'];
 
       if (quickContainer && Array.isArray(quickList) && quickList.length) {
@@ -3802,6 +3829,8 @@
               a.appendChild(makeArrow());
 
               aplicarEstiloIndividual(a, link);
+
+              applyLinkTextTypoPublic(a, link);
 
               wrap.appendChild(a);
             }
@@ -4241,6 +4270,9 @@
         /* Espaçamento entre blocos */
         const lc = document.getElementById('pgLinks');
         if (lc && st.blockGap != null) lc.style.gap = st.blockGap + 'px';
+
+        /* Tipografia por-link volta por cima dos estilos globais (BUG 6) */
+        reapplyLinkTypoPublic();
       }
 
       /* ---- título do documento ---- */
