@@ -14,6 +14,8 @@ import { boot, supabaseStub, ADMIN_PATH, INDEX_PATH } from './harness.mjs';
 import {
   LEGACY_CONFIG, NEW_CONFIG, ELEM_KEYS, TEST_VALUES, GLASS_OF, TEST_GLASS
 } from './fixtures.mjs';
+import { run as runBug6 } from './validateBug6.mjs';
+import { run as runBug7 } from './validateBug7.mjs';
 
 let failures = 0;
 const only = process.argv[2] || '';
@@ -317,6 +319,8 @@ async function main() {
     await publicoVidros();
     await publicoVidrosExtras();
     await linksImagemCustomizada();
+    failures += await runBug6();
+    failures += await runBug7();
   }
 
   log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
