@@ -942,7 +942,7 @@
   .gx-highlight::before {
     content:''; position:absolute; inset:0; border-radius:inherit;
     pointer-events:none; z-index:-1;
-    background:linear-gradient(180deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.05) 42%, rgba(255,255,255,0) 68%);
+    background:linear-gradient(180deg, rgba(255,255,255,0.34) 0%, rgba(255,255,255,0.10) 42%, rgba(255,255,255,0) 70%);
   }
   .gx-noise::after {
     content:''; position:absolute; inset:0; border-radius:inherit;
@@ -4893,14 +4893,17 @@
     const aLo = Math.max(0.02, aHi * 0.3);
     const blur = g.blur || 0;
     const sat = g.saturate || 180;
+    /* BUG 8 — escalas perceptíveis: glow 0..1 (slider 0..100), depth
+       normalizada pelo range do slider (max 60). Sem o clamp 0.14 na borda,
+       o brilho da borda tem alcance real de "sem borda" até "borda forte". */
     const glow = (g.borderGlow == null ? 40 : g.borderGlow) / 100;
-    const depth = (g.shadowDepth == null ? 18 : g.shadowDepth) / 100;
+    const df = Math.max(0, Math.min(1, (g.shadowDepth == null ? 18 : g.shadowDepth) / 60));
 
     const boxShadow = [
-      'inset 0 1px 1px ' + rgbaCss('#ffffff', 0.8 * glow),
-      'inset 0 -1px 1px ' + rgbaCss('#ffffff', 0.28 * glow),
-      '0 ' + Math.round(10 * depth) + 'px ' + Math.round(34 * depth) + 'px ' + rgbaCss('#000000', 0.16 * depth),
-      '0 ' + Math.round(2 * depth) + 'px ' + Math.round(7 * depth) + 'px ' + rgbaCss('#000000', 0.12 * depth)
+      'inset 0 1px 1px ' + rgbaCss('#ffffff', 0.9 * glow),
+      'inset 0 -1px 1px ' + rgbaCss('#ffffff', 0.35 * glow),
+      '0 ' + Math.round(4 + 26 * df) + 'px ' + Math.round(12 + 48 * df) + 'px ' + rgbaCss('#000000', 0.08 + 0.30 * df),
+      '0 ' + Math.round(1 + 5 * df) + 'px ' + Math.round(3 + 12 * df) + 'px ' + rgbaCss('#000000', 0.06 + 0.20 * df)
     ].join(', ');
 
     Object.assign(el.style, {
@@ -4908,7 +4911,7 @@
       backgroundImage: 'linear-gradient(135deg, ' + rgbaCss(color, aHi) + ' 0%, ' + rgbaCss(color, aLo) + ' 100%)',
       backdropFilter: 'blur(' + blur + 'px) saturate(' + sat + '%)',
       webkitBackdropFilter: 'blur(' + blur + 'px) saturate(' + sat + '%)',
-      border: '1px solid ' + rgbaCss(color, Math.max(0.14, 0.5 * glow)),
+      border: '1px solid ' + rgbaCss(color, 0.06 + 0.60 * glow),
       boxShadow: boxShadow,
       textShadow: '0 1px 2px ' + rgbaCss('#000000', 0.22)
     });

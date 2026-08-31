@@ -16,6 +16,7 @@ import {
 } from './fixtures.mjs';
 import { run as runBug6 } from './validateBug6.mjs';
 import { run as runBug7 } from './validateBug7.mjs';
+import { run as runBug8 } from './validateBug8.mjs';
 
 let failures = 0;
 const only = process.argv[2] || '';
@@ -321,6 +322,7 @@ async function main() {
     await linksImagemCustomizada();
     failures += await runBug6();
     failures += await runBug7();
+    failures += await runBug8();
   }
 
   log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
