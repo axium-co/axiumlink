@@ -5019,7 +5019,11 @@
         opacity: st.btnGlassOpacity != null ? st.btnGlassOpacity : btnG.opacity
       });
     }
-    page.querySelectorAll('.link-block').forEach((el) => applyGlass(el, btnG));
+    page.querySelectorAll('.link-block').forEach((el) => {
+      /* Botão com imagem customizada é a própria imagem — não recebe vidro */
+      if (el.classList.contains('link-block-customimg')) return;
+      applyGlass(el, btnG);
+    });
 
     /* Ícones / links rápidos */
     const iconG = Object.assign({
@@ -5159,6 +5163,22 @@
     const btnAnim = st.btnAnimation || 'none';
     const ANIM_CLASSES = ['pv-anim-pulse', 'pv-anim-float', 'pv-anim-shine'];
     page.querySelectorAll('.link-block').forEach((el) => {
+      /* Botão com imagem customizada não recebe o estilo global do botão:
+         a imagem inteira é o botão. Aplicar btnCSS inline reverteria as
+         regras da stylesheet (border none, background transparent, sem
+         sombra) e reintroduziria borda/linha residual cruzando a imagem. */
+      if (el.classList.contains('link-block-customimg')) {
+        el.classList.remove(...ANIM_CLASSES);
+        Object.assign(el.style, {
+          border: 'none',
+          boxShadow: 'none',
+          background: 'transparent',
+          backdropFilter: 'none',
+          WebkitBackdropFilter: 'none',
+          textShadow: 'none'
+        });
+        return;
+      }
       Object.assign(el.style, btnCSS);
       el.classList.remove('ghost', 'neumorphic');
       if (btnVariant === 'ghost' || btnVariant === 'neumorphic') el.classList.add(btnVariant);

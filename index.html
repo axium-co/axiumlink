@@ -4237,6 +4237,22 @@
         const ANIMS = ['ax-anim-pulse','ax-anim-float','ax-anim-shine'];
         const btnAnim = st.btnAnimation || 'none';
         document.querySelectorAll('.quick__item, .featured__card, .social-icon').forEach((el) => {
+          /* Botão com imagem customizada não recebe o estilo global do botão:
+             a imagem inteira é o botão. Aplicar btnCSS inline reverteria as
+             regras da stylesheet (border none, background transparent, sem
+             sombra) e reintroduziria borda/linha residual cruzando a imagem. */
+          if (el.classList.contains('featured__card--customimg')) {
+            el.classList.remove(...ANIMS);
+            Object.assign(el.style, {
+              border: 'none',
+              boxShadow: 'none',
+              background: 'transparent',
+              backdropFilter: 'none',
+              WebkitBackdropFilter: 'none',
+              textShadow: 'none'
+            });
+            return;
+          }
           Object.assign(el.style, btnCSS);
           if (el.classList.contains('social-icon')) {
             /* Ícones sociais preservam o círculo base (50%). O formato
