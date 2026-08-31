@@ -18,6 +18,7 @@ import { run as runBug6 } from './validateBug6.mjs';
 import { run as runBug7 } from './validateBug7.mjs';
 import { run as runBug8 } from './validateBug8.mjs';
 import { run as runBug9 } from './validateBug9.mjs';
+import { run as runBug10 } from './validateBug10.mjs';
 
 let failures = 0;
 const only = process.argv[2] || '';
@@ -325,6 +326,7 @@ async function main() {
     failures += await runBug7();
     failures += await runBug8();
     failures += await runBug9();
+    failures += await runBug10();
   }
 
   log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');

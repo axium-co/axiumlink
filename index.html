@@ -2592,7 +2592,7 @@
          cor uniforme (não há o que desfocar). Se houver vidro ligado e o
          fundo for uma cor sólida sem imagem/gradiente, insere um mesh sutil
          atrás para o desfoque ter textura — sem mudar a cor escolhida. */
-      const anyGlass = ['nameGlass', 'bioGlass', 'addressGlass', 'bannerGlass', 'buttonGlass', 'linkGlass']
+      const anyGlass = ['nameGlass', 'bioGlass', 'addressGlass', 'bannerGlass', 'buttonGlass', 'iconGlass']
         .some((k) => cfg.style && cfg.style[k] && cfg.style[k].enabled);
       if (anyGlass && isSolidHex && !bgImageUrl && !pageGrad) {
         bgLayers.push([
@@ -2994,6 +2994,10 @@
         const sat = g.saturate || 180;
         const glow = (g.borderGlow == null ? 40 : g.borderGlow) / 100;
         const df = Math.max(0, Math.min(1, (g.shadowDepth == null ? 18 : g.shadowDepth) / 60));
+        let bAlpha = 0.06 + 0.60 * glow;
+        if (g.borderOpacity != null) {
+          bAlpha = Math.max(bAlpha, Math.max(0, Math.min(1, Number(g.borderOpacity) / 100)));
+        }
         const boxShadow = [
           'inset 0 1px 1px ' + rgbaCss('#ffffff', 0.9 * glow),
           'inset 0 -1px 1px ' + rgbaCss('#ffffff', 0.35 * glow),
@@ -3005,7 +3009,7 @@
           backgroundImage: 'linear-gradient(135deg, ' + rgbaCss(color, aHi) + ' 0%, ' + rgbaCss(color, aLo) + ' 100%)',
           backdropFilter: 'blur(' + blur + 'px) saturate(' + sat + '%)',
           webkitBackdropFilter: 'blur(' + blur + 'px) saturate(' + sat + '%)',
-          border: '1px solid ' + rgbaCss(color, 0.06 + 0.60 * glow),
+          border: '1px solid ' + rgbaCss(color, bAlpha),
           boxShadow: boxShadow,
           textShadow: '0 1px 2px ' + rgbaCss('#000000', 0.22)
         });
@@ -4215,12 +4219,16 @@
                 '0 ' + Math.round(4 + 26 * df) + 'px ' + Math.round(12 + 48 * df) + 'px ' + rgbaCss('#000000', 0.08 + 0.30 * df),
                 '0 ' + Math.round(1 + 5 * df) + 'px ' + Math.round(3 + 12 * df) + 'px ' + rgbaCss('#000000', 0.06 + 0.20 * df)
               ].join(', ');
+              let bAlpha = 0.06 + 0.60 * glow;
+              if (bgrp.borderOpacity != null) {
+                bAlpha = Math.max(bAlpha, Math.max(0, Math.min(1, Number(bgrp.borderOpacity) / 100)));
+              }
               return {
                 background: grd,
                 color: resolvedInk,
                 backdropFilter: 'blur(' + bl + ') saturate(' + sat + '%)',
                 webkitBackdropFilter: 'blur(' + bl + ') saturate(' + sat + '%)',
-                border: '1px solid ' + rgbaCss(col, 0.06 + 0.60 * glow),
+                border: '1px solid ' + rgbaCss(col, bAlpha),
                 boxShadow: gShadow,
                 textShadow: '0 1px 2px ' + rgbaCss('#000000', 0.22),
                 ...shape

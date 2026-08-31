@@ -739,6 +739,14 @@
     object-position:center !important;
     display:block !important;
   }
+  /* Vidro do avatar (design.profile.glass + glassBlur) — espelha o
+     #pgAvatarCard público. As vars --glass-* são alimentadas pelo JS. */
+  .pv-avatar.glass {
+    background: var(--glass-bg, rgba(255,255,255,0.06));
+    border-color: var(--glass-border, rgba(255,255,255,0.3));
+    -webkit-backdrop-filter: blur(var(--glass-blur, 0px));
+    backdrop-filter: blur(var(--glass-blur, 0px));
+  }
   .pv-name { text-align:center; font-size:20px; font-weight:800; margin-top:12px; padding:0 24px; }
   .pv-bio {
     text-align:center; font-size:13.5px; opacity:.75; margin-top:6px; padding:0 32px; line-height:1.55;
@@ -4340,10 +4348,10 @@
   };
 
   /* Gera CSS do background baseado na variante */
-  /* Verifica se algum grupo de vidro está habilitado (name/bio/address/banner/button/links) */
+  /* Verifica se algum grupo de vidro está habilitado (name/bio/address/banner/button/icon) */
   function anyGlassEnabled(st) {
     const g = st && st.style ? st.style : st || {};
-    return ['nameGlass', 'bioGlass', 'addressGlass', 'bannerGlass', 'buttonGlass', 'linkGlass']
+    return ['nameGlass', 'bioGlass', 'addressGlass', 'bannerGlass', 'buttonGlass', 'iconGlass']
       .some((key) => g[key] && g[key].enabled);
   }
 
@@ -4931,6 +4939,16 @@
     const glow = (g.borderGlow == null ? 40 : g.borderGlow) / 100;
     const df = Math.max(0, Math.min(1, (g.shadowDepth == null ? 18 : g.shadowDepth) / 60));
 
+    /* BUG 10 — borderOpacity (só no grupo buttonGlass) eleva a opacidade da
+       linha da borda de forma INDEPENDENTE do borderGlow. Slider 0..100
+       (default 25). Combinado por MÁXIMO com o brilho do borderGlow: o
+       borderGlow segue elevando a borda (BUG 8) e o borderOpacity permite
+       subir a opacidade acima do brilho. Grupos sem o campo → fallback. */
+    let bAlpha = 0.06 + 0.60 * glow;
+    if (g.borderOpacity != null) {
+      bAlpha = Math.max(bAlpha, Math.max(0, Math.min(1, Number(g.borderOpacity) / 100)));
+    }
+
     const boxShadow = [
       'inset 0 1px 1px ' + rgbaCss('#ffffff', 0.9 * glow),
       'inset 0 -1px 1px ' + rgbaCss('#ffffff', 0.35 * glow),
@@ -4943,7 +4961,7 @@
       backgroundImage: 'linear-gradient(135deg, ' + rgbaCss(color, aHi) + ' 0%, ' + rgbaCss(color, aLo) + ' 100%)',
       backdropFilter: 'blur(' + blur + 'px) saturate(' + sat + '%)',
       webkitBackdropFilter: 'blur(' + blur + 'px) saturate(' + sat + '%)',
-      border: '1px solid ' + rgbaCss(color, 0.06 + 0.60 * glow),
+      border: '1px solid ' + rgbaCss(color, bAlpha),
       boxShadow: boxShadow,
       textShadow: '0 1px 2px ' + rgbaCss('#000000', 0.22)
     });
@@ -5294,6 +5312,23 @@
         );
       }
       av.style.boxShadow = shadows.length ? shadows.join(', ') : 'none';
+
+      /* Vidro do avatar (design.profile.glass + glassBlur) — espelha o
+         #pgAvatarCard público. Preenche as vars --glass-* e alterna a classe
+         .glass; sem vidro limpa tudo (restore do fundo padrão). */
+      const avGlass = !!pf.glass;
+      av.classList.toggle('glass', avGlass);
+      ['--glass-pad', '--glass-bg', '--glass-border', '--glass-blur'].forEach((p) => av.style.removeProperty(p));
+      if (avGlass) {
+        av.style.setProperty('--glass-pad', '6px');
+        av.style.setProperty('--glass-bg', 'rgba(255, 255, 255, 0.2)');
+        av.style.setProperty('--glass-border', 'rgba(255, 255, 255, 0.3)');
+        av.style.setProperty('--glass-blur', (pf.glassBlur || 14) + 'px');
+        /* Fundo padrão opaco não pode tapar o vidro translúcido */
+        av.style.background = 'transparent';
+      } else {
+        av.style.background = '';
+      }
     }
 
     /* Tamanho do avatar (contém também a sobreposição do banner) */
