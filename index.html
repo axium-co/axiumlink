@@ -2588,6 +2588,20 @@
 
       const pageBgGradient = isGradient ? pageBg : '';
       const bgLayers = [pageGrad, pageBgGradient, bgImageUrl].filter(Boolean);
+      /* Vidro em fundo chapado: `backdrop-filter: blur()` é invisível sobre
+         cor uniforme (não há o que desfocar). Se houver vidro ligado e o
+         fundo for uma cor sólida sem imagem/gradiente, insere um mesh sutil
+         atrás para o desfoque ter textura — sem mudar a cor escolhida. */
+      const anyGlass = ['nameGlass', 'bioGlass', 'addressGlass', 'bannerGlass', 'buttonGlass', 'linkGlass']
+        .some((k) => cfg.style && cfg.style[k] && cfg.style[k].enabled);
+      if (anyGlass && isSolidHex && !bgImageUrl && !pageGrad) {
+        bgLayers.push([
+          'radial-gradient(at 15% 15%, rgba(139,92,246,0.10) 0px, transparent 55%)',
+          'radial-gradient(at 85% 10%, rgba(6,182,212,0.10) 0px, transparent 55%)',
+          'radial-gradient(at 10% 85%, rgba(236,72,153,0.10) 0px, transparent 55%)',
+          'radial-gradient(at 90% 90%, rgba(245,158,11,0.10) 0px, transparent 55%)'
+        ].join(', '));
+      }
       document.body.style.backgroundImage = bgLayers.length ? bgLayers.join(', ') : '';
       document.body.style.backgroundSize = 'cover';
       document.body.style.backgroundPosition = 'center';

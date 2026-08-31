@@ -45,6 +45,12 @@ export async function run() {
       const a = rgbaAlpha(el.style.backgroundImage || el.style.background);
       check(`admin ${ch.id}: preenchimento perceptível (alpha>=0.4)`, a != null && a >= 0.4, 'alpha=' + a);
     }
+    /* Mesh sutil atrás do vidro (fundo chapado): dá textura ao blur */
+    const pv = w.document.getElementById('pvPage');
+    const pvMesh = String(pv.style.backgroundImage || '').indexOf('radial-gradient') >= 0;
+    const pvSolidKept = /rgb\(17, 17, 31\)/.test(String(pv.style.backgroundColor));
+    check('admin pvPage: mesh atrás do vidro (blur tem textura)', pvMesh, String(pv.style.backgroundImage).slice(0, 50));
+    check('admin pvPage: cor sólida escolhida mantida', pvSolidKept, String(pv.style.backgroundColor));
   }
 
   /* ---- PÚBLICO: pgTitle/pgSubtitle/pgAddress ---- */
@@ -65,6 +71,9 @@ export async function run() {
       const a = rgbaAlpha(bg);
       check(`público ${ch.id}: preenchimento perceptível (alpha>=0.4)`, a != null && a >= 0.4, 'alpha=' + a);
     }
+    /* Mesh atrás do vidro no body (fundo chapado) */
+    const bodyMesh = String(w.document.body.style.backgroundImage || '').indexOf('radial-gradient') >= 0;
+    check('público body: mesh atrás do vidro (blur tem textura)', bodyMesh, String(w.document.body.style.backgroundImage).slice(0, 50));
   }
 
   /* ---- Sem vidro: baseline limpo (não inventa cor) ---- */
@@ -76,6 +85,8 @@ export async function run() {
     const el = w.document.getElementById('pgTitle');
     const bg = (el && (el.style.backgroundImage || el.style.background)) || '';
     check('público pgTitle sem vidro: sem background inventado', !bg, bg.slice(0, 30));
+    const bodyMesh = String(w.document.body.style.backgroundImage || '').indexOf('radial-gradient') >= 0;
+    check('público body sem vidro: sem mesh atrás (fundo limpo)', !bodyMesh, String(w.document.body.style.backgroundImage).slice(0, 40));
   }
 
   console.log(`  ✅ BUG 9 Passed: ${pass}  |  ❌ Failed: ${fail}`);
