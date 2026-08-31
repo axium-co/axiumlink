@@ -3077,9 +3077,13 @@
         M.padding = pad[0] + 'px ' + pad[1] + 'px';
         M.borderRadius = radius + 'px';
         applyGlass(el, g);
-        if (g.enabled) { M.removeProperty('background'); }
+        if (g.enabled) {
+          /* mantém o preenchimento translúcido (opacidade/cor) de applyGlass —
+             vidro perceptível mesmo com fundo chapado; o desfoque
+             (backdrop-filter) dá profundidade quando há imagem/gradiente atrás. */
+        }
         else if (solidBg) { M.background = solidBg; M.backgroundImage = 'none'; }
-        else { M.removeProperty('background'); }
+        else { M.removeProperty('background'); M.removeProperty('backgroundImage'); }
       };
       chipFor(document.getElementById('pgTitle'), nameGlass, pElemName.padding || [4, 14], pElemName.radius != null ? pElemName.radius : 10, pElemName.bg || '', pElemName.align);
       chipFor(document.getElementById('pgSubtitle'), bioGlass, pElemBio.padding || [4, 14], pElemBio.radius != null ? pElemBio.radius : 10, pElemBio.bg || '', pElemBio.align);

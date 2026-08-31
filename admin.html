@@ -5081,7 +5081,10 @@
       el.style.borderRadius = radius + 'px';
       applyGlass(el, g);
       if (g.enabled) {
-        el.style.removeProperty('background');
+        /* mantém o preenchimento translúcido (opacidade/cor) definido por
+           applyGlass — o vidro fica perceptível mesmo com o fundo chapado;
+           o desfoque (backdrop-filter) dá profundidade quando há
+           imagem/gradiente atrás do chip. */
       } else if (bg) {
         el.style.background = bg;
         el.style.backgroundImage = 'none';
