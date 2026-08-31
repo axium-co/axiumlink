@@ -2970,7 +2970,7 @@
           return;
         }
         const color = g.color || '#ffffff';
-        const aHi = Math.min(0.34, Math.max(0.06, (g.opacity || 16) / 100));
+        const aHi = Math.max(0, Math.min(1, (g.opacity ?? 16) / 100));
         const aLo = Math.max(0.02, aHi * 0.3);
         const blur = g.blur || 0;
         const sat = g.saturate || 180;
@@ -4155,7 +4155,7 @@
               const bgrp = (cfg.style && cfg.style.buttonGlass) || {};
               const col = bgrp.color || '#ffffff';
               const op = bgrp.opacity != null ? bgrp.opacity : (st.btnGlassOpacity ?? st.glassOpacity ?? 15);
-              const aHi = Math.min(0.34, Math.max(0.06, op / 100));
+              const aHi = Math.max(0, Math.min(1, op / 100));
               const aLo = Math.max(0.02, aHi * 0.3);
               const bl = (bgrp.blur != null ? bgrp.blur : (st.btnGlassBlur ?? st.glassBlur ?? 12)) + 'px';
               const sat = bgrp.saturate ?? 180;

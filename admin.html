@@ -14,7 +14,7 @@
 <!-- Fontes -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&family=Montserrat:wght@400;500;600;700;800&family=Syne:wght@400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&family=Montserrat:wght@400;500;600;700;800&family=Syne:wght@400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700;800&family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Serif+Display:wght@400&family=Lora:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
 <!-- Supabase SDK + credenciais + init -->
@@ -450,8 +450,8 @@
     position:relative; width:100%; height:180px; border-radius:8px;
     cursor:crosshair; overflow:hidden; touch-action:none;
   }
-  .cp-sv-white { position:absolute; inset:0; background:linear-gradient(to bottom,rgba(255,255,255,0),rgba(255,255,255,1)); }
-  .cp-sv-black { position:absolute; inset:0; background:linear-gradient(to right,rgba(0,0,0,1),rgba(0,0,0,0)); }
+  .cp-sv-white { position:absolute; inset:0; background:linear-gradient(to right,rgba(255,255,255,1),rgba(255,255,255,0)); }
+  .cp-sv-black { position:absolute; inset:0; background:linear-gradient(to bottom,rgba(0,0,0,0),rgba(0,0,0,1)); }
   .cp-sv-cursor {
     position:absolute; width:16px; height:16px; border-radius:50%;
     border:2px solid #fff; box-shadow:0 0 3px rgba(0,0,0,.5);
@@ -712,6 +712,8 @@
   .pv-avatar-wrap {
     width:96px; height:96px; margin:-48px auto 0; position:relative; z-index:10;
   }
+  /* Sem banner: avatar não sobrepõe nada — assenta no topo com espaçamento normal */
+  .pv-page.no-banner .pv-avatar-wrap { margin-top: 0; }
   /* Container circular blindado — trava o formato 1:1 */
   .pv-avatar {
     width:100%; height:100%; border-radius:50%;
@@ -1492,7 +1494,7 @@
           <div class="ds-control">
             <label>Opacidade do vidro</label>
             <div class="ds-control-row">
-              <input type="range" id="nameGlassOpacity" min="5" max="50" step="1">
+              <input type="range" id="nameGlassOpacity" min="0" max="100" step="1">
               <output class="ds-value" id="nameGlassOpacityVal">16%</output>
             </div>
           </div>
@@ -1622,7 +1624,7 @@
           <div class="ds-control">
             <label>Opacidade do vidro</label>
             <div class="ds-control-row">
-              <input type="range" id="bioGlassOpacity" min="5" max="50" step="1">
+              <input type="range" id="bioGlassOpacity" min="0" max="100" step="1">
               <output class="ds-value" id="bioGlassOpacityVal">16%</output>
             </div>
           </div>
@@ -1765,7 +1767,7 @@
             <div class="ds-control">
               <label>Opacidade do vidro</label>
               <div class="ds-control-row">
-                <input type="range" id="addressGlassOpacity" min="5" max="50" step="1">
+                <input type="range" id="addressGlassOpacity" min="0" max="100" step="1">
                 <output class="ds-value" id="addressGlassOpacityVal">16%</output>
               </div>
             </div>
@@ -1948,7 +1950,7 @@
           <div class="ds-control">
             <label>Opacidade do vidro</label>
             <div class="ds-control-row">
-              <input type="range" id="iconGlassOpacity" min="5" max="50" step="1">
+              <input type="range" id="iconGlassOpacity" min="0" max="100" step="1">
               <output class="ds-value" id="iconGlassOpacityVal">16%</output>
             </div>
           </div>
@@ -2145,7 +2147,7 @@
           <div class="ds-control">
             <label>Opacidade do vidro</label>
             <div class="ds-control-row">
-              <input type="range" id="buttonGlassOpacity" min="5" max="50" step="1">
+              <input type="range" id="buttonGlassOpacity" min="0" max="100" step="1">
               <output class="ds-value" id="buttonGlassOpacityVal">16%</output>
             </div>
           </div>
@@ -2621,7 +2623,7 @@
           <div class="ds-control">
             <label>Opacidade do vidro</label>
             <div class="ds-control-row">
-              <input type="range" id="bannerGlassOpacity" min="5" max="50" step="1">
+              <input type="range" id="bannerGlassOpacity" min="0" max="100" step="1">
               <output class="ds-value" id="bannerGlassOpacityVal">18%</output>
             </div>
           </div>
@@ -3779,11 +3781,14 @@
 
     const bannerBox = $('pvBanner');
     const bannerImg = $('pvBannerImg');
+    const pvPage = $('pvPage');
     if (cfg.banner) {
       bannerImg.src = cfg.banner;
       bannerBox.classList.remove('no-banner');
+      if (pvPage) pvPage.classList.remove('no-banner');
     } else {
       bannerBox.classList.add('no-banner');
+      if (pvPage) pvPage.classList.add('no-banner');
     }
     syncBannerImageControls();
     const bannerUrlEl = $('bannerImageUrl');
@@ -4811,7 +4816,7 @@
     }
 
     const color = g.color || '#ffffff';
-    const aHi = Math.min(0.34, Math.max(0.06, (g.opacity || 16) / 100));
+    const aHi = Math.max(0, Math.min(1, (g.opacity ?? 16) / 100));
     const aLo = Math.max(0.02, aHi * 0.3);
     const blur = g.blur || 0;
     const sat = g.saturate || 180;
@@ -5164,7 +5169,9 @@
       const size = avCfg.size || 96;
       wrap.style.width = size + 'px';
       wrap.style.height = size + 'px';
-      wrap.style.marginTop = -(size / 2) + 'px';
+      /* Só sobrepõe o banner quando há banner; sem banner o avatar assenta
+         no topo com margem normal (evita subir/cortar no estado sem banner). */
+      wrap.style.marginTop = cfg.banner ? (-(size / 2) + 'px') : '0px';
     }
 
     /* Selo de verificado */
