@@ -4519,6 +4519,7 @@ window.addEventListener('focus', refetchOnFocus);
       ];
       window.__alaPublica = {
         dom: __domSnapshot,
+        adapt(payload) { return adaptNewSchema(__clone(payload)); },
         aplicar(payload) { applyConfig(__clone(payload)); },
         espelho(baseline, elKey) {
           applyConfig(__clone(baseline));
