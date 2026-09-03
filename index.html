@@ -1052,9 +1052,10 @@
       font-size: 0.75rem;
       opacity: 0.65;
       margin-top: 2px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      max-width: 100%;
     }
 
     .featured__arrow {
@@ -2428,6 +2429,8 @@
                 customHeight: (l.customButtonHeight && Number(l.customButtonHeight) > 40) ? Number(l.customButtonHeight) : null,
                 iconAlign: l.iconAlign || null,
                 sub: l.sub || null,
+                cardStyle: l.cardStyle || null,
+                category: l.category || null,
                 animation: l.animation || null,
                 width: l.width || null,
                 linkFont: l.linkFont || null,
@@ -2437,7 +2440,7 @@
               }))
             : undefined,
           quickActions: Array.isArray(cfg.quick)
-            ? cfg.quick.map(q => ({ title: q.label, url: q.url, image: q.img || null, icon: q.icon || null, color: q.color || null }))
+            ? cfg.quick.map(q => ({ title: q.label, url: q.url, image: q.img || null, icon: q.icon || null, color: q.color || null, sub: q.sub || null, cardStyle: q.cardStyle || null, style: q.style || null, category: q.category || null }))
             : undefined
         };
         console.log('[Axiumlink][adapt] Resultado:', {
@@ -3790,6 +3793,9 @@
                 body.appendChild(sub);
               }
               a.appendChild(body);
+              aplicarEstiloIndividual(a, link);
+              applyLinkTextTypoPublic(a, link);
+              wrap.appendChild(a);
             } else if (link.cardStyle === 'testimonial') {
               a.classList.add('featured__card--testimonial');
               const body = document.createElement('span');
@@ -3804,6 +3810,9 @@
                 body.appendChild(sub);
               }
               a.appendChild(body);
+              aplicarEstiloIndividual(a, link);
+              applyLinkTextTypoPublic(a, link);
+              wrap.appendChild(a);
             } else if (isVideo) {
               a.classList.add('featured__card--video');
               a.target = '';
@@ -3831,6 +3840,7 @@
                 fallback.innerHTML = '<i class="fas fa-play-circle"></i>';
                 a.appendChild(fallback);
               }
+              wrap.appendChild(a);
             } else {
               const icon = document.createElement('span');
               icon.className = 'featured__icon';

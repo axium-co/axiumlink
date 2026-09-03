@@ -882,7 +882,8 @@
   }
   .link-block-sub {
     font-size:12px; opacity:.65; margin-top:2px;
-    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    white-space:normal; overflow-wrap:anywhere; word-break:break-word;
+    display:block; max-width:100%;
   }
 
   /* Alinhamento do ícone por bloco (l.iconAlign).
@@ -3976,6 +3977,8 @@
           sub.textContent = l.sub;
           a.appendChild(sub);
         }
+        a.addEventListener('click', (ev) => ev.preventDefault());
+        list.appendChild(a);
       } else if (l.cardStyle === 'testimonial') {
         a.classList.add('featured__card--testimonial');
         a.style.fontStyle = 'italic';
@@ -3988,6 +3991,8 @@
           sub.textContent = '— ' + l.sub;
           a.appendChild(sub);
         }
+        a.addEventListener('click', (ev) => ev.preventDefault());
+        list.appendChild(a);
       } else if (isVideo) {
         a.classList.add('featured__card--video');
         a.target = '';
@@ -4015,6 +4020,8 @@
           fallback.innerHTML = '<i class="fas fa-play-circle"></i>';
           a.appendChild(fallback);
         }
+        a.addEventListener('click', (ev) => ev.preventDefault());
+        list.appendChild(a);
       } else {
         const head = document.createElement('div');
         head.className = 'link-block__head';
@@ -7269,6 +7276,12 @@
     $('btnBlockDelete').style.display = isNew ? 'none' : 'flex';
 
     const l = isNew ? {} : (cfg.links[index] || {});
+    /* [TEMP-DEBUG] Log da config completa do link aberto (cardStyle/category/sub)
+       — remover depois de diagnosticar o bug do botão circular. */
+    try {
+      console.log('[TEMP-DEBUG] link=' + index + ' completo:', JSON.stringify(l, null, 2));
+      console.log('[TEMP-DEBUG] links raw cfg:', JSON.stringify(cfg.links, null, 2));
+    } catch (debugErr) { console.error('[TEMP-DEBUG] erro ao logar link', debugErr); }
     $('blockTitle').value = l.title || '';
     $('blockUrl').value = l.url || '';
     $('blockSub').value = l.sub || '';
