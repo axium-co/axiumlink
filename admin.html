@@ -752,10 +752,13 @@
     text-align:center; font-size:13.5px; opacity:.75; margin-top:6px; padding:0 32px; line-height:1.55;
   }
   .pv-name-row {
-    display:flex; align-items:center; justify-content:center; gap:7px;
-    flex-wrap:wrap; padding:0 24px;
+    display:flex; align-items:center; justify-content:center; padding:0 24px;
   }
   .pv-name-row h1.pv-name { margin-top:12px; padding:0; }
+  .pv-name-wrap {
+    display:flex; align-items:center; justify-content:center; gap:7px;
+    flex-wrap:wrap; max-width:100%; min-width:0;
+  }
   .pv-verified {
     display:inline-flex; align-items:center; justify-content:center;
     width:20px; height:20px; border-radius:999px; flex-shrink:0;
@@ -2698,8 +2701,10 @@
                   </div>
 
                   <div class="pv-name-row">
-                    <h1 class="pv-name" id="pvName">Seu nome</h1>
-                    <span class="pv-verified" id="pvVerified" title="Perfil verificado" hidden>✓</span>
+                    <div class="pv-name-wrap">
+                      <h1 class="pv-name" id="pvName">Seu nome</h1>
+                      <span class="pv-verified" id="pvVerified" title="Perfil verificado" hidden>✓</span>
+                    </div>
                   </div>
                   <p class="pv-bio" id="pvBio"></p>
                   <div class="pv-address" id="pvAddress" hidden>
@@ -4063,6 +4068,10 @@
     /* Reconstruiu o DOM → reaplica estilos (atalhos/botões) de imediato.
        Idempotente: chamadas duplicadas com applyThemeVars não acumulam nada. */
     applyThemeVars();
+    /* applyThemeVars (acima) reaplica as margens:auto do chip do Nome, o que
+       expulsaria o selo de verificado para o extremo oposto da linha. Reaplica
+       o alinhamento Nome+selo por último para a dupla ficar sempre junto. */
+    alignNameRow();
   }
 
   /* Overrides por-link de tipografia do texto do botão (BUG 6). Só se aplica
@@ -5346,6 +5355,21 @@
     reapplyLinkTypo($('pvPage'));
   }
 
+  /* Centraliza Nome+selo como um ÚNICO bloco: o wrap (.pv-name-wrap) posiciona
+     os dois juntos (justify-content no wrap). O row só posiciona o wrap
+     (esquerda/centro/direita). As margens:auto do chip do Nome são limpas
+     para que a dupla não se desloque. */
+  function alignNameRow() {
+    const nameRow = document.querySelector('.pv-name-row');
+    if (!nameRow) return;
+    const nameWrap = document.querySelector('.pv-name-wrap');
+    const na = (profileElem('name') && profileElem('name').align) || 'center';
+    nameRow.style.justifyContent = na === 'left' ? 'flex-start' : na === 'right' ? 'flex-end' : 'center';
+    if (nameWrap) nameWrap.style.justifyContent = 'center';
+    const pvNameEl = $('pvName');
+    if (pvNameEl) { pvNameEl.style.marginLeft = ''; pvNameEl.style.marginRight = ''; }
+  }
+
   /* Aplica o design de perfil/banner (cfg.design) ao mockup celular.
      Valores padrão reproduzem o visual atual: avatar arredondado sem
      borda, sem selo, bio normal, endereço visível quando preenchido,
@@ -5423,16 +5447,12 @@
       const ntext = profileElem('name');
       name.style.color = ntext.color || '';
     }
-    /* Selo de verificado FICA JUNTO do nome: quem posiciona a dupla é o
-       justify-content do row (nome+selo andam juntos). As margens:auto do
-       chip do Nome expulsavam o selo para o extremo esquerdo. */
-    const nameRow = document.querySelector('.pv-name-row');
-    if (nameRow) {
-      const na = profileElem('name').align;
-      nameRow.style.justifyContent = na === 'left' ? 'flex-start' : na === 'right' ? 'flex-end' : 'center';
-      const pvNameEl = $('pvName');
-      if (pvNameEl) { pvNameEl.style.marginLeft = ''; pvNameEl.style.marginRight = ''; }
-    }
+    /* Selo de verificado FICA JUNTO do nome: o wrap (.pv-name-wrap) envolve
+       Nome + selo como um ÚNICO bloco e centraliza a dupla (justify-content
+       no wrap). O row só posiciona o wrap (esquerda/centro/direita) pelo
+       alinhamento. As margens:auto do chip do Nome são limpas para não
+       separarem o selo nem deslocarem o centro do bloco Nome+selo. */
+    alignNameRow();
 
     /* Bio: cor + peso + alinhamento (independentes via elem.bio) */
     const bio = $('pvBio');

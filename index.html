@@ -435,9 +435,20 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 0.5rem;
       width: 100%;
       margin-top: 1.375rem;
+      min-width: 0;
+    }
+    /* Nome + selo de verificado são um ÚNICO bloco centralizado: o wrap
+       flex posiciona os dois juntos (justify-content) com um espaçamento
+       pequeno e fixo, independente das margens do chip do Nome. */
+    .profile__name-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      max-width: 100%;
       min-width: 0;
     }
 
@@ -1898,12 +1909,14 @@
 
         <!-- TODO: NOME DO CLIENTE (dinâmico) -->
         <div class="profile__name-row">
-          <h1 class="profile__title" id="pgTitle" data-bind="profileName">Nome do Cliente</h1>
-          <span class="profile__verified" id="pgVerified" title="Perfil verificado" aria-label="Perfil verificado" hidden>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="m5 12 4 4L19 6" />
-            </svg>
-          </span>
+          <div class="profile__name-wrap">
+            <h1 class="profile__title" id="pgTitle" data-bind="profileName">Nome do Cliente</h1>
+            <span class="profile__verified" id="pgVerified" title="Perfil verificado" aria-label="Perfil verificado" hidden>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="m5 12 4 4L19 6" />
+              </svg>
+            </span>
+          </div>
         </div>
 
         <!-- TODO: BIOGRAFIA / SERVIÇOS (dinâmico) -->
@@ -3139,12 +3152,17 @@
 
       /* Alinhamento do nome também rege a linha do selo de verificado */
       const nameRow = document.querySelector('.profile__name-row');
+      const nameWrap = document.querySelector('.profile__name-wrap');
       if (nameRow) {
         const na = pElemName.align || (ptext.name && ptext.name.align) || '';
+        /* O wrap (.profile__name-wrap) envolve Nome + selo como um ÚNICO bloco
+           e centraliza os dois juntos (justify-content:center no wrap). O row
+           só posiciona o wrap (esquerda/centro/direita) pelo alinhamento. */
         nameRow.style.justifyContent = na === 'left' ? 'flex-start' : na === 'right' ? 'flex-end' : 'center';
-        /* O chip do Nome (width fit-content) e o selo de verificado precisam
-           mover JUNTOS pelo justify-content do row. As margens:auto do chip
-           (posicionamento de bloco) expulsavam o selo para o extremo esquerdo. */
+        if (nameWrap) nameWrap.style.justifyContent = 'center';
+        /* As margens:auto do chip do Nome (width fit-content) expulsavam o selo
+           para o extremo oposto; limpar impede que o centro do bloco Nome+selo
+           seja deslocado por elas. */
         const tEl = document.getElementById('pgTitle');
         if (tEl) { tEl.style.marginLeft = ''; tEl.style.marginRight = ''; }
       }

@@ -327,6 +327,7 @@ async function main() {
     failures += await runBug8();
     failures += await runBug9();
     failures += await runBug10();
+    failures += await runBugVerifiedBadge();
   }
 
   log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
@@ -335,4 +336,71 @@ async function main() {
   process.exit(failures === 0 ? 0 : 1);
 }
 
-main();
+  /* ── BUG A+B: selo de verificado colado ao nome e centrado como unidade ── */
+  async function runBugVerifiedBadge() {
+    let f = 0;
+    const okB = (cond, msg) => { if (!cond) { f++; log('  ❌ ' + msg); } else { log('  ✅ ' + msg); } };
+
+    // ---- ADMIN ----
+    log('\n━━━ BUG A+B admin: selo de verificado colado ao nome ━━━');
+    {
+      const { window } = boot(ADMIN_PATH, supabaseStub(NEW_CONFIG));
+      window.__axEditor.init(NEW_CONFIG);
+      const wrap = window.document.querySelector('.pv-name-wrap');
+      okB(!!wrap, 'admin: .pv-name-wrap existe');
+      if (wrap) {
+        const nameEl = window.document.getElementById('pvName');
+        const badge = window.document.getElementById('pvVerified');
+        okB(wrap.contains(nameEl), 'admin: #pvName dentro do .pv-name-wrap');
+        okB(wrap.contains(badge), 'admin: #pvVerif ied dentro do .pv-name-wrap');
+        const ws = window.getComputedStyle(wrap);
+        okB(ws.justifyContent === 'center', 'admin: .pv-name-wrap justify-content = center (dupla centrada) — ' + ws.justifyContent);
+      }
+      const nSt = window.getComputedStyle(window.document.getElementById('pvName'));
+      const ml = nSt.marginLeft;
+      const mr = nSt.marginRight;
+      const noAuto = (ml === '' || ml === '0px') && (mr === '' || mr === '0px');
+      okB(noAuto, 'admin: #pvName sem margens auto (chip não expulsa o selo) — ml=' + ml + ' mr=' + mr);
+
+      // Habilita glass no nome → chipFor deve reaplicar, mas alignNameRow limpa
+      const cfg2 = JSON.parse(JSON.stringify(NEW_CONFIG));
+      cfg2.style = cfg2.style || {};
+      cfg2.design = cfg2.design || {};
+      cfg2.design.profile = cfg2.design.profile || {};
+      cfg2.design.profile.elem = cfg2.design.profile.elem || {};
+      cfg2.design.profile.elem.name = cfg2.design.profile.elem.name || {};
+      cfg2.design.profile.elem.name.bg = '#ff0000';
+      window.__axEditor.init(cfg2);
+      const nSt2 = window.getComputedStyle(window.document.getElementById('pvName'));
+      const ml2 = nSt2.marginLeft;
+      const mr2 = nSt2.marginRight;
+      const noAuto2 = (ml2 === '' || ml2 === '0px') && (mr2 === '' || mr2 === '0px');
+      okB(noAuto2, 'admin: #pvName com vidro ainda sem margens auto — ml=' + ml2 + ' mr=' + mr2);
+    }
+
+    // ---- PÚBLICO ----
+    log('\n━━━ BUG A+B público: selo de verificado colado ao nome ━━━');
+    {
+      const { window } = boot(INDEX_PATH, supabaseStub(NEW_CONFIG));
+      window.__alaPublica.aplicar(NEW_CONFIG);
+      const wrap = window.document.querySelector('.profile__name-wrap');
+      okB(!!wrap, 'público: .profile__name-wrap existe');
+      if (wrap) {
+        const nameEl = window.document.getElementById('pgTitle');
+        const badge = window.document.getElementById('pgVerified');
+        okB(wrap.contains(nameEl), 'público: #pgTitle dentro do .profile__name-wrap');
+        okB(wrap.contains(badge), 'público: #pgVerified dentro do .profile__name-wrap');
+        const ws = window.getComputedStyle(wrap);
+        okB(ws.justifyContent === 'center', 'público: .profile__name-wrap justify-content = center (dupla centrada) — ' + ws.justifyContent);
+      }
+      const nSt = window.getComputedStyle(window.document.getElementById('pgTitle'));
+      const ml = nSt.marginLeft;
+      const mr = nSt.marginRight;
+      const noAuto = (ml === '' || ml === '0px') && (mr === '' || mr === '0px');
+      okB(noAuto, 'público: #pgTitle sem margens auto (chip não expulsa o selo) — ml=' + ml + ' mr=' + mr);
+    }
+
+    return f;
+  }
+
+  main();
