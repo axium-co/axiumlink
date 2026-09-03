@@ -300,7 +300,64 @@ async function linksImagemCustomizada() {
   ok(norm && norm.querySelector('.featured__icon') && norm.querySelector('.featured__body'), 'público: botão normal mantém ícone + texto da plataforma');
 }
 
-/* ================================================================
+  /* ── BUG: atalho (cfg.quick) renderiza círculo tanto no preview admin
+         quanto na página pública, mesmo quando quickLinksStyle está ausente;
+         link normal continua botão retangular consistente nos dois lados ── */
+  async function runBugQuickCircleConsistency() {
+    let f = 0;
+    const okB = (cond, msg) => { if (!cond) { f++; log('  ❌ ' + msg); } else { log('  ✅ ' + msg); } };
+
+    const CFG = JSON.parse(JSON.stringify(NEW_CONFIG));
+    CFG.quick = [{ label: 'Axium Company', url: 'https://axium.company', icon: 'site' }];
+    if ('quickLinksStyle' in CFG) delete CFG.quickLinksStyle;
+    CFG.links = [
+      { id: 'l1', title: 'Link Normal', type: 'site', url: 'https://site.com', sub: '', cardStyle: '' }
+    ];
+
+    // ---- ADMIN (preview) ----
+    log('\n━━━ BUG atalho admin: círculo com quickLinksStyle ausente ━━━');
+    {
+      const { window } = boot(ADMIN_PATH, supabaseStub(CFG));
+      window.__axEditor.init(CFG);
+      const d = window.document;
+      const qi = d.getElementById('previewQuickGrid').querySelector('.quick-item');
+      okB(!!qi, 'admin: atalho renderizado como .quick-item');
+      const th = qi ? qi.querySelector('.quick-thumb') : null;
+      okB(!!th, 'admin: atalho tem .quick-thumb');
+      if (th) {
+        const cs = window.getComputedStyle(th);
+        okB(cs.borderRadius === '50%', 'admin: atalho é círculo (border-radius 50%) mesmo sem quickLinksStyle — ' + cs.borderRadius);
+        okB(cs.width === cs.height, 'admin: atalho é proporcional (largura = altura) — ' + cs.width + 'x' + cs.height);
+      }
+      const normal = d.querySelector('#previewLinksList .link-block');
+      okB(!!normal, 'admin: link normal renderizado como .link-block (botão)');
+      okB(normal && !normal.classList.contains('featured__card--highlight'), 'admin: link normal NÃO é cartão circular');
+    }
+
+    // ---- PÚBLICO ----
+    log('\n━━━ BUG atalho público: círculo com quickLinksStyle ausente ━━━');
+    {
+      const { window } = boot(INDEX_PATH, supabaseStub(CFG));
+      window.__alaPublica.aplicar(CFG);
+      const d = window.document;
+      const quickCards = d.querySelectorAll('#pgQuick .featured__card');
+      okB(quickCards.length === 1, 'público: atalho renderizado no grid de ações rápidas — ' + quickCards.length);
+      if (quickCards.length) {
+        const cs = window.getComputedStyle(quickCards[0]);
+        okB(cs.borderRadius === '9999px', 'público: atalho é círculo (border-radius 9999px) mesmo sem quickLinksStyle — ' + cs.borderRadius);
+      }
+      const normal = d.querySelector('#pgLinks .featured__card');
+      okB(!!normal, 'público: link normal renderizado como botão (.featured__card)');
+      if (normal) {
+        const cs = window.getComputedStyle(normal);
+        okB(cs.borderRadius !== '9999px', 'público: link normal NÃO é circular — ' + cs.borderRadius);
+      }
+    }
+
+    return f;
+  }
+
+  /* ================================================================
    Main
    ================================================================ */
 async function main() {
@@ -329,6 +386,7 @@ async function main() {
     failures += await runBug10();
     failures += await runBugVerifiedBadge();
     failures += await runBugLinkCardStyles();
+    failures += await runBugQuickCircleConsistency();
   }
 
   log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');

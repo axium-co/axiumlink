@@ -7276,12 +7276,6 @@
     $('btnBlockDelete').style.display = isNew ? 'none' : 'flex';
 
     const l = isNew ? {} : (cfg.links[index] || {});
-    /* [TEMP-DEBUG] Log da config completa do link aberto (cardStyle/category/sub)
-       — remover depois de diagnosticar o bug do botão circular. */
-    try {
-      console.log('[TEMP-DEBUG] link=' + index + ' completo:', JSON.stringify(l, null, 2));
-      console.log('[TEMP-DEBUG] links raw cfg:', JSON.stringify(cfg.links, null, 2));
-    } catch (debugErr) { console.error('[TEMP-DEBUG] erro ao logar link', debugErr); }
     $('blockTitle').value = l.title || '';
     $('blockUrl').value = l.url || '';
     $('blockSub').value = l.sub || '';

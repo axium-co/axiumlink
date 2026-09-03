@@ -3245,9 +3245,8 @@
          Roda DEPOIS do pass global de botões, que senão sobrescreveria
          background/sombra dos cards de atalho com o estilo dos links. ---- */
       function applyQuickLinksStyle(container) {
-        const qls = cfg._qls;
-        if (!qls || !container) return;
-        const s = Object.assign({ format: 'circle', background: 'solid', shadow: 'soft' }, qls);
+        if (!container) return;
+        const s = Object.assign({ format: 'circle', background: 'solid', shadow: 'soft' }, cfg._qls || {});
         const thBtnbg2 = { indigo:'#111827', light:'#2563eb', dark:'#1f2937', sunset:'#ea580c', ocean:'#0891b2', forest:'#16a34a', rose:'#e11d48' }[st.theme] || '#111827';
         const isHex = s.format === 'hexagon';
         const FORMAT_RADIUS = { circle:'9999px', squircle:'26px', leaf:'70% 30% 70% 30% / 30% 70% 30% 70%' };
