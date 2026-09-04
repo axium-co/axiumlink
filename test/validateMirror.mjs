@@ -298,6 +298,12 @@ const CASE_VARIANTS = [
       return c;
     }
   },
+  { name: 'espaçamento global entre blocos (blockGap=30)',
+    make: (c) => { c.style.blockGap = 30; return c; }
+  },
+  { name: 'espaçamento global entre blocos (blockGap=0)',
+    make: (c) => { c.style.blockGap = 0; return c; }
+  },
   { name: 'avatares full (tamanho/forma/raio/borda/sombra/glow/vidro)',
     make: (c) => {
       c.design.profile.elem.avatar = {
@@ -468,6 +474,37 @@ function bannerOverlayChecks(wA, wP) {
   return opts;
 }
 
+/* Espaçamento global entre blocos (style.blockGap): cada bloco da ordem da
+   página (Avatar → Nome → Bio → Endereço) recebe margin-bottom =
+   espaçamento INDIVIDUAL do elemento (elem.<x>.spacing > 0 — sobrescreve o
+   global) senão o GLOBAL blockGap. Valor 0 zera a margem (''). Admin
+   (preview) e público aplicam a MESMA fórmula → comparação tripla. */
+function blockSpacingChecks(wA, wP, cfg) {
+  const opts = [];
+  const st = cfg.style || {};
+  const globalGap = (Number(st.blockGap) >= 0) ? Number(st.blockGap) : 10;
+  const elem = ((cfg.design && cfg.design.profile && cfg.design.profile.elem) || {});
+  const pairs = [
+    ['avatar', '#pvAvatarWrap', '#pgAvatarCard'],
+    ['name', '.pv-name-row', '.profile__name-row'],
+    ['bio', '#pvBio', '#pgSubtitle'],
+    ['address', '#pvAddress', '#pgAddress']
+  ];
+  for (const [key, aSel, pSel] of pairs) {
+    const indiv = Number(elem[key] && elem[key].spacing);
+    const expected = indiv > 0 ? indiv : globalGap;
+    const expV = expected ? expected + 'px' : '';
+    const aEl = wA.document.querySelector(aSel);
+    const pEl = wP.document.querySelector(pSel);
+    if (!aEl || !pEl) continue;
+    const aV = aEl.style.marginBottom || '';
+    const pV = pEl.style.marginBottom || '';
+    const detail = 'admin=' + (aV || '(vazio)') + ' público=' + (pV || '(vazio)') + ' esperado=' + (expV || '(vazio)');
+    opts.push([`espaçamento bloco ${key}: admin==público==esperado`, aV === pV && aV === expV, detail]);
+  }
+  return opts;
+}
+
 /* ================================================================
    Runner
    ================================================================ */
@@ -544,7 +581,7 @@ export async function run() {
 
     /* Alvos direcionados */
     const checks = [];
-    checks.push(...avatarChecks(wA, wP, cfg), ...enderecoTargetedChecks(wA, wP, cfg), ...fundoChecks(wA, wP, cfg));
+    checks.push(...avatarChecks(wA, wP, cfg), ...enderecoTargetedChecks(wA, wP, cfg), ...fundoChecks(wA, wP, cfg), ...blockSpacingChecks(wA, wP, cfg));
     if (/banner/i.test(variant.name)) checks.push(...overlayTitleChecks(wA, wP), ...bannerOverlayChecks(wA, wP));
     if (/verificado/i.test(variant.name)) checks.push(...verifiedChecks(wA, wP, cfg));
 

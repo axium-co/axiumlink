@@ -1,8 +1,10 @@
-/* Controle de espaçamento por elemento e por link.
+/* Controle de espaçamento entre blocos e por link.
 
-   1) ELEMENTOS (nome/bio/endereço/avatar/banner): campo `spacing` (>0)
-      vira margin-bottom EXTRA (soma com o padrão atual). 0/sem campo =
-      layout atual intacto (nenhum estilo inline).
+   1) BLOCOS DA PÁGINA (avatar/nome/bio/endereço): margin-bottom = valor do
+      campo INDIVIDUAL `elem.<x>.spacing` (>0 — sobrescreve o global) senão
+      o espaçamento GLOBAL "Espaçamento entre blocos" (style.blockGap, hoje
+      também aplicado aos botões). blockGap=0 cola os blocos. Banner segue
+      o campo próprio `design.banner.spacing`.
    2) LINKS: cada botão tem `spacing` próprio (>0 sobrescreve o blockGap
       global do primeiro item acima dele; 0 usa o global). Tabs de
       categoria recebem margin-bottom = blockGap. O primeiro item da
@@ -90,23 +92,25 @@ export async function run() {
       check(`consistência ${nome}: admin==público (${a})`, a === p, 'a=' + a + ' p=' + p);
     });
 
-    /* DEFAULT (sem campo spacing): layout atual intacto — sem inline. */
+    /* DEFAULT (sem campo spacing individual): todos os blocos da página
+       usam o espaçamento GLOBAL "Espaçamento entre blocos" (blockGap=12). */
     const wAD = admin.init(baseCfg());
     const dAD = wAD.document;
     const wPD = boot(INDEX_PATH, { supabase: supabaseStub({ config: baseCfg(), slug: 'teste' }), url: 'https://axiumlink.test/?s=teste' }).window;
     wPD.__alaPublica.aplicar(baseCfg());
-    check('default admin: .pv-name-row sem margin-bottom inline', box(dAD.querySelector('.pv-name-row')).mb === '');
-    check('default admin: #pvBio sem margin-bottom inline', box(dAD.querySelector('#pvBio')).mb === '');
-    check('default público: .profile__name-row sem margin-bottom inline', box(wPD.document.querySelector('.profile__name-row')).mb === '');
-    check('default público: #pgSubtitle sem margin-bottom inline', box(wPD.document.querySelector('#pgSubtitle')).mb === '');
+    check('default admin: .pv-name-row usa blockGap 12px', box(dAD.querySelector('.pv-name-row')).mb === '12px', box(dAD.querySelector('.pv-name-row')).mb);
+    check('default admin: #pvBio usa blockGap 12px', box(dAD.querySelector('#pvBio')).mb === '12px', box(dAD.querySelector('#pvBio')).mb);
+    check('default público: .profile__name-row usa blockGap 12px', box(wPD.document.querySelector('.profile__name-row')).mb === '12px', box(wPD.document.querySelector('.profile__name-row')).mb);
+    check('default público: #pgSubtitle usa blockGap 12px', box(wPD.document.querySelector('#pgSubtitle')).mb === '12px', box(wPD.document.querySelector('#pgSubtitle')).mb);
 
-    /* Isolamento: mudar UM elemento não afeta os outros (admin) */
+    /* Isolamento: mudar UM elemento só altera ELE; os demais caem no GLOBAL
+       (não ficam colados nem ganham o valor do elemento alterado). */
     const onlyBio = baseCfg((c) => { c.design.profile.elem.bio.spacing = 40; });
     const wAI = admin.init(onlyBio);
     const dAI = wAI.document;
-    check('isolamento: só a bio muda (nome=', box(dAI.querySelector('#pvBio')).mb === '40px', 'e nome=' + box(dAI.querySelector('.pv-name-row')).mb + ')');
-    check('isolamento: nome intacto', box(dAI.querySelector('.pv-name-row')).mb === '');
-    check('isolamento: banner intacto', box(dAI.querySelector('.pv-banner')).mb === '');
+    check('isolamento: só a bio muda (bio=40, nome=', box(dAI.querySelector('#pvBio')).mb === '40px', 'e nome=' + box(dAI.querySelector('.pv-name-row')).mb + ')');
+    check('isolamento: nome usa o global 12px', box(dAI.querySelector('.pv-name-row')).mb === '12px', box(dAI.querySelector('.pv-name-row')).mb);
+    check('isolamento: banner usa o global 12px', box(dAI.querySelector('.pv-banner')).mb === '12px', box(dAI.querySelector('.pv-banner')).mb);
   }
 
   /* ================================================================

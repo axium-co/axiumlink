@@ -20,6 +20,7 @@ import { run as runBug8 } from './validateBug8.mjs';
 import { run as runBug9 } from './validateBug9.mjs';
 import { run as runBug10 } from './validateBug10.mjs';
 import { run as runEspacamento } from './validateEspacamento.mjs';
+import { run as runEspacamentoGlobal } from './validateEspacamentoGlobal.mjs';
 import { run as runMirror } from './validateMirror.mjs';
 
 let failures = 0;
@@ -320,6 +321,7 @@ async function main() {
     failures += await runBug9();
     failures += await runBug10();
     failures += await runEspacamento();
+    failures += await runEspacamentoGlobal();
     failures += await runMirror();
     failures += await runBugVerifiedBadge();
     failures += await runBugLinkCardStyles();
