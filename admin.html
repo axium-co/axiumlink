@@ -1483,6 +1483,15 @@
             </div>
           </details>
 
+          <div class="ds-control">
+            <label>Espaçamento abaixo do Nome</label>
+            <p class="hint" style="margin:-2px 0 8px;">Distância entre o Nome e o próximo elemento. 0 = manter o padrão atual.</p>
+            <div class="ds-control-row">
+              <input type="range" id="nameSpace" min="0" max="48" step="1">
+              <output class="ds-value" id="nameSpaceVal">0px</output>
+            </div>
+          </div>
+
           <span class="elem-section-title">Efeito Vidro do Nome</span>
           <div class="glass-block" id="nameGlassBlock">
           <div class="glass-block-head">💠 Efeito Vidro do Nome</div>
@@ -1612,6 +1621,15 @@
               </div>
             </div>
           </details>
+
+          <div class="ds-control">
+            <label>Espaçamento abaixo da Bio</label>
+            <p class="hint" style="margin:-2px 0 8px;">Distância entre a Bio e o próximo elemento. 0 = manter o padrão atual.</p>
+            <div class="ds-control-row">
+              <input type="range" id="bioSpace" min="0" max="48" step="1">
+              <output class="ds-value" id="bioSpaceVal">0px</output>
+            </div>
+          </div>
 
           <span class="elem-section-title">Efeito Vidro da Bio</span>
           <div class="glass-block" id="bioGlassBlock">
@@ -1782,6 +1800,14 @@
               </div>
             </div>
           </div>
+          <div class="ds-control">
+            <label>Espaçamento abaixo do Endereço</label>
+            <p class="hint" style="margin:-2px 0 8px;">Distância entre o Endereço e o próximo elemento. 0 = manter o padrão atual.</p>
+            <div class="ds-control-row">
+              <input type="range" id="addressSpace" min="0" max="48" step="1">
+              <output class="ds-value" id="addressSpaceVal">0px</output>
+            </div>
+          </div>
           </div>
         </details>
 
@@ -1865,6 +1891,15 @@
             <div class="ds-control-row">
               <input type="range" id="avatarGlowIntensity" min="10" max="120" step="2">
               <output class="ds-value" id="avatarGlowIntensityVal">35</output>
+            </div>
+          </div>
+          <span class="elem-section-title">Espaçamento</span>
+          <div class="ds-control">
+            <label>Espaçamento abaixo do Avatar</label>
+            <p class="hint" style="margin:-2px 0 8px;">Distância entre o Avatar e o próximo elemento. 0 = manter o padrão atual.</p>
+            <div class="ds-control-row">
+              <input type="range" id="avatarSpace" min="0" max="48" step="1">
+              <output class="ds-value" id="avatarSpaceVal">0px</output>
             </div>
           </div>
           </div>
@@ -2324,10 +2359,11 @@
           </select>
         </div>
 
-        <div class="ds-control">
-          <label>Espaçamento entre blocos</label>
+<div class="ds-control">
+          <label>Espaçamento entre botões (global)</label>
+          <p class="hint" style="margin:-2px 0 8px;">Distância padrão entre todos os links. 0 = sem espaço extra. Cada link pode ter um valor próprio na sua edição.</p>
           <div class="ds-control-row">
-            <input type="range" id="blockGap" min="4" max="24" step="1">
+            <input type="range" id="blockGap" min="0" max="48" step="1">
             <output class="ds-value" id="blockGapVal">10px</output>
           </div>
         </div>
@@ -2505,6 +2541,14 @@
               <input type="range" id="bannerGlassOpacity" min="0" max="100" step="1">
               <output class="ds-value" id="bannerGlassOpacityVal">18%</output>
             </div>
+          </div>
+        </div>
+        <div class="ds-control" style="margin-top:12px; padding-top:12px; border-top:1px solid var(--bg);">
+          <label>Espaçamento abaixo do Banner</label>
+          <p class="hint" style="margin:-2px 0 8px;">Distância entre o Banner e o Avatar/Nome. 0 = manter o padrão atual.</p>
+          <div class="ds-control-row">
+            <input type="range" id="bannerSpace" min="0" max="48" step="1">
+            <output class="ds-value" id="bannerSpaceVal">0px</output>
           </div>
         </div>
         </div>
@@ -2758,6 +2802,15 @@
         <small id="blockTypoNotApp" style="display:none; color:#94a3b8; background:var(--bg); padding:8px 10px; border-radius:8px; font-size:12px; line-height:1.5;">
           Não aplicável a botões com imagem customizada — este botão usa a própria imagem, sem texto da plataforma. Controle a altura abaixo em &quot;Alcance de imagem&quot;.
         </small>
+      </div>
+
+      <div class="field" style="margin-top:8px; padding-top:12px; border-top:1px solid var(--bg);">
+        <label for="blockSpacing" style="font-size:13px; font-weight:700; color:var(--ink);">Espaçamento acima deste botão</label>
+        <p class="hint" style="margin-bottom:8px;">0 = usar o espaçamento global (definido em &quot;Espaçamento entre botões&quot;). Ajuste para destacar este botão com mais respiro — só ele muda.</p>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <input type="range" id="blockSpacing" min="0" max="48" step="1" value="0" style="flex:2;">
+          <span id="blockSpacingVal" style="min-width:48px; font-weight:700;">0px</span>
+        </div>
       </div>
 
       <div style="display:flex; gap:10px; margin-top:18px;">
@@ -3627,7 +3680,6 @@
     /* Blocos de link no preview */
     const list = $('previewLinksList');
     list.innerHTML = '';
-    list.style.gap = (cfg.style?.blockGap ?? 10) + 'px';
 
     /* Categorias / Tabs no preview */
     const cats = [...new Set((cfg.links || []).map(l => l.category).filter(Boolean))];
@@ -4690,10 +4742,10 @@
      (com migração única dos campos compartilhados antigos) e devolve a ref.
      O vidro do Nome fica em cfg.style.nameGlass (separado do textGlass da Bio). */
   const ELEM_DEFAULTS = {
-    name:    { font: '', size: 20, weight: 700, ls: 0, lh: 1.4, color: '', align: 'center', bg: '', radius: 10, padding: [4, 14] },
-    bio:     { font: '', size: 14, weight: 400, ls: 0, lh: 1.4, color: '', align: 'center', bg: '', radius: 10, padding: [4, 14] },
-    address: { font: '', size: 12, weight: 600, ls: 0, lh: 1.4, color: '', align: 'center', bg: '', radius: 999, padding: [8, 16] },
-    avatar:  { size: 96, shape: 'circle', radius: 999, borderStyle: 'solid', borderWidth: 4, borderColor: '#ffffff', shadowOn: true, shadowX: 0, shadowY: 12, shadowBlur: 24, shadowSpread: -10, shadowColor: '#000000', shadowAlpha: 50, glowOn: false, glowColor: '', glowIntensity: 35 }
+    name:    { font: '', size: 20, weight: 700, ls: 0, lh: 1.4, color: '', align: 'center', bg: '', radius: 10, padding: [4, 14], spacing: 0 },
+    bio:     { font: '', size: 14, weight: 400, ls: 0, lh: 1.4, color: '', align: 'center', bg: '', radius: 10, padding: [4, 14], spacing: 0 },
+    address: { font: '', size: 12, weight: 600, ls: 0, lh: 1.4, color: '', align: 'center', bg: '', radius: 999, padding: [8, 16], spacing: 0 },
+    avatar:  { size: 96, shape: 'circle', radius: 999, borderStyle: 'solid', borderWidth: 4, borderColor: '#ffffff', shadowOn: true, shadowX: 0, shadowY: 12, shadowBlur: 24, shadowSpread: -10, shadowColor: '#000000', shadowAlpha: 50, glowOn: false, glowColor: '', glowIntensity: 35, spacing: 0 }
   };
   function profileElem(key) {
     cfg.design = cfg.design || {};
@@ -4950,16 +5002,38 @@
     /* Efeito vidro independente por elemento (sub-grupos) */
     applyGlassToElements(st);
 
-    const gap = (st.blockGap ?? 10);
-    $('previewLinksList').style.display = 'flex';
-    $('previewLinksList').style.flexDirection = 'column';
-    $('previewLinksList').style.gap = gap + 'px';
-    [...$('previewLinksList').children].forEach((child, i) => {
-      child.style.marginBottom = i === $('previewLinksList').children.length - 1 ? '0' : gap + 'px';
-    });
+    const list = $('previewLinksList');
+    list.style.display = 'flex';
+    list.style.flexDirection = 'column';
+    applyLinkSpacing(list, cfg.links);
 
     /* Tipografia por-link volta por cima dos estilos globais dos botões (BUG 6) */
     reapplyLinkTypo($('pvPage'));
+  }
+
+  /* Espaçamento vertical dos botões (links): cada item tem margin-top
+     próprio — o slot do item NÃO sobrepõe nem empilha, apenas define a
+     distância para o item acima. slot = spacing do link (se >0) senão
+     blockGap global. O primeiro item da lista (e as tabs de categoria)
+     não ganham margin-top extra. Lógica IDÊNTICA na página pública
+     (index.html), garantindo preview e público com o MESMO resultado. */
+  function applyLinkSpacing(listEl, links) {
+    if (!listEl) return;
+    const st = cfg.style || {};
+    const globalGap = Number(st.blockGap) >= 0 ? Number(st.blockGap) : 10;
+    let idx = 0;
+    for (const child of listEl.children) {
+      if (child.classList && child.classList.contains('pg-tabs')) {
+        child.style.marginTop = '0px';
+        child.style.marginBottom = globalGap + 'px';
+        continue;
+      }
+      const link = links && links[idx];
+      const slot = (link && Number(link.spacing) > 0) ? Number(link.spacing) : globalGap;
+      child.style.marginTop = (idx === 0 ? 0 : slot) + 'px';
+      child.style.marginBottom = '0px';
+      idx++;
+    }
   }
 
   /* Centraliza Nome+selo como um ÚNICO bloco: o wrap (.pv-name-wrap) posiciona
@@ -5109,6 +5183,21 @@
         scrim.hidden = true;
       }
     }
+
+    /* Espaçamento extra por elemento (0 = manter o padrão atual).
+       Mesma lógica da página pública — espaco = margin-bottom extra,
+       aplicado SEMPRE em margin-bottom para nunca quebrar o alinhamento
+       horizontal dos elementos (auto/auto da centralização fica intacto). */
+    const setElemSpace = (el, v) => {
+      if (!el) return;
+      const px = (v != null && Number(v) > 0) ? Number(v) : 0;
+      el.style.marginBottom = px ? (px + 'px') : '';
+    };
+    setElemSpace(document.querySelector('.pv-banner'), (dp.banner || {}).spacing);
+    setElemSpace($('pvAvatarWrap'), profileElem('avatar').spacing);
+    setElemSpace(document.querySelector('.pv-name-row'), profileElem('name').spacing);
+    setElemSpace($('pvBio'), profileElem('bio').spacing);
+    setElemSpace($('pvAddress'), profileElem('address').spacing);
   }
 
   /* Renderiza os color triggers do perfil/banner com semântica AUTO
@@ -5167,6 +5256,7 @@
     const scrimEl = $('bannerScrim');
     if (scrimEl) scrimEl.checked = bn.scrim === 'dark';
     if ($('bannerScrimOpacity')) setRange('bannerScrimOpacity', bn.scrimOpacity == null ? 45 : bn.scrimOpacity);
+    if ($('bannerSpace')) setRange('bannerSpace', bn.spacing);
   }
 
   /* Renderiza color triggers individuais (fundo, texto, botão bg, botão texto) */
@@ -6256,6 +6346,7 @@
       });
     });
     bindRange('avatarGlowIntensity', 'avatarGlowIntensityVal', (v) => String(v), (v) => { profileElem('avatar').glowIntensity = v; renderPreview(); });
+    bindRange('avatarSpace', 'avatarSpaceVal', (v) => v + 'px', (v) => { profileElem('avatar').spacing = v; renderPreview(); });
 
     safeOn('profileVerified', 'change', (e) => {
       cfg.profile = cfg.profile || {};
@@ -6308,6 +6399,7 @@
     bindRange('nameRadius', 'nameRadiusVal', (v) => v + 'px', (v) => { profileElem('name').radius = v; applyThemeVars(); });
     bindRange('namePadV', 'namePadVVal', (v) => v + 'px', (v) => { const nm = profileElem('name'); nm.padding = nm.padding || [4, 14]; nm.padding[0] = v; applyThemeVars(); });
     bindRange('namePadH', 'namePadHVal', (v) => v + 'px', (v) => { const nm = profileElem('name'); nm.padding = nm.padding || [4, 14]; nm.padding[1] = v; applyThemeVars(); });
+    bindRange('nameSpace', 'nameSpaceVal', (v) => v + 'px', (v) => { profileElem('name').spacing = v; renderPreview(); });
 
     /* Controles completos do elemento Bio — gravam em elem.bio (INDEPENDENTE) */
     safeOn('bioFont', 'change', (e) => { profileElem('bio').font = e.target.value; applyThemeVars(); markDirty(); });
@@ -6343,6 +6435,7 @@
     bindRange('bioRadius', 'bioRadiusVal', (v) => v + 'px', (v) => { profileElem('bio').radius = v; applyThemeVars(); });
     bindRange('bioPadV', 'bioPadVVal', (v) => v + 'px', (v) => { const bm = profileElem('bio'); bm.padding = bm.padding || [4, 14]; bm.padding[0] = v; applyThemeVars(); });
     bindRange('bioPadH', 'bioPadHVal', (v) => v + 'px', (v) => { const bm = profileElem('bio'); bm.padding = bm.padding || [4, 14]; bm.padding[1] = v; applyThemeVars(); });
+    bindRange('bioSpace', 'bioSpaceVal', (v) => v + 'px', (v) => { profileElem('bio').spacing = v; renderPreview(); });
 
     safeOn('addressShow', 'change', (e) => {
       const pf = profileDesignRef();
@@ -6391,6 +6484,7 @@
     bindRange('addressRadius', 'addressRadiusVal', (v) => v + 'px', (v) => { profileElem('address').radius = v; applyThemeVars(); });
     bindRange('addressPadV', 'addressPadVVal', (v) => v + 'px', (v) => { const am = profileElem('address'); am.padding = am.padding || [8, 16]; am.padding[0] = v; applyThemeVars(); });
     bindRange('addressPadH', 'addressPadHVal', (v) => v + 'px', (v) => { const am = profileElem('address'); am.padding = am.padding || [8, 16]; am.padding[1] = v; applyThemeVars(); });
+    bindRange('addressSpace', 'addressSpaceVal', (v) => v + 'px', (v) => { profileElem('address').spacing = v; renderPreview(); });
 
     safeOn('bannerScrim', 'change', (e) => {
       const dp = cfg.design || (cfg.design = {});
@@ -6403,6 +6497,12 @@
       const dp = cfg.design || (cfg.design = {});
       dp.banner = dp.banner || {};
       dp.banner.scrimOpacity = v;
+      renderPreview();
+    });
+    bindRange('bannerSpace', 'bannerSpaceVal', (v) => v + 'px', (v) => {
+      const dp = cfg.design || (cfg.design = {});
+      dp.banner = dp.banner || {};
+      dp.banner.spacing = v;
       renderPreview();
     });
 
@@ -6536,6 +6636,7 @@
     if ($('avatarShadowBlur')) setRange('avatarShadowBlur', profileElem('avatar').shadowBlur == null ? 24 : profileElem('avatar').shadowBlur);
     if ($('avatarGlow')) $('avatarGlow').checked = !!profileElem('avatar').glowOn;
     if ($('avatarGlowIntensity')) setRange('avatarGlowIntensity', profileElem('avatar').glowIntensity == null ? 35 : profileElem('avatar').glowIntensity);
+    if ($('avatarSpace')) setRange('avatarSpace', profileElem('avatar').spacing);
     const verifiedEl = $('profileVerified');
     if (verifiedEl) verifiedEl.checked = !!(cfg.profile && cfg.profile.verified);
     const nameAlignEl = $('nameAlign');
@@ -6550,6 +6651,7 @@
     if ($('nameRadius')) setRange('nameRadius', nmR.radius);
     if ($('namePadV')) setRange('namePadV', (nmR.padding && nmR.padding[0]) != null ? nmR.padding[0] : 4);
     if ($('namePadH')) setRange('namePadH', (nmR.padding && nmR.padding[1]) != null ? nmR.padding[1] : 14);
+    if ($('nameSpace')) setRange('nameSpace', nmR.spacing);
     /* Reflete os controles do elemento Bio (elem.bio) */
     const bmR = profileElem('bio');
     if ($('bioFont')) $('bioFont').value = bmR.font || '';
@@ -6563,6 +6665,7 @@
     if ($('bioRadius')) setRange('bioRadius', bmR.radius);
     if ($('bioPadV')) setRange('bioPadV', (bmR.padding && bmR.padding[0]) != null ? bmR.padding[0] : 4);
     if ($('bioPadH')) setRange('bioPadH', (bmR.padding && bmR.padding[1]) != null ? bmR.padding[1] : 14);
+    if ($('bioSpace')) setRange('bioSpace', bmR.spacing);
     const addrShowEl = $('addressShow');
     if (addrShowEl) addrShowEl.checked = pf.addrShow !== false;
     const addrIconEl = $('addressIcon');
@@ -6580,6 +6683,7 @@
     if ($('addressRadius')) setRange('addressRadius', amR.radius);
     if ($('addressPadV')) setRange('addressPadV', (amR.padding && amR.padding[0]) != null ? amR.padding[0] : 8);
     if ($('addressPadH')) setRange('addressPadH', (amR.padding && amR.padding[1]) != null ? amR.padding[1] : 16);
+    if ($('addressSpace')) setRange('addressSpace', amR.spacing);
     renderDesignTriggers();
   }
 
@@ -6760,6 +6864,9 @@
     setTriggerColor('blockTextColor', ltColor || '#ffffff');
     const ltLabel = $('blockTextColor')?.querySelector('.color-trigger-hex');
     if (ltLabel) ltLabel.textContent = ltColor ? ltColor.toUpperCase() : 'AUTO';
+    /* Espaçamento individual do botão (0 = usar o global) */
+    $('blockSpacing').value = (Number(l.spacing) > 0) ? Number(l.spacing) : 0;
+    $('blockSpacingVal').textContent = $('blockSpacing').value + 'px';
     updateBlockImageUI();
 
     /* Popula datalist de categorias existentes */
@@ -6925,6 +7032,7 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
     safeOn('blockCustomHeight', 'input', () => updateBlockImageUI());
     safeOn('blockTypoSize', 'input', (e) => { const o = $('blockTypoSizeVal'); if (o) o.textContent = e.target.value + 'px'; });
     safeOn('blockTypoWeight', 'input', (e) => { const o = $('blockTypoWeightVal'); if (o) o.textContent = e.target.value; });
+    safeOn('blockSpacing', 'input', (e) => { const o = $('blockSpacingVal'); if (o) o.textContent = e.target.value + 'px'; });
     safeOn('blockTextColor', 'click', () => {
       const cur = _pendingBlockTextColor || '#ffffff';
       openColorPicker($('blockTextColor'), cur, (hex) => {
@@ -6984,7 +7092,8 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
         linkFont: $('blockTypoFont').value || '',
         linkFontSize: (Number($('blockTypoSize').value) >= 12) ? Number($('blockTypoSize').value) : null,
         linkFontWeight: (Number($('blockTypoWeight').value) >= 300) ? Number($('blockTypoWeight').value) : null,
-        linkTextColor: _pendingBlockTextColor || ''
+        linkTextColor: _pendingBlockTextColor || '',
+        spacing: (Number($('blockSpacing').value) > 0) ? Number($('blockSpacing').value) : undefined
       };
 
       cfg.links = cfg.links || [];

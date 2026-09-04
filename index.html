@@ -2278,7 +2278,8 @@
                 linkFont: l.linkFont || null,
                 linkFontSize: l.linkFontSize || null,
                 linkFontWeight: l.linkFontWeight || null,
-                linkTextColor: l.linkTextColor || null
+                linkTextColor: l.linkTextColor || null,
+                spacing: (Number(l.spacing) > 0) ? Number(l.spacing) : null
               }))
             : undefined
         };
@@ -2978,6 +2979,23 @@
         }
       }
 
+      /* Espaçamento extra por elemento (0 = manter o padrão atual).
+         Mesma lógica do admin (applyProfileDesignToMockup): margin-bottom
+         extra, sem tocar nos eixos horizontais (margin auto da
+         centralização fica intacto). */
+      const setElemSpace = (el, v) => {
+        if (!el) return;
+        const px = (v != null && Number(v) > 0) ? Number(v) : 0;
+        el.style.marginBottom = px ? (px + 'px') : '';
+      };
+      const spacingFromElem = (k) => (pf.elem && pf.elem[k] && Number(pf.elem[k].spacing) > 0) ? Number(pf.elem[k].spacing) : 0;
+      const bnSp = (cfg.design && cfg.design.banner && Number(cfg.design.banner.spacing) > 0) ? Number(cfg.design.banner.spacing) : 0;
+      setElemSpace(document.getElementById('pgBanner'), bnSp);
+      setElemSpace(document.getElementById('pgAvatarCard'), spacingFromElem('avatar'));
+      setElemSpace(document.querySelector('.profile__name-row') || document.getElementById('pgTitle'), spacingFromElem('name'));
+      setElemSpace(document.getElementById('pgSubtitle'), spacingFromElem('bio'));
+      setElemSpace(document.getElementById('pgAddress'), spacingFromElem('address'));
+
       /* Cor do selo de verificado */
       if (pf.verifiedColor) {
         const vEl = document.getElementById('pgVerified');
@@ -3271,6 +3289,7 @@
             });
             tabsWrap.appendChild(btn);
           });
+          tabsWrap.style.marginBottom = (Number(cfg.style?.blockGap) >= 0 ? Number(cfg.style?.blockGap) : 10) + 'px';
           linksContainer.appendChild(tabsWrap);
         }
 
@@ -3280,12 +3299,27 @@
 
         renderLinksList(linkList);
 
+        /* Espaçamento vertical dos botões (links): cada item tem margin-top
+           próprio — o slot do item NÃO sobrepõe nem empilha, apenas define a
+           distância para o item acima. slot = spacing do link (se >0) senão
+           blockGap global. O primeiro item não ganha margin-top extra.
+           Lógica IDÊNTICA ao admin (admin.html applyLinkSpacing), garantindo
+           preview e público com o MESMO resultado. */
+        function applyLinkSpacing(wrap, list) {
+          const globalGap = Number(cfg.style?.blockGap) >= 0 ? Number(cfg.style?.blockGap) : 10;
+          Array.from(wrap.children).forEach((child, i) => {
+            const link = list && list[i];
+            const slot = (link && Number(link.spacing) > 0) ? Number(link.spacing) : globalGap;
+            child.style.marginTop = (i === 0 ? 0 : slot) + 'px';
+            child.style.marginBottom = '0px';
+          });
+        }
+
         function renderLinksList(list) {
           const existing = linksContainer.querySelector('.pg-links-list');
           if (existing) existing.remove();
           const wrap = document.createElement('div');
           wrap.className = 'pg-links-list';
-          wrap.style.gap = (cfg.style?.blockGap ?? 10) + 'px';
           wrap.style.display = 'flex';
           wrap.style.flexDirection = 'column';
 
@@ -3478,6 +3512,7 @@
             }
           });
 
+          applyLinkSpacing(wrap, list);
           linksContainer.appendChild(wrap);
         }
         renderLinksList(linkList);

@@ -19,6 +19,7 @@ import { run as runBug7 } from './validateBug7.mjs';
 import { run as runBug8 } from './validateBug8.mjs';
 import { run as runBug9 } from './validateBug9.mjs';
 import { run as runBug10 } from './validateBug10.mjs';
+import { run as runEspacamento } from './validateEspacamento.mjs';
 
 let failures = 0;
 const only = process.argv[2] || '';
@@ -315,6 +316,7 @@ async function main() {
     failures += await runBug8();
     failures += await runBug9();
     failures += await runBug10();
+    failures += await runEspacamento();
     failures += await runBugVerifiedBadge();
     failures += await runBugLinkCardStyles();
   }
