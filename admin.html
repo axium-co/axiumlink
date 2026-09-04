@@ -4256,9 +4256,12 @@
     if (old) old.remove();
     const st = cfg.style || {};
     const bt = Object.assign({ titleColor:'', titleSize:16, titleWeight:700, ctaColor:'', ctaSize:12, ctaWeight:700, align:'center', vpos:'center', darken:true }, st.bannerText || {});
-    const title = st.bannerOverlayTitle || '';
-    const cta = st.bannerOverlayCta || '';
-    const ctaUrl = st.bannerOverlayCtaUrl || '';
+    /* Fonte única do overlay: design.banner (schema oficial, o que a página
+       pública lê) com fallback para o campo legado do painel em cfg.style. */
+    const bnOv = (cfg.design && cfg.design.banner) || {};
+    const title = st.bannerOverlayTitle || bnOv.overlayTitle || '';
+    const cta = st.bannerOverlayCta || bnOv.overlayCta || '';
+    const ctaUrl = st.bannerOverlayCtaUrl || bnOv.overlayCtaUrl || '';
     if (!title && !cta) return;
     /* Container posicionado com width limitada e alinhamento controlado */
     const overlay = document.createElement('div');
@@ -4636,6 +4639,7 @@
       pvName.style.fontWeight = String(b.weight ?? 700);
       pvName.style.letterSpacing = (b.ls ?? 0) + 'px';
       pvName.style.lineHeight = String(b.lh ?? 1.4);
+      pvName.style.textAlign = b.align || 'center';
     }
 
     const pvBio = $('pvBio');

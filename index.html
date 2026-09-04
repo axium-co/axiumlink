@@ -3691,7 +3691,7 @@
           document.head.appendChild(fl);
         }
         const FONT_STACKS = {
-          'Inter': "'Inter', system-ui, sans-serif",
+          'Inter': "'Inter', system-ui, -apple-system, sans-serif",
           'Poppins': "'Poppins', system-ui, sans-serif",
           'Montserrat': "'Montserrat', system-ui, sans-serif",
           'Syne': "'Syne', system-ui, sans-serif",
@@ -3872,9 +3872,19 @@
           }
         }
 
-        const btnCSS = buildBtn();
+        const btnCSS = Object.assign({ transition: 'all 0.2s ease' }, buildBtn());
         const ANIMS = ['ax-anim-pulse','ax-anim-float','ax-anim-shine'];
         const btnAnim = st.btnAnimation || 'none';
+        /* Tipografia global dos botões (st.typoBtn) — espelha o painel.
+           A tipografia por-link volta por cima em reapplyLinkTypoPublic. */
+        const tyBtn = st.typoBtn || {};
+        const tyBtnBase = {
+          fontFamily: tyBtn.font ? (FONT_STACKS[tyBtn.font] || 'Georgia, serif') : 'inherit',
+          fontSize: (tyBtn.size != null ? tyBtn.size : 15) + 'px',
+          fontWeight: String(tyBtn.weight != null ? tyBtn.weight : 600),
+          letterSpacing: (tyBtn.ls != null ? tyBtn.ls : 0) + 'px',
+          lineHeight: String(tyBtn.lh != null ? tyBtn.lh : 1.4)
+        };
         document.querySelectorAll('.featured__card, .social-icon').forEach((el) => {
           /* Botão com imagem customizada não recebe o estilo global do botão:
              a imagem inteira é o botão. Aplicar btnCSS inline reverteria as
@@ -3893,6 +3903,7 @@
             return;
           }
           Object.assign(el.style, btnCSS);
+          if (!el.classList.contains('social-icon')) Object.assign(el.style, tyBtnBase);
           if (el.classList.contains('social-icon')) {
             /* Ícones sociais preservam o círculo base (50%). O formato
                global só deve mudá-los quando for explicitamente angular

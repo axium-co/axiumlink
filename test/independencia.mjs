@@ -20,6 +20,7 @@ import { run as runBug8 } from './validateBug8.mjs';
 import { run as runBug9 } from './validateBug9.mjs';
 import { run as runBug10 } from './validateBug10.mjs';
 import { run as runEspacamento } from './validateEspacamento.mjs';
+import { run as runMirror } from './validateMirror.mjs';
 
 let failures = 0;
 const only = process.argv[2] || '';
@@ -296,6 +297,8 @@ async function main() {
   if (only === '--migracao') {
     await migracaoAdmin();
     await migracaoPublica();
+  } else if (only === '--mirror') {
+    failures += await runMirror();
   } else if (only === '--admin') {
     for (const k of ELEM_KEYS) await adminElemento(k);
   } else if (only === '--public') {
@@ -317,6 +320,7 @@ async function main() {
     failures += await runBug9();
     failures += await runBug10();
     failures += await runEspacamento();
+    failures += await runMirror();
     failures += await runBugVerifiedBadge();
     failures += await runBugLinkCardStyles();
   }
