@@ -192,24 +192,12 @@ async function publicoVidrosExtras() {
   const casos = [
     {
       nome: 'botão (buttonGlass #102030)',
-      sel: '.featured__card, .quick__item',
+      sel: '.featured__card',
       frag: 'rgba(16,32,48,0.16)',
       make: () => {
         const c = JSON.parse(JSON.stringify(NEW_CONFIG));
         c.style = Object.assign({}, c.style, { btnVariant: 'glass', buttonGlass: { enabled: true, opacity: 16, color: '#102030' } });
         c.links = [{ id: 'l1', title: 'Meu site', url: 'https://exemplo.com' }];
-        return c;
-      }
-    },
-    {
-      nome: 'ícone (iconGlass #224466)',
-      sel: '.featured__card, .quick__item',
-      frag: 'rgba(34,68,102,0.15)',
-      make: () => {
-        const c = JSON.parse(JSON.stringify(NEW_CONFIG));
-        c.style = Object.assign({}, c.style, { iconGlass: { enabled: true, blur: 12, opacity: 15, color: '#224466' } });
-        c.quickLinksStyle = { format: 'circle', background: 'glass', shadow: 'soft', borderColor: '' };
-        c.quick = [{ label: 'Instagram', url: 'https://ig.com' }];
         return c;
       }
     }
@@ -300,112 +288,6 @@ async function linksImagemCustomizada() {
   ok(norm && norm.querySelector('.featured__icon') && norm.querySelector('.featured__body'), 'público: botão normal mantém ícone + texto da plataforma');
 }
 
-  /* ── BUG "Axium Company": Link Rápido com formato configurado (ex. Quadrado
-         Suave) deve renderizar com EXATAMENTE esse formato — nem círculo
-         perfeito, nem botão retangular — de forma IDÊNTICA no preview do
-         editor e na página pública. A decisão atalho-vs-link é por ARRAY
-         (cfg.quick → #pgQuick / cfg.links → #pgLinks), não por "category". ── */
-  async function runBugQuickCircleConsistency() {
-    let f = 0;
-    const okB = (cond, msg) => { if (!cond) { f++; log('  ❌ ' + msg); } else { log('  ✅ ' + msg); } };
-
-    const base = () => {
-      const cfg = JSON.parse(JSON.stringify(NEW_CONFIG));
-      cfg.quick = [{
-        label: 'Axium Company', url: 'https://axium.company', icon: 'site',
-        sub: 'empresa parceira', cardStyle: 'highlight', category: 'credibilidade'
-      }];
-      cfg.quickLinksStyle = { format: 'squircle', background: 'solid', shadow: 'soft', borderColor: '' };
-      cfg.links = [
-        { id: 'l1', title: 'Link Normal', type: 'site', url: 'https://site.com', sub: '', cardStyle: '' }
-      ];
-      return cfg;
-    };
-
-    // ---- 1) adaptNewSchema NÃO descarta cardStyle/category/sub dos quickActions ----
-    log('\n━━━ (1) adaptNewSchema preserva cardStyle/category/sub dos quickActions ━━━');
-    {
-      const { window } = boot(INDEX_PATH, supabaseStub(base()));
-      const qa = window.__alaPublica.adapt(base()).quickActions[0];
-      okB(qa.category === 'credibilidade', 'adaptNewSchema preserva category=credibilidade — ' + qa.category);
-      okB(qa.cardStyle === 'highlight', 'adaptNewSchema preserva cardStyle=highlight — ' + qa.cardStyle);
-      okB(qa.sub === 'empresa parceira', 'adaptNewSchema preserva sub — ' + qa.sub);
-    }
-
-    // ---- 2/3) Formato configurado (squircle) aplicado nos DOIS ambientes ----
-    const CFG = base();
-    log('\n━━━ (2/3) Link Rápido "Axium Company" com formato Quadrado Suave (squircle) ━━━');
-
-    // ADMIN (preview)
-    log('── admin ──');
-    {
-      const { window } = boot(ADMIN_PATH, supabaseStub(CFG));
-      window.__axEditor.init(CFG);
-      const d = window.document;
-      const qi = d.getElementById('previewQuickGrid').querySelector('.quick-item');
-      okB(!!qi, 'admin: atalho "Axium Company" renderizado no .quick-item');
-      const th = qi ? qi.querySelector('.quick-thumb') : null;
-      okB(!!th, 'admin: atalho tem .quick-thumb');
-      if (th) {
-        const cs = window.getComputedStyle(th);
-        okB(cs.borderRadius === '26px', 'admin: formato = Quadrado Suave (26px), NÃO círculo 50% — ' + cs.borderRadius);
-        okB(cs.width === cs.height, 'admin: atalho é proporcional — ' + cs.width + 'x' + cs.height);
-      }
-      const normal = d.querySelector('#previewLinksList .link-block');
-      okB(!!normal, 'admin: link normal renderizado como .link-block (botão)');
-      okB(normal && !normal.classList.contains('featured__card--highlight'), 'admin: link normal NÃO é cartão circular');
-    }
-
-    // PUBLIC
-    log('── público ──');
-    {
-      const { window } = boot(INDEX_PATH, supabaseStub(CFG));
-      window.__alaPublica.aplicar(CFG);
-      const d = window.document;
-      const quickCards = d.querySelectorAll('#pgQuick .featured__card');
-      okB(quickCards.length === 1, 'público: "Axium Company" renderizado como Link Rápido (atalho) no grid — ' + quickCards.length);
-      if (quickCards.length) {
-        const cs = window.getComputedStyle(quickCards[0]);
-        okB(cs.borderRadius === '26px', 'público: formato = Quadrado Suave (26px), NÃO círculo 9999px — ' + cs.borderRadius);
-      }
-      // Decisão por ARRAY: atalho NÃO cai no fallback de botão retangular em #pgLinks
-      const inLinks = [...d.querySelectorAll('#pgLinks .featured__card')]
-        .map((c) => (c.querySelector('strong') || {}).textContent || '');
-      okB(!inLinks.some((t) => t.includes('Axium')), 'público: "Axium Company" NÃO caiu em #pgLinks como botão retangular — em #pgLinks: ' + JSON.stringify(inLinks));
-      const normal = d.querySelector('#pgLinks .featured__card');
-      okB(!!normal, 'público: link normal renderizado como botão (.featured__card)');
-      if (normal) {
-        const cs = window.getComputedStyle(normal);
-        okB(cs.borderRadius === '16px', 'público: link normal é retangular (16px), NÃO atalho — ' + cs.borderRadius);
-      }
-    }
-
-    // ---- 4) Fallback: quickLinksStyle AUSENTE → ambos ainda viram círculo (default) ----
-    log('\n━━━ (4) sem quickLinksStyle → default círculo em AMBOS ━━━');
-    const CFG2 = base();
-    delete CFG2.quickLinksStyle;
-    {
-      const { window } = boot(ADMIN_PATH, supabaseStub(CFG2));
-      window.__axEditor.init(CFG2);
-      const th = window.document.querySelector('#previewQuickGrid .quick-thumb');
-      if (th) {
-        const cs = window.getComputedStyle(th);
-        okB(cs.borderRadius === '50%', 'admin (sem qls): default círculo 50% — ' + cs.borderRadius);
-      }
-    }
-    {
-      const { window } = boot(INDEX_PATH, supabaseStub(CFG2));
-      window.__alaPublica.aplicar(CFG2);
-      const qc = window.document.querySelector('#pgQuick .featured__card');
-      if (qc) {
-        const cs = window.getComputedStyle(qc);
-        okB(cs.borderRadius === '9999px', 'público (sem qls): default círculo 9999px — ' + cs.borderRadius);
-      }
-    }
-
-    return f;
-  }
-
   /* ================================================================
    Main
    ================================================================ */
@@ -435,7 +317,6 @@ async function main() {
     failures += await runBug10();
     failures += await runBugVerifiedBadge();
     failures += await runBugLinkCardStyles();
-    failures += await runBugQuickCircleConsistency();
   }
 
   log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');

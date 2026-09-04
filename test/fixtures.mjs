@@ -13,8 +13,6 @@ export const LEGACY_CONFIG = {
     verified: false
   },
   banner: '',
-  quick: [],
-  quickLinksStyle: { format: 'circle', background: 'solid', shadow: 'soft', borderColor: '' },
   links: [],
   style: {
     theme: 'indigo',
@@ -83,8 +81,6 @@ export const NEW_CONFIG = {
     verified: false
   },
   banner: '',
-  quick: [],
-  quickLinksStyle: { format: 'circle', background: 'solid', shadow: 'soft', borderColor: '' },
   links: [],
   style: {
     theme: 'indigo',
@@ -99,7 +95,6 @@ export const NEW_CONFIG = {
     bioGlass: { enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false },
     addressGlass: { enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false },
     buttonGlass: {},
-    iconGlass: {},
     bannerGlass: {}
   },
   design: {

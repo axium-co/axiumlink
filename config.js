@@ -15,12 +15,6 @@ window.AXIUMLINK_CONFIG = {
     bio: "Biografia curta, serviços ou tags separadas por • vírgulas.",
     address: "Rua Exemplo, 123 – Cidade/UF"
   },
-  quickActions: [
-    { title: "Contato", url: "https://wa.me/5500000000000", icon: "mensagem" },
-    { title: "Salvar Contato", url: "contato.vcf", icon: "download" },
-    { title: "Ligar", url: "+5500000000000", icon: "telefone" },
-    { title: "PIX", url: "sua.chave@pix.com.br", icon: "pix" }
-  ],
   links: [
     {
       id: "link-1",
@@ -50,8 +44,6 @@ window.AXIUMLINK_CONFIG = {
     pageBg: null,
     textColor: "#0f172a",
     borderColor: null,
-    quickBg: null,
-    quickText: "#0f172a",
     cardBg: null,
     cardText: "#0f172a",
     radius: "arredondado",
@@ -60,11 +52,9 @@ window.AXIUMLINK_CONFIG = {
     bgImage: null
   },
   layout: {
-    quickMode: "scroll",
     cardsMode: "list",
     items: {
       info: { order: 1, hidden: false },
-      quick: { order: 2 },
       links: { order: 3 }
     }
   },

@@ -12,8 +12,6 @@ const GROUPS = [
     prep: (c) => { c.style.bannerOverlayTitle = 'T'; c.style.bannerOverlayCta = 'C'; c.style.bannerOverlayCtaUrl = 'https://x.com'; } },
   { key: 'buttonGlass', adminSel: () => '#previewLinksList .link-block:not(.link-block-customimg)', pubSel: () => '.pg-links-list a.featured__card:not(.featured__card--customimg)', hasBorderOpacity: true,
     prep: (c) => { c.style.btnVariant = 'glass'; } },
-  { key: 'iconGlass', adminSel: () => '.quick-item .quick-thumb', pubSel: () => '.quick-grid .featured__card', hasBorderOpacity: false,
-    prep: (c) => { c.quick = [{ label: 'Instagram', url: 'https://ig.com', icon: 'instagram' }]; c.quickLinksStyle = Object.assign({}, c.quickLinksStyle, { background: 'glass' }); } },
 ];
 
 function buildConfig(key, values, prep) {

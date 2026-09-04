@@ -1,17 +1,14 @@
 /* BUG 10 — Auditoria completa dos efeitos de vidro (glassmorphism).
-   Cobre os 6 grupos (name/bio/address/banner/button/icon) e corrige os
+   Cobre os grupos (name/bio/address/banner/button) e corrige os
    controles desconectados encontrados na auditoria:
 
    1) borderOpacity (grupo buttonGlass) agora é CONSUMIDO por applyGlass/buildBtn
       (antes era salvo no config, mas nunca aplicado na CSS da borda).
-   2) iconGlass entra nas listas de mesh (anyGlassEnabled / anyGlass) → em fundo
-      chapado o blur do ícone fica perceptível (antes o iconGlass era ignorado
-      pelo mesh; só name/button/banner geravam textura).
-   3) Vidro do avatar (design.profile.glass) agora aparece no preview do ADMIN
+   2) Vidro do avatar (design.profile.glass) agora aparece no preview do ADMIN
       (classe .glass + vars --glass-*) — antes só o público #pgAvatarCard o
       renderizava.
 
-   Também garante (não-regressão) que name/bio/address/button/icon seguem
+   Também garante (não-regressão) que name/bio/address/button seguem
    conectados (audit table) e que o borderGlow continua elevando a borda (BUG 8).
 */
 
@@ -69,40 +66,6 @@ export async function run() {
     };
     const pLo = grabPub(0), pHi = grabPub(95);
     check('público: borderOpacity muda a borda (0 vs 95)', pLo !== pHi, `lo=${pLo} hi=${pHi}`);
-  }
-
-  /* ================================================================
-     2) iconGlass entra no mesh — admin + público
-     ================================================================ */
-  async function mesh() {
-    console.log('\n━━━ BUG 10 — iconGlass gera mesh em fundo chapado ━━━');
-    const cfgFor = (glassOn) => {
-      const c = JSON.parse(JSON.stringify(NEW_CONFIG));
-      c.style = Object.assign({}, c.style, {
-        theme: 'indigo', pageBgColor: '#11111f', bgVariant: 'solid',
-        iconGlass: { enabled: glassOn, blur: 20, saturate: 180, opacity: 16 }
-      });
-      c.quick = [{ label: 'Instagram', url: 'https://ig.com' }];
-      return c;
-    };
-
-    const wA = boot(ADMIN_PATH, { supabase: supabaseStub(null), url: 'https://axiumlink.test/admin.html' }).window;
-    wA.__axEditor.init(cfgFor(true));
-    const page = wA.document.getElementById('pvPage');
-    check('admin: iconGlass ligado → mesh no #pvPage', /\bradial-gradient/.test((page && page.style.backgroundImage) || ''), ((page && page.style.backgroundImage) || '').slice(0, 40));
-
-    const wA2 = boot(ADMIN_PATH, { supabase: supabaseStub(null), url: 'https://axiumlink.test/admin.html' }).window;
-    wA2.__axEditor.init(cfgFor(false));
-    const page2 = wA2.document.getElementById('pvPage');
-    check('admin: sem vidro → NENHUM mesh', !/\bradial-gradient/.test((page2 && page2.style.backgroundImage) || ''), ((page2 && page2.style.backgroundImage) || '').slice(0, 40));
-
-    const wP = boot(INDEX_PATH, { supabase: supabaseStub(null), url: 'https://axiumlink.test/?s=teste' }).window;
-    wP.__alaPublica.aplicar(cfgFor(true));
-    check('público: iconGlass ligado → mesh no body', /\bradial-gradient/.test((wP.document.body.style.backgroundImage) || ''), (wP.document.body.style.backgroundImage || '').slice(0, 40));
-
-    const wP2 = boot(INDEX_PATH, { supabase: supabaseStub(null), url: 'https://axiumlink.test/?s=teste' }).window;
-    wP2.__alaPublica.aplicar(cfgFor(false));
-    check('público: sem vidro → NENHUM mesh', !/\bradial-gradient/.test((wP2.document.body.style.backgroundImage) || ''), (wP2.document.body.style.backgroundImage || '').slice(0, 40));
   }
 
   /* ================================================================
@@ -228,7 +191,6 @@ export async function run() {
   }
 
   await borderOpacity();
-  await mesh();
   await avatarGlass();
   await regressao();
   await glassDemo();

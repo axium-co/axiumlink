@@ -57,10 +57,6 @@
       --text-title: #0f172a;         /* Cor do nome do cliente */
       --text-body: #475569;          /* Cor da biografia, endereço e descrições */
 
-      /* == Ícones de ação (Redes sociais) == */
-      --btn-quick-bg: #ffffff;       /* Fundo dos botões de ação */
-      --btn-quick-text: #0f172a;     /* Texto/Ícone dos botões de ação */
-
       /* == Cards principais (Links) == */
       --card-destaque-bg: #ffffff;   /* Fundo dos cards de link */
       --card-destaque-text: #0f172a; /* Texto/Ícone dos cards de link */
@@ -73,8 +69,6 @@
       --page-bg: light-dark(#f4f6fb, #0b1020);
       --text-title: light-dark(#0f172a, #f1f5f9);
       --text-body: light-dark(#475569, #94a3b8);
-      --btn-quick-bg: light-dark(#ffffff, #1a2333);
-      --btn-quick-text: light-dark(#0f172a, #f1f5f9);
       --card-destaque-bg: light-dark(#ffffff, #1a2333);
       --card-destaque-text: light-dark(#0f172a, #f1f5f9);
 
@@ -169,7 +163,7 @@
     /* ================================================================
        ANIMAÇÃO PADRÃO (adaptativa — independe da cor do botão)
        ================================================================ */
-    .featured__card, .social-icon, .quick__item {
+    .featured__card, .social-icon {
       transition: transform var(--transition), box-shadow var(--transition),
                   border-color var(--transition), background-color var(--transition);
     }
@@ -177,12 +171,11 @@
     /* ---- Cor global dos textos = texto interno dos cards/ícones ----
        --btn-text-color-global é injetado via JS. Fallback: cores do card. */
     .featured__card,
-    #pgQuick .featured__card,
     .social-icon {
       color: var(--btn-text-color-global, var(--card-destaque-text, var(--card-fg)));
     }
     .social-icon {
-      color: var(--btn-text-color-global, var(--btn-quick-text, var(--card-fg)));
+      color: var(--btn-text-color-global, var(--card-fg));
     }
 
     /* ---- Textos do perfil permanecem isolados (variáveis próprias) ---- */
@@ -592,8 +585,8 @@
          cliente escolheu um formato explicitamente anguloso
          (--social-icon-radius é injetado via JS nesses casos). */
       border-radius: var(--social-icon-radius, 50%);
-      background: var(--ui-bg, var(--btn-quick-bg, var(--card-bg)));
-      color: var(--btn-text-color-global, var(--btn-quick-text, var(--card-fg)));
+      background: var(--ui-bg, var(--card-bg));
+      color: var(--btn-text-color-global, var(--card-fg));
       border: var(--ui-border, var(--card-border));
       box-shadow: var(--ui-shadow, var(--shadow-xs));
       backdrop-filter: var(--ui-blur, none);
@@ -642,93 +635,6 @@
     .pg-links--list .featured__card--compact { width: auto; min-width: 9rem; align-self: flex-start; }
     .pg-links--list .featured__card--half { width: 100%; }
     .pg-links--list .featured__card--full { width: 100%; }
-
-    /* ---- Ações Rápidas (main cards) — lista vertical por padrão ---- */
-    .quick-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 0.75rem;
-      width: 100%;
-    }
-
-    .quick-grid[hidden] { display: none; }
-
-    .quick-grid .featured__card {
-      flex-direction: column;
-      text-align: center;
-      justify-content: center;
-      gap: 0.5rem;
-      padding: 1rem 0.75rem;
-      min-height: 108px;
-    }
-
-    .quick-grid .featured__icon { width: 44px; height: 44px; }
-    .quick-grid .featured__icon svg { width: 24px; height: 24px; }
-    .quick-grid .featured__arrow { display: none; }
-    .quick-grid .featured__card:only-child { grid-column: 1 / -1; }
-
-    /* BUG 1: em telas muito pequenas, cards de 2 colunas ficam espremidos
-       com alturas irregulares — compacta padding/fonte e equaliza altura. */
-    @media (max-width: 400px) {
-      .quick-grid:not(.quick-grid--list) { grid-template-columns: 1fr 1fr; gap: 0.5rem; }
-      .quick-grid:not(.quick-grid--list) .featured__card { padding: 0.625rem 0.375rem; min-height: 90px; }
-      .quick-grid:not(.quick-grid--list) .featured__body strong { font-size: 0.75rem; }
-    }
-
-    .quick-grid--list {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-
-    .quick-grid--list .featured__card {
-      flex-direction: row;
-      text-align: left;
-      justify-content: flex-start;
-      gap: 0.875rem;
-      padding: 0.625rem 0.875rem;
-      min-height: 68px;
-    }
-
-    .quick-grid--scroll {
-      display: flex;
-      flex-wrap: nowrap;
-      gap: 0.75rem;
-      overflow-x: auto;
-      overscroll-behavior-x: contain;
-      scroll-snap-type: x proximity;
-      scrollbar-width: thin;
-      scrollbar-color: rgba(100, 116, 139, 0.45) transparent;
-      padding-bottom: 6px;
-    }
-
-    .quick-grid--scroll::-webkit-scrollbar { height: 6px; }
-    .quick-grid--scroll::-webkit-scrollbar-thumb {
-      background: rgba(100, 116, 139, 0.45);
-      border-radius: 999px;
-    }
-    .quick-grid--scroll::-webkit-scrollbar-track { background: transparent; }
-
-    /* BUG 2: largura fluida limitada evita scroll horizontal com textos
-       longos; o título trunca com ellipsis em vez de empurrar a faixa. */
-    .quick-grid--scroll .featured__card {
-      flex: 0 0 auto;
-      width: auto;
-      min-width: 150px;
-      max-width: 280px;
-    }
-
-    .quick-grid--scroll .featured__body strong {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 180px;
-      display: block;
-    }
-
-    .quick-grid .featured__card--full { grid-column: 1 / -1; width: 100%; }
-    .quick-grid--list .featured__card--half { width: calc(50% - 0.375rem); }
-    .quick-grid--list .featured__card--compact { justify-self: flex-start; width: auto; min-width: 9rem; }
 
     .featured__card--compact {
       justify-content: center;
@@ -1174,38 +1080,33 @@
        (position:absolute) e título com truncamento ellipsis.
        Banners ficam de fora (a imagem cobre o card inteiro).
        ================================================================ */
-    .pg-links--list .featured__card:not(.featured__card--banner),
-    .quick-grid--list .featured__card:not(.featured__card--banner) {
+    .pg-links--list .featured__card:not(.featured__card--banner) {
       justify-content: center;
       width: 100%;
       text-align: center;
     }
 
-    .pg-links--list .featured__card:not(.featured__card--banner) .featured__icon,
-    .quick-grid--list .featured__card:not(.featured__card--banner) .featured__icon {
+    .pg-links--list .featured__card:not(.featured__card--banner) .featured__icon {
       position: absolute;
       left: 0.875rem;
       top: 50%;
       transform: translateY(-50%);
     }
 
-    .pg-links--list .featured__card:not(.featured__card--banner) .featured__body,
-    .quick-grid--list .featured__card:not(.featured__card--banner) .featured__body {
+    .pg-links--list .featured__card:not(.featured__card--banner) .featured__body {
       align-items: center;
       min-width: 0;
       max-width: calc(100% - 7.5rem); /* reserva ícone (esq.) + seta (dir.) */
     }
 
-    .pg-links--list .featured__card:not(.featured__card--banner) .featured__body strong,
-    .quick-grid--list .featured__card:not(.featured__card--banner) .featured__body strong {
+    .pg-links--list .featured__card:not(.featured__card--banner) .featured__body strong {
       display: block;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
-    .pg-links--list .featured__card:not(.featured__card--banner) .featured__arrow,
-    .quick-grid--list .featured__card:not(.featured__card--banner) .featured__arrow {
+    .pg-links--list .featured__card:not(.featured__card--banner) .featured__arrow {
       position: absolute;
       right: 0.875rem;
       margin-left: 0;
@@ -1239,20 +1140,6 @@
       min-height: 140px;
     }
 
-    /* Nunca esticar o banner além da própria proporção em grade/faixa
-       (align-items: stretch herdaria a altura da linha); em lista vertical
-       mantém a largura total. */
-    .quick-grid .featured__card--banner { align-self: start; }
-
-    /* BUG 6: força a proporção também no layout flex-column de lista,
-       onde o stretch herdava a altura da linha e quebrava o 16/9. */
-    .quick-grid--list .featured__card--banner {
-      align-self: stretch;
-      aspect-ratio: 16 / 9 !important;
-      min-height: 180px;
-      height: auto;
-    }
-
     .featured__banner-img {
       position: absolute;
       inset: 0;
@@ -1272,8 +1159,6 @@
     /* ---- Largura individual ---- */
     .featured__card--full { grid-column: 1 / -1; width: 100%; }
     .featured__card--half { width: calc(50% - 0.375rem); }
-    .quick-grid--list .featured__card--half { width: 100%; }
-    .quick-grid--list .featured__card--compact { justify-self: start; }
 
     /* ================================================================
        FOOTER DA PLATAFORMA
@@ -1629,10 +1514,6 @@
 
       .profile__subtitle { font-size: 1rem; max-width: 46ch; }
 
-      .quick-grid { grid-template-columns: repeat(2, 1fr); }
-
-      .quick-grid--list .featured__card { min-height: 72px; }
-
       .pg-links--list .featured__card { min-height: 72px; }
 
       .featured__card { min-height: 72px; }
@@ -1643,15 +1524,6 @@
     /* Cards de links em grade/faixa: empilham (ícone em cima) para não
        espremer ícone + texto + seta em células de meia largura. */
     @media (max-width: 767px) {
-      .quick-grid:not(.quick-grid--list) .featured__card {
-        flex-direction: column;
-        text-align: center;
-        justify-content: center;
-        gap: 0.5rem;
-        padding: 0.875rem 0.625rem;
-        min-height: 108px;
-      }
-
       .pg-links--list .featured__card {
         flex-direction: row;
         text-align: left;
@@ -1660,10 +1532,6 @@
         padding: 0.625rem 0.875rem;
         min-height: 68px;
       }
-
-      .quick-grid:not(.quick-grid--list) .featured__icon { width: 44px; height: 44px; }
-      .quick-grid:not(.quick-grid--list) .featured__icon svg { width: 24px; height: 24px; }
-      .quick-grid:not(.quick-grid--list) .featured__arrow { display: none; }
     }
 
     @media (max-width: 360px) {
@@ -1679,15 +1547,6 @@
       /* Faixa horizontal (links) em desktop */
       .pg-links--scroll { gap: 0.875rem; }
 
-      .quick-grid--list .featured__card {
-        padding: 0.875rem 1.125rem;
-        gap: 1rem;
-        max-width: 480px;
-        margin-left: auto;
-        margin-right: auto;
-        width: 100%;
-      }
-
       .pg-links--list .featured__card {
         padding: 0.875rem 1.125rem;
         gap: 1rem;
@@ -1697,17 +1556,11 @@
         width: 100%;
       }
 
-      .quick-grid--list .featured__icon {
-        width: 52px;
-        height: 52px;
-      }
-
       .pg-links--list .featured__icon {
         width: 52px;
         height: 52px;
       }
 
-      .quick-grid--list .featured__body strong { font-size: 1rem; }
       .pg-links--list .featured__body strong { font-size: 1rem; }
     }
 
@@ -1752,8 +1605,7 @@
        .social-icon fica de fora: ele tem tamanho fixo (52/56px)
        definido nas linhas 573-590/1574 — o width:100% o colapsava
        numa pílula, cortando o glow em formato de quadrado. */
-    .featured__card,
-    .quick__item {
+    .featured__card {
       display: flex;
       align-items: center;
       justify-content: center;
@@ -1763,15 +1615,12 @@
       min-width: 0;
     }
     /* Variantes legítimas de largura parcial continuam funcionando */
-    .featured__card--compact,
-    .quick-grid--list .featured__card--compact { width: auto; }
-    .featured__card--half,
-    .quick-grid--list .featured__card--half { width: calc(50% - 0.375rem); }
+    .featured__card--compact { width: auto; }
+    .featured__card--half { width: calc(50% - 0.375rem); }
 
     /* Textos dentro dos botões: truncam, nunca empurram o layout */
     .featured__card strong,
-    .featured__card span,
-    .quick__item strong {
+    .featured__card span {
       min-width: 0;
       max-width: 100%;
       overflow-wrap: break-word;
@@ -1936,12 +1785,6 @@
       </div>
 
     </header>
-
-    <!-- ================================================================
-         AÇÕES RÁPIDAS (geradas dinamicamente a partir de cfg.quickActions)
-         ================================================================ -->
-
-      <div id="pgQuick" class="quick-grid"></div>
 
     <!-- ================================================================
          LISTA DE LINKS (gerada dinamicamente a partir de cfg.links)
@@ -2280,7 +2123,7 @@
       /* ================================================================
          ADAPTADOR DE SCHEMA — painel novo → formato legado da página.
          O admin grava { profile:{displayName,avatar}, style:{...},
-         banner, quick[], links[] }. Aqui traduzimos para o
+         banner, links[] }. Aqui traduzimos para o
          shape { profile:{name,photo}, visual:{pageBg,bgImage}, design:{...} }
          que TODA a pipeline de render abaixo já entende — e preservamos
          st em _premium para o pass de estilo avançado no fim.
@@ -2390,7 +2233,6 @@
           _adapted: true,
           _premium: st,
           style: st,
-          _qls: cfg.quickLinksStyle || null,
           profile: {
             name: String(cfg._clientNome || p.displayName || '').trim(),
             bio: p.bio || '',
@@ -2438,9 +2280,6 @@
                 linkFontWeight: l.linkFontWeight || null,
                 linkTextColor: l.linkTextColor || null
               }))
-            : undefined,
-          quickActions: Array.isArray(cfg.quick)
-            ? cfg.quick.map(q => ({ title: q.label, url: q.url, image: q.img || null, icon: q.icon || null, color: q.color || null, sub: q.sub || null, cardStyle: q.cardStyle || null, style: q.style || null, category: q.category || null }))
             : undefined
         };
         console.log('[Axiumlink][adapt] Resultado:', {
@@ -2521,7 +2360,6 @@
           }
           return o;
         };
-        if (Array.isArray(cfg.quickActions)) cfg.quickActions.forEach(curarEstiloIndividual);
         if (Array.isArray(cfg.links)) cfg.links.forEach(curarEstiloIndividual);
 
         /* ---- Migração do gradiente opaco padrão (bug do fundo) ----
@@ -2578,11 +2416,9 @@
       if (v.btnInk) set('--btn-text-color-global', v.btnInk);
       set('--btn-border-color', v.borderColor);
       if (v.btnBg) {
-        set('--btn-quick-bg', v.btnBg);
         set('--card-destaque-bg', v.btnBg);
       }
       if (v.btnInk) {
-        set('--btn-quick-text', v.btnInk);
         set('--card-destaque-text', v.btnInk);
       }
 
@@ -2608,7 +2444,7 @@
          cor uniforme (não há o que desfocar). Se houver vidro ligado e o
          fundo for uma cor sólida sem imagem/gradiente, insere um mesh sutil
          atrás para o desfoque ter textura — sem mudar a cor escolhida. */
-      const anyGlass = ['nameGlass', 'bioGlass', 'addressGlass', 'bannerGlass', 'buttonGlass', 'iconGlass']
+      const anyGlass = ['nameGlass', 'bioGlass', 'addressGlass', 'bannerGlass', 'buttonGlass']
         .some((k) => cfg.style && cfg.style[k] && cfg.style[k].enabled);
       if (anyGlass && isSolidHex && !bgImageUrl && !pageGrad) {
         bgLayers.push([
@@ -2658,8 +2494,6 @@
         document.documentElement.style.removeProperty('--text-body');
       }
 
-      set('--btn-quick-bg', v.quickBg || v.btnBg);
-      set('--btn-quick-text', v.quickText || v.btnInk);
       set('--card-destaque-bg', v.cardBg || v.btnBg);
       set('--card-destaque-text', v.cardText || v.btnInk);
 
@@ -3204,144 +3038,7 @@
       /* ---- Layout livre (ordem, largura e modos por seção) ---- */
       const lay = cfg.layout || {};
       const layItems = lay.items || {};
-      const quickMode = lay.quickMode || 'grid2x2';
       const cardsMode = lay.cardsMode || 'list';
-
-      /* ---- Ações Rápidas dinâmicas (cfg.quickActions ou migra formato antigo) ---- */
-      const quickIcons = {
-        mensagem: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
-        telefone: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92Z"/></svg>',
-        download: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>',
-        pix: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>',
-        link: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>',
-        email: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>',
-        localizacao: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>',
-        whatsapp: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5Z"/><path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1"/></svg>',
-        instagram: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37Z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>',
-        tiktok: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12a4 4 0 1 0 4 4V4c.5 2.6 2.4 4.5 5 5"/></svg>',
-        youtube: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-1.92 29 29 0 0 0 .46-5.33 29 29 0 0 0-.46-5.33z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/></svg>',
-        site: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>',
-        outro: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>',
-        loja: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>',
-        estetica: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3Z"/></svg>',
-        barbearia: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.12 15.88M14.47 14.48 20 20M8.12 8.12 12 12"/></svg>',
-        clinica: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>',
-        saude: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.5-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.51 4.05 3 5.5l7 7Z"/></svg>',
-        food: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 2v8a3 3 0 0 1-3-3V2M5 7a3 3 0 0 1 3-3v18M17 2v12M17 14a2 2 0 0 1 2 2v6"/></svg>',
-        gym: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5 17.5 17.5M21 21l-1-1M3 3l1 1M18 22l4-4M2 6l4-4M3 10l7-7M14 21l7-7"/></svg>',
-        musica: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>',
-        arte: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>',
-        pet: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="10" r="1.6"/><circle cx="9.5" cy="6.5" r="1.6"/><circle cx="14.5" cy="6.5" r="1.6"/><circle cx="19" cy="10" r="1.6"/><path d="M12 12c-1.5 0-3 1.5-5 1.5-2.5 0-3.5-2-3.5-3.5C3.5 8 5 7.5 6 8.5c1 1 3.2 1.5 6 1.5s5-.5 6-1.5c1-1 2.5-.5 2.5 2 0 1.5-1 3.5-3.5 3.5-2 0-3.5-1.5-5-1.5Z"/></svg>',
-        educacao: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zM22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>',
-        servicos: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>',
-        camera: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>',
-        agenda: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
-        pagamento: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/></svg>',
-        brinde: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v10H4V12M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>',
-        viagem: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>'
-      };
-
-      /* ---- Estilo exclusivo dos atalhos rápidos (config.quickLinksStyle).
-         Roda DEPOIS do pass global de botões, que senão sobrescreveria
-         background/sombra dos cards de atalho com o estilo dos links. ---- */
-      function applyQuickLinksStyle(container) {
-        if (!container) return;
-        const s = Object.assign({ format: 'circle', background: 'solid', shadow: 'soft' }, cfg._qls || {});
-        const thBtnbg2 = { indigo:'#111827', light:'#2563eb', dark:'#1f2937', sunset:'#ea580c', ocean:'#0891b2', forest:'#16a34a', rose:'#e11d48' }[st.theme] || '#111827';
-        const isHex = s.format === 'hexagon';
-        const FORMAT_RADIUS = { circle:'9999px', squircle:'26px', leaf:'70% 30% 70% 30% / 30% 70% 30% 70%' };
-        container.querySelectorAll('.featured__card').forEach((card) => {
-          card.style.borderRadius = FORMAT_RADIUS[s.format] || '9999px';
-          if (isHex) {
-            card.style.clipPath = 'polygon(50% 0%, 93.3% 25%, 93.3% 75%, 50% 100%, 6.7% 75%, 6.7% 25%)';
-          } else {
-            card.style.clipPath = '';
-          }
-          const edge = card.dataset ? (card.dataset.qcolor || s.borderColor || '') : (s.borderColor || '');
-          switch (s.background) {
-            case 'outline':
-              card.style.background = 'transparent';
-              card.style.border = '1.5px solid ' + (edge || thBtnbg2);
-              card.style.color = edge || thBtnbg2;
-              break;
-            case 'glass': {
-              /* Vidro premium dos atalhos (grupo iconGlass; mesmo receituário
-                 do applyGlass). A cor da borda por atalho (edge) vence depois. */
-              const igrp = Object.assign({}, (cfg.style && cfg.style.iconGlass) || {});
-              igrp.enabled = true;
-              if (igrp.blur == null) igrp.blur = 12;
-              if (igrp.opacity == null) igrp.opacity = 15;
-              applyGlass(card, igrp);
-              card.style.border = edge
-                ? '1.5px solid ' + edge
-                : '1px solid ' + rgbaCss(igrp.color || '#ffffff', Math.max(0.14, 0.5 * ((igrp.borderGlow ?? 40) / 100)));
-              break;
-            }
-            case 'gradient':
-              card.style.background = _gradCSS(135);
-              card.style.border = edge ? '1.5px solid ' + edge : 'none';
-              break;
-            default:
-              card.style.background = thBtnbg2;
-              card.style.border = edge ? '1.5px solid ' + edge : 'none';
-          }
-          /* Vidro usa a sombra premium do grupo iconGlass (applyGlass) —
-             o setting Sombra global (s.shadow) não sobrescreve. */
-          if (s.background !== 'glass') {
-            switch (s.shadow) {
-              case 'none':
-                card.style.boxShadow = 'none';
-                card.style.filter = '';
-                break;
-              case 'glow':
-                if (isHex) { card.style.filter = 'drop-shadow(0 0 8px currentColor)'; card.style.boxShadow = 'none'; }
-                else { card.style.boxShadow = '0 0 14px currentColor'; card.style.filter = ''; }
-                break;
-              default:
-                card.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-                card.style.filter = '';
-            }
-          }
-        });
-
-        /* Borda fina colorida nos círculos sociais (quando configurada) */
-        const edgeSocial = s.borderColor || '';
-        document.querySelectorAll('.social-icon').forEach((el) => {
-          if (edgeSocial) el.style.border = '1.5px solid ' + edgeSocial;
-          else el.style.removeProperty('border');
-        });
-      }
-
-      function quickHref(url, icon) {
-        const value = String(url || '').trim();
-        if (!value) return '#';
-        if (/^(https?:|mailto:|tel:|sms:)/i.test(value)) return value;
-        if (icon === 'telefone') return 'tel:' + value.replace(/[^+\d]/g, '');
-        if (icon === 'email') return 'mailto:' + value;
-        return 'https://' + value;
-      }
-
-      function quickActionsFromLegacy(obj) {
-        if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return null;
-        const map = [
-          { key: 'contactLink', title: 'Contato', icon: 'mensagem' },
-          { key: 'vcf', title: 'Salvar Contato', icon: 'download' },
-          { key: 'phone', title: 'Ligar', icon: 'telefone' },
-          { key: 'pixKey', title: 'PIX', icon: 'pix' }
-        ];
-        const seed = map
-          .map((m) => {
-            const url = String(obj[m.key] || '').trim();
-            return url ? { title: m.title, url, icon: m.icon } : null;
-          })
-          .filter(Boolean);
-        return seed.length ? seed : null;
-      }
-
-      const quickContainer = document.getElementById('pgQuick');
-      const quickList = Array.isArray(cfg.quickActions)
-        ? cfg.quickActions
-        : quickActionsFromLegacy(cfg.quickActions);
 
       function makeArrow() {
         const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -3475,150 +3172,6 @@
       }
 
       const LINK_TYPE_KEYS = ['whatsapp', 'instagram', 'localizacao', 'telefone', 'site', 'outro'];
-
-      if (quickContainer && Array.isArray(quickList) && quickList.length) {
-        quickContainer.replaceChildren();
-        quickContainer.hidden = false;
-        quickContainer.classList.remove('quick-grid--list', 'quick-grid--scroll');
-        if (quickMode === 'list') quickContainer.classList.add('quick-grid--list');
-        else if (quickMode === 'scroll') quickContainer.classList.add('quick-grid--scroll');
-
-        const pixKeyEl = document.getElementById('pix-key');
-
-        quickList.forEach((action, idx) => {
-          const isPix = action.icon === 'pix';
-          const node = document.createElement(isPix ? 'button' : 'a');
-          node.className = 'featured__card';
-          node.type = 'button';
-          if (action.color) node.dataset.qcolor = action.color;
-
-          if (action.style === 'banner') node.classList.add('featured__card--banner');
-          applyButtonWidth(node, action.width);
-          if (action.animation && action.animation !== 'none') node.classList.add('anim-' + action.animation);
-
-          /* Primeiro card (CTA) em modo lista ganha o destaque principal */
-          if (quickMode === 'list' && idx === 0) node.classList.add('featured__card--primary');
-
-          if (isPix) {
-            node.setAttribute('data-dialog-open', '');
-            if (pixKeyEl && action.url && action.url !== '#') {
-              pixKeyEl.textContent = action.url;
-            }
-          } else {
-            node.href = quickHref(action.url, action.icon);
-            if (/^(tel:|mailto:|sms:|#)/i.test(node.href)) {
-              node.removeAttribute('target');
-              node.removeAttribute('rel');
-            } else {
-              node.target = '_blank';
-              node.rel = 'noopener';
-            }
-          }
-
-          if (action.style === 'banner') {
-            if (action.image) {
-              const img = document.createElement('img');
-              img.className = 'featured__banner-img';
-              img.src = action.image;
-              img.alt = action.title || '';
-              node.appendChild(img);
-              ajustarProporcaoBanner(img, node);
-            } else {
-              const icon = document.createElement('span');
-              icon.className = 'featured__icon';
-              icon.setAttribute('aria-hidden', 'true');
-              icon.innerHTML = quickIcons[action.icon] || quickIcons.link;
-              node.appendChild(icon);
-            }
-          } else if (action.cardStyle === 'highlight') {
-            node.classList.add('featured__card--highlight');
-            const body = document.createElement('span');
-            body.className = 'featured__body';
-            const strong = document.createElement('strong');
-            strong.textContent = cleanLinkTitle(action.title) || 'Destaque';
-            body.appendChild(strong);
-            if (action.sub) {
-              const sub = document.createElement('span');
-              sub.className = 'featured__sub';
-              sub.textContent = action.sub;
-              body.appendChild(sub);
-            }
-            node.appendChild(body);
-          } else if (action.cardStyle === 'testimonial') {
-            node.classList.add('featured__card--testimonial');
-            const body = document.createElement('span');
-            body.className = 'featured__body';
-            const strong = document.createElement('strong');
-            strong.textContent = cleanLinkTitle(action.title) || 'Depoimento';
-            body.appendChild(strong);
-            if (action.sub) {
-              const sub = document.createElement('span');
-              sub.className = 'featured__sub';
-              sub.textContent = '— ' + action.sub;
-              body.appendChild(sub);
-            }
-            node.appendChild(body);
-          } else if (action.cardStyle === 'video') {
-            node.classList.add('featured__card--video');
-            node.target = '';
-            node.rel = '';
-            const url = (action.url || '').trim();
-            const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|watch\?v=))([A-Za-z0-9_-]{11})/);
-            const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
-            if (ytMatch) {
-              const iframe = document.createElement('iframe');
-              iframe.src = 'https://www.youtube.com/embed/' + ytMatch[1];
-              iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
-              iframe.allowFullscreen = true;
-              iframe.title = action.title || 'Vídeo';
-              node.appendChild(iframe);
-            } else if (vimeoMatch) {
-              const iframe = document.createElement('iframe');
-              iframe.src = 'https://player.vimeo.com/video/' + vimeoMatch[1];
-              iframe.allow = 'autoplay; fullscreen; picture-in-picture';
-              iframe.allowFullscreen = true;
-              iframe.title = action.title || 'Vídeo';
-              node.appendChild(iframe);
-            } else {
-              const fallback = document.createElement('div');
-              fallback.className = 'featured__video-fallback';
-              fallback.innerHTML = '<i class="fas fa-play-circle"></i>';
-              node.appendChild(fallback);
-            }
-          } else {
-            const icon = document.createElement('span');
-            icon.className = 'featured__icon';
-            icon.setAttribute('aria-hidden', 'true');
-            if (action.image) {
-              const img = document.createElement('img');
-              img.className = 'featured__icon-img';
-              img.src = action.image;
-              img.alt = '';
-              icon.appendChild(img);
-            } else {
-              icon.innerHTML = quickIcons[action.icon] || quickIcons.link;
-            }
-            node.appendChild(icon);
-
-            const body = document.createElement('span');
-            body.className = 'featured__body';
-            const strong = document.createElement('strong');
-            strong.textContent = cleanLinkTitle(action.title) || 'Nova Ação';
-            body.appendChild(strong);
-
-            if (action.url) node.title = action.url;
-            node.appendChild(body);
-
-            node.appendChild(makeArrow());
-          }
-
-          aplicarEstiloIndividual(node, action);
-
-          quickContainer.appendChild(node);
-        });
-      } else if (quickContainer) {
-        quickContainer.hidden = true;
-      }
 
       /* ---- Lista de links dinâmicos (cfg.links ou migra cards antigos) ---- */
       function resolveIcon(raw) {
@@ -3957,17 +3510,16 @@
            2. Global      → variáveis CSS (:root e --ui-* por elemento)
            3. Padrão      → fallback declarado no próprio var()
          Mapeamento do formulário (admin):
-           visual.quickBg/cardBg   -> backgroundColor (--btn-quick-bg /
-                                      --card-destaque-bg)
+           visual.cardBg           -> backgroundColor (--card-destaque-bg)
            visual.textColor/
-           quickText/cardText      -> color (texto + ícones via currentColor)
+           cardText                -> color (texto + ícones via currentColor)
            visual.radius           -> border-radius (--global-radius)
            visual.btnBorder +
            visual.borderColor       -> border-style/width/color (--ui-border)
          ================================================================ */
       const estiloContorno = v.btnBorder || 'borda-fina';
       const corBorda = v.borderColor || 'var(--ui-border-color)';
-      const corTexto = v.textColor || v.quickText || v.cardText || 'var(--card-fg)';
+      const corTexto = v.textColor || v.cardText || 'var(--card-fg)';
       let bordaBotao = 'none';
       let fundoBotao = null;
       let desfoqueBotao = '';
@@ -3988,7 +3540,7 @@
       const extrasBorder = radiusExtras.border || bordaBotao;
       const extrasShadow = radiusExtras.boxShadow || 'var(--shadow-sm)';
 
-      document.querySelectorAll('.quick__item, .featured__card, .social-icon').forEach((t) => {
+      document.querySelectorAll('.featured__card, .social-icon').forEach((t) => {
         t.style.setProperty('--ui-border', extrasBorder);
         t.style.setProperty('--ui-shadow', extrasShadow);
         t.style.setProperty('--ui-blur', desfoqueBotao || 'none');
@@ -4024,7 +3576,6 @@
         profile.style.display = '';
 
         const sections = [
-          { key: 'quick', node: quickContainer, mode: quickMode, order: 2 },
           { key: 'links', node: linksContainer, mode: cardsMode, order: 3 }
         ]
           .map((s) => {
@@ -4289,7 +3840,7 @@
         const btnCSS = buildBtn();
         const ANIMS = ['ax-anim-pulse','ax-anim-float','ax-anim-shine'];
         const btnAnim = st.btnAnimation || 'none';
-        document.querySelectorAll('.quick__item, .featured__card, .social-icon').forEach((el) => {
+        document.querySelectorAll('.featured__card, .social-icon').forEach((el) => {
           /* Botão com imagem customizada não recebe o estilo global do botão:
              a imagem inteira é o botão. Aplicar btnCSS inline reverteria as
              regras da stylesheet (border none, background transparent, sem
@@ -4331,10 +3882,6 @@
           else if (btnAnim === 'float') el.classList.add('ax-anim-float');
           else if (btnAnim === 'shine') el.classList.add('ax-anim-shine');
         });
-
-        /* Atalhos rápidos recebem o estilo exclusivo POR ÚLTIMO,
-           vencendo o pass global acima */
-        applyQuickLinksStyle(document.getElementById('pgQuick'));
 
         /* Espaçamento entre blocos */
         const lc = document.getElementById('pgLinks');
@@ -4622,7 +4169,6 @@ window.addEventListener('focus', refetchOnFocus);
         }, true);
       }
 
-      habilitarRolagemHorizontal(document.getElementById('pgQuick'));
       habilitarRolagemHorizontal(document.getElementById('pgLinks'));
     })();
   </script>
