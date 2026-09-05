@@ -2333,13 +2333,6 @@
         if (ogImg) setMeta('ogImage', 'content', ogImg);
         document.title = title;
 
-        /* ---- Favicon customizado ---- */
-        const favicon = cfg.profile?.favicon;
-        if (favicon) {
-          const link = document.querySelector('link[rel="icon"][sizes="32x32"]');
-          if (link) link.href = favicon;
-        }
-
         console.log('[Axiumlink][apply] Aplicando config:', {
           source: cfg._clientNome ? 'Supabase' : 'local',
           name: cfg.profile?.name,

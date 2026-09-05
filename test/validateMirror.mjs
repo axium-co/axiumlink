@@ -304,6 +304,34 @@ const CASE_VARIANTS = [
   { name: 'espaçamento global entre blocos (blockGap=0)',
     make: (c) => { c.style.blockGap = 0; return c; }
   },
+  { name: 'TEMA PRONTO: Minimalista Escuro',
+    preset: 'minimal-dark',
+    make: (c) => { c.style.activePreset = 'minimal-dark'; return c; }
+  },
+  { name: 'TEMA PRONTO: Luxo Dourado',
+    preset: 'luxo-dourado',
+    make: (c) => { c.style.activePreset = 'luxo-dourado'; return c; }
+  },
+  { name: 'TEMA PRONTO: Neon Vibrante',
+    preset: 'neon-vibrante',
+    make: (c) => { c.style.activePreset = 'neon-vibrante'; return c; }
+  },
+  { name: 'TEMA PRONTO: Editorial Clean',
+    preset: 'editorial-clean',
+    make: (c) => { c.style.activePreset = 'editorial-clean'; return c; }
+  },
+  { name: 'TEMA PRONTO: Orgânico Fresco',
+    preset: 'organico-fresco',
+    make: (c) => { c.style.activePreset = 'organico-fresco'; return c; }
+  },
+  { name: 'TEMA PRONTO: Sunset Warm',
+    preset: 'sunset-warm',
+    make: (c) => { c.style.activePreset = 'sunset-warm'; return c; }
+  },
+  { name: 'TEMA PRONTO: Glass Premium',
+    preset: 'glass-premium',
+    make: (c) => { c.style.activePreset = 'glass-premium'; return c; }
+  },
   { name: 'avatares full (tamanho/forma/raio/borda/sombra/glow/vidro)',
     make: (c) => {
       c.design.profile.elem.avatar = {
@@ -516,7 +544,7 @@ export async function run() {
   const wP = boot(INDEX_PATH, { supabase: supabaseStub({ config: NEW_CONFIG, slug: 'teste' }), url: 'https://axiumlink.test/?s=teste' }).window;
 
   for (const variant of CASE_VARIANTS) {
-    const cfg = JSON.parse(JSON.stringify(NEW_CONFIG));
+    let cfg = JSON.parse(JSON.stringify(NEW_CONFIG));
     cfg.links = [
       { id: 'l1', title: 'Site', url: 'https://site.com', type: 'site' },
       { id: 'l2', title: 'WhatsApp', url: 'https://wa.me/1', type: 'whatsapp' },
@@ -529,8 +557,17 @@ export async function run() {
        lh min 1) → re-render. No browser real set programático de .value não
        dispara evento (config intacta). O PÚBLICO recebe o cfg íntegro. */
     const pristine = JSON.parse(JSON.stringify(cfg));
-    wA.__axEditor.init(cfg);
-    wP.__alaPublica.aplicar(pristine);
+    if (variant.preset) {
+      /* Tema Pronto: aplicado pelo MESMO fluxo do painel (applyPreset) e a
+         config RESULTANTE é a que a página pública recebe — nada duplicado. */
+      wA.__axEditor.init(pristine);
+      wA.__axEditor.applyPreset(variant.preset);
+      cfg = JSON.parse(JSON.stringify(wA.__axEditor.cfg()));
+      wP.__alaPublica.aplicar(cfg);
+    } else {
+      wA.__axEditor.init(cfg);
+      wP.__alaPublica.aplicar(pristine);
+    }
     const dA = wA.document;
     const dP = wP.document;
 

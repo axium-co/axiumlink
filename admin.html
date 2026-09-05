@@ -1904,15 +1904,6 @@
           </div>
           </div>
         </details>
-        <div class="field">
-          <label>Favicon personalizado (opcional)</label>
-          <small style="display:block;margin-bottom:6px;color:var(--muted);">Ícone da aba do navegador. PNG 32x32.</small>
-          <button class="btn-mini" id="btnFaviconPick" style="width:100%;">Escolher…</button>
-          <input type="file" id="faviconInput" accept="image/png,image/x-icon" hidden>
-          <p id="faviconHint" style="display:none;margin-top:4px;">
-            <button class="btn-mini" id="btnFaviconClear">Remover</button>
-          </p>
-        </div>
         </div>
       </section>
 
@@ -3412,7 +3403,6 @@
     $('displayName').value = cfg.profile?.displayName || '';
     $('bio').value = cfg.profile?.bio || '';
     $('address').value = cfg.profile?.address || '';
-    if (cfg.profile?.favicon) $('faviconHint').style.display = 'block';
     const activeProfile = window.userProfiles?.find(p => p.id === window.currentProfileId);
     $('slugInput').value = activeProfile?.slug?.startsWith('perfil-inicial-') ? '' : ($('slugInput').value || '');
 
@@ -3574,7 +3564,6 @@
       $('bio').value = cfg.profile.bio || '';
       $('address').value = cfg.profile.address || '';
       $('avatarHintRow').style.display = cfg.profile.avatar ? 'block' : 'none';
-      $('faviconHint').style.display = cfg.profile.favicon ? 'block' : 'none';
     } else if (key === 'style') {
       setRange('btnRadius', cfg.style.btnRadius);
       setRange('btnShadow', cfg.style.btnShadow);
@@ -3933,14 +3922,14 @@
     {
       key: 'minimal-dark',
       name: 'Minimalista Escuro',
-      preview: { bg: '#0f172a', text: '#f1f5f9', btn: '#1e293b', btnText: '#f1f5f9' },
+      preview: { bg: '#08090c', text: '#f3f4f6', btn: '#e5e7eb', btnText: '#111827' },
       config: {
         theme: 'dark',
         bgVariant: 'solid',
-        pageBgColor: '#0f172a',
-        pageTextColor: '#f1f5f9',
-        btnBgColor: '#1e293b',
-        btnTextColor: '#f1f5f9',
+        pageBgColor: '#08090c',
+        pageTextColor: '#f3f4f6',
+        btnBgColor: '#e5e7eb',
+        btnTextColor: '#111827',
         font: 'Inter',
         btnVariant: 'ghost',
         btnShape: 'rounded',
@@ -3955,14 +3944,14 @@
     {
       key: 'luxo-dourado',
       name: 'Luxo Dourado',
-      preview: { bg: '#1a1a1a', text: '#f5f0e8', btn: '#c9a84c', btnText: '#1a1a1a' },
+      preview: { bg: '#10100a', text: '#f2e6c9', btn: '#d4af37', btnText: '#181205' },
       config: {
         theme: 'dark',
         bgVariant: 'solid',
-        pageBgColor: '#1a1a1a',
-        pageTextColor: '#f5f0e8',
-        btnBgColor: '#c9a84c',
-        btnTextColor: '#1a1a1a',
+        pageBgColor: '#10100a',
+        pageTextColor: '#f2e6c9',
+        btnBgColor: '#d4af37',
+        btnTextColor: '#181205',
         font: 'Playfair Display',
         btnVariant: 'solid',
         btnShape: 'rounded',
@@ -3978,19 +3967,19 @@
     {
       key: 'neon-vibrante',
       name: 'Neon Vibrante',
-      preview: { bg: '#0a0a0f', text: '#e0f2fe', btn: '#0e7490', btnText: '#00ffff' },
+      preview: { bg: '#0a0a0f', text: '#dffaff', btn: '#d81fa8', btnText: '#19f9ff' },
       config: {
         theme: 'dark',
         bgVariant: 'cyberpunk',
-        cyberPrimary: '#00ffff',
-        cyberSecondary: '#ff00ff',
+        cyberPrimary: '#19f9ff',
+        cyberSecondary: '#d81fa8',
         cyberGridIntensity: 25,
-        pageTextColor: '#e0f2fe',
-        btnBgColor: '#0e7490',
-        btnTextColor: '#00ffff',
+        pageTextColor: '#dffaff',
+        btnBgColor: '#d81fa8',
+        btnTextColor: '#19f9ff',
         font: 'Space Grotesk',
         btnVariant: 'neon',
-        btnGlowColor: '#00ffff',
+        btnGlowColor: '#19f9ff',
         btnShape: 'pill',
         btnShadowStyle: 'glow',
         btnAnimation: 'pulse',
@@ -4025,14 +4014,14 @@
     {
       key: 'organico-fresco',
       name: 'Orgânico Fresco',
-      preview: { bg: '#f0fdf4', text: '#14532d', btn: '#16a34a', btnText: '#ffffff' },
+      preview: { bg: '#f3efe4', text: '#1f3d2b', btn: '#2f6b41', btnText: '#f5f2e4' },
       config: {
         theme: 'forest',
         bgVariant: 'solid',
-        pageBgColor: '#f0fdf4',
-        pageTextColor: '#14532d',
-        btnBgColor: '#16a34a',
-        btnTextColor: '#ffffff',
+        pageBgColor: '#f3efe4',
+        pageTextColor: '#1f3d2b',
+        btnBgColor: '#2f6b41',
+        btnTextColor: '#f5f2e4',
         font: 'Poppins',
         btnVariant: 'solid',
         btnShape: 'pill',
@@ -4049,15 +4038,26 @@
     {
       key: 'sunset-warm',
       name: 'Sunset Warm',
-      preview: { bg: '#fff7ed', text: '#7c2d12', btn: '#ea580c', btnText: '#ffffff' },
+      preview: {
+        bg: '#ffb45e',
+        text: '#3b0a1a',
+        btn: '#e64d2e',
+        btnText: '#ffffff',
+        gradient: 'linear-gradient(180deg,#ffb45e,#ff8c69 46%,#c06fe0)'
+      },
       config: {
         theme: 'sunset',
         bgVariant: 'gradient',
-        gradientStart: '#fff7ed',
-        gradientEnd: '#ffedd5',
+        gradientStart: '#ffb45e',
+        gradientEnd: '#c06fe0',
         gradientAngle: 160,
-        pageTextColor: '#7c2d12',
-        btnBgColor: '#ea580c',
+        gradientStops: [
+          { color: '#ffb45e', pos: 0 },
+          { color: '#ff8c69', pos: 46 },
+          { color: '#c06fe0', pos: 100 }
+        ],
+        pageTextColor: '#3b0a1a',
+        btnBgColor: '#e64d2e',
         btnTextColor: '#ffffff',
         font: 'Syne',
         btnVariant: 'solid',
@@ -4074,16 +4074,27 @@
     {
       key: 'glass-premium',
       name: 'Glass Premium',
-      preview: { bg: '#667eea', text: '#1e293b', btn: 'rgba(255,255,255,0.25)', btnText: '#1e293b' },
+      preview: {
+        bg: '#4f46e5',
+        text: '#ffffff',
+        btn: 'rgba(255,255,255,0.28)',
+        btnText: '#ffffff',
+        gradient: 'linear-gradient(135deg,#4f46e5,#7c3aed 60%,#9333ea)'
+      },
       config: {
         theme: 'indigo',
         bgVariant: 'gradient',
-        gradientStart: '#667eea',
-        gradientEnd: '#764ba2',
+        gradientStart: '#4f46e5',
+        gradientEnd: '#9333ea',
         gradientAngle: 135,
-        pageTextColor: '#1e293b',
-        btnBgColor: 'rgba(255,255,255,0.25)',
-        btnTextColor: '#1e293b',
+        gradientStops: [
+          { color: '#4f46e5', pos: 0 },
+          { color: '#7c3aed', pos: 60 },
+          { color: '#9333ea', pos: 100 }
+        ],
+        pageTextColor: '#ffffff',
+        btnBgColor: 'rgba(255,255,255,0.28)',
+        btnTextColor: '#ffffff',
         font: 'Inter',
         btnVariant: 'glass',
         btnGlassOpacity: 20,
@@ -5422,7 +5433,7 @@
 
       const pv = document.createElement('div');
       pv.className = 'preset-preview';
-      pv.style.background = preset.preview.bg;
+      pv.style.background = preset.preview.gradient || preset.preview.bg;
 
       const swatches = document.createElement('div');
       swatches.className = 'preset-preview__swatches';
@@ -6991,30 +7002,6 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
       markDirty();
     });
 
-    /* Favicon */
-    safeOn('btnFaviconPick', 'click', () => $('faviconInput').click());
-    safeOn('faviconInput', 'change', async (e) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      showToast('Enviando favicon...');
-      try {
-        const publicUrl = await uploadFileToStorage(file, 'favicon');
-        cfg.profile = cfg.profile || {};
-        cfg.profile.favicon = publicUrl;
-        $('faviconHint').style.display = 'block';
-        markDirty();
-        showToast('Favicon atualizado!');
-      } catch (err) {
-        showToast('Falha no upload: ' + err.message);
-      }
-      e.target.value = '';
-    });
-    safeOn('btnFaviconClear', 'click', () => {
-      cfg.profile.favicon = '';
-      $('faviconHint').style.display = 'none';
-      markDirty();
-    });
-
     /* Blocos */
     safeOn('btnAddLink', 'click', () => openBlockModal(null));
     safeOn('btnBlockCancel', 'click', closeBlockModal);
@@ -7734,6 +7721,9 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
       initEditor();
     },
     cfg() { return cfg; },
+    applyPreset(key) { applyPreset(key); },
+    presets() { return __clone(PRESETS); },
+    activePreset() { return cfg.style && cfg.style.activePreset; },
     dom(id) {
       const el = $(id);
       if (!el) return null;
