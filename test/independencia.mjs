@@ -23,6 +23,7 @@ import { run as runEspacamento } from './validateEspacamento.mjs';
 import { run as runEspacamentoGlobal } from './validateEspacamentoGlobal.mjs';
 import { run as runTemasProntos } from './validateTemasProntos.mjs';
 import { run as runMirror } from './validateMirror.mjs';
+import { run as runPix } from './validatePix.mjs';
 
 let failures = 0;
 const only = process.argv[2] || '';
@@ -308,6 +309,7 @@ async function main() {
     await publicoVidros();
     await publicoVidrosExtras();
     await linksImagemCustomizada();
+    failures += await runPix();
   } else {
     for (const k of ELEM_KEYS) await adminElemento(k);
     for (const k of ELEM_KEYS) await publicoElemento(k);
@@ -325,6 +327,7 @@ async function main() {
     failures += await runEspacamentoGlobal();
     failures += await runTemasProntos();
     failures += await runMirror();
+    failures += await runPix();
     failures += await runBugVerifiedBadge();
     failures += await runBugLinkCardStyles();
   }

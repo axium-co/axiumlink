@@ -7,7 +7,6 @@
 <link rel="manifest" href="/manifest.webmanifest">
 <meta name="theme-color" content="#111827">
 
-<!-- Favicon -->
 <link rel="icon" type="image/svg+xml" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">⚡</text></svg>'>
     <meta name="description" content="Axiumlink — crie sua página de links em minutos.">
 
@@ -774,6 +773,14 @@
   }
   .pv-address[hidden] { display:none; }
   .pv-address-ico { font-size:11px; line-height:1; }
+  .pv-pix {
+    display:flex; align-items:center; justify-content:center; gap:6px;
+    margin:10px auto 0; width:fit-content; padding:8px 20px; border:none;
+    border-radius:12px; font-size:12.5px; font-weight:700; cursor:pointer;
+    color:#fff; background:linear-gradient(135deg,#16a34a,#15803d);
+    box-shadow:0 3px 10px rgba(22,163,74,.35);
+  }
+  .pv-pix[hidden] { display:none; }
   .pv-banner-scrim { position:absolute; inset:0; z-index:2; pointer-events:none; }
   .pv-banner-scrim[hidden] { display:none; }
   /* Overlay de texto/CTA sobre o banner — container posicionado de forma
@@ -1377,6 +1384,38 @@
               <div class="color-trigger-swatch" style="background:#6366f1;"></div>
               <span class="color-trigger-hex">AUTO</span>
             </div>
+          </div>
+        </div>
+
+        <!-- ═══ RECEBIMENTOS: PIX ═══ -->
+        <div class="field" style="padding-top:12px; border-top:1px solid var(--bg);">
+          <label style="font-size:13px; font-weight:700; color:var(--ink);">Pagar com PIX</label>
+          <div class="toggle-row" style="padding-top:4px;">
+            <span class="toggle-label">Mostrar botão "Pagar com PIX" na página</span>
+            <label class="switch">
+              <input type="checkbox" id="pixEnabled">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="field" style="margin:10px 0 0;">
+            <label for="pixKey">Chave PIX</label>
+            <input type="text" id="pixKey" placeholder="CPF, e-mail, celular ou chave aleatória" maxlength="80">
+          </div>
+          <div class="upload-row" style="margin-top:10px;">
+            <div class="upload-thumb" id="pixQrThumb">🔳</div>
+            <div class="upload-info">
+              <strong>QR Code</strong>
+              <small>Imagem opcional exibida no modal de pagamento.</small>
+            </div>
+            <button class="btn-mini" id="btnPixPick">Escolher</button>
+          </div>
+          <input type="file" id="pixQrInput" accept="image/*" hidden>
+          <p class="hint" id="pixQrHint" style="display:none;">
+            <button class="btn-mini" id="btnPixClear">Remover QR</button>
+          </p>
+          <div class="field" style="margin:10px 0 0;">
+            <label for="pixLink">Link de pagamento externo (opcional)</label>
+            <input type="text" id="pixLink" placeholder="https://…" maxlength="200">
           </div>
         </div>
 
@@ -2592,6 +2631,8 @@
                     <span id="pvAddressText"></span>
                   </div>
 
+                  <button class="pv-pix" id="pvPix" type="button" hidden>💳 Pagar com PIX</button>
+
                   <div class="pv-content">
                     <div id="previewLinksList"></div>
                     <p class="pv-footer">Feito com ⚡ Axiumlink</p>
@@ -3245,7 +3286,7 @@
   }
 
   const DEFAULT_CFG = () => ({
-    profile: { displayName: '', bio: '', avatar: '', address: '' },
+    profile: { displayName: '', bio: '', avatar: '', address: '', pix: { enabled: false, key: '', qr: '', link: '' } },
     banner: '',
     links: [],
     style: {
@@ -3343,7 +3384,7 @@
 
   /* Registro das seções removíveis: chave do JSONB → card do painel */
   const SECTION_DEFS = {
-    profile: { label: 'Perfil',           ico: '👤', def: () => ({ displayName: '', bio: '', avatar: '', address: '' }) },
+    profile: { label: 'Perfil',           ico: '👤', def: () => ({ displayName: '', bio: '', avatar: '', address: '', pix: { enabled: false, key: '', qr: '', link: '' } }) },
     links:   { label: 'Seus links',       ico: '🔗', def: () => [] },
     style:   { label: 'Estilo da página', ico: '🎨', def: () => DEFAULT_CFG().style }
   };
@@ -3392,7 +3433,7 @@
     }
 
     /* Garante estrutura mínima para que event handlers não falhem */
-    cfg.profile = cfg.profile || { displayName: '', bio: '', avatar: '', address: '' };
+    cfg.profile = cfg.profile || { displayName: '', bio: '', avatar: '', address: '', pix: { enabled: false, key: '', qr: '', link: '' } };
     cfg.links = cfg.links || [];
     cfg.style = cfg.style || DEFAULT_CFG().style;
     cfg.banner = cfg.banner || '';
@@ -3403,6 +3444,11 @@
     $('displayName').value = cfg.profile?.displayName || '';
     $('bio').value = cfg.profile?.bio || '';
     $('address').value = cfg.profile?.address || '';
+    const pix0 = cfg.profile?.pix || {};
+    $('pixEnabled').checked = !!pix0.enabled;
+    $('pixKey').value = pix0.key || '';
+    $('pixLink').value = pix0.link || '';
+    $('pixQrHint').style.display = pix0.qr ? 'block' : 'none';
     const activeProfile = window.userProfiles?.find(p => p.id === window.currentProfileId);
     $('slugInput').value = activeProfile?.slug?.startsWith('perfil-inicial-') ? '' : ($('slugInput').value || '');
 
@@ -3563,6 +3609,11 @@
       $('displayName').value = cfg.profile.displayName || '';
       $('bio').value = cfg.profile.bio || '';
       $('address').value = cfg.profile.address || '';
+      const pixS = cfg.profile.pix || {};
+      $('pixEnabled').checked = !!pixS.enabled;
+      $('pixKey').value = pixS.key || '';
+      $('pixLink').value = pixS.link || '';
+      $('pixQrHint').style.display = pixS.qr ? 'block' : 'none';
       $('avatarHintRow').style.display = cfg.profile.avatar ? 'block' : 'none';
     } else if (key === 'style') {
       setRange('btnRadius', cfg.style.btnRadius);
@@ -5182,6 +5233,14 @@
       }
       const addrIco = $('pvAddressIco');
       if (addrIco) addrIco.hidden = !((pf.address && pf.address.showIcon) !== false);
+    }
+
+    /* PIX: mostra o trigger no mockup quando habilitado com conteúdo */
+    const pixBtn = $('pvPix');
+    if (pixBtn) {
+      const pixC = (cfg.profile && cfg.profile.pix) || {};
+      const hasPix = !!(pixC.key || pixC.qr || pixC.link);
+      pixBtn.hidden = !(!!pixC.enabled && hasPix);
     }
 
     /* Scrim do banner (escurecimento para legibilidade) */
@@ -6982,7 +7041,7 @@
         showToast('Enviando imagem...');
         try {
 const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'avatar');
-          cfg.profile = cfg.profile || { displayName: '', bio: '', avatar: '', address: '' };
+          cfg.profile = cfg.profile || { displayName: '', bio: '', avatar: '', address: '', pix: { enabled: false, key: '', qr: '', link: '' } };
           cfg.profile.avatar = publicUrl;
           $('avatarHintRow').style.display = 'block';
           renderPreview();
@@ -6998,6 +7057,61 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
     safeOn('btnAvatarClear', 'click', () => {
       cfg.profile.avatar = '';
       $('avatarHintRow').style.display = 'none';
+      renderPreview();
+      markDirty();
+    });
+
+    /* PIX */
+    safeOn('pixEnabled', 'change', (e) => {
+      cfg.profile = cfg.profile || {};
+      cfg.profile.pix = cfg.profile.pix || {};
+      cfg.profile.pix.enabled = e.target.checked;
+      renderPreview();
+      markDirty();
+    });
+    safeOn('pixKey', 'input', (e) => {
+      cfg.profile = cfg.profile || {};
+      cfg.profile.pix = cfg.profile.pix || {};
+      cfg.profile.pix.key = e.target.value;
+      renderPreview();
+      markDirty();
+    });
+    safeOn('pixLink', 'input', (e) => {
+      cfg.profile = cfg.profile || {};
+      cfg.profile.pix = cfg.profile.pix || {};
+      cfg.profile.pix.link = e.target.value;
+      renderPreview();
+      markDirty();
+    });
+    safeOn('btnPixPick', 'click', () => $('pixQrInput').click());
+    safeOn('pixQrInput', 'change', (e) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        showToast('Enviando QR Code...');
+        try {
+          uploadFileToStorage(file, 'pix').then((publicUrl) => {
+            cfg.profile = cfg.profile || {};
+            cfg.profile.pix = cfg.profile.pix || {};
+            cfg.profile.pix.qr = publicUrl;
+            $('pixQrHint').style.display = 'block';
+            renderPreview();
+            markDirty();
+            showToast('QR Code atualizado!');
+          }).catch((err) => {
+            console.error('[Axiumlink] Upload do QR falhou:', err.message);
+            showToast('Falha no upload: ' + err.message);
+          });
+        } catch (err) {
+          console.error('[Axiumlink] Upload do QR falhou:', err.message);
+          showToast('Falha no upload: ' + err.message);
+        }
+      }
+      e.target.value = '';
+    });
+    safeOn('btnPixClear', 'click', () => {
+      cfg.profile.pix = cfg.profile.pix || {};
+      cfg.profile.pix.qr = '';
+      $('pixQrHint').style.display = 'none';
       renderPreview();
       markDirty();
     });

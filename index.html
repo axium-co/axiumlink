@@ -577,6 +577,40 @@
     }
     .pg-links--scroll::-webkit-scrollbar-track { background: transparent; }
 
+    /* ---- Pagar com PIX (trigger do modal) ---- */
+    .pg-pix {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      min-width: 0;
+    }
+    .pg-pix[hidden] { display: none; }
+
+    .pg-pix__btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      width: 100%;
+      max-width: 420px;
+      padding: 0.8rem 1.25rem;
+      border: none;
+      border-radius: var(--radius-md, 14px);
+      background: linear-gradient(135deg, #22c55e, #15803d);
+      color: #ffffff;
+      font-size: 0.9375rem;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: filter 0.15s ease, transform 0.15s ease;
+      box-shadow: 0 4px 14px rgba(22, 163, 74, 0.35);
+    }
+    .pg-pix__btn:hover { filter: brightness(1.06); transform: translateY(-1px); }
+    .pg-pix__btn:active { transform: scale(0.98); }
+
+    .pg-pix__ico { width: 18px; height: 18px; flex-shrink: 0; }
+
     .social-icon {
       display: inline-flex;
       align-items: center;
@@ -1307,6 +1341,14 @@
       margin-bottom: 0.875rem;
     }
 
+    .pix-modal__qr img {
+      width: 100%;
+      max-width: 200px;
+      height: auto;
+      display: block;
+      border-radius: var(--radius-md);
+    }
+
     .pix-modal__cta {
       display: block;
       width: 100%;
@@ -1790,6 +1832,19 @@
     </header>
 
     <!-- ================================================================
+         PAGAR COM PIX (trigger preenchido dinamicamente por applyPix)
+         ================================================================ -->
+
+      <div id="pgPixWrap" class="pg-pix" hidden>
+        <button class="pg-pix__btn" type="button" data-dialog-open aria-haspopup="dialog">
+          <svg class="pg-pix__ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z" />
+          </svg>
+          <span>Pagar com PIX</span>
+        </button>
+      </div>
+
+    <!-- ================================================================
          LISTA DE LINKS (gerada dinamicamente a partir de cfg.links)
          ================================================================ -->
 
@@ -1888,17 +1943,17 @@
     <h2 class="pix-modal__title" id="pix-title">Pague com PIX</h2>
     <p class="pix-modal__text">Escaneie o QR Code ou copie a chave abaixo.</p>
 
-    <!-- TODO: SUA CHAVE PIX -->
-    <div class="pix-modal__key">
-      <span id="pix-key">sua.chave@pix.com.br</span>
+    <!-- Chave e QR preenchidos dinamicamente por applyPix() -->
+    <div class="pix-modal__key" id="pixKeyBox" hidden>
+      <span id="pix-key"></span>
       <button class="pix-modal__copy" type="button" data-copy>Copiar</button>
     </div>
 
-    <!-- TODO: SEU QR CODE — substitua por <img src="qrcode.png"> -->
-    <div class="pix-modal__qr" id="pix-qr">Seu QR Code aqui</div>
+    <!-- QR Code (imagem) injetado por applyPix() -->
+    <div class="pix-modal__qr" id="pix-qr" hidden></div>
 
-    <!-- TODO: SEU LINK DE PAGAMENTO EXTERNO (opcional) -->
-    <a class="pix-modal__cta" href="#" target="_blank" rel="noopener">Pagar agora</a>
+    <!-- Link de pagamento externo (opcional) preenchido por applyPix() -->
+    <a class="pix-modal__cta" id="pixCta" href="#" target="_blank" rel="noopener" hidden>Pagar agora</a>
 
   </dialog>
 
@@ -2241,7 +2296,8 @@
             bio: p.bio || '',
             photo: validImg(p.avatar) ? p.avatar.trim() : '',
             address: p.address || '',
-            verified: !!p.verified
+            verified: !!p.verified,
+            pix: (p.pix && typeof p.pix === 'object') ? p.pix : null
           },
           visual: {
             pageBg,
@@ -2391,6 +2447,53 @@
         const val = flat[el.dataset.bind];
         if (val != null) el.textContent = val;
       });
+
+      /* ---- Pagar com PIX (modal) ---- */
+      const applyPix = () => {
+        const pixC = (p.pix && typeof p.pix === 'object') ? p.pix : {};
+        const hasContent = !!(pixC.key || pixC.qr || pixC.link);
+        const on = !!pixC.enabled && hasContent;
+        const wrap = document.getElementById('pgPixWrap');
+        if (wrap) wrap.hidden = !on;
+        if (!on) return;
+
+        const keyBox = document.getElementById('pixKeyBox');
+        const keyEl = document.getElementById('pix-key');
+        if (keyBox) keyBox.hidden = !String(pixC.key || '').trim();
+        if (keyEl) keyEl.textContent = pixC.key || '';
+
+        const qrEl = document.getElementById('pix-qr');
+        if (qrEl) {
+          qrEl.replaceChildren();
+          const qrUrl = String(pixC.qr || '').trim();
+          const validQr = /^(data:image\/|https?:\/\/)/i.test(qrUrl);
+          if (validQr) {
+            qrEl.hidden = false;
+            qrEl.style.height = 'auto';
+            const img = document.createElement('img');
+            img.src = qrUrl;
+            img.alt = 'QR Code PIX';
+            img.loading = 'lazy';
+            qrEl.appendChild(img);
+          } else {
+            qrEl.hidden = true;
+            qrEl.style.height = '';
+          }
+        }
+
+        const cta = document.getElementById('pixCta');
+        if (cta) {
+          const linkUrl = String(pixC.link || '').trim();
+          if (linkUrl) {
+            cta.href = linkUrl;
+            cta.hidden = false;
+          } else {
+            cta.href = '#';
+            cta.hidden = true;
+          }
+        }
+      };
+      applyPix();
 
       /* ---- CSS Variables (:root) ---- */
       const root = document.documentElement.style;
@@ -3629,7 +3732,14 @@
           .filter((s) => s.node && s.visible)
           .sort((a, b) => a.order - b.order);
 
+        /* PIX: o trigger vive no fluxo entre as informações e os links.
+           replaceChildren() remove o resto do fluxo, por isso guardamos a
+           referência ANTES e re-anexamos aqui (idempotente — appendChild
+           move, não duplica). */
+        const pixFlowWrap = document.getElementById('pgPixWrap');
         flow.replaceChildren(profile);
+        if (pixFlowWrap) flow.appendChild(pixFlowWrap);
+
         sections.forEach((s) => {
           s.node.style.order = s.order;
           s.node.classList.remove('pg-item--half', 'pg-item--auto');
