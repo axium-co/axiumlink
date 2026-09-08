@@ -867,6 +867,17 @@
     white-space:normal; overflow-wrap:anywhere; word-break:break-word;
     display:block; max-width:100%;
   }
+  /* Descrição dos cards highlight/testimonial no preview: usa a MESMA
+     classe do público (.featured__sub), mas o admin não tinha regra —
+     o texto longo sem espaços estourava a largura do card. Espelha o
+     comportamento do público (index.html .featured__sub). */
+  .link-block .featured__sub,
+  .link-block.featured__card--highlight .featured__sub,
+  .link-block.featured__card--testimonial .featured__sub {
+    font-size:12px; opacity:.65; margin-top:2px;
+    white-space:normal; overflow-wrap:anywhere; word-break:break-word;
+    display:block; max-width:100%;
+  }
 
   /* Alinhamento do ícone por bloco (l.iconAlign).
      Padrão 'left': absoluto em left:12px — texto permanece centralizado
@@ -3746,6 +3757,7 @@
       if (!isVideo) a.href = l.url || '#';
       a.target = '_blank';
       a.rel = 'noopener noreferrer';
+      applyButtonWidth(a, l.width);
 
       /* Imagem customizada: a imagem inteira VIRA o botão (espelho do público).
          Âncora própria: funciona mesmo quando cardStyle==='video' (aí o `a`
@@ -3756,6 +3768,7 @@
         ca.href = l.url || '#';
         ca.target = '_blank';
         ca.rel = 'noopener noreferrer';
+        applyButtonWidth(ca, l.width);
         const h = Number(l.customButtonHeight);
         ca.style.setProperty('--customimg-h', (h > 40 ? h : 84) + 'px');
         const cimg = document.createElement('img');
@@ -5083,6 +5096,32 @@
      blockGap global. O primeiro item da lista (e as tabs de categoria)
      não ganham margin-top extra. Lógica IDÊNTICA na página pública
      (index.html), garantindo preview e público com o MESMO resultado. */
+  /* Largura individual do botão de link — ESPELHO IDÊNTICO do público
+     (index.html applyButtonWidth). Garante que o preview reproduza a
+     largura real (full/half/compact) e o eixo central do público. */
+  function applyButtonWidth(btn, width) {
+    if (!btn) return;
+    btn.style.width = '';
+    btn.style.maxWidth = '';
+    btn.style.flex = '';
+    btn.style.padding = '';
+    btn.style.alignSelf = '';
+    if (width === 'full') {
+      btn.style.width = '100%';
+      btn.style.maxWidth = '100%';
+      btn.style.flex = '0 0 100%';
+    } else if (width === 'half') {
+      btn.style.width = 'calc(50% - 6px)';
+      btn.style.flex = '0 0 calc(50% - 6px)';
+      btn.style.alignSelf = 'center';
+    } else if (width === 'compact') {
+      btn.style.width = 'max-content';
+      btn.style.flex = 'initial';
+      btn.style.padding = '10px 20px';
+      btn.style.alignSelf = 'center';
+    }
+  }
+
   function applyLinkSpacing(listEl, links) {
     if (!listEl) return;
     const st = cfg.style || {};

@@ -3258,6 +3258,7 @@
         btn.style.maxWidth = '';
         btn.style.flex = '';
         btn.style.padding = '';
+        btn.style.alignSelf = '';
         if (width === 'full') {
           btn.style.width = '100%';
           btn.style.maxWidth = '100%';
@@ -3265,10 +3266,12 @@
         } else if (width === 'half') {
           btn.style.width = 'calc(50% - 6px)';
           btn.style.flex = '0 0 calc(50% - 6px)';
+          btn.style.alignSelf = 'center';
         } else if (width === 'compact') {
           btn.style.width = 'max-content';
           btn.style.flex = 'initial';
           btn.style.padding = '10px 20px';
+          btn.style.alignSelf = 'center';
         }
       }
 

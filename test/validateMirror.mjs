@@ -232,6 +232,16 @@ const CASE_VARIANTS = [
       return c;
     }
   },
+  { name: 'links: descrição longa sem espaço (BUG B wrap)',
+    make: (c) => {
+      c.links = [
+        { id: 'l1', title: 'Instagram', url: 'https://instagram.com/x', type: 'instagram', sub: 'descrição textodescrição textodescrição textodescrição texta' },
+        { id: 'l2', title: 'Destaque', url: 'https://site.com', type: 'site', cardStyle: 'highlight', sub: 'destaquegrandedescriçãolongasemespacospraestourarolayoutdocard' },
+        { id: 'l3', title: 'Depoimento', url: 'https://site.com', type: 'site', cardStyle: 'testimonial', sub: 'atendimentoimpecávelrapideznoatendimentoqualidadeexcelente' }
+      ];
+      return c;
+    }
+  },
   { name: 'fundo: cor da página + fonte',
     make: (c) => {
       c.style.pageBgColor = '#f1f5f9';
@@ -533,6 +543,42 @@ function blockSpacingChecks(wA, wP, cfg) {
   return opts;
 }
 
+/* BUG B — descrição dos cards: o nodo de descrição precisa QUEBRAR além
+   do título (white-space normal + overflow-wrap). Admin usa
+   .link-block-sub (cards padrão) e .link-block .featured__sub
+   (highlight/testimonial); público usa .featured__sub. O jsdom não
+   aplica layout, então a verificação lê as cssRules dos <style> dos dois
+   lados — qualquer regressão (white-space:nowrap ou remoção do wrap) é
+   capturada aqui. */
+function descWrapChecks(wA, wP) {
+  const opts = [];
+  const allRules = (win) => {
+    const out = [];
+    for (const sheet of win.document.styleSheets || []) {
+      let rules = [];
+      try { rules = sheet.cssRules || []; } catch (_) { /* cross-origin: ignora */ }
+      for (const r of rules) if (r && r.selectorText) out.push(r);
+    }
+    return out;
+  };
+  const findRule = (rs, sel) => rs.find((r) =>
+    String(r.selectorText).split(',').map((s) => s.trim()).indexOf(sel) >= 0
+  );
+  const wrapState = (r) => r
+    ? ((r.style.getPropertyValue('white-space') || '') + '|' + (r.style.getPropertyValue('overflow-wrap') || '') + '|' + (r.style.getPropertyValue('word-break') || ''))
+    : '(sem regra)';
+  const good = (st) => st && /^normal\|/.test(st) && /(anywhere|break-word)/.test(st);
+  const aR = allRules(wA);
+  const pR = allRules(wP);
+  const aDefault = findRule(aR, '.link-block-sub');
+  const aFeatured = findRule(aR, '.link-block .featured__sub');
+  const pSub = findRule(pR, '.featured__sub');
+  opts.push(['descB: admin .link-block-sub quebra além do título (white-space normal + overflow-wrap)', good(wrapState(aDefault)), wrapState(aDefault)]);
+  opts.push(['descB: admin .link-block .featured__sub (highlight/testimonial) quebra igual ao público', good(wrapState(aFeatured)), wrapState(aFeatured)]);
+  opts.push(['descB: público .featured__sub quebra além do título (white-space normal + overflow-wrap)', good(wrapState(pSub)), wrapState(pSub)]);
+  return opts;
+}
+
 /* ================================================================
    Runner
    ================================================================ */
@@ -588,7 +634,12 @@ export async function run() {
       if (!divs.length) pass++;
     }
 
-    /* Botões/cards de link — comparação pareada por índice */
+    /* Botões/cards de link — comparação pareada por índice.
+       Mecanismos equivalentes (fundo/borda/altura) ficam na allowlist;
+       QUALQUER divergência de GEOMETRIA/ALINHAMENTO (largura, flex,
+       alinhamento próprio, margens, padding, display, texto) é FALHA
+       real — impedindo regressões visuais (ex.: largura por-link no
+       público sem espelho no preview) de passarem despercebidas. */
     const aCards = Array.from(dA.querySelectorAll('#previewLinksList > *'));
     const pCards = Array.from(dP.querySelectorAll('.pg-links-list > *'));
     if (aCards.length !== pCards.length) {
@@ -596,21 +647,29 @@ export async function run() {
       divsAll.push({ caso: variant.name, par: 'lista-links', admin: 'filhos=' + aCards.length, publico: 'filhos=' + pCards.length, conhecida: false });
       fail++;
     } else {
+      const LINK_ALLOW = {
+        background: true, 'background-color': true, 'background-image': true,
+        '--ui-bg': true, 'box-shadow': true, _href: true,
+        'border-color': true, 'border-style': true, 'border-width': true,
+        height: true, '--customimg-h': true, '--btn-bg': true, '--btn-color': true,
+        '--btn-border-color': true, '--btn-border-width': true
+      };
+      const LINK_GEOMETRY = [
+        'width', 'max-width', 'flex', 'align-self', 'justify-content', 'align-items',
+        'margin-left', 'margin-right', 'margin-top', 'margin-bottom',
+        'padding', 'display', 'text-align', 'aspect-ratio'
+      ];
       aCards.forEach((aEl, i) => {
         const bEl = pCards[i];
         const snapA = snapEl(aEl);
         const snapB = snapEl(bEl);
-        const divs = comparePair('link#' + i, snapA, snapB, {
-          background: true, 'background-color': true, 'background-image': true,
-          '--ui-bg': true, 'box-shadow': true, _href: true,
-          'border-color': true, 'border-style': true, 'border-width': true,
-          height: true, '--customimg-h': true, '--btn-bg': true, '--btn-color': true,
-          '--btn-border-color': true, '--btn-border-width': true
-        });
+        const divs = comparePair('link#' + i, snapA, snapB, LINK_ALLOW);
         for (const d of divs) {
-          console.log(`  ⚠️  DIVERGÊNCIA link#${i}.${d.prop} — admin=${d.a} | público=${d.b}`);
-          divsAll.push({ caso: variant.name, par: 'link#' + i + '.' + d.prop, admin: d.a, publico: d.b, conhecida: true });
-          pass++;
+          /* mecanismo (allow) → conhecida; geometria/alinhamento → real */
+          d.known = !!LINK_ALLOW[d.prop] || !LINK_GEOMETRY.includes(d.prop);
+          console.log(`  ⚠️  DIVERGÊNCIA link#${i}.${d.prop} — admin=${d.a} | público=${d.b}` + (d.known ? ' (conhecida)' : ''));
+          divsAll.push({ caso: variant.name, par: 'link#' + i + '.' + d.prop, admin: d.a, publico: d.b, conhecida: d.known });
+          if (d.known) pass++; else fail++;
         }
         if (!divs.length) pass++;
       });
@@ -618,7 +677,7 @@ export async function run() {
 
     /* Alvos direcionados */
     const checks = [];
-    checks.push(...avatarChecks(wA, wP, cfg), ...enderecoTargetedChecks(wA, wP, cfg), ...fundoChecks(wA, wP, cfg), ...blockSpacingChecks(wA, wP, cfg));
+    checks.push(...avatarChecks(wA, wP, cfg), ...enderecoTargetedChecks(wA, wP, cfg), ...fundoChecks(wA, wP, cfg), ...blockSpacingChecks(wA, wP, cfg), ...descWrapChecks(wA, wP));
     if (/banner/i.test(variant.name)) checks.push(...overlayTitleChecks(wA, wP), ...bannerOverlayChecks(wA, wP));
     if (/verificado/i.test(variant.name)) checks.push(...verifiedChecks(wA, wP, cfg));
 
