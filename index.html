@@ -3065,19 +3065,31 @@
       const addrEl = document.getElementById('pgAddress');
       const hasAddr = !!(flat.profileAddress || '').trim();
       if (addrEl) {
-        addrEl.hidden = !(hasAddr && pf.addrShow !== false);
-        if (hasAddr) {
+        const showAddr = !!(hasAddr && pf.addrShow !== false);
+        const showIcon = (pf.address && pf.address.showIcon) !== false;
+        addrEl.hidden = !showAddr;
+        /* O chip/vidro do endereço aplica display:block inline (chipFor);
+           display inline VENCE o atributo hidden — e não há
+           .profile__address[hidden] no CSS (a classe .profile__address já
+           declara display:inline-flex). Quando oculto, dominamos o display
+           com 'none !important' (imune a re-escritas plain posteriores);
+           quando exibido, revogamos qualquer none antigo e o chipFor volta
+           a mandar (block). */
+        if (showAddr) {
+          addrEl.style.removeProperty('display');
           const aCfg = pElemAddress;
           if (aCfg.color) addrEl.style.color = aCfg.color;
-          const addrIconEl = addrEl.querySelector('svg');
-          if (addrIconEl) addrIconEl.style.display = (pf.address && pf.address.showIcon === false) ? 'none' : '';
           chipFor(addrEl, addressGlass, aCfg.padding || [8, 16], aCfg.radius != null ? aCfg.radius : 999, aCfg.bg || '', aCfg.align);
+          const addrIconEl = addrEl.querySelector('svg');
+          if (addrIconEl) addrIconEl.style.display = showIcon ? '' : 'none';
           /* O container (.profile__info) é flex-column align-items:center:
              o eixo horizontal de um item flex rege via align-self, senão
              esquerda/direita não surtem efeito no browser real. */
           addrEl.style.alignSelf = aCfg.align === 'left' ? 'flex-start' : aCfg.align === 'right' ? 'flex-end' : 'center';
           addrEl.style.marginLeft = '';
           addrEl.style.marginRight = '';
+        } else {
+          addrEl.style.setProperty('display', 'none', 'important');
         }
       }
 

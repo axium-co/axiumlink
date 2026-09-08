@@ -4948,7 +4948,19 @@
     const bioCfg = profileElem('bio');
     const chipFor = (el, g, pad, radius, bg, align) => {
       if (!el) return;
-      if (g.enabled || bg) {
+      if (el.hidden) {
+        /* Escondido no preview (ex.: Endereço com "mostrar na página"
+           desligado): o bloco de visibilidade domina o display (none) no
+           mockup e roda em chamadas de applyThemeVars posteriores a este
+           chipFor — aqui NÃO se aplica block/width/margins, senão o valor
+           inline volta a vencer o hidden. Os estilos do chip
+           (padding/raio/fundo/vidro) continuam aplicados para quando o
+           elemento for reexibido. */
+        el.style.removeProperty('display');
+        el.style.width = '';
+        el.style.marginLeft = '';
+        el.style.marginRight = '';
+      } else if (g.enabled || bg) {
         /* display block (NÃO inline-block): margin auto só centraliza em
            elementos block-level; chip inline ficava à esquerda no browser. */
         el.style.setProperty('display', 'block');
@@ -5256,9 +5268,23 @@
     if (addrBox) {
       const hasAddrRaw = !!(cfg.profile && String(cfg.profile.address || '').trim());
       const showAddr = hasAddrRaw && pf.addrShow !== false;
+      const showIcon = (pf.address && pf.address.showIcon) !== false;
+      const aCfg = profileElem('address');
       addrBox.hidden = !showAddr;
+      /* O chip/vidro do endereço aplica display:block INLINE
+         (applyGlassToElements → chipFor), que VENCE o atributo hidden e
+         pode rodar de novo depois deste ponto em chamadas posteriores de
+         applyThemeVars. Quando oculto, dominamos o display com
+         'none !important' (imune a re-escritas plain subsequentes).
+         Quando exibido, revogamos qualquer none antigo e reconstruímos o
+         block do chip para o pílula continuar centralizado. */
       if (showAddr) {
-        const aCfg = profileElem('address');
+        const addrG = Object.assign({
+          enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff',
+          borderGlow: 40, shadowDepth: 18, highlight: true, noise: false
+        }, (cfg.style && cfg.style.addressGlass) || {});
+        addrBox.style.removeProperty('display');
+        if (addrG.enabled || aCfg.bg) addrBox.style.setProperty('display', 'block');
         const addrText = $('pvAddressText');
         if (addrText) addrText.textContent = cfg.profile.address;
         /* Pílula/fundo/raio/padding/alinhamento/vidro são exclusivos do
@@ -5271,9 +5297,14 @@
         if (aAlign === 'left') { addrBox.style.marginLeft = '0'; addrBox.style.marginRight = 'auto'; }
         else if (aAlign === 'right') { addrBox.style.marginLeft = 'auto'; addrBox.style.marginRight = '0'; }
         else { addrBox.style.marginLeft = 'auto'; addrBox.style.marginRight = 'auto'; }
+      } else {
+        addrBox.style.setProperty('display', 'none', 'important');
       }
       const addrIco = $('pvAddressIco');
-      if (addrIco) addrIco.hidden = !((pf.address && pf.address.showIcon) !== false);
+      if (addrIco) {
+        addrIco.hidden = !showIcon;
+        addrIco.style.display = showIcon ? '' : 'none';
+      }
     }
 
     /* PIX: mostra o trigger no mockup quando habilitado com conteúdo */
