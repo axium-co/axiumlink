@@ -543,6 +543,24 @@ function blockSpacingChecks(wA, wP, cfg) {
   return opts;
 }
 
+/* Lê todas as cssRules de todos os <style> de uma página (o jsdom não
+   resolve layout — o contrato de estilo é verificado nas regras direto). */
+function allRules(win) {
+  const out = [];
+  for (const sheet of win.document.styleSheets || []) {
+    let rules = [];
+    try { rules = sheet.cssRules || []; } catch (_) { /* cross-origin: ignora */ }
+    for (const r of rules) if (r && r.selectorText) out.push(r);
+  }
+  return out;
+}
+
+function findRule(rs, sel) {
+  return rs.find((r) =>
+    String(r.selectorText).split(',').map((s) => s.trim()).indexOf(sel) >= 0
+  );
+}
+
 /* BUG B — descrição dos cards: o nodo de descrição precisa QUEBRAR além
    do título (white-space normal + overflow-wrap). Admin usa
    .link-block-sub (cards padrão) e .link-block .featured__sub
@@ -552,24 +570,12 @@ function blockSpacingChecks(wA, wP, cfg) {
    capturada aqui. */
 function descWrapChecks(wA, wP) {
   const opts = [];
-  const allRules = (win) => {
-    const out = [];
-    for (const sheet of win.document.styleSheets || []) {
-      let rules = [];
-      try { rules = sheet.cssRules || []; } catch (_) { /* cross-origin: ignora */ }
-      for (const r of rules) if (r && r.selectorText) out.push(r);
-    }
-    return out;
-  };
-  const findRule = (rs, sel) => rs.find((r) =>
-    String(r.selectorText).split(',').map((s) => s.trim()).indexOf(sel) >= 0
-  );
+  const aR = allRules(wA);
+  const pR = allRules(wP);
   const wrapState = (r) => r
     ? ((r.style.getPropertyValue('white-space') || '') + '|' + (r.style.getPropertyValue('overflow-wrap') || '') + '|' + (r.style.getPropertyValue('word-break') || ''))
     : '(sem regra)';
   const good = (st) => st && /^normal\|/.test(st) && /(anywhere|break-word)/.test(st);
-  const aR = allRules(wA);
-  const pR = allRules(wP);
   const aDefault = findRule(aR, '.link-block-sub');
   const aFeatured = findRule(aR, '.link-block .featured__sub');
   const pSub = findRule(pR, '.featured__sub');
@@ -704,6 +710,65 @@ export async function run() {
     console.log(`\n━━━ ESPELHO | ALVO typoBtn ━━━`);
     console.log('  ' + (ok ? '✅' : '❌') + ' tipografia global do botão (style.typoBtn) aplica nos DOIS lados — admin font-size=' + (aF || '(nada)') + ' público=' + (bF || '(nada)'));
     if (!ok) fail++; else pass++;
+  }
+
+  /* ALVO customimg — modo "Imagem no botão inteiro" (link.customButtonImage).
+     O card de imagem nasce no MESMO container do botão padrão (usa a MESMA
+     classe base) e depende de largura 100% + stretch para ficar centralizado
+     igual ao preview. O jsdom não resolve layout, então o contrato de
+     largura/alinhamento é verificado nas próprias regras CSS dos dois lados
+     (além de geometria inline). Bloqueia: contração de width/align-self nesse
+     modo, largura inline por-link, retorno da "linha residual" (Bug 7,
+     ::after) e perda do espaçamento individual por elemento (slot). */
+  {
+    const c = JSON.parse(JSON.stringify(NEW_CONFIG));
+    c.style.blockGap = 16;
+    c.links = [
+      { id: 'l1', title: 'Site', url: 'https://site.com', type: 'site', spacing: 10 },
+      { id: 'l2', title: 'Botão imagem', url: 'https://wa.me/1', type: 'whatsapp', customButtonImage: 'https://cdn.axium.test/btn-wa.png', customButtonHeight: 120, spacing: 24 }
+    ];
+    wA.__axEditor.init(c);
+    wP.__alaPublica.aplicar(c);
+    const dA = wA.document;
+    const dP = wP.document;
+    const aStd = dA.querySelector('#previewLinksList .link-block:not(.link-block-customimg)');
+    const aImg = dA.querySelector('#previewLinksList .link-block-customimg');
+    const pStd = dP.querySelector('.pg-links-list .featured__card:not(.featured__card--customimg)');
+    const pImg = dP.querySelector('.pg-links-list .featured__card--customimg');
+    const report = (label, ok, det = '') => {
+      console.log(`  ${ok ? '✅' : '❌'} ${label}${ok ? '' : ' — ' + det}`);
+      if (ok) pass++; else fail++;
+    };
+    const GEOM = ['width', 'max-width', 'flex', 'align-self', 'justify-content', 'align-items', 'margin-left', 'margin-right', 'margin-bottom', 'display', 'text-align', 'aspect-ratio'];
+    const geomDiff = (a, b) => comparePair('alvo', snapEl(a), snapEl(b), {}).filter((d) => GEOM.includes(d.prop));
+    const fmt = (ds) => ds.length ? ds.map((x) => x.prop + '=' + x.a + '→' + x.b).join('; ') : '(iguais)';
+    const exists = (a, b) => !!(a && b);
+    const mt = (el) => (el && el.style.marginTop) || '(vazio)';
+    const ruleState = (r) => r
+      ? ((r.style.getPropertyValue('width') || '(vazio)') + '|' + (r.style.getPropertyValue('align-self') || '(vazio)'))
+      : '(sem regra)';
+    const fullW = (st) => /100%/.test(st) && /stretch/.test(st);
+    const afterState = (r) => r ? (r.style.getPropertyValue('display') || '(vazio)') : '(sem regra)';
+    const ruleP = findRule(allRules(wP), '.featured__card.featured__card--customimg');
+    const ruleA = findRule(allRules(wA), '.link-block.link-block-customimg');
+    const afterP = findRule(allRules(wP), '.featured__card.featured__card--customimg::after');
+    const afterA = findRule(allRules(wA), '.link-block.link-block-customimg::after');
+
+    console.log('\n━━━ ESPELHO | ALVO customimg (imagem no botão inteiro) ━━━');
+    report('customimg: presente nos DOIS lados', exists(aImg, pImg), 'admin=' + (aImg ? 'sim' : 'não') + ' público=' + (pImg ? 'sim' : 'não'));
+    report('customimg: parte do MESMO container (.link-block base) admin', !!(aImg && aImg.classList.contains('link-block')), (aImg && aImg.className) || '(ausente)');
+    report('customimg: parte do MESMO container (.featured__card base) público', !!(pImg && pImg.classList.contains('featured__card')), (pImg && pImg.className) || '(ausente)');
+    report('customimg: width:100% + align-self:stretch por regra (admin)', fullW(ruleState(ruleA)), ruleState(ruleA));
+    report('customimg: width:100% + align-self:stretch por regra (público)', fullW(ruleState(ruleP)), ruleState(ruleP));
+    report('customimg: sem width/flex/align-self inline (admin)', exists(aImg, aImg) && !(aImg.style.width || aImg.style.flex || aImg.style.alignSelf), 'width=' + (aImg && aImg.style.width || '(vazio)'));
+    report('customimg: sem width/flex/align-self inline (público)', exists(pImg, pImg) && !(pImg.style.width || pImg.style.flex || pImg.style.alignSelf), 'width=' + (pImg && pImg.style.width || '(vazio)'));
+    report('customimg: mesma geometria/alinhamento do botão padrão (admin)', exists(aStd, aImg) && geomDiff(aStd, aImg).length === 0, fmt(geomDiff(aStd, aImg)));
+    report('customimg: mesma geometria/alinhamento do botão padrão (público)', exists(pStd, pImg) && geomDiff(pStd, pImg).length === 0, fmt(geomDiff(pStd, pImg)));
+    report('customimg: geometria/alinhamento preview == público', (exists(aImg, pImg) && exists(aStd, pStd)) && geomDiff(aImg, pImg).length === 0 && geomDiff(aStd, pStd).length === 0, fmt([...geomDiff(aImg, pImg), ...geomDiff(aStd, pStd)]));
+    report('customimg: ::after suprimido / linha residual (Bug 7) admin', afterState(afterA) === 'none', afterState(afterA));
+    report('customimg: ::after suprimido / linha residual (Bug 7) público', afterState(afterP) === 'none', afterState(afterP));
+    report('customimg: slot de espaçamento por elemento (admin 1º=0 / 2º=24px)', exists(aStd, aImg) && mt(aStd) === '0px' && mt(aImg) === '24px', 'padrão=' + mt(aStd) + ' imagem=' + mt(aImg));
+    report('customimg: slot de espaçamento por elemento (público 1º=0 / 2º=24px)', exists(pStd, pImg) && mt(pStd) === '0px' && mt(pImg) === '24px', 'padrão=' + mt(pStd) + ' imagem=' + mt(pImg));
   }
 
   /* Resumo — lista real (não-conhecidas) deduplicada */
