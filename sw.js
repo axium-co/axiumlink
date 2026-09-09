@@ -66,6 +66,13 @@ self.addEventListener('fetch', (event) => {
 
   if (url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com') {
     event.respondWith(staleWhileRevalidate(request));
+    return;
+  }
+
+  /* CDNs usados pela página (Font Awesome, Supabase SDK etc.) — entra
+     no cache na primeira visita e fica disponível offline no PWA. */
+  if (url.hostname === 'cdnjs.cloudflare.com' || url.hostname === 'cdn.jsdelivr.net' || url.hostname === 'unpkg.com') {
+    event.respondWith(staleWhileRevalidate(request));
   }
 });
 
