@@ -2261,11 +2261,7 @@
             </div>
             <button class="btn-mini" id="btnBgImagePick">Escolher</button>
           </div>
-          <input type="file" id="bgImageInput" accept="image/*" hidden>
-          <div class="field" style="margin-top:10px;">
-            <label for="bgImageUrl">ou cole uma URL</label>
-            <input type="url" id="bgImageUrl" placeholder="https://exemplo.com/fundo.jpg">
-          </div>
+<input type="file" id="bgImageInput" accept="image/*" hidden>
           <button id="btnBgImageClear" style="display:none; margin-top:10px; width:100%; padding:10px; border-radius:10px; border:1.5px solid #ef4444; background:#fef2f2; color:#dc2626; font-size:13px; font-weight:600; cursor:pointer; transition:all .15s;">✕ Remover Imagem de Fundo</button>
         </div>
 
@@ -2439,10 +2435,6 @@
             <button class="btn-mini" id="btnBannerImagePick">Escolher</button>
           </div>
           <input type="file" id="bannerImageInput" accept="image/*" hidden>
-          <div class="field" style="margin-top:10px;">
-            <label for="bannerImageUrl">ou cole uma URL</label>
-            <input type="url" id="bannerImageUrl" placeholder="https://exemplo.com/banner.jpg">
-          </div>
           <button id="btnBannerImageClear" style="display:none; margin-top:10px; width:100%; padding:10px; border-radius:10px; border:1.5px solid #ef4444; background:#fef2f2; color:#dc2626; font-size:13px; font-weight:600; cursor:pointer; transition:all .15s;">✕ Remover Imagem do Banner</button>
         </div>
 
@@ -2796,8 +2788,6 @@
           <button class="btn-mini" id="btnBlockImagePick" style="flex:1; width:100%;">Escolher imagem…</button>
           <input type="file" id="blockImageInput" accept="image/*" hidden>
         </div>
-        <label for="blockCustomImageUrl">ou cole uma URL</label>
-        <input type="url" id="blockCustomImageUrl" placeholder="https://exemplo.com/botao.png">
         <small>Enviada para a nuvem e exibida como o botão COMPLETO (sem ícone/texto gerados).</small>
         <div style="display:flex; align-items:center; gap:12px; margin-top:12px;">
           <label for="blockCustomHeight" style="flex:1; margin:0;">Altura do botão</label>
@@ -3724,8 +3714,6 @@
       if (pvPage) pvPage.classList.add('no-banner');
     }
     syncBannerImageControls();
-    const bannerUrlEl = $('bannerImageUrl');
-    if (bannerUrlEl) bannerUrlEl.value = cfg.banner || '';
     renderBannerOverlay();
 
     applyThemeVars();
@@ -6254,20 +6242,11 @@
         showToast('Falha no upload: ' + err.message);
       }
     });
-    safeOn('bgImageUrl', 'input', (e) => {
-      if (!cfg.style) cfg.style = {};
-      cfg.style.bgImageUrl = e.target.value.trim();
-      if (e.target.value.trim()) cfg.style.bgVariant = 'image';
-      updateStyleRowsVisibility();
-      applyThemeVars();
-      markDirty();
-    });
     safeOn('btnBgImageClear', 'click', () => {
       if (!cfg.style) cfg.style = {};
       cfg.style.bgImageUrl = '';
       cfg.style.bgVariant = 'solid';
       $('bgVariant').value = 'solid';
-      $('bgImageUrl').value = '';
       updateStyleRowsVisibility();
       applyThemeVars();
       markDirty();
@@ -6435,14 +6414,8 @@
         showToast('Falha no upload: ' + err.message);
       }
     });
-    safeOn('bannerImageUrl', 'input', (e) => {
-      cfg.banner = e.target.value.trim();
-      renderPreview();
-      markDirty();
-    });
     safeOn('btnBannerImageClear', 'click', () => {
       cfg.banner = '';
-      $('bannerImageUrl').value = '';
       renderPreview();
       markDirty();
       showToast('Imagem do banner removida');
@@ -6735,7 +6708,6 @@
     renderColorTriggers();
     $('bgVideoUrl').value = st.bgVideoUrl || '';
     setRange('bgVideoOpacity', st.bgVideoOpacity ?? 100);
-    $('bgImageUrl').value = st.bgImageUrl || '';
     $('bgTexture').value = st.bgTexture || 'none';
     $('fontFamily').value = st.font || 'Inter';
     $('layoutSpacing').value = st.layoutSpacing || 'comfy';
@@ -7004,7 +6976,6 @@
     _pendingBlockIcon = l.iconImg || null;
     _pendingBlockImage = l.customButtonImage || '';
     $('blockBtnDesign').value = l.customButtonImage ? 'imagem' : 'padrao';
-    $('blockCustomImageUrl').value = l.customButtonImage || '';
     _pendingBlockHeight = (Number(l.customButtonHeight) > 40) ? Number(l.customButtonHeight) : 84;
     $('blockCustomHeight').value = _pendingBlockHeight;
     $('blockCustomHeightVal').textContent = _pendingBlockHeight + 'px';
@@ -7236,7 +7207,6 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
       try {
         const publicUrl = await uploadFileToStorage(file, 'linkbtn');
         _pendingBlockImage = publicUrl;
-        $('blockCustomImageUrl').value = publicUrl;
         updateBlockImageUI();
         showToast('Imagem pronta — salve o bloco');
       } catch (err) {
@@ -7244,13 +7214,6 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
         showToast('Falha no upload: ' + err.message);
       }
       e.target.value = '';
-    });
-    safeOn('blockCustomImageUrl', 'input', (e) => {
-      const v = e.target.value.trim();
-      if ($('blockBtnDesign').value === 'imagem') {
-        _pendingBlockImage = v;
-        updateBlockImageUI();
-      }
     });
 
     const submitBlock = () => {
