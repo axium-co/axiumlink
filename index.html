@@ -4179,15 +4179,15 @@
         showPublicStatus({ ok: false, code: STATUS.ERROR });
       });
 
-      /* Re-busca do Supabase a cada 30s para refletir edições do admin.
-         Só reaplica se um perfil válido voltar — em erro transitório a
-         página já renderizada permanece intacta. */
+      /* Re-busca do Supabase a cada 10s para refletir edições do admin.
+         Reduzido de 30s para ~10s — bom custo/benefício para o cliente
+         ajustando o próprio perfil em tempo prático. */
       setInterval(async () => {
         try {
           const fresh = await readConfig();
           if (fresh && fresh.ok && fresh.config) applyConfig(fresh.config);
         } catch (e) { /* silent */ }
-      }, 30000);
+      }, 10000);
 
       /* Sincronização via BroadcastChannel — contrato compartilhado com o
          admin: canal 'axiumlink-sync-<slug>', mensagem { config }.
