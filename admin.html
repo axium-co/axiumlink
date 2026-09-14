@@ -3477,9 +3477,16 @@
   function markDirty() {
     _isDirty = true;
     saveLocalDraft();
-    clearTimeout(_autoSaveTimer);
-    _autoSaveTimer = setTimeout(renderPreview, 300);
+    schedulePreview();
     scheduleCloudSave();
+  }
+
+  /* Render do mockup com debounce LEVE (150ms): reflete a edição ao vivo
+     sem travar a digitação em campos de texto. */
+  let _previewTimer = null;
+  function schedulePreview() {
+    clearTimeout(_previewTimer);
+    _previewTimer = setTimeout(renderPreview, 150);
   }
 
   function scheduleCloudSave() {
@@ -7062,19 +7069,16 @@
 
     safeOn('displayName', 'input', (e) => {
       cfg.profile.displayName = e.target.value;
-      renderPreview();
       markDirty();
     });
 
     safeOn('bio', 'input', (e) => {
       cfg.profile.bio = e.target.value;
-      renderPreview();
       markDirty();
     });
 
     safeOn('address', 'input', (e) => {
       cfg.profile.address = e.target.value;
-      renderPreview();
       markDirty();
     });
 
@@ -7118,14 +7122,12 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
       cfg.profile = cfg.profile || {};
       cfg.profile.pix = cfg.profile.pix || {};
       cfg.profile.pix.key = e.target.value;
-      renderPreview();
       markDirty();
     });
     safeOn('pixLink', 'input', (e) => {
       cfg.profile = cfg.profile || {};
       cfg.profile.pix = cfg.profile.pix || {};
       cfg.profile.pix.link = e.target.value;
-      renderPreview();
       markDirty();
     });
     safeOn('btnPixPick', 'click', () => $('pixQrInput').click());
@@ -7431,6 +7433,7 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
   /* Volta ao dashboard salvando silenciosamente o rascunho atual */
   async function goBackToProfilesDashboard() {
     clearTimeout(_autoSaveTimer);
+    clearTimeout(_previewTimer);
     clearTimeout(_autoSaveCloudTimer);
     try {
       await SupaApp.saveClientConfig(buildPayload());
