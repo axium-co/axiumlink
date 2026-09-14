@@ -851,6 +851,21 @@
     /* Tabs entrance */
     .pg-tabs { animation: fadeSlideUp .4s ease both; animation-delay: .02s; }
 
+    /* ---- Pós-primeira renderização (ax-stabilized) ----
+       A classe é adicionada ao <html> pelo JS assim que a primeira
+       renderização termina. A partir daí, qual quer bloco recriado
+       (re-polling de 30s, volta de aba, sincronização com o admin)
+       NÃO REPETE a animação de entrada fadeSlideUp — era isso que
+       fazia os ícones "piscarem" espontaneamente. Animações
+       escolhidas pelo cliente (pulse/shake/shine e variantes
+       premium) continuam rodando normalmente. */
+    html.ax-stabilized .featured__card:not(.anim-pulse):not(.anim-shake):not(.anim-shine):not(.ax-anim-pulse):not(.ax-anim-float):not(.ax-anim-shine),
+    html.ax-stabilized .social-icon:not(.anim-pulse):not(.anim-shake):not(.anim-shine):not(.ax-anim-pulse):not(.ax-anim-float):not(.ax-anim-shine),
+    html.ax-stabilized .pg-tabs,
+    html.ax-stabilized .profile__avatar {
+      animation: none;
+    }
+
     /* ---- Skeleton loader ---- */
     @keyframes shimmer {
       0%   { background-position: -200% 0; }
@@ -2100,14 +2115,19 @@
   </script>
 
   <script>
-    /* ================================================================
-       APLICAR CONFIGURAÇÃO DO CLIENTE (Painel Axiumlink)
-       ----------------------------------------------------------------
-       Prioridade: 1) localStorage salvo pelo admin.html
-                   2) config.js (defaults/deploy)
-       Atualiza as CSS Variables (:root) e os textos/links da página.
-       ================================================================ */
+      /* ================================================================
+         APLICAR CONFIGURAÇÃO DO CLIENTE (Painel Axiumlink)
+         ----------------------------------------------------------------
+         Prioridade: 1) localStorage salvo pelo admin.html
+                     2) config.js (defaults/deploy)
+         Atualiza as CSS Variables (:root) e os textos/links da página.
+         ================================================================ */
     (function () {
+      /* Marca a 1ª renderização: a animação de entrada (fadeSlideUp) só
+         pode rodar no primeiro load. Re-renders (polling/focus/broadcast)
+         devem ser suaves — o CSS html.ax-stabilized corta o replay. */
+      var __firstRender = true;
+      var __lastConfigJson = '';
       /* Estado da busca pública — sem fallback, sem dados hardcoded. */
       const STATUS = {
         NOSLUG: 'noslug',
@@ -2365,6 +2385,14 @@
       function applyConfig(cfg) {
         cfg = adaptNewSchema(cfg);
         if (!cfg) return;
+
+        /* Dedup: pula re-render se a config não mudou — evita replays
+           de animações de entrada (fadeSlideUp, pulse, shake, shine)
+           que causavam "piscar" dos ícones a cada polling/visibility. */
+        var _json = '';
+        try { _json = JSON.stringify(cfg); } catch (_e) {}
+        if (_json && _json === __lastConfigJson) return;
+        if (_json) __lastConfigJson = _json;
 
         /* Esconde skeleton loader */
         const skel = document.getElementById('pgSkeleton');
@@ -4093,6 +4121,10 @@
         const b = hexToRgb(c2);
         const rgb = a.map((x, i) => Math.round(x + (b[i] - x) * t));
         return '#' + rgb.map((x) => x.toString(16).padStart(2, '0')).join('');
+      }
+      if (__firstRender) {
+        __firstRender = false;
+        document.documentElement.classList.add('ax-stabilized');
       }
       }
 
