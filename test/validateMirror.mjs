@@ -282,6 +282,14 @@ const CASE_VARIANTS = [
       return c;
     }
   },
+  { name: 'fundo: vídeo',
+    make: (c) => {
+      c.style.bgVariant = 'video';
+      c.style.bgVideoUrl = 'https://cdn.exemplo/fundo.webm';
+      c.style.bgVideoOpacity = 30;
+      return c;
+    }
+  },
   { name: 'banner: gradiente + scrim',
     make: (c) => {
       c.design.banner = {
@@ -568,6 +576,31 @@ function findRule(rs, sel) {
   );
 }
 
+/* BUG 1 — alinhamento do ícone dos botões. Preview lê link.iconAlign e
+   aplica .icon-center/.icon-right; o público precisa aplicar .ia-center/
+   .ia-right na MESMA condição. Como o espelho por-par só compara estilos
+   inline (essas classes não entram no _class), o contrato é verificado
+   por classe aqui — para os links que tiverem iconAlign explícito. */
+function iconAlignChecks(wA, wP, cfg) {
+  const opts = [];
+  const links = Array.isArray(cfg.links) ? cfg.links : [];
+  const aCards = Array.from(wA.document.querySelectorAll('#previewLinksList > *'));
+  const pCards = Array.from(wP.document.querySelectorAll('.pg-links-list > *'));
+  links.forEach((l, i) => {
+    if (!l.iconAlign || l.iconAlign === 'left') return;
+    const aEl = aCards[i];
+    const pEl = pCards[i];
+    const aHas = !!(aEl && aEl.classList.contains('icon-' + l.iconAlign));
+    const pHas = !!(pEl && pEl.classList.contains('ia-' + l.iconAlign));
+    opts.push([
+      `bug1: ícone '${l.iconAlign}' espelhado nos DOIS lados (admin .icon-* / público .ia-*)`,
+      aHas && pHas,
+      'admin=' + (aEl ? aEl.className : '(sem card)') + ' público=' + (pEl ? pEl.className : '(sem card)')
+    ]);
+  });
+  return opts;
+}
+
 /* BUG B — descrição dos cards: o nodo de descrição precisa QUEBRAR além
    do título (white-space normal + overflow-wrap). Admin usa
    .link-block-sub (cards padrão) e .link-block .featured__sub
@@ -690,7 +723,7 @@ export async function run() {
 
     /* Alvos direcionados */
     const checks = [];
-    checks.push(...avatarChecks(wA, wP, cfg), ...enderecoTargetedChecks(wA, wP, cfg), ...fundoChecks(wA, wP, cfg), ...blockSpacingChecks(wA, wP, cfg), ...descWrapChecks(wA, wP));
+    checks.push(...avatarChecks(wA, wP, cfg), ...enderecoTargetedChecks(wA, wP, cfg), ...fundoChecks(wA, wP, cfg), ...blockSpacingChecks(wA, wP, cfg), ...descWrapChecks(wA, wP), ...iconAlignChecks(wA, wP, cfg));
     if (/banner/i.test(variant.name)) checks.push(...bannerOverlayAbsentChecks(wA, wP));
     if (/verificado/i.test(variant.name)) checks.push(...verifiedChecks(wA, wP, cfg));
 
@@ -776,6 +809,44 @@ export async function run() {
     report('customimg: ::after suprimido / linha residual (Bug 7) público', afterState(afterP) === 'none', afterState(afterP));
     report('customimg: slot de espaçamento por elemento (admin 1º=0 / 2º=24px)', exists(aStd, aImg) && mt(aStd) === '0px' && mt(aImg) === '24px', 'padrão=' + mt(aStd) + ' imagem=' + mt(aImg));
     report('customimg: slot de espaçamento por elemento (público 1º=0 / 2º=24px)', exists(pStd, pImg) && mt(pStd) === '0px' && mt(pImg) === '24px', 'padrão=' + mt(pStd) + ' imagem=' + mt(pImg));
+  }
+
+  /* ALVO BUG 1 — regra CSS que destrava o alinhamento do ícone no modo
+     lista. O .ia-* genérico (3 classes) perdia para o bloqueio do modo
+     lista (.pg-links--list ... .featured__icon fixa o ícone ABSOLUTO à
+     esquerda, 4 classes) → ícone preso no canto no público. O jsdom não
+     resolve a cascata, então o contrato aqui é: as regras .ia-* escopadas
+     em .pg-links--list existem, declaram left/right/position corretos e
+     têm ESPECIFICIDADE maior que o bloqueio. */
+  {
+    const LOCK = '.pg-links--list .featured__card:not(.featured__card--banner) .featured__icon';
+    const RIGHT = '.pg-links--list .featured__card:not(.featured__card--banner).ia-right .featured__icon';
+    const CENTER = '.pg-links--list .featured__card:not(.featured__card--banner).ia-center .featured__icon';
+    const report = (label, ok, det = '') => {
+      console.log(`  ${ok ? '✅' : '❌'} ${label}${ok ? '' : ' — ' + det}`);
+      if (ok) pass++; else fail++;
+    };
+    const spec = (sel) => {
+      const ids = (sel.match(/#[\w-]+/g) || []).length;
+      const cls = (sel.match(/\.[\w-]+/g) || []).length;
+      const el = (sel.match(/(?:^|\s|[>+~])([a-z][\w-]*)/g) || []).length;
+      return ids * 1e6 + cls * 1e4 + el;
+    };
+    const rs = allRules(wP);
+    const lock = findRule(rs, LOCK);
+    const r = findRule(rs, RIGHT);
+    const c = findRule(rs, CENTER);
+    const lockSpec = spec(LOCK);
+    const rightOk = !!(r && r.style.getPropertyValue('right') === '0.875rem' && r.style.getPropertyValue('left') === 'auto' && spec(RIGHT) > lockSpec);
+    const centerOk = !!(c && c.style.getPropertyValue('position') === 'static' && spec(CENTER) > lockSpec);
+    const aR = findRule(rs, '.pg-links--list .featured__card:not(.featured__card--banner).ia-right .featured__arrow');
+    const aC = findRule(rs, '.pg-links--list .featured__card:not(.featured__card--banner).ia-center .featured__arrow');
+    const arrowOk = !!(aR && aR.style.getPropertyValue('display') === 'none' && aC && aC.style.getPropertyValue('display') === 'none');
+
+    console.log('\n━━━ ESPELHO | ALVO bug1 (ícone no modo lista) ━━━');
+    report('bug1: regra .ia-right vence o bloqueio (espec. ' + spec(RIGHT) + ' > ' + lockSpec + ') com left:auto right:.875rem', rightOk, r ? ('left=' + (r.style.getPropertyValue('left') || '(vazio)') + ' right=' + (r.style.getPropertyValue('right') || '(vazio)')) : '(sem regra)');
+    report('bug1: regra .ia-center coloca ícone estático (position:static)', centerOk, c ? ('position=' + (c.style.getPropertyValue('position') || '(vazio)')) : '(sem regra)');
+    report('bug1: seta oculta nos modos center/right em modo lista', arrowOk, 'right=' + (aR && aR.style.getPropertyValue('display') || '(sem regra)') + ' center=' + (aC && aC.style.getPropertyValue('display') || '(sem regra)'));
   }
 
   /* ================================================================
