@@ -3157,22 +3157,27 @@
         if (vEl) vEl.style.removeProperty('background');
       }
 
-      /* Alinhamento do nome também rege a linha do selo de verificado */
-      const nameRow = document.querySelector('.profile__name-row');
-      const nameWrap = document.querySelector('.profile__name-wrap');
-      if (nameRow) {
-        const na = pElemName.align || (ptext.name && ptext.name.align) || '';
-        /* O wrap (.profile__name-wrap) envolve Nome + selo como um ÚNICO bloco
-           e centraliza os dois juntos (justify-content:center no wrap). O row
-           só posiciona o wrap (esquerda/centro/direita) pelo alinhamento. */
-        nameRow.style.justifyContent = na === 'left' ? 'flex-start' : na === 'right' ? 'flex-end' : 'center';
-        if (nameWrap) nameWrap.style.justifyContent = 'center';
-        /* As margens:auto do chip do Nome (width fit-content) expulsavam o selo
-           para o extremo oposto; limpar impede que o centro do bloco Nome+selo
-           seja deslocado por elas. */
-        const tEl = document.getElementById('pgTitle');
-        if (tEl) { tEl.style.marginLeft = ''; tEl.style.marginRight = ''; }
-      }
+      /* Alinhamento do nome também rege a linha do selo de verificado.
+         Nome + selo são UM ÚNICO bloco centralizado: o wrap
+         (.profile__name-wrap) centraliza a dupla; o row só posiciona o wrap
+         (esquerda/centro/direita) pelo alinhamento. As margens:auto que o
+         chipFor aplica no chip do Nome (width fit-content) absorvem o espaço
+         livre dentro do wrap flex e expulsam o selo para a borda — limpamos
+         aqui, SEMPRE depois do chipFor, para o centro do bloco Nome+selo
+         nunca ser deslocado. Fatorado como helper para reaplicar em qualquer
+         caminho de re-render futuro. */
+      const alignNameRowPub = () => {
+        const nameRow = document.querySelector('.profile__name-row');
+        const nameWrap = document.querySelector('.profile__name-wrap');
+        if (nameRow) {
+          const na = pElemName.align || (ptext.name && ptext.name.align) || '';
+          nameRow.style.justifyContent = na === 'left' ? 'flex-start' : na === 'right' ? 'flex-end' : 'center';
+          if (nameWrap) nameWrap.style.justifyContent = 'center';
+          const tEl = document.getElementById('pgTitle');
+          if (tEl) { tEl.style.marginLeft = ''; tEl.style.marginRight = ''; }
+        }
+      };
+      alignNameRowPub();
 
       function toRgba(hex, alpha) {
         const [r, g, b] = hexToRgb(hex);

@@ -5099,6 +5099,15 @@
 
     /* Tipografia por-link volta por cima dos estilos globais dos botões (BUG 6) */
     reapplyLinkTypo($('pvPage'));
+
+    /* Nome+selo = UM ÚNICO bloco centralizado. applyGlassToElements →
+       chipFor (acima) reaplica display:block+width:fit-content+margins:auto
+       no chip do Nome; dentro do wrap flex, as margens:auto absorvem o espaço
+       livre e deslocam o selo para a borda (regressão BUG A+B). Reafirma o
+       alinhamento no FIM de applyThemeVars, cobrindo TODOS os caminhos do
+       painel que chamam applyThemeVars() sem o render completo (sliders de
+       tipografia/vidro/padding/raio do nome, por exemplo). */
+    alignNameRow();
   }
 
   /* Espaçamento vertical dos botões (links): cada item tem margin-top

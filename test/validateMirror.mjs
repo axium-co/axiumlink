@@ -771,6 +771,104 @@ export async function run() {
     report('customimg: slot de espaçamento por elemento (público 1º=0 / 2º=24px)', exists(pStd, pImg) && mt(pStd) === '0px' && mt(pImg) === '24px', 'padrão=' + mt(pStd) + ' imagem=' + mt(pImg));
   }
 
+  /* ================================================================
+     REGRESSÃO PERMANENTE — Nome + selo de verificado = um ÚNICO bloco
+     centralizado (BUG A+B). Causa raiz: chipFor (vidro/fundo do Nome)
+     aplica display:block + width:fit-content + margin-left/right:auto no
+     #pvName; dentro do wrap flex essas margens:auto absorvem o espaço
+     livre e expulsam o selo para a borda. O preview do admin re-aplica
+     essas margens em VÁRIOS caminhos do painel que chamam applyThemeVars()
+     SEM o render completo (sliders de tipografia/vidro/padding/raio do
+     Nome). Este exame prova que, MESMO depois desses eventos ao vivo, o
+     Nome continua SEM margens automáticas e o conjunto permanece
+     centralizado nos DOIS lados — com selo ativo E inativo, nome curto
+     E longo.
+     ================================================================ */
+  {
+    const marginSnap = (win, sel) => {
+      const cs = win.getComputedStyle(win.document.querySelector(sel));
+      const ml = cs.marginLeft, mr = cs.marginRight;
+      return { noAuto: (ml === '' || ml === '0px') && (mr === '' || mr === '0px'), ml, mr };
+    };
+    const wrapSnap = (win, wrapSel, nameSel, badgeSel) => {
+      const wrap = win.document.querySelector(wrapSel);
+      if (!wrap) return { ok: false, det: 'wrap ausente' };
+      const name = win.document.querySelector(nameSel);
+      const badge = win.document.querySelector(badgeSel);
+      const cs = win.getComputedStyle(wrap);
+      return {
+        ok: !!name && !!badge && wrap.contains(name) && wrap.contains(badge) && cs.justifyContent === 'center',
+        det: 'justify=' + cs.justifyContent + ' contémName=' + (!!name && wrap.contains(name)) + ' contémSelo=' + (!!badge && wrap.contains(badge))
+      };
+    };
+    const report = (label, ok, det = '') => {
+      console.log(`  ${ok ? '✅' : '❌'} ${label}${ok ? '' : ' — ' + det}`);
+      if (ok) pass++; else fail++;
+    };
+    const badgeCases = [
+      { nome: 'verificado + chip (fundo no Nome) + nome CURTO + central',
+        make: (c) => {
+          c.profile.verified = true;
+          c.design.profile.elem.name.bg = '#ff0000';
+          c.design.profile.elem.name.size = 20;
+          c.design.profile.elem.name.align = 'center';
+        } },
+      { nome: 'verificado + chip + nome LONGO (aproxima a largura máxima) + central',
+        make: (c) => {
+          c.profile.verified = true;
+          c.design.profile.elem.name.bg = '#ff0000';
+          c.design.profile.elem.name.size = 20;
+          c.design.profile.elem.name.align = 'center';
+          c.profile.displayName = 'Um Nome Muito Longo Que Se Aproxima Da Largura Máxima Do Conteiner Com O Chip Ativo';
+        } },
+      { nome: 'SEM selo (off) + chip — centralização mantida sem selo',
+        make: (c) => {
+          c.profile.verified = false;
+          c.design.profile.elem.name.bg = '#ff0000';
+          c.design.profile.elem.name.align = 'center';
+        } }
+    ];
+    console.log('\n━━━ ESPELHO | REGRESSÃO Nome+Selo (BUG A+B — permanente) ━━━');
+    for (const c of badgeCases) {
+      const reg = JSON.parse(JSON.stringify(NEW_CONFIG));
+      reg.links = [{ id: 'l1', title: 'Site', url: 'https://site.com', type: 'site' }];
+      c.make(reg);
+      wA.__axEditor.init(reg);
+      wP.__alaPublica.aplicar(reg);
+      const label = c.nome;
+
+      const wrapA = wrapSnap(wA, '.pv-name-wrap', '#pvName', '#pvVerified');
+      const wrapP = wrapSnap(wP, '.profile__name-wrap', '#pgTitle', '#pgVerified');
+      report(`${label}: wrap contém Nome+Selo e centraliza a dupla (admin)`, wrapA.ok, wrapA.det);
+      report(`${label}: wrap contém Nome+Selo e centraliza a dupla (público)`, wrapP.ok, wrapP.det);
+
+      const mA = marginSnap(wA, '#pvName');
+      const mP = marginSnap(wP, '#pgTitle');
+      report(`${label}: #pvName sem margens auto após render completo (admin)`, mA.noAuto, 'ml=' + mA.ml + ' mr=' + mA.mr);
+      report(`${label}: #pgTitle sem margens auto após aplicar (público)`, mP.noAuto, 'ml=' + mP.ml + ' mr=' + mP.mr);
+
+      /* Caminho VIVO do painel (onde o bug voltou): sliders do Nome que
+         chamam applyThemeVars() e NADA mais — o chipFor re-aplica as
+         margens:auto e, sem o alinhamento no fim do applyThemeVars, o
+         selo é expulso para a borda. */
+      for (const sid of ['nameSize', 'nameWeight', 'nameLs', 'nameLh', 'nameRadius', 'namePadV', 'namePadH']) {
+        const input = wA.document.getElementById(sid);
+        if (!input) continue;
+        input.value = '1';
+        input.dispatchEvent(new wA.Event('input'));
+      }
+      const gblur = wA.document.getElementById('nameGlassBlur');
+      if (gblur) { gblur.value = '1'; gblur.dispatchEvent(new wA.Event('input')); }
+      const gop = wA.document.getElementById('nameGlassOpacity');
+      if (gop) { gop.value = '1'; gop.dispatchEvent(new wA.Event('input')); }
+
+      const mAfter = marginSnap(wA, '#pvName');
+      const wrapAfter = wrapSnap(wA, '.pv-name-wrap', '#pvName', '#pvVerified');
+      report(`${label}: #pvName AINDA sem margens auto após sliders do painel (tipografia/vidro/padding/raio)`, mAfter.noAuto, 'ml=' + mAfter.ml + ' mr=' + mAfter.mr);
+      report(`${label}: wrap AINDA centraliza Nome+Selo após sliders do painel`, wrapAfter.ok, wrapAfter.det);
+    }
+  }
+
   /* Resumo — lista real (não-conhecidas) deduplicada */
   const real = divsAll.filter((d) => !d.conhecida);
   console.log(`\n  ✅ ESPELHO checks: ${pass}  |  ❌ DIVERGÊNCIAS: ${fail}`);

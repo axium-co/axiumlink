@@ -374,12 +374,30 @@ async function main() {
       cfg2.design.profile.elem = cfg2.design.profile.elem || {};
       cfg2.design.profile.elem.name = cfg2.design.profile.elem.name || {};
       cfg2.design.profile.elem.name.bg = '#ff0000';
+      cfg2.profile = cfg2.profile || {};
+      cfg2.profile.verified = true;
       window.__axEditor.init(cfg2);
       const nSt2 = window.getComputedStyle(window.document.getElementById('pvName'));
       const ml2 = nSt2.marginLeft;
       const mr2 = nSt2.marginRight;
       const noAuto2 = (ml2 === '' || ml2 === '0px') && (mr2 === '' || mr2 === '0px');
       okB(noAuto2, 'admin: #pvName com vidro ainda sem margens auto — ml=' + ml2 + ' mr=' + mr2);
+
+      // REGRESSÃO (volta do bug): sliders do painel chamam applyThemeVars()
+      // e NADA mais — o chipFor re-aplica as margens:auto e expulsaria o selo
+      // para a borda. Provamos que o alinhamento continua intacto DEPOIS do
+      // evento ao vivo do slider (caminho exato onde o bug voltou).
+      const slider = window.document.getElementById('nameSize');
+      slider.value = '24';
+      slider.dispatchEvent(new window.Event('input'));
+      okB(nSt2.marginLeft === '0px' && nSt2.marginRight === '0px', 'admin: pré-valor capturado (ml/mr 0px) — ' + nSt2.marginLeft + ' / ' + nSt2.marginRight);
+      const nSt3 = window.getComputedStyle(window.document.getElementById('pvName'));
+      const ml3 = nSt3.marginLeft;
+      const mr3 = nSt3.marginRight;
+      const noAuto3 = (ml3 === '' || ml3 === '0px') && (mr3 === '' || mr3 === '0px');
+      okB(noAuto3, 'admin: #pvName SEM margens auto após slider de tipografia (nameSize → applyThemeVars) — ml=' + ml3 + ' mr=' + mr3);
+      const w3 = window.document.querySelector('.pv-name-wrap');
+      okB(w3 && window.getComputedStyle(w3).justifyContent === 'center', 'admin: wrap continua centralizando Nome+selo após slider — ' + (w3 && window.getComputedStyle(w3).justifyContent));
     }
 
     // ---- PÚBLICO ----
