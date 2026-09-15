@@ -282,16 +282,32 @@ const CASE_VARIANTS = [
       return c;
     }
   },
-  { name: 'banner: gradiente + scrim + chip de vidro no overlay',
+  { name: 'banner: gradiente + scrim',
     make: (c) => {
       c.design.banner = {
         enabled: true, bgType: 'gradient', height: 190,
         stops: [ { color: '#0f172a', pos: 0, alpha: 100 }, { color: '#64748b', pos: 100, alpha: 100 } ],
-        angle: 135, scrim: 'dark', scrimOpacity: 40,
-        overlayTitle: 'Conheça a AXIUM', overlayCta: 'Saiba mais', overlayCtaUrl: 'https://axium.app'
+        angle: 135, scrim: 'dark', scrimOpacity: 40
       };
-      c.style.bannerText = { titleSize: 20, titleWeight: 800, titleColor: '#ffffff', ctaSize: 13, ctaWeight: 700, ctaColor: '#0f172a', align: 'center', vpos: 'center', darken: true };
-      c.style.bannerGlass = { enabled: true, blur: 20, opacity: 22, color: '#ff8800' };
+      c.banner = '';
+      return c;
+    }
+  },
+  { name: 'banner: texto sobre o banner desativado (legado ignorado)',
+    make: (c) => {
+      c.design.banner = {
+        enabled: true, bgType: 'gradient', height: 190,
+        stops: [ { color: '#0f172a', pos: 0, alpha: 100 }, { color: '#64748b', pos: 100, alpha: 100 } ],
+        angle: 135, scrim: 'none',
+        overlayTitle: 'Legado NÃO deve renderizar', overlayCta: 'CTA legado', overlayCtaUrl: 'https://x.com'
+      };
+      c.style = Object.assign({}, c.style, {
+        bannerOverlayTitle: 'Legado style não renderiza',
+        bannerOverlayCta: 'CTA legado',
+        bannerOverlayCtaUrl: 'https://x.com',
+        bannerText: { titleSize: 20, titleWeight: 800, titleColor: '#ffffff', ctaSize: 13, ctaWeight: 700, ctaColor: '#0f172a', align: 'center', vpos: 'center', darken: true },
+        bannerGlass: { enabled: true, blur: 20, opacity: 22, color: '#ff8800' }
+      });
       c.banner = '';
       return c;
     }
@@ -408,16 +424,15 @@ function avatarChecks(wA, wP, cfg) {
   return opts;
 }
 
-function overlayTitleChecks(wA, wP) {
+function bannerOverlayAbsentChecks(wA, wP) {
   const opts = [];
-  const aTitle = wA.document.querySelector('.pv-banner-overlay-title');
+  const aEl = wA.document.querySelector('.pv-banner-overlay');
+  opts.push(['banner: overlay de texto NÃO é renderizado no admin (função removida)', !aEl, 'admin=' + (aEl ? 'presente' : 'ausente')]);
+  const pEl = wP.document.querySelector('#pgBannerOverlay');
+  opts.push(['banner: overlay de texto NÃO existe no público (função removida)', !pEl, 'público=' + (pEl ? 'presente' : 'ausente')]);
   const pTitle = wP.document.querySelector('#pgBannerTitle');
-  const at = aTitle && aTitle.textContent;
-  const pt = pTitle && pTitle.textContent;
-  opts.push(['banner: título do overlay (design.banner.overlayTitle) admin==público', at === pt, 'admin=' + JSON.stringify(at) + ' público=' + JSON.stringify(pt)]);
-  const aCta = wA.document.querySelector('.pv-banner-overlay-cta');
   const pCta = wP.document.querySelector('#pgBannerCta');
-  opts.push(['banner: CTA do overlay admin==público', (aCta && aCta.textContent) === (pCta && pCta.textContent), 'admin=' + JSON.stringify(aCta && aCta.textContent) + ' público=' + JSON.stringify(pCta && pCta.textContent)]);
+  opts.push(['banner: título/CTA do overlay ausentes no público', !pTitle && !pCta, 'título=' + (pTitle ? 'presente' : 'ausente') + ' CTA=' + (pCta ? 'presente' : 'ausente')]);
   return opts;
 }
 
@@ -501,14 +516,6 @@ function fundoChecks(wA, wP, cfg) {
   }
   /* mesh/cyberpunk/animated: efeito visual distinto por mecanismo (layers,
      keyframes/veil) — já coberto por construção; só presença de fundo. */
-  return opts;
-}
-
-function bannerOverlayChecks(wA, wP) {
-  const opts = [];
-  const anyB = wA.document.querySelector('.pv-banner-overlay');
-  const anyP = wP.document.querySelector('#pgBannerOverlay');
-  opts.push(['banner: overlay (título/CTA) presente em AMBOS quando configurado', !!anyB === !!anyP, 'admin=' + (anyB ? 'sim' : 'não') + ' público=' + (anyP ? 'sim' : 'não')]);
   return opts;
 }
 
@@ -684,7 +691,7 @@ export async function run() {
     /* Alvos direcionados */
     const checks = [];
     checks.push(...avatarChecks(wA, wP, cfg), ...enderecoTargetedChecks(wA, wP, cfg), ...fundoChecks(wA, wP, cfg), ...blockSpacingChecks(wA, wP, cfg), ...descWrapChecks(wA, wP));
-    if (/banner/i.test(variant.name)) checks.push(...overlayTitleChecks(wA, wP), ...bannerOverlayChecks(wA, wP));
+    if (/banner/i.test(variant.name)) checks.push(...bannerOverlayAbsentChecks(wA, wP));
     if (/verificado/i.test(variant.name)) checks.push(...verifiedChecks(wA, wP, cfg));
 
     for (const [label, ok, det] of checks) {

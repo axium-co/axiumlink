@@ -94,8 +94,7 @@ export const NEW_CONFIG = {
     nameGlass: { enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false },
     bioGlass: { enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false },
     addressGlass: { enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false },
-    buttonGlass: {},
-    bannerGlass: {}
+    buttonGlass: {}
   },
   design: {
     banner: { enabled: false },

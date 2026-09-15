@@ -269,46 +269,6 @@
       pointer-events: none;
     }
 
-    .profile__banner-overlay {
-      position: absolute;
-      inset: 0;
-      z-index: 3;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 16px 24px;
-      gap: 8px;
-    }
-
-    .profile__banner-title {
-      font-size: 1.125rem;
-      font-weight: 700;
-      color: #ffffff;
-      text-shadow: 0 1px 4px rgba(0,0,0,.4);
-      line-height: 1.3;
-      margin: 0;
-    }
-
-    .profile__banner-cta {
-      display: inline-block;
-      padding: 8px 20px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.9);
-      color: #0f172a;
-      font-size: 0.8125rem;
-      font-weight: 700;
-      text-decoration: none;
-      transition: transform .2s, box-shadow .2s;
-      box-shadow: 0 2px 8px rgba(0,0,0,.2);
-    }
-
-    .profile__banner-cta:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 14px rgba(0,0,0,.25);
-    }
-
     .profile__banner img,
     .profile__banner .profile__banner-img {
       width: 100%;
@@ -1807,10 +1767,6 @@
       <!-- Banner superior (gerado pelo Painel — design.banner) -->
       <div class="profile__banner" id="pgBanner" hidden>
         <div class="profile__banner-scrim" id="pgScrim"></div>
-        <div class="profile__banner-overlay" id="pgBannerOverlay" style="display:none;">
-          <p class="profile__banner-title" id="pgBannerTitle"></p>
-          <a class="profile__banner-cta" id="pgBannerCta" href="#" style="display:none;"></a>
-        </div>
       </div>
 
       <!-- TODO: SEU LOGO — troque o <span> por <img src="sua-logo.png" alt="Nome do Cliente"> -->
@@ -2338,10 +2294,7 @@
               enabled: !!cfg.banner,
               image: cfg.banner,
               bgType: 'image',
-              height: 190,
-              overlayTitle: st.bannerOverlayTitle || '',
-              overlayCta: st.bannerOverlayCta || '',
-              overlayCtaUrl: st.bannerOverlayCtaUrl || ''
+              height: 190
             }, (cfg.design && cfg.design.banner) || {}),
             profile: (cfg.design && cfg.design.profile) || {}
           },
@@ -2578,7 +2531,7 @@
          cor uniforme (não há o que desfocar). Se houver vidro ligado e o
          fundo for uma cor sólida sem imagem/gradiente, insere um mesh sutil
          atrás para o desfoque ter textura — sem mudar a cor escolhida. */
-      const anyGlass = ['nameGlass', 'bioGlass', 'addressGlass', 'bannerGlass', 'buttonGlass']
+      const anyGlass = ['nameGlass', 'bioGlass', 'addressGlass', 'buttonGlass']
         .some((k) => cfg.style && cfg.style[k] && cfg.style[k].enabled);
       if (anyGlass && isSolidHex && !bgImageUrl && !pageGrad) {
         bgLayers.push([
@@ -2711,7 +2664,10 @@
         if (bn.enabled === false) {
           pgBanner.hidden = true;
           const scHidden = document.getElementById('pgScrim');
-          if (scHidden) scHidden.style.display = 'none';
+          if (scHidden) {
+            scHidden.style.display = 'none';
+            scHidden.style.background = '';
+          }
         } else {
           pgBanner.hidden = false;
 
@@ -2720,7 +2676,6 @@
              A imagem usa longhands (background-image/size/position) — o
              shorthand "url(...) center / cover" era ilegível em parsers
              estritos e frágil. */
-          const bglass = !!bn.glass || !!((cfg.style && cfg.style.bannerGlass) || {}).enabled;
           const btype = bn.bgType || 'gradient';
 
           pgBanner.style.setProperty('--banner-h', (bn.height || 190) + 'px');
@@ -2755,29 +2710,6 @@
             pgBanner.style.backgroundRepeat = '';
           }
 
-          /* Vidro do banner = chip no OVERLAY (título/CTA), como no mockup do
-             editor (admin.html: applyGlass no .pv-banner-overlay). Aplicar o
-             vidro no #pgBanner apagava a imagem de fundo (só sobrava o
-             gradiente). */
-          const bannerOverlayEl = document.getElementById('pgBannerOverlay');
-          if (bannerOverlayEl) {
-            if (bglass) {
-              /* Grupo bannerGlass; fallback legado bn.glass* */
-              const bgrp = Object.assign({}, (cfg.style && cfg.style.bannerGlass) || {});
-              if (!bgrp.enabled) {
-                bgrp.enabled = true;
-                if (bgrp.blur == null) bgrp.blur = bn.glassBlur || 20;
-              }
-              applyGlass(bannerOverlayEl, bgrp);
-              bannerOverlayEl.style.borderRadius = '14px';
-              bannerOverlayEl.style.padding = '12px 16px';
-            } else {
-              applyGlass(bannerOverlayEl, { enabled: false });
-              bannerOverlayEl.style.borderRadius = '';
-              bannerOverlayEl.style.padding = '';
-            }
-          }
-
           const scrim = document.getElementById('pgScrim');
           scrim.style.display = (bn.scrim === 'none' || !bn.scrim) ? 'none' : 'block';
           scrim.style.background = bn.scrim === 'dark'
@@ -2785,28 +2717,6 @@
             : bn.scrim === 'light'
               ? 'rgba(255, 255, 255, ' + ((bn.scrimOpacity || 45) / 100) + ')'
               : 'none';
-
-          /* Overlay de texto + CTA sobre o banner */
-          const overlayEl = document.getElementById('pgBannerOverlay');
-          const titleEl = document.getElementById('pgBannerTitle');
-          const ctaEl = document.getElementById('pgBannerCta');
-          const hasOverlay = bn.overlayTitle || bn.overlayCta;
-          if (overlayEl) {
-            overlayEl.style.display = hasOverlay ? 'flex' : 'none';
-          }
-          if (titleEl) {
-            titleEl.textContent = bn.overlayTitle || '';
-            titleEl.style.display = bn.overlayTitle ? '' : 'none';
-          }
-          if (ctaEl) {
-            if (bn.overlayCta && bn.overlayCtaUrl) {
-              ctaEl.textContent = bn.overlayCta;
-              ctaEl.href = bn.overlayCtaUrl;
-              ctaEl.style.display = '';
-            } else {
-              ctaEl.style.display = 'none';
-            }
-          }
         }
       }
 

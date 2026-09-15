@@ -8,8 +8,6 @@ const GROUPS = [
   { key: 'nameGlass', adminSel: () => 'pvName', pubSel: () => 'pgTitle', hasBorderOpacity: false, prep: null },
   { key: 'bioGlass', adminSel: () => 'pvBio', pubSel: () => 'pgSubtitle', hasBorderOpacity: false, prep: null },
   { key: 'addressGlass', adminSel: () => 'pvAddress', pubSel: () => 'pgAddress', hasBorderOpacity: false, prep: null },
-  { key: 'bannerGlass', adminSel: () => '.pv-banner-overlay', pubSel: () => '#pgBannerOverlay', hasBorderOpacity: false,
-    prep: (c) => { c.style.bannerOverlayTitle = 'T'; c.style.bannerOverlayCta = 'C'; c.style.bannerOverlayCtaUrl = 'https://x.com'; } },
   { key: 'buttonGlass', adminSel: () => '#previewLinksList .link-block:not(.link-block-customimg)', pubSel: () => '.pg-links-list a.featured__card:not(.featured__card--customimg)', hasBorderOpacity: true,
     prep: (c) => { c.style.btnVariant = 'glass'; } },
 ];

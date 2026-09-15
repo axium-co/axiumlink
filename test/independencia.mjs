@@ -221,21 +221,25 @@ async function publicoVidrosExtras() {
     ok(bg.indexOf(cso.frag) >= 0, cso.nome + ' chega à página — ' + bg.slice(0, 40));
   }
 
-  /* BANNER COM IMAGEM + VIDRO ATIVO: a imagem precisa ficar VIVA no
-     #pgBanner e o vidro virar CHIP no overlay (espelho do mockup admin).
-     Antes, o vidro era aplicado no #pgBanner e apagava a imagem. */
-  log('\n━━━ [PÚBLICO] Banner: imagem + vidro (chip no overlay) ━━━');
+  /* BANNER COM IMAGEM: a imagem precisa ficar VIVA no #pgBanner mesmo
+     com config legado de texto-sobre-o-banner (overlay/bannerGlass) presente —
+     a função foi removida e o overlay NÃO deve renderizar em nenhum caso. */
+  log('\n━━━ [PÚBLICO] Banner: imagem viva + texto sobre o banner desativado ━━━');
   const cB = JSON.parse(JSON.stringify(NEW_CONFIG));
   cB.banner = 'https://exemplo.com/banner.jpg';
   cB.design = { banner: { enabled: true, bgType: 'image', image: 'https://exemplo.com/banner.jpg', height: 190, overlayTitle: 'Conheça a AXIUM' } };
-  cB.style = Object.assign({}, cB.style, { bannerGlass: { enabled: true, blur: 20, opacity: 22, color: '#ff8800' } });
+  cB.style = Object.assign({}, cB.style, {
+    bannerOverlayTitle: 'Conheça a AXIUM', bannerOverlayCta: 'Saiba mais', bannerOverlayCtaUrl: 'https://axium.app',
+    bannerText: { titleSize: 20, titleWeight: 800, darken: true },
+    bannerGlass: { enabled: true, blur: 20, opacity: 22, color: '#ff8800' }
+  });
   window.__alaPublica.aplicar(cB);
   const bSnap = window.__alaPublica.dom('#pgBanner') || {};
   const oSnap = window.__alaPublica.dom('#pgBannerOverlay') || {};
-  ok(/^url\(/.test(bSnap['background-image'] || ''), 'banner com vidro: imagem segue como background do #pgBanner');
-  ok(String(bSnap._class || '').indexOf('gx-panel') < 0, 'banner com vidro: #pgBanner SEM vidro no próprio elemento');
-  ok((oSnap['background-image'] || oSnap['background'] || '').indexOf('rgba(255,136,0,0.22)') >= 0, 'banner com vidro: chip de vidro aplicado no #pgBannerOverlay (rgba #ff8800)');
-  ok(oSnap['border-radius'] === '14px' && oSnap['padding'] === '12px 16px', 'banner com vidro: overlay com raio 14px e padding 12 16 (espelho do admin)');
+  ok(/^url\(/.test(bSnap['background-image'] || ''), 'banner: imagem segue como background do #pgBanner');
+  ok(String(bSnap._class || '').indexOf('gx-panel') < 0, 'banner: #pgBanner SEM vidro no próprio elemento');
+  ok(Object.keys(oSnap).length === 0, 'banner: overlay de texto/CTA NÃO renderiza no público (função removida)');
+  ok(!window.__alaPublica.dom('#pgBannerTitle') && !window.__alaPublica.dom('#pgBannerCta'), 'banner: título/CTA do overlay ausentes no público (função removida)');
 }
 
 /* ================================================================

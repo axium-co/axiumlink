@@ -785,37 +785,6 @@
   .pv-pix[hidden] { display:none; }
   .pv-banner-scrim { position:absolute; inset:0; z-index:2; pointer-events:none; }
   .pv-banner-scrim[hidden] { display:none; }
-  /* Overlay de texto/CTA sobre o banner — container posicionado de forma
-     isolada (width limitada + overflow controlado) para não vazar sobre a logo */
-  .pv-banner-overlay {
-    position:absolute; inset:0; z-index:3;
-    display:flex; box-sizing:border-box; pointer-events:none;
-  }
-  .bposer-top    { align-items:flex-start; justify-content:center; }
-  .bposer-center { align-items:center;     justify-content:center; }
-  .bposer-bottom { align-items:flex-end;   justify-content:center; }
-  .bposer-left   { justify-content:flex-start; text-align:left; }
-  .bposer-center { justify-content:center;     text-align:center; }
-  .bposer-right  { justify-content:flex-end;   text-align:right; }
-  .pv-banner-overlay-inner {
-    width:100%; max-width:100%; box-sizing:border-box;
-    display:flex; flex-direction:column; gap:6px; padding:12px 16px;
-  }
-  .pv-banner-overlay-inner.darken {
-    border-radius:12px; background:rgba(0,0,0,.35);
-  }
-  .pv-banner-overlay-title {
-    margin:0; font-size:16px; font-weight:700; color:#fff; line-height:1.3;
-    text-shadow:0 1px 4px rgba(0,0,0,.45);
-    overflow-wrap:break-word; word-break:break-word; box-sizing:border-box;
-  }
-  .pv-banner-overlay-cta {
-    display:inline-block; width:fit-content; max-width:100%; box-sizing:border-box;
-    padding:6px 16px; border-radius:999px; background:rgba(255,255,255,.9);
-    color:#0f172a; font-size:12px; font-weight:700; text-decoration:none;
-    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-  }
-  .banner-cta.block { display:block; width:100%; text-align:inherit; }
 
   .pv-content { padding:20px 16px 0; max-width:560px; margin:0 auto; }
 
@@ -2424,12 +2393,12 @@
         <div class="sec-body">
         <div class="field">
           <label style="font-size:13px; font-weight:700; color:var(--ink);">Imagem do Banner</label>
-          <p class="hint" style="margin-bottom:10px;">Imagem de fundo do banner (opcional). Os textos abaixo aparecem por cima dela.</p>
+          <p class="hint" style="margin-bottom:10px;">Imagem de fundo do banner (opcional).</p>
           <div class="upload-row">
             <div class="upload-thumb" id="bannerImageThumb">🖼️</div>
             <div class="upload-info">
               <strong>Imagem de capa</strong>
-              <small id="bannerImageInfoDefault">JPG ou PNG. Enviada para a nuvem e aplicada atrás dos textos.</small>
+              <small id="bannerImageInfoDefault">JPG ou PNG. Enviada para a nuvem e aplicada no banner.</small>
               <small id="bannerImageInfoActive" style="display:none; color:var(--brand); font-weight:600;">✓ Imagem ativa — clique abaixo para trocar ou remover.</small>
             </div>
             <button class="btn-mini" id="btnBannerImagePick">Escolher</button>
@@ -2439,106 +2408,10 @@
         </div>
 
 
-        <!-- OVERLAY DO BANNER -->
-        <div class="field" style="margin-top:8px; padding-top:12px; border-top:1px solid var(--bg);">
-          <label style="font-size:13px; font-weight:700; color:var(--ink);">Texto sobre o Banner</label>
-          <p class="hint" style="margin-bottom:10px;">Aparece centralizado sobre a imagem do cover.</p>
-          <div class="field">
-            <input type="text" id="bannerOverlayTitle" placeholder="Título do banner (opcional)" maxlength="60">
-          </div>
-          <div class="field">
-            <input type="text" id="bannerOverlayCta" placeholder="Texto do botão CTA (opcional)" maxlength="30">
-          </div>
-<div class="field">
-            <input type="url" id="bannerOverlayCtaUrl" placeholder="URL do botão CTA">
-          </div>
-
-          <!-- ESTILO DO TEXTO SOBRE O BANNER -->
-          <div class="typo-block" style="margin-top:10px; padding-top:12px; border-top:1px solid var(--bg);">
-            <div class="typo-block-head">🎨 Estilo do texto sobre o banner</div>
-            <p class="hint" style="margin:-2px 0 8px;">Estilize o título e o CTA. Use "Posição vertical" para afastar o texto da logo.</p>
-
-            <!-- TÍTULO -->
-            <div class="typo-block-page">
-              <div class="typo-block-head-mini">Título</div>
-              <div class="ds-col">
-                <label class="ds-col-label">Cor do texto</label>
-                <div class="color-trigger" id="bannerTitleColor" role="button" tabindex="0"><div class="color-trigger-swatch" style="background:#ffffff;"></div><span class="color-trigger-hex">#FFFFFF</span></div>
-              </div>
-              <div class="ds-control">
-                <label>Tamanho da fonte</label>
-                <div class="ds-control-row">
-                  <input type="range" id="bannerTitleSize" min="10" max="40" step="1">
-                  <output class="ds-value" id="bannerTitleSizeVal">16px</output>
-                </div>
-              </div>
-              <div class="ds-control">
-                <label>Peso da fonte</label>
-                <div class="ds-control-row">
-                  <input type="range" id="bannerTitleWeight" min="400" max="900" step="100">
-                  <output class="ds-value" id="bannerTitleWeightVal">700</output>
-                </div>
-              </div>
-            </div>
-
-            <!-- CTA -->
-            <div class="typo-block-page">
-              <div class="typo-block-head-mini">Botão CTA</div>
-              <div class="ds-col">
-                <label class="ds-col-label">Cor do texto</label>
-                <div class="color-trigger" id="bannerCtaColor" role="button" tabindex="0"><div class="color-trigger-swatch" style="background:#0f172a;"></div><span class="color-trigger-hex">#0F172A</span></div>
-              </div>
-              <div class="ds-control">
-                <label>Tamanho da fonte</label>
-                <div class="ds-control-row">
-                  <input type="range" id="bannerCtaSize" min="10" max="26" step="1">
-                  <output class="ds-value" id="bannerCtaSizeVal">12px</output>
-                </div>
-              </div>
-              <div class="ds-control">
-                <label>Peso da fonte</label>
-                <div class="ds-control-row">
-                  <input type="range" id="bannerCtaWeight" min="400" max="900" step="100">
-                  <output class="ds-value" id="bannerCtaWeightVal">700</output>
-                </div>
-              </div>
-            </div>
-
-            <!-- ALINHAMENTO + POSIÇÃO -->
-            <div class="field">
-              <label for="bannerTextAlign">Alinhamento</label>
-              <select id="bannerTextAlign">
-                <option value="left">Esquerda</option>
-                <option value="center" selected>Centro</option>
-                <option value="right">Direita</option>
-              </select>
-            </div>
-            <div class="field">
-              <label for="bannerTextVpos">Posição vertical no banner</label>
-              <select id="bannerTextVpos">
-                <option value="top">Topo</option>
-                <option value="center" selected>Centro</option>
-                <option value="bottom">Base</option>
-              </select>
-              <p class="hint" style="margin-top:4px;">Use "Topo" para evitar sobrepor a logo/avatar.</p>
-            </div>
-
-            <!-- OVERLAY ESCURO ATRÁS DO TEXTO -->
-            <div class="toggle-row" style="padding:2px 0 6px;">
-              <span class="toggle-label">Overlay escuro atrás do texto</span>
-              <label class="switch">
-                <input type="checkbox" id="bannerTextDarken" checked>
-                <span class="slider"></span>
-              </label>
-            </div>
-            <p class="hint" style="margin-top:-2px;">Fundo escurecido só atrás do texto, para garantir legibilidade sobre qualquer imagem.</p>
-          </div>
-        </div>
-
-        <!-- ESCURECIMENTO (SCRIM) -->
+<!-- ESCURECIMENTO (SCRIM) -->
         <div class="field" style="margin-top:8px; padding-top:12px; border-top:1px solid var(--bg);">
           <label style="font-size:13px; font-weight:700; color:var(--ink);">Legibilidade do texto</label>
-          <p class="hint" style="margin-bottom:8px;">Escurece o banner para os textos (título/CTA) se destacarem.</p>
+          <p class="hint" style="margin-bottom:8px;">Escurece o banner para o nome/avatar se destacarem.</p>
           <div class="toggle-row" style="padding-top:4px;">
             <span class="toggle-label">Escurecer o banner</span>
             <label class="switch">
@@ -2555,31 +2428,6 @@
           </div>
         </div>
 
-        <div class="glass-block" id="bannerGlassBlock">
-          <div class="glass-block-head">💠 Efeito Vidro sobre o banner</div>
-          <p class="hint" style="margin:-2px 0 8px;">Aplica um "chip" de vidro atrás do texto/CTA sobre o banner.</p>
-          <div class="toggle-row" style="padding:2px 0 6px;">
-            <span class="toggle-label">Ativar efeito vidro</span>
-            <label class="switch">
-              <input type="checkbox" id="bannerGlassToggle">
-              <span class="slider"></span>
-            </label>
-          </div>
-          <div class="ds-control">
-            <label>Desfoque (Blur)</label>
-            <div class="ds-control-row">
-              <input type="range" id="bannerGlassBlur" min="0" max="40" step="1">
-              <output class="ds-value" id="bannerGlassBlurVal">20px</output>
-            </div>
-          </div>
-          <div class="ds-control">
-            <label>Opacidade do vidro</label>
-            <div class="ds-control-row">
-              <input type="range" id="bannerGlassOpacity" min="0" max="100" step="1">
-              <output class="ds-value" id="bannerGlassOpacityVal">18%</output>
-            </div>
-          </div>
-        </div>
         <div class="ds-control" style="margin-top:12px; padding-top:12px; border-top:1px solid var(--bg);">
           <label>Espaçamento abaixo do Banner</label>
           <p class="hint" style="margin:-2px 0 8px;">Distância entre o Banner e o Avatar/Nome. 0 = manter o padrão atual.</p>
@@ -3351,19 +3199,12 @@
          config (blur, saturate, opacity, color, borderGlow, shadowDepth,
          highlight, noise) consumido por applyGlass(). */
       buttonGlass: { enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: 25 },
-      bannerGlass: { enabled: false, blur: 20, saturate: 180, opacity: 18, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false },
       textGlass:   { enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false },
       /* Efeito vidro INDEPENDENTE do Nome (separado do textGlass, que ficou só da Bio).
          Config de texto do elemento mora em design.profile.elem.<elem>. */
       nameGlass:   { enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false },
       /* Efeito vidro INDEPENDENTE da Bio (separado do Nome). */
       bioGlass:    { enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false },
-      /* Estilo do texto sobre o banner */
-      bannerText: {
-        titleColor: '', titleSize: 16, titleWeight: 700,
-        ctaColor: '', ctaSize: 12, ctaWeight: 700,
-        align: 'center', vpos: 'center', darken: true
-      },
       /* Tipografia */
       font: 'Inter',
       titleFont: '',
@@ -3721,7 +3562,6 @@
       if (pvPage) pvPage.classList.add('no-banner');
     }
     syncBannerImageControls();
-    renderBannerOverlay();
 
     applyThemeVars();
     applyProfileDesignToMockup();
@@ -4205,7 +4045,7 @@
   /* Verifica se algum grupo de vidro está habilitado (name/bio/address/banner/button) */
   function anyGlassEnabled(st) {
     const g = st && st.style ? st.style : st || {};
-    return ['nameGlass', 'bioGlass', 'addressGlass', 'bannerGlass', 'buttonGlass']
+    return ['nameGlass', 'bioGlass', 'addressGlass', 'buttonGlass']
       .some((key) => g[key] && g[key].enabled);
   }
 
@@ -4319,50 +4159,6 @@
         }
         return { background: t.bg };
     }
-  }
-
-  /* Renderiza overlay de texto/CTA sobre o banner no preview do admin */
-  function renderBannerOverlay() {
-    const pvBanner = $('pvBanner');
-    if (!pvBanner) return;
-    /* Remove overlay anterior se existir */
-    const old = pvBanner.querySelector('.pv-banner-overlay');
-    if (old) old.remove();
-    const st = cfg.style || {};
-    const bt = Object.assign({ titleColor:'', titleSize:16, titleWeight:700, ctaColor:'', ctaSize:12, ctaWeight:700, align:'center', vpos:'center', darken:true }, st.bannerText || {});
-    /* Fonte única do overlay: design.banner (schema oficial, o que a página
-       pública lê) com fallback para o campo legado do painel em cfg.style. */
-    const bnOv = (cfg.design && cfg.design.banner) || {};
-    const title = st.bannerOverlayTitle || bnOv.overlayTitle || '';
-    const cta = st.bannerOverlayCta || bnOv.overlayCta || '';
-    const ctaUrl = st.bannerOverlayCtaUrl || bnOv.overlayCtaUrl || '';
-    if (!title && !cta) return;
-    /* Container posicionado com width limitada e alinhamento controlado */
-    const overlay = document.createElement('div');
-    overlay.className = 'pv-banner-overlay bposer-' + (bt.vpos || 'center') + ' bposer-' + (bt.align || 'center');
-    const inner = document.createElement('div');
-    inner.className = 'pv-banner-overlay-inner' + (bt.darken ? ' darken' : '');
-    if (title) {
-      const t = document.createElement('p');
-      t.className = 'pv-banner-overlay-title';
-      t.textContent = title;
-      t.style.fontSize = (bt.titleSize || 16) + 'px';
-      t.style.fontWeight = bt.titleWeight || 700;
-      t.style.color = bt.titleColor || '#ffffff';
-      inner.appendChild(t);
-    }
-    if (cta && ctaUrl) {
-      const a = document.createElement('a');
-      a.className = 'pv-banner-overlay-cta' + (bt.align === 'center' ? '' : ' block');
-      a.textContent = cta;
-      a.href = ctaUrl;
-      a.style.fontSize = (bt.ctaSize || 12) + 'px';
-      a.style.fontWeight = bt.ctaWeight || 700;
-      a.style.color = bt.ctaColor || '#0f172a';
-      inner.appendChild(a);
-    }
-    overlay.appendChild(inner);
-    pvBanner.appendChild(overlay);
   }
 
   /* Injeta/remove/atualiza o <video> de fundo dentro do preview */
@@ -4896,7 +4692,7 @@
   }
 
   /* Aplica efeito vidro independente por elemento.
-     Cada sub-grupo tem estado próprio (buttonGlass/iconGlass/bannerGlass/textGlass),
+     Cada sub-grupo tem estado próprio (buttonGlass/iconGlass/textGlass),
      evitando a variável global compartilhada que bugava os botões. */
   function applyGlassToElements(st) {
     const page = $('pvPage');
@@ -4920,23 +4716,6 @@
       if (el.classList.contains('link-block-customimg')) return;
       applyGlass(el, btnG);
     });
-
-    /* Banner: chip de vidro atrás do overlay de texto */
-    const banG = Object.assign({
-      enabled: false, blur: 20, saturate: 180, opacity: 18, color: '#ffffff',
-      borderGlow: 40, shadowDepth: 18, highlight: true, noise: false
-    }, st.bannerGlass || {});
-    const ov = page.querySelector('.pv-banner-overlay');
-    if (ov) {
-      applyGlass(ov, banG);
-      if (banG.enabled) {
-        ov.style.borderRadius = '14px';
-        ov.style.padding = '12px 16px';
-      } else {
-        ov.style.borderRadius = '';
-        ov.style.padding = '';
-      }
-    }
 
     /* Perfil: chip de vidro atrás do Nome e da Bio — INDEPENDENTES.
        Nome usa cfg.style.nameGlass + elem.name.
@@ -5333,6 +5112,7 @@
         scrim.style.background = 'rgba(255,255,255,' + ((bn.scrimOpacity == null ? 45 : bn.scrimOpacity) / 100) + ')';
       } else {
         scrim.hidden = true;
+        scrim.style.background = '';
       }
     }
 
@@ -6105,7 +5885,6 @@
     /* Efeito vidro por elemento (sub-grupos independentes: botão/ícone/banner/texto) */
     const GLASS_GROUPS = [
       { key: 'buttonGlass', prefix: 'buttonGlass', blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: 25 },
-      { key: 'bannerGlass', prefix: 'bannerGlass', blur: 20, saturate: 180, opacity: 18, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: null },
       { key: 'nameGlass',   prefix: 'nameGlass',   blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: null },
       { key: 'bioGlass',   prefix: 'bioGlass',   blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: null },
       { key: 'addressGlass', prefix: 'addressGlass', blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: null }
@@ -6369,48 +6148,6 @@
     bindRange('btnRadius', 'btnRadiusVal', (v) => v + 'px', (v) => { cfg.style.btnRadius = v; applyThemeVars(); });
     bindRange('btnShadow', 'btnShadowVal', (v) => v + '%', (v) => { cfg.style.btnShadow = v; applyThemeVars(); });
     bindRange('blockGap', 'blockGapVal', (v) => v + 'px', (v) => { cfg.style.blockGap = v; renderPreview(); });
-
-    /* Overlay do banner */
-    ['bannerOverlayTitle', 'bannerOverlayCta', 'bannerOverlayCtaUrl'].forEach(id => {
-      safeOn(id, 'input', (e) => {
-        if (!cfg.style) cfg.style = {};
-        cfg.style[id] = e.target.value;
-        renderBannerOverlay();
-        markDirty();
-      });
-    });
-
-    /* Estilo do texto sobre o banner (bannerText) */
-    const btRef = () => {
-      if (!cfg.style) cfg.style = {};
-      return (cfg.style.bannerText = cfg.style.bannerText || {});
-    };
-    const btRW = (key, val) => { if (val !== undefined) btRef()[key] = val; renderBannerOverlay(); };
-    bindRange('bannerTitleSize', 'bannerTitleSizeVal', (v) => v + 'px',  (v) => btRW('titleSize', v));
-    bindRange('bannerTitleWeight','bannerTitleWeightVal', (v) => '' + v, (v) => btRW('titleWeight', v));
-    bindRange('bannerCtaSize', 'bannerCtaSizeVal', (v) => v + 'px',  (v) => btRW('ctaSize', v));
-    bindRange('bannerCtaWeight','bannerCtaWeightVal', (v) => '' + v, (v) => btRW('ctaWeight', v));
-    const btAlignEl = $('bannerTextAlign');
-    if (btAlignEl) btAlignEl.addEventListener('change', (e) => { btRW('align', e.target.value); markDirty(); });
-    else console.warn('[Axiumlink] Elemento nao encontrado: bannerTextAlign');
-    const btVposEl = $('bannerTextVpos');
-    if (btVposEl) btVposEl.addEventListener('change', (e) => { btRW('vpos', e.target.value); markDirty(); });
-    else console.warn('[Axiumlink] Elemento nao encontrado: bannerTextVpos');
-    const btDarkenEl = $('bannerTextDarken');
-    if (btDarkenEl) btDarkenEl.addEventListener('change', (e) => { btRW('darken', e.target.checked); markDirty(); });
-    else console.warn('[Axiumlink] Elemento nao encontrado: bannerTextDarken');
-    const btTitleColorEl = $('bannerTitleColor');
-    if (btTitleColorEl) btTitleColorEl.addEventListener('click', () => {
-      const cur = btRef().titleColor || '#ffffff';
-      openColorPicker($('bannerTitleColor'), cur, (hex) => { btRef().titleColor = hex; setTriggerColor('bannerTitleColor', hex); renderBannerOverlay(); markDirty(); });
-    });
-    else console.warn('[Axiumlink] Elemento nao encontrado: bannerTitleColor');
-    const btCtaColorEl = $('bannerCtaColor');
-    if (btCtaColorEl) btCtaColorEl.addEventListener('click', () => {
-      const cur = btRef().ctaColor || '#0f172a';
-      openColorPicker($('bannerCtaColor'), cur, (hex) => { btRef().ctaColor = hex; setTriggerColor('bannerCtaColor', hex); renderBannerOverlay(); markDirty(); });
-    });
-    else console.warn('[Axiumlink] Elemento nao encontrado: bannerCtaColor');
 
     /* Imagem do banner (cfg.banner) */
     safeOn('btnBannerImagePick', 'click', () => $('bannerImageInput').click());
@@ -6680,7 +6417,6 @@
     const st = (cfg.style = cfg.style || {});
     const groups = [
       { key: 'buttonGlass', prefix: 'buttonGlass', blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: 25 },
-      { key: 'bannerGlass', prefix: 'bannerGlass', blur: 20, saturate: 180, opacity: 18, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: null },
       { key: 'nameGlass',   prefix: 'nameGlass',   blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: null },
       { key: 'bioGlass',   prefix: 'bioGlass',   blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: null },
       { key: 'addressGlass', prefix: 'addressGlass', blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: null }
@@ -6742,22 +6478,6 @@
     setRange('cyberGridIntensity', st.cyberGridIntensity ?? 30);
     setRange('btnGradientAngle', st.btnGradientAngle ?? 135);
     setRange('bgTextureOpacity', st.bgTextureOpacity ?? 30);
-
-    /* Overlay do banner */
-    $('bannerOverlayTitle').value = st.bannerOverlayTitle || '';
-    $('bannerOverlayCta').value = st.bannerOverlayCta || '';
-    $('bannerOverlayCtaUrl').value = st.bannerOverlayCtaUrl || '';
-    const bt = Object.assign({ titleColor:'', titleSize:16, titleWeight:700, ctaColor:'', ctaSize:12, ctaWeight:700, align:'center', vpos:'center', darken:true }, st.bannerText || {});
-    setTriggerColor('bannerTitleColor', bt.titleColor || '#ffffff');
-    setTriggerColor('bannerCtaColor', bt.ctaColor || '#0f172a');
-    setRange('bannerTitleSize', bt.titleSize);
-    setRange('bannerTitleWeight', bt.titleWeight);
-    setRange('bannerCtaSize', bt.ctaSize);
-    setRange('bannerCtaWeight', bt.ctaWeight);
-    $('bannerTextAlign').value = bt.align;
-    $('bannerTextVpos').value = bt.vpos;
-    $('bannerTextDarken').checked = !!bt.darken;
-    renderBannerOverlay();
 
     /* Personalização de Perfil/Banner (cfg.design) */
     reflectDesignValues();
