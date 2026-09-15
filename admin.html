@@ -2236,16 +2236,6 @@
 
         <!-- Vídeo de Fundo (quando video) -->
         <div class="field" id="bgVideoRow" style="display:none;">
-          <div class="upload-row" style="margin-bottom:8px;">
-            <div class="upload-thumb" id="bgVideoThumb">🎬</div>
-            <div class="upload-info">
-              <strong>Vídeo de fundo</strong>
-              <small id="bgVideoInfoDefault">MP4 ou WebM. Você pode colar uma URL (abaixo) ou enviar um arquivo direto do seu computador.</small>
-              <small id="bgVideoInfoActive" style="display:none; color:var(--brand); font-weight:600;">✓ Vídeo ativo — clique abaixo para trocar ou remover.</small>
-            </div>
-            <button class="btn-mini" id="btnBgVideoPick">Escolher</button>
-          </div>
-          <input type="file" id="bgVideoInput" accept="video/mp4,video/webm, video/*" hidden>
           <label for="bgVideoUrl">URL do Vídeo de Fundo (MP4/WebM)</label>
           <input type="url" id="bgVideoUrl" placeholder="https://exemplo.com/video.mp4">
           <div class="ds-control" style="margin-top:8px;">
@@ -4377,24 +4367,12 @@
     }
   }
 
-  /* Espelho do syncBgImageControls para o vídeo de fundo: mostra a
-     confirmação "Vídeo ativo" e o botão remover quando bgVideoUrl existe. */
+  /* Atualiza o botão remover do vídeo de fundo quando bgVideoUrl existe. */
   function syncBgVideoControls(st) {
-    const thumb = $('bgVideoThumb');
     const btnClear = $('btnBgVideoClear');
-    const infoDefault = $('bgVideoInfoDefault');
-    const infoActive = $('bgVideoInfoActive');
-    if (!thumb) return;
+    if (!btnClear) return;
     const hasVideo = st.bgVariant === 'video' && st.bgVideoUrl;
-    if (hasVideo) {
-      if (btnClear) btnClear.style.display = 'block';
-      if (infoDefault) infoDefault.style.display = 'none';
-      if (infoActive) infoActive.style.display = 'block';
-    } else {
-      if (btnClear) btnClear.style.display = 'none';
-      if (infoDefault) infoDefault.style.display = '';
-      if (infoActive) infoActive.style.display = 'none';
-    }
+    btnClear.style.display = hasVideo ? 'block' : 'none';
   }
 
   /* Atualiza miniatura, botão remover e hints da linha Imagem do Banner */
@@ -6050,13 +6028,10 @@
       markDirty();
     });
 
-    /* Vídeo de fundo — duas formas (espelho com a imagem de fundo):
-       1) colar o link na URL (bgVideoUrl);
-       2) upload de arquivo direto (bgVideoInput → Storage folder 'bg').
-       A opção escolhida grava SEMPRE em cfg.style.bgVideoUrl (única chave
-       que o público lê), igualzinho ao bgImageUrl. Digitar/colar URL também
-       força bgVariant='video' (+ updateStyleRowsVisibility) — assim o vídeo
-       entra mesmo se o usuário não passou antes pelo select de variante. */
+    /* Vídeo de fundo — via URL apenas (bgVideoUrl), igual ao clima/embed.
+       Digitar/colar URL também força bgVariant='video' (+ updateStyleRowsVisibility)
+       — assim o vídeo entra mesmo se o usuário não passou antes pelo select
+       de variante. */
     safeOn('bgVideoUrl', 'input', (e) => {
       if (!cfg.style) cfg.style = {};
       cfg.style.bgVideoUrl = e.target.value.trim();
@@ -6066,28 +6041,6 @@
       }
       applyThemeVars();
       markDirty();
-    });
-    /* Upload de vídeo de fundo: pick → click no input hidden.
-       Espelha o fluxo do bgImageInput (arquivo → storage folder 'bg'). */
-    safeOn('btnBgVideoPick', 'click', () => $('bgVideoInput').click());
-    safeOn('bgVideoInput', 'change', async (e) => {
-      const file = e.target.files?.[0];
-      e.target.value = '';
-      if (!file) return;
-      showToast('Enviando vídeo de fundo...');
-      try {
-        const publicUrl = await uploadFileToStorage(file, 'bg');
-        if (!cfg.style) cfg.style = {};
-        cfg.style.bgVideoUrl = publicUrl;
-        cfg.style.bgVariant = 'video';
-        updateStyleRowsVisibility();
-        applyThemeVars();
-        markDirty();
-        showToast('Vídeo de fundo atualizado!');
-      } catch (err) {
-        console.error('[Axiumlink] Upload do vídeo falhou:', err.message);
-        showToast('Falha no upload: ' + err.message);
-      }
     });
     safeOn('btnBgVideoClear', 'click', () => {
       if (!cfg.style) cfg.style = {};
