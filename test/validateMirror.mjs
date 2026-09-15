@@ -795,10 +795,15 @@ export async function run() {
     }
   }
 
-  /* tipografia global do botão (typoBtn) — ALVO dedicado */
+  /* tipografia global do botão (typoBtn) — ALVO dedicado.
+     BUG 4: mesmo com style.typoBtn.font = 'Poppins' no painel, o público
+     aplicava a regra CSS mas NUNCA carregava a fonte do botão no Google
+     Fonts (só st.font era carregada). Sem o <link>, o navegador cai no
+     fallback system-ui e a fonte escolhida NUNCA chega. */
   {
     const cfg = JSON.parse(JSON.stringify(NEW_CONFIG));
     cfg.links = [ { id: 'l1', title: 'Site', url: 'https://site.com', type: 'site' } ];
+    cfg.style.font = 'Inter';
     cfg.style.typoBtn = { font: 'Poppins', size: 18, weight: 800, ls: 1, lh: 1.2 };
     wA.__axEditor.init(cfg);
     wP.__alaPublica.aplicar(cfg);
@@ -807,9 +812,16 @@ export async function run() {
     const aF = a && a.style.fontSize;
     const bF = b && b.style.fontSize;
     const ok = (aF || '') === (bF || '');
-    console.log(`\n━━━ ESPELHO | ALVO typoBtn ━━━`);
+    console.log(`\n━━━ ESPELHO | ALVO typoBtn (BUG 4) ━━━`);
     console.log('  ' + (ok ? '✅' : '❌') + ' tipografia global do botão (style.typoBtn) aplica nos DOIS lados — admin font-size=' + (aF || '(nada)') + ' público=' + (bF || '(nada)'));
     if (!ok) fail++; else pass++;
+    const fam = (b && b.style.fontFamily) || '';
+    const fOk = fam.search(/Poppins/) >= 0;
+    console.log('  ' + (fOk ? '✅' : '❌') + ' BUG 4: font-family do botão no público usa a fonte escolhida — ' + (fam || '(vazio)'));
+    if (!fOk) fail++; else pass++;
+    const linkOk = !!wP.document.querySelector('link[href*="family=Poppins"]');
+    console.log('  ' + (linkOk ? '✅' : '❌') + ' BUG 4: Google Fonts carrega a fonte do botão (link family=Poppins no público) — href=' + (linkOk && wP.document.querySelector('link[href*="family=Poppins"]').href.split('family=')[1]));
+    if (!linkOk) fail++; else pass++;
   }
 
   /* ALVO customimg — modo "Imagem no botão inteiro" (link.customButtonImage).

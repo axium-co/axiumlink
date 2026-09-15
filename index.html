@@ -3794,6 +3794,26 @@
           fl.href = 'https://fonts.googleapis.com/css2?family=' + selectedFont.replace(/\s+/g, '+') + ':wght@' + weights + '&display=swap';
           document.head.appendChild(fl);
         }
+        /* Fontes adicionais (typoName / typoBio / typoBtn): se o usuário
+           trocou a fonte do nome, bio ou botão para algo diferente da
+           fonte principal, carregamos aqui para não cair no fallback do
+           FONT_STACKS (system-ui). Evitamos duplicar o loader da fonte
+           principal. */
+        const extraFonts = new Set();
+        [st.typoName, st.typoBio, st.typoBtn].forEach((t) => {
+          if (t && t.font && t.font !== selectedFont) extraFonts.add(t.font);
+        });
+        extraFonts.forEach((fam) => {
+          const fKey = 'axFont-' + fam.replace(/\s+/g, '');
+          if (!document.getElementById(fKey)) {
+            const flx = document.createElement('link');
+            flx.id = fKey;
+            flx.rel = 'stylesheet';
+            const fw = FONT_WEIGHTS[fam] || '400;600;700';
+            flx.href = 'https://fonts.googleapis.com/css2?family=' + fam.replace(/\s+/g, '+') + ':wght@' + fw + '&display=swap';
+            document.head.appendChild(flx);
+          }
+        });
         const FONT_STACKS = {
           'Inter': "'Inter', system-ui, -apple-system, sans-serif",
           'Poppins': "'Poppins', system-ui, sans-serif",
