@@ -207,7 +207,7 @@ const CASE_VARIANTS = [
       c.links = [
         { id: 'l1', title: 'Site', url: 'https://site.com', type: 'site', sub: 'descrição com texto', cardStyle: 'highlight', iconAlign: 'right', btnBg: '#112233', btnColor: '#ffffff', btnBorderColor: '#00ff00', btnBorderWidth: 3, btnFontSize: 'lg', btnFontWeight: 'bold' },
         { id: 'l2', title: 'WhatsApp', url: 'https://wa.me/1', type: 'whatsapp', cardStyle: 'testimonial', sub: 'ótimo atendimento!' },
-        { id: 'l3', title: 'Meu vídeo', url: 'https://youtube.com/watch?v=abc', type: 'site', cardStyle: 'video' }
+        { id: 'l3', title: 'GitHub', url: 'https://github.com', type: 'github' }
       ];
       return c;
     }

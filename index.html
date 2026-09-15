@@ -1050,35 +1050,6 @@
     .featured__card--testimonial .featured__icon { display: none; }
     .featured__card--testimonial .featured__arrow { display: none; }
 
-    .featured__card--video {
-      flex-direction: column;
-      align-items: stretch;
-      gap: 0;
-      padding: 0;
-      overflow: hidden;
-      min-height: 200px;
-    }
-    .featured__card--video .featured__body { display: none; }
-    .featured__card--video .featured__icon { display: none; }
-    .featured__card--video .featured__arrow { display: none; }
-    .featured__card--video iframe {
-      width: 100%;
-      aspect-ratio: 16/9;
-      border: none;
-      border-radius: var(--global-radius);
-    }
-    .featured__card--video .featured__video-fallback {
-      width: 100%;
-      aspect-ratio: 16/9;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(0,0,0,.05);
-      border-radius: var(--global-radius);
-      color: var(--muted);
-      font-size: 2rem;
-    }
-
     /* ---- Categorias / Tabs ---- */
     .pg-tabs {
       display: flex;
@@ -3419,10 +3390,9 @@
         list.forEach((link) => {
           const linkType = link.type || link.icon || '';
           if (isLinksList) {
-            const isVideo = link.cardStyle === 'video';
-            const a = document.createElement(isVideo ? 'div' : 'a');
+            const a = document.createElement('a');
             a.className = 'featured__card';
-            if (!isVideo) a.href = linkHref(link.url, linkType);
+            a.href = linkHref(link.url, linkType);
             a.target = '_blank';
             a.rel = 'noopener';
             const displayTitle = link.title || (linkType ? (linkType.charAt(0).toUpperCase() + linkType.slice(1)) : 'Link');
@@ -3436,8 +3406,7 @@
 
             /* Imagem customizada como design COMPLETO do botão: a imagem
                inteira vira o botão (substitui ícone/cor/texto da plataforma).
-               Âncora própria: clicável mesmo quando cardStyle==='video' (nesse
-               caso o `a` original nasceria como <div>). Espelho do admin. */
+               Âncora própria sempre clicável. Espelho do admin. */
             if (link.customImage) {
               const ca = document.createElement('a');
               ca.className = 'featured__card featured__card--customimg';
@@ -3491,34 +3460,6 @@
               a.appendChild(body);
               aplicarEstiloIndividual(a, link);
               applyLinkTextTypoPublic(a, link);
-              wrap.appendChild(a);
-            } else if (isVideo) {
-              a.classList.add('featured__card--video');
-              a.target = '';
-              a.rel = '';
-              const url = (link.url || '').trim();
-              const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|watch\?v=))([A-Za-z0-9_-]{11})/);
-              const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
-              if (ytMatch) {
-                const iframe = document.createElement('iframe');
-                iframe.src = 'https://www.youtube.com/embed/' + ytMatch[1];
-                iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
-                iframe.allowFullscreen = true;
-                iframe.title = displayTitle;
-                a.appendChild(iframe);
-              } else if (vimeoMatch) {
-                const iframe = document.createElement('iframe');
-                iframe.src = 'https://player.vimeo.com/video/' + vimeoMatch[1];
-                iframe.allow = 'autoplay; fullscreen; picture-in-picture';
-                iframe.allowFullscreen = true;
-                iframe.title = displayTitle;
-                a.appendChild(iframe);
-              } else {
-                const fallback = document.createElement('div');
-                fallback.className = 'featured__video-fallback';
-                fallback.innerHTML = '<i class="fas fa-play-circle"></i>';
-                a.appendChild(fallback);
-              }
               wrap.appendChild(a);
             } else {
               const icon = document.createElement('span');

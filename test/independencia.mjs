@@ -274,7 +274,7 @@ async function linksImagemCustomizada() {
   CFG_P.links = [
     { id: 'l1', title: 'Site', url: 'https://site.com', type: 'site', iconAlign: 'left' },
     { id: 'l2', title: 'WhatsApp', url: 'https://wa.me/1', customButtonImage: 'https://cdn.axium.test/btn-wa.png', customButtonHeight: 120 },
-    { id: 'l3', title: 'Vídeo', url: 'https://youtube.com/watch?v=abc', cardStyle: 'video', customButtonImage: 'https://cdn.axium.test/btn-vid.png' }
+    { id: 'l3', title: 'Vídeo', url: 'https://youtube.com/watch?v=abc', customButtonImage: 'https://cdn.axium.test/btn-vid.png' }
   ];
   const { window: wP } = await boot(INDEX_PATH, {
     supabase: supabaseStub({ config: CFG_P, slug: 'teste' }),
@@ -429,7 +429,7 @@ async function main() {
     return f;
   }
 
-  /* ── BUG A/B links: cardStyle preservado + highlight/testimonial/video
+  /* ── BUG A/B links: cardStyle preservado + highlight/testimonial
          renderizados + sub com quebra de linha (sem estourar o card) ── */
   async function runBugLinkCardStyles() {
     let f = 0;
@@ -442,11 +442,11 @@ async function main() {
       { id: 'l3', title: 'Instagram', type: 'instagram', url: 'https://ig.com', sub: 'descrição textodescrição textodescrição texta', cardStyle: '', category: 'social' },
       { id: 'l4', title: 'Destaque', type: 'site', url: 'https://d.com', sub: 'descrição longa que deve quebrar linha e não estourar o card', cardStyle: 'highlight', category: 'topo' },
       { id: 'l5', title: 'Depoimento', type: 'site', url: 'https://e.com', sub: 'ótimo atendimento!', cardStyle: 'testimonial' },
-      { id: 'l6', title: 'Meu vídeo', type: 'site', url: 'https://youtube.com/watch?v=abcDEF01234', cardStyle: 'video' }
+      { id: 'l6', title: 'GitHub', type: 'github', url: 'https://github.com', sub: '' }
     ];
 
     // ---- PÚBLICO ----
-    log('\n━━━ BUG A+B público: cardStyle/sub dos links (highlight/testimonial/video) ━━━');
+    log('\n━━━ BUG A+B público: cardStyle/sub dos links (highlight/testimonial) ━━━');
     {
       const { window } = boot(INDEX_PATH, supabaseStub(CFG));
       window.__alaPublica.aplicar(CFG);
@@ -455,7 +455,6 @@ async function main() {
       okB(cards.length === 6, 'público: 6 botões renderizados (nenhum cardStyle descartado) — ' + cards.length);
       okB(d.querySelectorAll('#pgLinks .featured__card--highlight').length === 1, 'público: card highlight renderizado');
       okB(d.querySelectorAll('#pgLinks .featured__card--testimonial').length === 1, 'público: card testimonial renderizado');
-      okB(d.querySelectorAll('#pgLinks .featured__card--video').length === 1, 'público: card video renderizado');
 
       // Sub wrapping — deve quebrar linha em vez de nowrap que estoura o card
       const subs = d.querySelectorAll('#pgLinks .featured__sub');
@@ -463,22 +462,16 @@ async function main() {
       const csSub = window.getComputedStyle(subs[0]);
       okB(csSub.whiteSpace !== 'nowrap', 'público: .featured__sub quebra linha (white-space != nowrap) — ' + csSub.whiteSpace);
       okB(csSub.overflowWrap === 'break-word' || csSub.overflowWrap === 'anywhere', 'público: .featured__sub overflow-wrap ativo — ' + csSub.overflowWrap);
-
-      // Subtexto vindo de cardStyle video não deve estourar; video usa div
-      const vid = d.querySelector('#pgLinks .featured__card--video');
-      okB(vid && vid.tagName === 'DIV', 'público: card video é <div> (não ancla) — ' + (vid || {}).tagName);
     }
 
     // ---- ADMIN (preview) ----
-    log('\n━━━ BUG A+B admin: preview renderiza highlight/testimonial/video ━━━');
+    log('\n━━━ BUG A+B admin: preview renderiza highlight/testimonial ━━━');
     {
       const { window } = boot(ADMIN_PATH, supabaseStub(CFG));
       window.__axEditor.init(CFG);
       const d = window.document;
-      const items = d.querySelectorAll('#previewLinksList .link-block');
       okB(d.querySelectorAll('#previewLinksList .featured__card--highlight').length === 1, 'admin: card highlight renderizado');
       okB(d.querySelectorAll('#previewLinksList .featured__card--testimonial').length === 1, 'admin: card testimonial renderizado');
-      okB(d.querySelectorAll('#previewLinksList .featured__card--video').length === 1, 'admin: card video renderizado');
       okB(d.querySelectorAll('#previewLinksList .link-block.featured__card--highlight').length === 1, 'admin: highlight tem .link-block (estilo padrão mantido)');
     }
 

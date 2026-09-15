@@ -874,18 +874,6 @@
   .link-block.featured__card--testimonial .link-block-icon { display:none; }
   .link-block.featured__card--testimonial .link-block__head { padding-left:0.5rem; padding-right:0; }
 
-  .link-block.featured__card--video {
-    flex-direction:column; align-items:stretch; gap:0; padding:0; overflow:hidden; min-height:200px;
-  }
-  .link-block.featured__card--video iframe {
-    width:100%; aspect-ratio:16/9; border:none; border-radius:var(--global-radius);
-  }
-  .link-block.featured__card--video .link-block__head { display:none; }
-  .link-block.featured__card--video .featured__video-fallback {
-    width:100%; aspect-ratio:16/9; display:flex; align-items:center; justify-content:center;
-    background:rgba(0,0,0,.05); border-radius:var(--global-radius); color:#94a3b8; font-size:2rem;
-  }
-
   .pg-tabs { display:flex; gap:6px; overflow-x:auto; padding-bottom:10px; margin-bottom:6px; scrollbar-width:none; }
   .pg-tabs::-webkit-scrollbar { display:none; }
   .pg-tab {
@@ -2548,7 +2536,6 @@
           <option value="">Normal (Link)</option>
           <option value="highlight">Destaque (CTA grande)</option>
           <option value="testimonial">Depoimento (Citação)</option>
-          <option value="video">Vídeo Embutido (YouTube/Vimeo)</option>
         </select>
       </div>
       <div class="field">
@@ -3570,17 +3557,14 @@
     }
 
     (cfg.links || []).forEach((l) => {
-      const isVideo = l.cardStyle === 'video';
-      const a = document.createElement(isVideo ? 'div' : 'a');
+      const a = document.createElement('a');
       a.className = 'link-block' + (l.iconAlign === 'center' ? ' icon-center' : l.iconAlign === 'right' ? ' icon-right' : '');
-      if (!isVideo) a.href = l.url || '#';
+      a.href = l.url || '#';
       a.target = '_blank';
       a.rel = 'noopener noreferrer';
       applyButtonWidth(a, l.width);
 
-      /* Imagem customizada: a imagem inteira VIRA o botão (espelho do público).
-         Âncora própria: funciona mesmo quando cardStyle==='video' (aí o `a`
-         original nasceria como <div> e não seria clicável). */
+      /* Imagem customizada: a imagem inteira VIRA o botão (espelho do público). */
       if (l.customButtonImage) {
         const ca = document.createElement('a');
         ca.className = 'link-block link-block-customimg';
@@ -3624,35 +3608,6 @@
           sub.className = 'featured__sub';
           sub.textContent = '— ' + l.sub;
           a.appendChild(sub);
-        }
-        a.addEventListener('click', (ev) => ev.preventDefault());
-        list.appendChild(a);
-      } else if (isVideo) {
-        a.classList.add('featured__card--video');
-        a.target = '';
-        a.rel = '';
-        const url = (l.url || '').trim();
-        const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|watch\?v=))([A-Za-z0-9_-]{11})/);
-        const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
-        if (ytMatch) {
-          const iframe = document.createElement('iframe');
-          iframe.src = 'https://www.youtube.com/embed/' + ytMatch[1];
-          iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
-          iframe.allowFullscreen = true;
-          iframe.title = l.title || 'Vídeo';
-          a.appendChild(iframe);
-        } else if (vimeoMatch) {
-          const iframe = document.createElement('iframe');
-          iframe.src = 'https://player.vimeo.com/video/' + vimeoMatch[1];
-          iframe.allow = 'autoplay; fullscreen; picture-in-picture';
-          iframe.allowFullscreen = true;
-          iframe.title = l.title || 'Vídeo';
-          a.appendChild(iframe);
-        } else {
-          const fallback = document.createElement('div');
-          fallback.className = 'featured__video-fallback';
-          fallback.innerHTML = '<i class="fas fa-play-circle"></i>';
-          a.appendChild(fallback);
         }
         a.addEventListener('click', (ev) => ev.preventDefault());
         list.appendChild(a);
@@ -6548,7 +6503,7 @@
       if (l.cardStyle) {
         const badge = document.createElement('span');
         badge.style.cssText = 'margin-left:6px;font-size:10px;padding:1px 6px;border-radius:8px;background:var(--brand);color:#fff;font-weight:600;vertical-align:middle;';
-        badge.textContent = l.cardStyle === 'highlight' ? 'Destaque' : l.cardStyle === 'testimonial' ? 'Depoimento' : l.cardStyle === 'video' ? 'Vídeo' : l.cardStyle;
+        badge.textContent = l.cardStyle === 'highlight' ? 'Destaque' : l.cardStyle === 'testimonial' ? 'Depoimento' : l.cardStyle;
         tt.appendChild(badge);
       }
       if (l.category) {
