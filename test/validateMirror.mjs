@@ -524,6 +524,30 @@ function fundoChecks(wA, wP, cfg) {
   }
   /* mesh/cyberpunk/animated: efeito visual distinto por mecanismo (layers,
      keyframes/veil) — já coberto por construção; só presença de fundo. */
+
+  /* Vídeo de fundo — o ESPÍRITO do BUG 2: previee e público precisam
+     INJETAR um <video> com a MESMA src, mudo, em loop e playsinline,
+     usando o MESMO campo bgVideoUrl, com o vídeo como camada de fundo
+     (z-index 0, não -1 — negativo some atrás do body opaco). */
+  if (variant === 'video') {
+    const vA = aP.querySelector('video.pv-bg-video');
+    const vP = wP.document.querySelector('video.ax-bg-video');
+    const aHas = !!vA;
+    const pHas = !!vP;
+    opts.push(['vídeo fundo: <video> injetado no preview (admin)', aHas, aHas ? 'sim' : '(sem video)']);
+    opts.push(['vídeo fundo: <video> injetado no público', pHas, pHas ? 'sim' : '(sem video)']);
+    if (aHas && pHas) {
+      const src = (cfg.style && cfg.style.bgVideoUrl) || '';
+      opts.push(['vídeo fundo: mesma src (bgVideoUrl) nos DOIS', vA.src === vP.src && vA.src === src, 'admin=' + vA.src + ' público=' + vP.src]);
+      const okVideo = (v) => v && v.muted && v.loop && v.playsInline && v.style.opacity === String((cfg.style.bgVideoOpacity ?? 100) / 100);
+      opts.push(['vídeo fundo: mudo+loop+playsinline+opacidade (admin)', okVideo(vA), 'muted=' + vA.muted + ' loop=' + vA.loop + ' playsInline=' + vA.playsInline + ' opacity=' + vA.style.opacity]);
+      opts.push(['vídeo fundo: mudo+loop+playsinline+opacidade (público)', okVideo(vP), 'muted=' + vP.muted + ' loop=' + vP.loop + ' playsInline=' + vP.playsInline + ' opacity=' + vP.style.opacity]);
+      const zP = wP.getComputedStyle(vP).zIndex;
+      const zA = wA.getComputedStyle(vA).zIndex;
+      const safe = (z) => z !== '-1';
+      opts.push(['vídeo fundo: público com z-index >= 0 (não some atrás do body)', safe(zP) && safe(zA), 'admin=' + zA + ' público=' + zP]);
+    }
+  }
   return opts;
 }
 

@@ -2236,6 +2236,16 @@
 
         <!-- Vídeo de Fundo (quando video) -->
         <div class="field" id="bgVideoRow" style="display:none;">
+          <div class="upload-row" style="margin-bottom:8px;">
+            <div class="upload-thumb" id="bgVideoThumb">🎬</div>
+            <div class="upload-info">
+              <strong>Vídeo de fundo</strong>
+              <small id="bgVideoInfoDefault">MP4 ou WebM. Você pode colar uma URL (abaixo) ou enviar um arquivo direto do seu computador.</small>
+              <small id="bgVideoInfoActive" style="display:none; color:var(--brand); font-weight:600;">✓ Vídeo ativo — clique abaixo para trocar ou remover.</small>
+            </div>
+            <button class="btn-mini" id="btnBgVideoPick">Escolher</button>
+          </div>
+          <input type="file" id="bgVideoInput" accept="video/mp4,video/webm, video/*" hidden>
           <label for="bgVideoUrl">URL do Vídeo de Fundo (MP4/WebM)</label>
           <input type="url" id="bgVideoUrl" placeholder="https://exemplo.com/video.mp4">
           <div class="ds-control" style="margin-top:8px;">
@@ -2245,6 +2255,7 @@
               <output class="ds-value" id="bgVideoOpacityVal">100%</output>
             </div>
           </div>
+          <button id="btnBgVideoClear" style="display:none; margin-top:10px; width:100%; padding:10px; border-radius:10px; border:1.5px solid #ef4444; background:#fef2f2; color:#dc2626; font-size:13px; font-weight:600; cursor:pointer; transition:all .15s;">✕ Remover Vídeo de Fundo</button>
         </div>
 
         <!-- Texturas (sólido/gradiente/mesh/animado) -->
@@ -4355,6 +4366,26 @@
     }
   }
 
+  /* Espelho do syncBgImageControls para o vídeo de fundo: mostra a
+     confirmação "Vídeo ativo" e o botão remover quando bgVideoUrl existe. */
+  function syncBgVideoControls(st) {
+    const thumb = $('bgVideoThumb');
+    const btnClear = $('btnBgVideoClear');
+    const infoDefault = $('bgVideoInfoDefault');
+    const infoActive = $('bgVideoInfoActive');
+    if (!thumb) return;
+    const hasVideo = st.bgVariant === 'video' && st.bgVideoUrl;
+    if (hasVideo) {
+      if (btnClear) btnClear.style.display = 'block';
+      if (infoDefault) infoDefault.style.display = 'none';
+      if (infoActive) infoActive.style.display = 'block';
+    } else {
+      if (btnClear) btnClear.style.display = 'none';
+      if (infoDefault) infoDefault.style.display = '';
+      if (infoActive) infoActive.style.display = 'none';
+    }
+  }
+
   /* Atualiza miniatura, botão remover e hints da linha Imagem do Banner */
   function syncBannerImageControls() {
     const thumb = $('bannerImageThumb');
@@ -4825,6 +4856,7 @@
     syncBgTexture(st);
     syncBgImage(st);
     syncBgImageControls(st);
+    syncBgVideoControls(st);
     syncGlassVeil(st);
     syncParticles(st);
     syncGlassDemo(st);
@@ -6007,14 +6039,61 @@
       markDirty();
     });
 
-    /* Vídeo de fundo */
+    /* Vídeo de fundo — duas formas (espelho com a imagem de fundo):
+       1) colar o link na URL (bgVideoUrl);
+       2) upload de arquivo direto (bgVideoInput → Storage folder 'bg').
+       A opção escolhida grava SEMPRE em cfg.style.bgVideoUrl (única chave
+       que o público lê), igualzinho ao bgImageUrl. Digitar/colar URL também
+       força bgVariant='video' (+ updateStyleRowsVisibility) — assim o vídeo
+       entra mesmo se o usuário não passou antes pelo select de variante. */
     safeOn('bgVideoUrl', 'input', (e) => {
       if (!cfg.style) cfg.style = {};
       cfg.style.bgVideoUrl = e.target.value.trim();
+      if (cfg.style.bgVideoUrl) {
+        cfg.style.bgVariant = 'video';
+        updateStyleRowsVisibility();
+      }
       applyThemeVars();
       markDirty();
     });
-    bindRange('bgVideoOpacity', 'bgVideoOpacityVal', (v) => v + '%', (v) => { cfg.style.bgVideoOpacity = v; applyThemeVars(); });
+    /* Upload de vídeo de fundo: pick → click no input hidden.
+       Espelha o fluxo do bgImageInput (arquivo → storage folder 'bg'). */
+    safeOn('btnBgVideoPick', 'click', () => $('bgVideoInput').click());
+    safeOn('bgVideoInput', 'change', async (e) => {
+      const file = e.target.files?.[0];
+      e.target.value = '';
+      if (!file) return;
+      showToast('Enviando vídeo de fundo...');
+      try {
+        const publicUrl = await uploadFileToStorage(file, 'bg');
+        if (!cfg.style) cfg.style = {};
+        cfg.style.bgVideoUrl = publicUrl;
+        cfg.style.bgVariant = 'video';
+        updateStyleRowsVisibility();
+        applyThemeVars();
+        markDirty();
+        showToast('Vídeo de fundo atualizado!');
+      } catch (err) {
+        console.error('[Axiumlink] Upload do vídeo falhou:', err.message);
+        showToast('Falha no upload: ' + err.message);
+      }
+    });
+    safeOn('btnBgVideoClear', 'click', () => {
+      if (!cfg.style) cfg.style = {};
+      cfg.style.bgVideoUrl = '';
+      cfg.style.bgVariant = 'solid';
+      $('bgVariant').value = 'solid';
+      updateStyleRowsVisibility();
+      applyThemeVars();
+      markDirty();
+      showToast('Vídeo de fundo removido');
+    });
+    bindRange('bgVideoOpacity', 'bgVideoOpacityVal', (v) => v + '%', (v) => {
+      if (!cfg.style) cfg.style = {};
+      cfg.style.bgVideoOpacity = v;
+      applyThemeVars();
+      markDirty();
+    });
 
     /* Imagem de fundo: File bruto → Storage → URL pública permanente */
     safeOn('btnBgImagePick', 'click', () => $('bgImageInput').click());
