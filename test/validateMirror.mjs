@@ -290,6 +290,14 @@ const CASE_VARIANTS = [
       return c;
     }
   },
+  { name: 'fundo: textura',
+    make: (c) => {
+      c.style.bgVariant = 'solid';
+      c.style.bgTexture = 'diagonal';
+      c.style.bgTextureOpacity = 40;
+      return c;
+    }
+  },
   { name: 'banner: gradiente + scrim',
     make: (c) => {
       c.design.banner = {
@@ -546,6 +554,34 @@ function fundoChecks(wA, wP, cfg) {
       const zA = wA.getComputedStyle(vA).zIndex;
       const safe = (z) => z !== '-1';
       opts.push(['vídeo fundo: público com z-index >= 0 (não some atrás do body)', safe(zP) && safe(zA), 'admin=' + zA + ' público=' + zP]);
+    }
+  }
+
+  /* Textura sobreposta — o ESPÍRITO do BUG 3: o público não tinha NENHUMA
+     textura e o admin usava #808080 (cinza médio) com soft-light, que é
+     identidade (invisível). Agora ambos injetam uma camada .pv-texture/
+     .ax-texture com MESMO fundo (par claro+escuro) e MESMA opacidade. */
+  if (cfg.style.bgTexture && cfg.style.bgTexture !== 'none') {
+    const tA = aP.querySelector('.pv-texture');
+    const tP = wP.document.querySelector('.ax-texture');
+    const aHas = !!tA;
+    const pHas = !!tP;
+    opts.push(['textura: camada injetada no preview (admin)', aHas, aHas ? 'sim' : '(sem textura)']);
+    opts.push(['textura: camada injetada no público', pHas, pHas ? 'sim' : '(sem textura)']);
+    if (aHas && pHas) {
+      const key = 'backgroundImage';
+      const aBg = String(tA.style[key] || '');
+      const pBg = String(tP.style[key] || '');
+      const sameBg = aBg === pBg && !!aBg;
+      const nonGray = aBg.indexOf('#808080') < 0 && pBg.indexOf('#808080') < 0;
+      const detalhe = sameBg && nonGray ? 'ok' : 'admin=' + aBg.slice(0, 40) + ' público=' + pBg.slice(0, 40);
+      opts.push(['textura: mesmo padrão claro+escuro nos DOIS (longe da #808080 invisível)', sameBg && nonGray, detalhe]);
+      const expOp = String((cfg.style.bgTextureOpacity ?? 30) / 100);
+      const aOp = tA.style.opacity;
+      const pOp = tP.style.opacity;
+      opts.push(['textura: opacidade admin==público==esperada', aOp === pOp && aOp === expOp, 'admin=' + aOp + ' público=' + pOp + ' esperado=' + expOp]);
+      const zP2 = wP.getComputedStyle(tP).zIndex;
+      opts.push(['textura: camada pública com z-index >= 0 (não some atrás do body)', zP2 !== '-1', 'público=' + zP2]);
     }
   }
   return opts;

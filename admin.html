@@ -4031,11 +4031,22 @@
 
   /* Texturas geométricas sobrepostas (padrões em cinza neutro +
      mix-blend-mode soft-light → adaptam-se a fundos claros e escuros) */
-  const NOISE_URI = 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'120\' height=\'120\'><filter id=\'n\'><feTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'2\'/><feColorMatrix type=\'saturate\' values=\'0\'/></filter><rect width=\'120\' height=\'120\' filter=\'url(%23n)\' opacity=\'0.55\'/></svg>")';
+  const NOISE_URI = 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'120\' height=\'120\'><filter id=\'n\'><feTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'2\'/><feColorMatrix type=\'saturate\' values=\'0\'/><feComponentTransfer><feFuncR type=\'table\' tableValues=\'0 0.18 0.82 1\'/><feFuncG type=\'table\' tableValues=\'0 0.18 0.82 1\'/><feFuncB type=\'table\' tableValues=\'0 0.18 0.82 1\'/></feComponentTransfer></filter><rect width=\'120\' height=\'120\' filter=\'url(%23n)\'/></svg>")';
+  /* Importante: #808080 (cinza médio) + soft-light é identidade (invisível).
+     Cada padrão traz um par claro+escuro deslocado: no fundo claro fica
+     visível o traço escuro e no escuro o traço claro — funciona nos dois. */
   const BG_TEXTURES = {
-    diagonal: { backgroundImage: 'repeating-linear-gradient(45deg, #808080 0 2px, transparent 2px 10px)' },
-    dots:     { backgroundImage: 'radial-gradient(#808080 1.5px, transparent 1.6px)', backgroundSize: '18px 18px' },
-    grid:     { backgroundImage: 'linear-gradient(#808080 1px, transparent 1px), linear-gradient(90deg, #808080 1px, transparent 1px)', backgroundSize: '24px 24px' },
+    diagonal: { backgroundImage: 'repeating-linear-gradient(45deg, rgba(255,255,255,0.5) 0 2px, transparent 2px 16px), repeating-linear-gradient(45deg, transparent 0 6px, rgba(0,0,0,0.2) 6px 8px, transparent 8px 16px)' },
+    dots:     {
+      backgroundImage: 'radial-gradient(rgba(255,255,255,0.55) 1.5px, transparent 1.6px), radial-gradient(rgba(0,0,0,0.22) 1.5px, transparent 1.6px)',
+      backgroundSize: '18px 18px, 18px 18px',
+      backgroundPosition: '0 0, 9px 9px'
+    },
+    grid:     {
+      backgroundImage: 'linear-gradient(rgba(255,255,255,0.45) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.45) 1px, transparent 1px), linear-gradient(rgba(0,0,0,0.18) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.18) 1px, transparent 1px)',
+      backgroundSize: '24px 24px, 24px 24px, 24px 24px, 24px 24px',
+      backgroundPosition: '0 0, 0 0, 12px 12px, 12px 12px'
+    },
     noise:    { backgroundImage: NOISE_URI }
   };
 
