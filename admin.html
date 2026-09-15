@@ -664,13 +664,6 @@
   }
 
   /* Vídeo e textura de fundo — atrás de todo o conteúdo */
-  .pv-bg-video {
-    position:absolute !important; inset:0;
-    top:0 !important; left:0 !important; width:100% !important; height:100% !important;
-    max-width:none; max-height:none;
-    object-fit:cover !important; object-position:center !important;
-    z-index:0; pointer-events:none;
-  }
   .pv-bg-image {
     position:absolute !important; inset:0;
     top:0 !important; left:0 !important; width:100% !important; height:100% !important;
@@ -684,7 +677,7 @@
     position:absolute; inset:0; z-index:1;
     pointer-events:none; mix-blend-mode:soft-light;
   }
-  .pv-page > *:not(.pv-bg-video):not(.pv-bg-image):not(.pv-texture) {
+  .pv-page > *:not(.pv-bg-image):not(.pv-texture) {
     position:relative; z-index:2;
   }
 
@@ -2132,7 +2125,6 @@
             <option value="cyberpunk">Cyberpunk / Neon</option>
             <option value="glass">Efeito Vidro Fosco (Glassmorphism)</option>
             <option value="image">Imagem de Fundo</option>
-            <option value="video">Vídeo de Fundo</option>
           </select>
         </div>
 
@@ -2232,20 +2224,6 @@
           </div>
 <input type="file" id="bgImageInput" accept="image/*" hidden>
           <button id="btnBgImageClear" style="display:none; margin-top:10px; width:100%; padding:10px; border-radius:10px; border:1.5px solid #ef4444; background:#fef2f2; color:#dc2626; font-size:13px; font-weight:600; cursor:pointer; transition:all .15s;">✕ Remover Imagem de Fundo</button>
-        </div>
-
-        <!-- Vídeo de Fundo (quando video) -->
-        <div class="field" id="bgVideoRow" style="display:none;">
-          <label for="bgVideoUrl">URL do Vídeo de Fundo (MP4/WebM)</label>
-          <input type="url" id="bgVideoUrl" placeholder="https://exemplo.com/video.mp4">
-          <div class="ds-control" style="margin-top:8px;">
-            <label>Opacidade do Vídeo</label>
-            <div class="ds-control-row">
-              <input type="range" id="bgVideoOpacity" min="10" max="100" step="5">
-              <output class="ds-value" id="bgVideoOpacityVal">100%</output>
-            </div>
-          </div>
-          <button id="btnBgVideoClear" style="display:none; margin-top:10px; width:100%; padding:10px; border-radius:10px; border:1.5px solid #ef4444; background:#fef2f2; color:#dc2626; font-size:13px; font-weight:600; cursor:pointer; transition:all .15s;">✕ Remover Vídeo de Fundo</button>
         </div>
 
         <!-- Texturas (sólido/gradiente/mesh/animado) -->
@@ -3174,8 +3152,6 @@
       cyberPrimary: '#00ffff',
       cyberSecondary: '#ff00ff',
       cyberGridIntensity: 30,
-      bgVideoUrl: '',
-      bgVideoOpacity: 100,
       bgImageUrl: '',
       bgTexture: 'none',
       bgTextureOpacity: 30,
@@ -3283,6 +3259,9 @@
     cfg.profile = cfg.profile || { displayName: '', bio: '', avatar: '', address: '', pix: { enabled: false, key: '', qr: '', link: '' } };
     cfg.links = cfg.links || [];
     cfg.style = cfg.style || DEFAULT_CFG().style;
+    /* Migração: vídeo de fundo foi removido do produto; configs antigas
+       caem para fundo sólido. */
+    if (cfg.style.bgVariant === 'video') cfg.style.bgVariant = 'solid';
     cfg.banner = cfg.banner || '';
 
     /* Controles de estilo novos: refletem o config (default ou salvo) no load */
@@ -4153,9 +4132,6 @@
             }).join(', ') + ')'
         };
       }
-      case 'video':
-        /* O <video> é gerenciado por syncBgVideo(); aqui só o fallback */
-        return { backgroundColor: '#0b1220' };
       case 'image':
         /* A <img> é gerenciada por syncBgImage(); aqui só o fallback */
         return { backgroundColor: '#111827' };
@@ -4171,36 +4147,6 @@
         }
         return { background: t.bg };
     }
-  }
-
-  /* Injeta/remove/atualiza o <video> de fundo dentro do preview */
-  function syncBgVideo(st) {
-    const page = $('pvPage');
-    if (!page) return;
-    let v = page.querySelector('video.pv-bg-video');
-    if (st.bgVariant !== 'video' || !st.bgVideoUrl) {
-      if (v) v.remove();
-      return;
-    }
-    if (!v) {
-      v = document.createElement('video');
-      v.className = 'pv-bg-video';
-      v.muted = true;          /* obrigatório para autoplay */
-      v.loop = true;
-      v.playsInline = true;
-      v.setAttribute('muted', '');
-      v.setAttribute('playsinline', '');
-      v.setAttribute('aria-hidden', 'true');
-      page.prepend(v);
-    }
-    if (v.dataset.src !== st.bgVideoUrl) {
-      v.dataset.src = st.bgVideoUrl;
-      v.src = st.bgVideoUrl;
-      v.load();
-      const p = v.play();
-      if (p && p.catch) p.catch(() => {});
-    }
-    v.style.opacity = ((st.bgVideoOpacity ?? 100) / 100);
   }
 
   /* Injeta/remove partículas flutuantes no preview */
@@ -4230,7 +4176,7 @@
     if (!page) return;
     let layer = page.querySelector('.pv-texture');
     const tex = BG_TEXTURES[st.bgTexture];
-    if (st.bgVariant === 'video' || !tex) {
+    if (!tex) {
       if (layer) layer.remove();
       return;
     }
@@ -4365,14 +4311,6 @@
       if (infoDefault) infoDefault.style.display = '';
       if (infoActive) infoActive.style.display = 'none';
     }
-  }
-
-  /* Atualiza o botão remover do vídeo de fundo quando bgVideoUrl existe. */
-  function syncBgVideoControls(st) {
-    const btnClear = $('btnBgVideoClear');
-    if (!btnClear) return;
-    const hasVideo = st.bgVariant === 'video' && st.bgVideoUrl;
-    btnClear.style.display = hasVideo ? 'block' : 'none';
   }
 
   /* Atualiza miniatura, botão remover e hints da linha Imagem do Banner */
@@ -4840,12 +4778,10 @@
     page.style.setProperty('--p-btnbg', t.btnbg);
     page.style.setProperty('--p-btnink', t.btnink);
 
-    /* Vídeo + textura + imagem de fundo */
-    syncBgVideo(st);
+    /* Textura + imagem de fundo */
     syncBgTexture(st);
     syncBgImage(st);
     syncBgImageControls(st);
-    syncBgVideoControls(st);
     syncGlassVeil(st);
     syncParticles(st);
     syncGlassDemo(st);
@@ -5769,7 +5705,6 @@
     $('meshColorsRow').style.display = bgVar === 'mesh' ? '' : 'none';
     $('animatedColorsRow').style.display = bgVar === 'animated' ? '' : 'none';
     $('cyberpunkColorsRow').style.display = bgVar === 'cyberpunk' ? '' : 'none';
-    $('bgVideoRow').style.display = bgVar === 'video' ? '' : 'none';
     $('bgImageRow').style.display = bgVar === 'image' ? '' : 'none';
     $('bgTextureRow').style.display =
       (bgVar === 'solid' || bgVar === 'gradient' || bgVar === 'mesh' || bgVar === 'animated') ? '' : 'none';
@@ -6024,37 +5959,6 @@
       if (!cfg.style) cfg.style = {};
       cfg.style.btnGradientAngle = Number(e.target.value);
       $('btnGradientAngleVal').textContent = e.target.value + 'deg';
-      applyThemeVars();
-      markDirty();
-    });
-
-    /* Vídeo de fundo — via URL apenas (bgVideoUrl), igual ao clima/embed.
-       Digitar/colar URL também força bgVariant='video' (+ updateStyleRowsVisibility)
-       — assim o vídeo entra mesmo se o usuário não passou antes pelo select
-       de variante. */
-    safeOn('bgVideoUrl', 'input', (e) => {
-      if (!cfg.style) cfg.style = {};
-      cfg.style.bgVideoUrl = e.target.value.trim();
-      if (cfg.style.bgVideoUrl) {
-        cfg.style.bgVariant = 'video';
-        updateStyleRowsVisibility();
-      }
-      applyThemeVars();
-      markDirty();
-    });
-    safeOn('btnBgVideoClear', 'click', () => {
-      if (!cfg.style) cfg.style = {};
-      cfg.style.bgVideoUrl = '';
-      cfg.style.bgVariant = 'solid';
-      $('bgVariant').value = 'solid';
-      updateStyleRowsVisibility();
-      applyThemeVars();
-      markDirty();
-      showToast('Vídeo de fundo removido');
-    });
-    bindRange('bgVideoOpacity', 'bgVideoOpacityVal', (v) => v + '%', (v) => {
-      if (!cfg.style) cfg.style = {};
-      cfg.style.bgVideoOpacity = v;
       applyThemeVars();
       markDirty();
     });
@@ -6501,8 +6405,6 @@
     setTriggerColor('cyberSecondary', st.cyberSecondary || '#ff00ff');
     /* Cores individuais */
     renderColorTriggers();
-    $('bgVideoUrl').value = st.bgVideoUrl || '';
-    setRange('bgVideoOpacity', st.bgVideoOpacity ?? 100);
     $('bgTexture').value = st.bgTexture || 'none';
     $('fontFamily').value = st.font || 'Inter';
     $('layoutSpacing').value = st.layoutSpacing || 'comfy';
