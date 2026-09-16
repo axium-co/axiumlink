@@ -389,6 +389,11 @@
   }
   .swatch:hover { transform:scale(1.1); }
   .swatch.active { border-color:var(--ink); transform:scale(1.08); }
+  /* Botão de remover cor: aparece no hover (desktop) e fica SEMPRE visível em
+     telas de toque (sem :hover, impossível remover antes) */
+  .swatch .swatch-remove { display:none; }
+  .swatch:hover .swatch-remove { display:block; }
+  @media (hover: none) { .swatch .swatch-remove { display:block; } }
 
   /* ===== PREMIUM PRESETS GRID ===== */
   .presets-grid {
@@ -448,6 +453,7 @@
   .cp-popover {
     position:fixed; z-index:2000; background:#1e1e2e; border-radius:14px;
     box-shadow:0 12px 40px rgba(0,0,0,.45); padding:14px; width:260px;
+    max-width:calc(100vw - 20px);
     font-family:Inter,system-ui,sans-serif; user-select:none;
   }
   .cp-sv {
@@ -1000,12 +1006,13 @@
     .mobile-tabs { display:flex; }
     .tab-desktop-only { display:none !important; }
     .admin-content.tab-hidden { display:none; }
-    #saveBtnDesktop { display:none; }
+    #saveBtnDesktopWrap { display:none; }
     .mobile-savebar { display:block; }
-    .admin-main { padding-bottom:90px; }
+    .admin-content { padding-bottom:90px; }
   }
 
   @media (max-width:600px) {
+    .admin-topbar { padding:10px 12px; gap:8px; flex-wrap:wrap; }
     .topbar-slug { display:none; }
     .topbar-profile { margin-left:8px; }
     .topbar-profile label { display:none; }
@@ -1013,13 +1020,17 @@
     .btn-view-page span { display:none; }
     .conn-status span { display:none; }
     .conn-status { padding:8px; }
+    /* Evita zoom automático do iOS ao focar selects/inputs menores que 16px */
+    select, input[type="text"], input[type="url"], input[type="email"], input[type="number"], input[type="password"] { font-size:16px; }
   }
 
   @media (max-width:480px) {
-    .admin-topbar { padding:12px 14px; gap:8px; flex-wrap:wrap; }
+    .admin-topbar { padding:12px 14px; }
     .topbar-brand { font-size:15.5px; }
     .panel { padding:16px; }
     .row-2 { grid-template-columns:1fr; }
+    /* Grids de 2 colunas fixas (Cores do Botão/Tema/por-link) empilham */
+    .color-grid-2 { grid-template-columns:1fr !important; }
   }
 
   /* Partículas flutuantes (preview admin) */
@@ -2129,7 +2140,7 @@
         <!-- Cores da página -->
         <div class="field" id="themeRow">
           <label>Cores do Tema</label>
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+          <div class="color-grid-2" style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
             <div class="field" style="margin:0;">
               <label style="font-size:11px;">Fundo</label>
               <div class="color-trigger" id="pageBgColor" role="button" tabindex="0">
@@ -2795,9 +2806,9 @@
           </div>
           <div class="field">
             <label>Cores do Botão</label>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-              <div class="field" style="margin:0;">
-                <label style="font-size:11px;">Fundo</label>
+<div class="color-grid-2" style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+            <div class="field" style="margin:0;">
+              <label style="font-size:11px;">Fundo</label>
                 <div class="color-trigger" id="perBtnBgColor" role="button" tabindex="0">
                   <div class="color-trigger-swatch" style="background:#111827;"></div>
                   <span class="color-trigger-hex">AUTO</span>
@@ -5468,7 +5479,7 @@
       removeBtn.type = 'button';
       removeBtn.textContent = '×';
       removeBtn.title = 'Remover cor';
-      removeBtn.style.cssText = 'width:22px;height:22px;border-radius:50%;border:none;background:rgba(0,0,0,.08);color:var(--muted);font-size:14px;cursor:pointer;flex:0 0 auto;display:flex;align-items:center;justify-content:center;';
+      removeBtn.style.cssText = 'width:28px;height:28px;border-radius:50%;border:none;background:rgba(0,0,0,.08);color:var(--muted);font-size:15px;cursor:pointer;flex:0 0 auto;display:flex;align-items:center;justify-content:center;';
       if (stops.length <= 2) { removeBtn.disabled = true; removeBtn.style.opacity = '0.3'; }
       removeBtn.addEventListener('click', () => {
         if (stops.length <= 2) return;
@@ -5609,22 +5620,21 @@
       btn.style.position = 'relative';
       const removeBtn = document.createElement('span');
       removeBtn.textContent = '×';
+      removeBtn.className = 'swatch-remove';
       removeBtn.style.position = 'absolute';
       removeBtn.style.top = '-6px';
       removeBtn.style.right = '-6px';
-      removeBtn.style.width = '18px';
-      removeBtn.style.height = '18px';
+      removeBtn.style.width = '22px';
+      removeBtn.style.height = '22px';
+      removeBtn.style.zIndex = '1';
       removeBtn.style.borderRadius = '50%';
       removeBtn.style.background = 'rgba(0,0,0,0.6)';
       removeBtn.style.color = '#fff';
-      removeBtn.style.fontSize = '12px';
-      removeBtn.style.lineHeight = '18px';
+      removeBtn.style.fontSize = '13px';
+      removeBtn.style.lineHeight = '22px';
       removeBtn.style.textAlign = 'center';
       removeBtn.style.cursor = 'pointer';
-      removeBtn.style.display = 'none';
       btn.appendChild(removeBtn);
-      btn.addEventListener('mouseenter', () => removeBtn.style.display = 'block');
-      btn.addEventListener('mouseleave', () => removeBtn.style.display = 'none');
       btn.addEventListener('click', (e) => {
         if (e.target === removeBtn) {
           if (onRemove) onRemove(idx);
@@ -5781,11 +5791,14 @@
 
     /* Position near anchor */
     const ar = anchor.getBoundingClientRect();
+    const pw = pop.offsetWidth || 260;
+    const ph = pop.offsetHeight || 320;
     let top = ar.bottom + 8;
     let left = ar.left;
-    if (top + 360 > window.innerHeight) top = ar.top - 360;
-    if (left + 260 > window.innerWidth) left = window.innerWidth - 270;
+    if (top + ph > window.innerHeight) top = ar.top - ph - 8;
+    if (left + pw > window.innerWidth) left = Math.max(10, window.innerWidth - pw - 10);
     if (left < 10) left = 10;
+    if (top < 10) top = 10;
     pop.style.top = Math.max(10, top) + 'px';
     pop.style.left = left + 'px';
 
