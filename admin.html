@@ -3708,6 +3708,26 @@
     renderLinksList();
   }
 
+  /* Fingerprint do conteúdo ESTRUTURAL dos blocos de link do preview.
+     Edições de cor/tamanho/vidro/tipografia NÃO entram aqui: elas são
+     aplicadas por applyThemeVars()/reapplyLinkTypo() em cima do DOM
+     existente. Só reconstruímos a lista quando a estrutura muda
+     (títulos, urls, tipos, ícones, imagens, estilo de card, largura). */
+  let _previewLinksSig = null;
+  function previewLinksSig(cfg) {
+    const links = cfg.links || [];
+    const cats = [...new Set(links.map(l => l.category).filter(Boolean))];
+    const parts = [JSON.stringify(cats)];
+    links.forEach((l, i) => {
+      parts.push([
+        i, l.title || '', l.url || '', l.type || '', l.icon || '', l.iconImg || '',
+        l.iconAlign || '', l.width || '', l.cardStyle || '', l.customButtonImage || '',
+        l.customButtonHeight || '', l.sub || '', l.id || '', l.category || ''
+      ].join('|'));
+    });
+    return parts.join('\n');
+  }
+
   function renderPreview() {
     $('pvName').textContent = cfg.profile?.displayName || 'Seu nome';
     $('pvBio').textContent = cfg.profile?.bio || '';
@@ -3788,8 +3808,27 @@
     applyProfileDesignToMockup();
     applyTypographyBlocks(cfg.style || {});
 
-    /* Blocos de link no preview */
+    /* Blocos de link no preview — reconstrói o DOM SÓ quando a estrutura
+       muda (títulos/urls/tipos/ícones/imagens/estilo de card/largura).
+       Edições de cor, tamanho, vidro e tipografia já foram aplicadas por
+       applyThemeVars() acima, em cima do MESMO DOM. Reconstruir aqui a cada
+       tecla/slider/autosave destruía todos os botões e o mockup inteiro
+       piscava continuamente (regressão reportada pelo usuário). */
     const list = $('previewLinksList');
+    const listSig = previewLinksSig(cfg);
+    if (listSig === _previewLinksSig) {
+      /* Estrutura dos links não mudou → NÃO reconstrói a lista (evita o
+         flicker de destruir/recriar os botões a cada tecla/slider/autosave).
+         Mas o caminho até aqui já rodou applyThemeVars()+applyTypographyBlocks,
+         que sobrescrevem a tipografia por-link com os valores globais. Reaplica
+         os estilos por cima do MESMO DOM (applyThemeVars → reapplyLinkTypo) e
+         reafirma o alinhamento Nome+selo, fechando o ciclo IGUAL ao caminho
+         de rebuild (a única diferença é não recriar os nós). */
+      applyThemeVars();
+      alignNameRow();
+      return;
+    }
+    _previewLinksSig = listSig;
     list.innerHTML = '';
 
     /* Categorias / Tabs no preview */
