@@ -1928,17 +1928,20 @@
         </div>
       </section>
 
-      <!-- ESTILO DO BOTÃO -->
-      <section class="panel sec" data-section="style">
+      <!-- ESTILO DO BOTÃO — Template padrão para novos links -->
+      <section class="panel sec collapsed" data-section="style">
         <div class="sec-head">
-          <button type="button" class="sec-toggle" aria-expanded="true">
+          <button type="button" class="sec-toggle" aria-expanded="false">
             <span class="sec-caret" aria-hidden="true">▾</span>
             <span class="sec-ico" aria-hidden="true">🔘</span>
-            <span class="sec-label">Estilo do Botão</span>
+            <span class="sec-label">Estilo padrão para novos links</span>
           </button>
           <button class="panel-del" data-section="style" title="Remover seção Estilo da página">🗑</button>
         </div>
         <div class="sec-body">
+          <p class="hint" style="margin:0 0 10px; font-size:12px; color:var(--muted); background:#f8fafc; padding:8px 10px; border-radius:8px; border-left:3px solid var(--brand);">
+            Este estilo é aplicado apenas a links novos ao criar. Cada link pode ter seu estilo individual — edite o link e use "🎨 Estilo individual".
+          </p>
         <div class="field">
           <label>Variante do Botão</label>
           <select id="btnVariant" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
@@ -2664,6 +2667,156 @@
         </div>
       </div>
 
+      <details style="margin-top:10px; padding-top:12px; border-top:1px solid var(--bg); background:var(--bg); border-radius:10px; padding:10px 12px;" id="perStyleSection">
+        <summary style="cursor:pointer; font-size:13px; font-weight:700; color:var(--ink); user-select:none;">🎨 Estilo individual deste botão</summary>
+        <div id="perStyleBody" style="margin-top:10px;">
+
+          <div class="field">
+            <label>Variante</label>
+            <select id="perBtnVariant" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+              <option value="solid">Sólido (Tema)</option>
+              <option value="glass">Vidro (Glassmorphism)</option>
+              <option value="neumorphic">Neumórfico (Soft UI)</option>
+              <option value="ghost">Minimalista Vazado (Ghost)</option>
+              <option value="gradient-soft">Gradiente Suave (automático)</option>
+              <option value="gradient">Gradiente Personalizado</option>
+              <option value="neon">Glow Neon</option>
+            </select>
+          </div>
+          <div class="field" id="perGlowColorRow" style="display:none;">
+            <label>Cor do Glow Neon</label>
+            <div class="color-trigger" id="perBtnGlowColor" role="button" tabindex="0"><div class="color-trigger-swatch"></div><span class="color-trigger-hex">#22D3EE</span></div>
+          </div>
+          <div class="row-2">
+            <div class="field">
+              <label>Formato</label>
+              <select id="perBtnShape" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+                <optgroup label="Geometricos">
+                  <option value="square">Quadrado Rigido</option>
+                  <option value="soft">Cantos Suaves</option>
+                  <option value="rounded">Arredondado Medio</option>
+                  <option value="pill">Totalmente Arredondado (Pilula)</option>
+                </optgroup>
+                <optgroup label="Organicos">
+                  <option value="organic">Cantos Assimetricos 1 (Folha)</option>
+                  <option value="bubble">Cantos Assimetricos 2 (Bolha)</option>
+                  <option value="diagonal">Estilo Diagonal</option>
+                </optgroup>
+                <optgroup label="Especiais">
+                  <option value="double">Borda Dupla</option>
+                  <option value="brutalist">Estilo Brutalista</option>
+                  <option value="custom">Formato Customizado (Slider)</option>
+                </optgroup>
+              </select>
+            </div>
+            <div class="field">
+              <label>Animação</label>
+              <select id="perBtnAnimation" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+                <option value="none">Nenhuma</option>
+                <option value="pulse">Pulsação Contínua</option>
+                <option value="shine">Brilho Passante (Shine)</option>
+                <option value="float">Flutuação Suave</option>
+              </select>
+            </div>
+          </div>
+          <div class="field" id="perBtnGradientRow" style="display:none;">
+            <label>Gradiente do Botão (2 cores)</label>
+            <div class="row-2">
+              <div class="field">
+                <label>Cor Inicial</label>
+                <div class="color-trigger" id="perBtnGradientStart" role="button" tabindex="0"><div class="color-trigger-swatch"></div><span class="color-trigger-hex">#6366F1</span></div>
+              </div>
+              <div class="field">
+                <label>Cor Final</label>
+                <div class="color-trigger" id="perBtnGradientEnd" role="button" tabindex="0"><div class="color-trigger-swatch"></div><span class="color-trigger-hex">#EC4899</span></div>
+              </div>
+            </div>
+            <div class="ds-control">
+              <label>Ângulo do Gradiente</label>
+              <div class="ds-control-row">
+                <input type="range" id="perBtnGradientAngle" min="0" max="360" step="1">
+                <output class="ds-value" id="perBtnGradientAngleVal">135deg</output>
+              </div>
+            </div>
+          </div>
+          <div class="ds-control" id="perBtnRadiusRow">
+            <label>Arredondamento</label>
+            <div class="ds-control-row">
+              <input type="range" id="perBtnRadius" min="0" max="50" step="1">
+              <output class="ds-value" id="perBtnRadiusVal">14px</output>
+            </div>
+          </div>
+          <div class="field">
+            <label>Estilo de Sombra</label>
+            <select id="perBtnShadowStyle" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+              <option value="soft">Sombra Suave Projetada</option>
+              <option value="none">Nenhuma Sombra</option>
+              <option value="neumorph">Efeito Soft UI / Neumorphism</option>
+              <option value="glow">Brilho Neon (Glow)</option>
+            </select>
+          </div>
+          <div class="ds-control" id="perBtnShadowRow">
+            <label>Intensidade da Sombra</label>
+            <div class="ds-control-row">
+              <input type="range" id="perBtnShadow" min="0" max="100" step="5">
+              <output class="ds-value" id="perBtnShadowVal">30%</output>
+            </div>
+          </div>
+          <div class="glass-block" id="perButtonGlassBlock">
+            <div class="glass-block-head">💠 Efeito Vidro neste botão</div>
+            <div class="toggle-row" style="padding:2px 0 6px;">
+              <span class="toggle-label">Ativar efeito vidro</span>
+              <label class="switch">
+                <input type="checkbox" id="perButtonGlassToggle">
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="ds-control">
+              <label>Desfoque (Blur)</label>
+              <div class="ds-control-row">
+                <input type="range" id="perButtonGlassBlur" min="0" max="40" step="1">
+                <output class="ds-value" id="perButtonGlassBlurVal">20px</output>
+              </div>
+            </div>
+            <div class="ds-control">
+              <label>Opacidade do vidro</label>
+              <div class="ds-control-row">
+                <input type="range" id="perButtonGlassOpacity" min="0" max="100" step="1">
+                <output class="ds-value" id="perButtonGlassOpacityVal">16%</output>
+              </div>
+            </div>
+            <div class="ds-control">
+              <label>Opacidade da borda</label>
+              <div class="ds-control-row">
+                <input type="range" id="perButtonGlassBorderOpacity" min="0" max="100" step="1">
+                <output class="ds-value" id="perButtonGlassBorderOpacityVal">25%</output>
+              </div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Cores do Botão</label>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+              <div class="field" style="margin:0;">
+                <label style="font-size:11px;">Fundo</label>
+                <div class="color-trigger" id="perBtnBgColor" role="button" tabindex="0">
+                  <div class="color-trigger-swatch" style="background:#111827;"></div>
+                  <span class="color-trigger-hex">AUTO</span>
+                </div>
+              </div>
+              <div class="field" style="margin:0;">
+                <label style="font-size:11px;">Texto</label>
+                <div class="color-trigger" id="perBtnTextColor" role="button" tabindex="0">
+                  <div class="color-trigger-swatch" style="background:#ffffff;"></div>
+                  <span class="color-trigger-hex">AUTO</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn-mini" id="perSetDefault" style="width:100%; margin-top:8px; background:var(--bg); border:1px dashed var(--border); color:var(--muted); font-size:12px; padding:8px;">📌 Usar como estilo padrão para novos links</button>
+        </div>
+      </details>
+
       <div style="display:flex; gap:10px; margin-top:18px;">
         <button class="btn-mini" id="btnBlockCancel" style="flex:1; padding:12px;">Cancelar</button>
         <button id="btnBlockSave" style="flex:2; padding:12px; border:none; border-radius:10px; background:var(--brand); color:#fff; font-size:14px; font-weight:700; cursor:pointer;">Salvar bloco</button>
@@ -3104,6 +3257,75 @@
     return null;
   }
 
+  const DEFAULT_LINK_STYLE = () => ({
+    variant: 'solid',
+    format: 'rounded',
+    animation: 'none',
+    shadow: { type: 'soft', intensity: 30 },
+    radius: 14,
+    glow: '#22d3ee',
+    gradient: { start: '#6366f1', end: '#ec4899', angle: 135 },
+    glass: { enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: 25 },
+    colors: { background: '', text: '' }
+  });
+
+  function flatToLinkStyle(globalSt) {
+    const gs = globalSt || {};
+    const bg = gs.buttonGlass || {};
+    return {
+      variant: gs.btnVariant || 'solid',
+      format: gs.btnShape || 'rounded',
+      animation: gs.btnAnimation || 'none',
+      shadow: { type: gs.btnShadowStyle || 'soft', intensity: gs.btnShadow ?? 30 },
+      radius: gs.btnRadius ?? 14,
+      glow: gs.btnGlowColor || '#22d3ee',
+      gradient: { start: gs.btnGradientStart || '#6366f1', end: gs.btnGradientEnd || '#ec4899', angle: gs.btnGradientAngle ?? 135 },
+      glass: {
+        enabled: !!bg.enabled,
+        blur: bg.blur ?? gs.btnGlassBlur ?? 20,
+        saturate: bg.saturate ?? 180,
+        opacity: bg.opacity ?? gs.btnGlassOpacity ?? 16,
+        color: bg.color || '#ffffff',
+        borderGlow: bg.borderGlow ?? 40,
+        shadowDepth: bg.shadowDepth ?? 18,
+        highlight: bg.highlight != null ? bg.highlight : true,
+        noise: !!bg.noise,
+        borderOpacity: bg.borderOpacity ?? gs.btnGlassBorderOpacity ?? 25
+      },
+      colors: { background: gs.btnBgColor || '', text: gs.btnTextColor || '' }
+    };
+  }
+
+  function linkStyleToFlat(ls, globalSt) {
+    if (ls == null) return {}; /* sem style → herda o global (legado/migração) */
+    const gs = globalSt || {};
+    const base = DEFAULT_LINK_STYLE();
+    const s = Object.assign({}, base, ls || {});
+    const sh = Object.assign({ type: 'soft', intensity: 30 }, base.shadow, (ls || {}).shadow);
+    const gr = Object.assign({ start: '#6366f1', end: '#ec4899', angle: 135 }, base.gradient, (ls || {}).gradient);
+    const gl = Object.assign({}, base.glass, (ls || {}).glass);
+    const co = Object.assign({ background: '', text: '' }, base.colors, (ls || {}).colors);
+    const resolved = (val, fallback) => (val === '' || val == null) ? fallback : val;
+    return {
+      btnVariant: s.variant,
+      btnShape: s.format,
+      btnAnimation: s.animation,
+      btnShadowStyle: sh.type,
+      btnShadow: sh.intensity,
+      btnRadius: s.radius,
+      btnGlowColor: s.glow,
+      btnGradientStart: gr.start,
+      btnGradientEnd: gr.end,
+      btnGradientAngle: gr.angle,
+      btnGlassOpacity: gl.opacity,
+      btnGlassBlur: gl.blur,
+      btnGlassBorderOpacity: gl.borderOpacity,
+      btnBgColor: resolved(co.background, ''),
+      btnTextColor: resolved(co.text, ''),
+      buttonGlass: { enabled: gl.enabled, blur: gl.blur, saturate: gl.saturate, opacity: gl.opacity, color: gl.color, borderGlow: gl.borderGlow, shadowDepth: gl.shadowDepth, highlight: gl.highlight, noise: gl.noise, borderOpacity: gl.borderOpacity }
+    };
+  }
+
   const DEFAULT_CFG = () => ({
     profile: { displayName: '', bio: '', avatar: '', address: '', pix: { enabled: false, key: '', qr: '', link: '' } },
     banner: '',
@@ -3209,6 +3431,22 @@
     cfg = incoming && typeof incoming === 'object'
       ? JSON.parse(JSON.stringify(incoming))
       : {};
+    migrateLinkStyles(cfg);
+  }
+
+  /* Migração para estilo por-link: links antigos (sem campo `style`)
+     recebem UMA CÓPIA do estilo global atual como estilo individual.
+     A partir daí cada link é 100% independente. */
+  function migrateLinkStyles(target) {
+    if (!target || typeof target !== 'object') return;
+    const gs = target.style || {};
+    if (!Array.isArray(target.links)) return;
+    const defaultLs = (typeof gs.buttonDefault === 'object' && gs.buttonDefault) ? gs.buttonDefault : null;
+    target.links.forEach((l) => {
+      if (l && typeof l === 'object' && (!l.style || typeof l.style !== 'object')) {
+        l.style = JSON.parse(JSON.stringify(defaultLs || flatToLinkStyle(gs)));
+      }
+    });
   }
 
   function loadLocalDraft() {
@@ -3556,9 +3794,10 @@
       list.appendChild(tabsWrap);
     }
 
-    (cfg.links || []).forEach((l) => {
+    (cfg.links || []).forEach((l, idx) => {
       const a = document.createElement('a');
       a.className = 'link-block' + (l.iconAlign === 'center' ? ' icon-center' : l.iconAlign === 'right' ? ' icon-right' : '');
+      a.dataset.linkIdx = String(idx);
       a.href = l.url || '#';
       a.target = '_blank';
       a.rel = 'noopener noreferrer';
@@ -3568,6 +3807,7 @@
       if (l.customButtonImage) {
         const ca = document.createElement('a');
         ca.className = 'link-block link-block-customimg';
+        ca.dataset.linkIdx = String(idx);
         ca.href = l.url || '#';
         ca.target = '_blank';
         ca.rel = 'noopener noreferrer';
@@ -4627,7 +4867,25 @@
     page.querySelectorAll('.link-block').forEach((el) => {
       /* Botão com imagem customizada é a própria imagem — não recebe vidro */
       if (el.classList.contains('link-block-customimg')) return;
-      applyGlass(el, btnG);
+      const idx = Number(el.dataset.linkIdx);
+      const linkItem = (!Number.isNaN(idx) && cfg.links && cfg.links[idx]) ? cfg.links[idx] : null;
+      const ls = (linkItem && linkItem.style) ? linkItem.style : null;
+      if (ls && ls.glass && ls.glass.enabled) {
+        const gPer = Object.assign({}, btnG, {
+          enabled: true,
+          blur: ls.glass.blur != null ? ls.glass.blur : btnG.blur,
+          saturate: ls.glass.saturate != null ? ls.glass.saturate : btnG.saturate,
+          opacity: ls.glass.opacity != null ? ls.glass.opacity : btnG.opacity,
+          color: ls.glass.color || btnG.color,
+          borderGlow: ls.glass.borderGlow != null ? ls.glass.borderGlow : btnG.borderGlow,
+          shadowDepth: ls.glass.shadowDepth != null ? ls.glass.shadowDepth : btnG.shadowDepth,
+          highlight: ls.glass.highlight != null ? ls.glass.highlight : btnG.highlight,
+          noise: ls.glass.noise != null ? ls.glass.noise : btnG.noise
+        });
+        applyGlass(el, gPer);
+      } else {
+        applyGlass(el, btnG);
+      }
     });
 
     /* Perfil: chip de vidro atrás do Nome e da Bio — INDEPENDENTES.
@@ -4749,10 +5007,9 @@
     page.style.letterSpacing = ls;
     applyTypographyBlocks(st);
 
-    /* Botões */
-    const btnCSS = buildButtonCSS(st, t);
-    const btnVariant = st.btnVariant || 'solid';
-    const btnAnim = st.btnAnimation || 'none';
+    /* Botões — estilo individual por link. Cada .link-block carrega
+       data-link-idx e usa o próprio link.style (merge sobre o estilo global
+       da página para campos não definidos). */
     const ANIM_CLASSES = ['pv-anim-pulse', 'pv-anim-float', 'pv-anim-shine'];
     page.querySelectorAll('.link-block').forEach((el) => {
       /* Botão com imagem customizada não recebe o estilo global do botão:
@@ -4771,13 +5028,20 @@
         });
         return;
       }
-      Object.assign(el.style, btnCSS);
+      const idx = Number(el.dataset.linkIdx);
+      const linkItem = (!Number.isNaN(idx) && cfg.links && cfg.links[idx]) ? cfg.links[idx] : null;
+      const flat = linkItem ? linkStyleToFlat(linkItem.style, st) : {};
+      const merged = Object.assign({}, st, flat);
+      const bCSS = buildButtonCSS(merged, t);
+      const bVariant = merged.btnVariant || 'solid';
+      const bAnim = merged.btnAnimation || 'none';
+      Object.assign(el.style, bCSS);
       el.classList.remove('ghost', 'neumorphic');
-      if (btnVariant === 'ghost' || btnVariant === 'neumorphic') el.classList.add(btnVariant);
+      if (bVariant === 'ghost' || bVariant === 'neumorphic') el.classList.add(bVariant);
       el.classList.remove(...ANIM_CLASSES);
-      if (btnAnim === 'pulse') el.classList.add('pv-anim-pulse');
-      else if (btnAnim === 'float') el.classList.add('pv-anim-float');
-      else if (btnAnim === 'shine') el.classList.add('pv-anim-shine');
+      if (bAnim === 'pulse') el.classList.add('pv-anim-pulse');
+      else if (bAnim === 'float') el.classList.add('pv-anim-float');
+      else if (bAnim === 'shine') el.classList.add('pv-anim-shine');
     });
 
     /* Efeito vidro independente por elemento (sub-grupos) */
@@ -5319,6 +5583,9 @@
       if (!(k in preset.config)) cfg.style[k] = COLOR_FILL[k];
     });
     cfg.style.activePreset = key;
+
+    /* Preset também vira o template padrão para links novos */
+    cfg.style.buttonDefault = flatToLinkStyle(cfg.style);
 
     /* Re-render todos os controles afetados */
     renderPresets();
@@ -6592,6 +6859,7 @@
   let _pendingBlockImage = '';
   let _pendingBlockHeight = 84;
   let _pendingBlockTextColor = '';
+  let _pendingBlockStyle = null;
 
   function openBlockModal(index) {
     editingBlockIndex = index;
@@ -6631,6 +6899,13 @@
     $('blockSpacingVal').textContent = $('blockSpacing').value + 'px';
     updateBlockImageUI();
 
+    /* Estilo individual do botão (per-link) */
+    const _defLs = (cfg.style && cfg.style.buttonDefault && typeof cfg.style.buttonDefault === 'object') ? cfg.style.buttonDefault : flatToLinkStyle(cfg.style || {});
+    _pendingBlockStyle = l.style
+      ? JSON.parse(JSON.stringify(Object.assign({}, DEFAULT_LINK_STYLE(), l.style || {})))
+      : JSON.parse(JSON.stringify(_defLs));
+    populatePerStyleControls(_pendingBlockStyle);
+
     /* Popula datalist de categorias existentes */
     const catList = $('categoryDatalist');
     if (catList) {
@@ -6648,6 +6923,66 @@
   function closeBlockModal() {
     $('blockModal').classList.remove('open');
     editingBlockIndex = null;
+  }
+
+  function populatePerStyleControls(ls) {
+    $('perBtnVariant').value = ls.variant || 'solid';
+    $('perBtnShape').value = ls.format || 'rounded';
+    $('perBtnAnimation').value = ls.animation || 'none';
+    const sh = ls.shadow || { type: 'soft', intensity: 30 };
+    $('perBtnShadowStyle').value = sh.type || 'soft';
+    $('perBtnShadow').value = sh.intensity ?? 30;
+    $('perBtnShadowVal').textContent = (sh.intensity ?? 30) + '%';
+    $('perBtnRadius').value = ls.radius ?? 14;
+    $('perBtnRadiusVal').textContent = (ls.radius ?? 14) + 'px';
+    const gr = ls.gradient || { start: '#6366f1', end: '#ec4899', angle: 135 };
+    setTriggerColor('perBtnGradientStart', gr.start || '#6366f1');
+    setTriggerColor('perBtnGradientEnd', gr.end || '#ec4899');
+    $('perBtnGradientAngle').value = gr.angle ?? 135;
+    $('perBtnGradientAngleVal').textContent = (gr.angle ?? 135) + 'deg';
+    setTriggerColor('perBtnGlowColor', ls.glow || '#22d3ee');
+    const gl = ls.glass || { enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: 25 };
+    $('perButtonGlassToggle').checked = !!gl.enabled;
+    $('perButtonGlassBlur').value = gl.blur ?? 20;
+    $('perButtonGlassBlurVal').textContent = (gl.blur ?? 20) + 'px';
+    $('perButtonGlassOpacity').value = gl.opacity ?? 16;
+    $('perButtonGlassOpacityVal').textContent = (gl.opacity ?? 16) + '%';
+    $('perButtonGlassBorderOpacity').value = gl.borderOpacity ?? 25;
+    $('perButtonGlassBorderOpacityVal').textContent = (gl.borderOpacity ?? 25) + '%';
+    const co = ls.colors || { background: '', text: '' };
+    setTriggerColor('perBtnBgColor', co.background || '');
+    const bgLabel = $('perBtnBgColor')?.querySelector('.color-trigger-hex');
+    if (bgLabel) bgLabel.textContent = co.background ? co.background.toUpperCase() : 'AUTO';
+    setTriggerColor('perBtnTextColor', co.text || '');
+    const txLabel = $('perBtnTextColor')?.querySelector('.color-trigger-hex');
+    if (txLabel) txLabel.textContent = co.text ? co.text.toUpperCase() : 'AUTO';
+    updatePerStyleVisibility(ls);
+  }
+
+  function updatePerStyleVisibility(ls) {
+    const bv = ls.variant || 'solid';
+    $('perBtnGradientRow').style.display = bv === 'gradient' ? '' : 'none';
+    $('perGlowColorRow').style.display = bv === 'neon' ? '' : 'none';
+    $('perBtnRadiusRow').style.display = (ls.format || 'rounded') === 'custom' ? '' : 'none';
+    $('perBtnShadowRow').style.display = (ls.shadow?.type || 'soft') === 'soft' ? '' : 'none';
+  }
+
+  function readPerStyleControls() {
+    const ls = Object.assign({}, _pendingBlockStyle || DEFAULT_LINK_STYLE());
+    ls.variant = $('perBtnVariant').value || 'solid';
+    ls.format = $('perBtnShape').value || 'rounded';
+    ls.animation = $('perBtnAnimation').value || 'none';
+    ls.shadow = { type: $('perBtnShadowStyle').value || 'soft', intensity: Number($('perBtnShadow').value) || 30 };
+    ls.radius = Number($('perBtnRadius').value) || 14;
+    ls.gradient = { start: ls.gradient?.start || '#6366f1', end: ls.gradient?.end || '#ec4899', angle: Number($('perBtnGradientAngle').value) || 135 };
+    const gl = Object.assign({}, ls.glass || {});
+    gl.enabled = !!$('perButtonGlassToggle').checked;
+    gl.blur = Number($('perButtonGlassBlur').value) || 20;
+    gl.opacity = Number($('perButtonGlassOpacity').value) || 16;
+    gl.borderOpacity = Number($('perButtonGlassBorderOpacity').value) || 25;
+    ls.glass = gl;
+    _pendingBlockStyle = ls;
+    return ls;
   }
 
   /* Mostra/oculta o painel da imagem customizada e o thumbnail atual */
@@ -6831,6 +7166,66 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
       });
     });
     safeOn('btnBlockImagePick', 'click', () => $('blockImageInput').click());
+
+    /* ---- Estilo individual do botão (per-link) ---- */
+    const perStyle = () => (_pendingBlockStyle = readPerStyleControls());
+    safeOn('perBtnVariant', 'change', (e) => { perStyle().variant = e.target.value; updatePerStyleVisibility(_pendingBlockStyle); });
+    safeOn('perBtnShape', 'change', (e) => { perStyle().format = e.target.value; updatePerStyleVisibility(_pendingBlockStyle); });
+    safeOn('perBtnAnimation', 'change', (e) => { perStyle().animation = e.target.value; });
+    safeOn('perBtnShadowStyle', 'change', (e) => { perStyle().shadow.type = e.target.value; updatePerStyleVisibility(_pendingBlockStyle); });
+    safeOn('perBtnShadow', 'input', (e) => { const v = Number(e.target.value); const o = $('perBtnShadowVal'); if (o) o.textContent = v + '%'; perStyle().shadow.intensity = v; });
+    safeOn('perBtnRadius', 'input', (e) => { const v = Number(e.target.value); const o = $('perBtnRadiusVal'); if (o) o.textContent = v + 'px'; perStyle().radius = v; });
+    safeOn('perBtnGradientAngle', 'input', (e) => { const v = Number(e.target.value); const o = $('perBtnGradientAngleVal'); if (o) o.textContent = v + 'deg'; perStyle().gradient.angle = v; });
+    safeOn('perButtonGlassToggle', 'change', (e) => { perStyle().glass.enabled = e.target.checked; });
+    safeOn('perButtonGlassBlur', 'input', (e) => { const v = Number(e.target.value); const o = $('perButtonGlassBlurVal'); if (o) o.textContent = v + 'px'; perStyle().glass.blur = v; });
+    safeOn('perButtonGlassOpacity', 'input', (e) => { const v = Number(e.target.value); const o = $('perButtonGlassOpacityVal'); if (o) o.textContent = v + '%'; perStyle().glass.opacity = v; });
+    safeOn('perButtonGlassBorderOpacity', 'input', (e) => { const v = Number(e.target.value); const o = $('perButtonGlassBorderOpacityVal'); if (o) o.textContent = v + '%'; perStyle().glass.borderOpacity = v; });
+    safeOn('perBtnGlowColor', 'click', () => {
+      const cur = _pendingBlockStyle?.glow || '#22d3ee';
+      openColorPicker($('perBtnGlowColor'), cur, (hex) => {
+        perStyle().glow = hex;
+        setTriggerColor('perBtnGlowColor', hex);
+      });
+    });
+    safeOn('perBtnGradientStart', 'click', () => {
+      const cur = _pendingBlockStyle?.gradient?.start || '#6366f1';
+      openColorPicker($('perBtnGradientStart'), cur, (hex) => {
+        perStyle().gradient.start = hex;
+        setTriggerColor('perBtnGradientStart', hex);
+      });
+    });
+    safeOn('perBtnGradientEnd', 'click', () => {
+      const cur = _pendingBlockStyle?.gradient?.end || '#ec4899';
+      openColorPicker($('perBtnGradientEnd'), cur, (hex) => {
+        perStyle().gradient.end = hex;
+        setTriggerColor('perBtnGradientEnd', hex);
+      });
+    });
+    safeOn('perBtnBgColor', 'click', () => {
+      const cur = _pendingBlockStyle?.colors?.background || '#111827';
+      openColorPicker($('perBtnBgColor'), cur, (hex) => {
+        perStyle().colors.background = hex;
+        setTriggerColor('perBtnBgColor', hex);
+        const label = $('perBtnBgColor')?.querySelector('.color-trigger-hex');
+        if (label) label.textContent = hex.toUpperCase();
+      });
+    });
+    safeOn('perBtnTextColor', 'click', () => {
+      const cur = _pendingBlockStyle?.colors?.text || '#ffffff';
+      openColorPicker($('perBtnTextColor'), cur, (hex) => {
+        perStyle().colors.text = hex;
+        setTriggerColor('perBtnTextColor', hex);
+        const label = $('perBtnTextColor')?.querySelector('.color-trigger-hex');
+        if (label) label.textContent = hex.toUpperCase();
+      });
+    });
+    safeOn('perSetDefault', 'click', () => {
+      const ls = JSON.parse(JSON.stringify(readPerStyleControls()));
+      cfg.style = cfg.style || {};
+      cfg.style.buttonDefault = ls;
+      showToast('Este estilo agora é o padrão para novos links');
+      markDirty();
+    });
     safeOn('blockImageInput', 'change', async (e) => {
       const file = e.target.files?.[0];
       if (!file) return;
@@ -6855,6 +7250,7 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
       _pendingBlockHeight = Number($('blockCustomHeight').value) || 84;
       const isNew = editingBlockIndex == null;
       const existingId = isNew ? null : (cfg.links[editingBlockIndex] || {}).id;
+      const perStyle = readPerStyleControls();
 
       const entry = {
         id: existingId || (Date.now().toString(36) + Math.random().toString(36).slice(2, 6)),
@@ -6873,7 +7269,8 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
         linkFontSize: (Number($('blockTypoSize').value) >= 12) ? Number($('blockTypoSize').value) : null,
         linkFontWeight: (Number($('blockTypoWeight').value) >= 300) ? Number($('blockTypoWeight').value) : null,
         linkTextColor: _pendingBlockTextColor || '',
-        spacing: (Number($('blockSpacing').value) > 0) ? Number($('blockSpacing').value) : undefined
+        spacing: (Number($('blockSpacing').value) > 0) ? Number($('blockSpacing').value) : undefined,
+        style: perStyle
       };
 
       cfg.links = cfg.links || [];

@@ -2158,6 +2158,89 @@
       }
 
       /* ================================================================
+         ESTILO POR-LINK — schema individual de cada botão.
+
+         Cada link pode ter o próprio `style` no formato:
+         { variant, format, animation, radius, glow,
+           shadow:{type,intensity}, gradient:{start,end,angle},
+           glass:{enabled,blur,saturate,opacity,color,borderGlow,
+                  shadowDepth,highlight,noise,borderOpacity},
+           colors:{background,text} }
+
+         Legado (sem `style`) cai no estilo global antigo (fallback) —
+         render só precisa de campos vazios/ausentes para herdar o global.
+         ================================================================ */
+      function axDefaultLinkStyle() {
+        return {
+          variant: 'solid',
+          format: 'rounded',
+          animation: 'none',
+          shadow: { type: 'soft', intensity: 30 },
+          radius: 14,
+          glow: '#22d3ee',
+          gradient: { start: '#6366f1', end: '#ec4899', angle: 135 },
+          glass: { enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: 25 },
+          colors: { background: '', text: '' }
+        };
+      }
+
+      function axFlatToLinkStyle(gs) {
+        gs = gs || {};
+        const bg = gs.buttonGlass || {};
+        return {
+          variant: gs.btnVariant || 'solid',
+          format: gs.btnShape || 'rounded',
+          animation: gs.btnAnimation || 'none',
+          shadow: { type: gs.btnShadowStyle || 'soft', intensity: gs.btnShadow ?? 30 },
+          radius: gs.btnRadius ?? 14,
+          glow: gs.btnGlowColor || '#22d3ee',
+          gradient: { start: gs.btnGradientStart || '#6366f1', end: gs.btnGradientEnd || '#ec4899', angle: gs.btnGradientAngle ?? 135 },
+          glass: {
+            enabled: !!bg.enabled,
+            blur: bg.blur ?? gs.btnGlassBlur ?? 20,
+            saturate: bg.saturate ?? 180,
+            opacity: bg.opacity ?? gs.btnGlassOpacity ?? 16,
+            color: bg.color || '#ffffff',
+            borderGlow: bg.borderGlow ?? 40,
+            shadowDepth: bg.shadowDepth ?? 18,
+            highlight: bg.highlight != null ? bg.highlight : true,
+            noise: !!bg.noise,
+            borderOpacity: bg.borderOpacity ?? gs.btnGlassBorderOpacity ?? 25
+          },
+          colors: { background: gs.btnBgColor || '', text: gs.btnTextColor || '' }
+        };
+      }
+
+      function axLinkStyleToFlat(ls, globalSt) {
+        if (ls == null) return {}; /* sem style → herda o global (legado/migração) */
+        const base = axDefaultLinkStyle();
+        const s = Object.assign({}, base, ls || {});
+        const sh = Object.assign({ type: 'soft', intensity: 30 }, base.shadow, (ls || {}).shadow);
+        const gr = Object.assign({ start: '#6366f1', end: '#ec4899', angle: 135 }, base.gradient, (ls || {}).gradient);
+        const gl = Object.assign({}, base.glass, (ls || {}).glass);
+        const co = Object.assign({ background: '', text: '' }, base.colors, (ls || {}).colors);
+        const pick = (v, fb) => (v === '' || v == null) ? fb : v;
+        return {
+          btnVariant: s.variant,
+          btnShape: s.format,
+          btnAnimation: s.animation,
+          btnShadowStyle: sh.type,
+          btnShadow: sh.intensity,
+          btnRadius: s.radius,
+          btnGlowColor: s.glow,
+          btnGradientStart: gr.start,
+          btnGradientEnd: gr.end,
+          btnGradientAngle: gr.angle,
+          btnGlassOpacity: gl.opacity,
+          btnGlassBlur: gl.blur,
+          btnGlassBorderOpacity: gl.borderOpacity,
+          btnBgColor: pick(co.background, ''),
+          btnTextColor: pick(co.text, ''),
+          buttonGlass: { enabled: gl.enabled, blur: gl.blur, saturate: gl.saturate, opacity: gl.opacity, color: gl.color, borderGlow: gl.borderGlow, shadowDepth: gl.shadowDepth, highlight: gl.highlight, noise: gl.noise, borderOpacity: gl.borderOpacity }
+        };
+      }
+
+      /* ================================================================
          ADAPTADOR DE SCHEMA — painel novo → formato legado da página.
          O admin grava { profile:{displayName,avatar}, style:{...},
          banner, links[] }. Aqui traduzimos para o
@@ -2311,7 +2394,10 @@
                 linkFontSize: l.linkFontSize || null,
                 linkFontWeight: l.linkFontWeight || null,
                 linkTextColor: l.linkTextColor || null,
-                spacing: (Number(l.spacing) > 0) ? Number(l.spacing) : null
+                spacing: (Number(l.spacing) > 0) ? Number(l.spacing) : null,
+                style: (l.style && typeof l.style === 'object')
+                  ? Object.assign({}, l.style)
+                  : axFlatToLinkStyle(st)
               }))
             : undefined
         };
@@ -3387,11 +3473,12 @@
           wrap.style.display = 'flex';
           wrap.style.flexDirection = 'column';
 
-        list.forEach((link) => {
+        list.forEach((link, li) => {
           const linkType = link.type || link.icon || '';
           if (isLinksList) {
             const a = document.createElement('a');
             a.className = 'featured__card';
+            a.dataset.linkIdx = String(li);
             a.href = linkHref(link.url, linkType);
             a.target = '_blank';
             a.rel = 'noopener';
@@ -3410,6 +3497,7 @@
             if (link.customImage) {
               const ca = document.createElement('a');
               ca.className = 'featured__card featured__card--customimg';
+              ca.dataset.linkIdx = String(li);
               ca.href = linkHref(link.url, linkType);
               ca.target = '_blank';
               ca.rel = 'noopener';
@@ -3508,6 +3596,7 @@
             } else {
               const a = document.createElement('a');
               a.className = 'social-icon';
+              a.dataset.linkIdx = String(li);
               a.href = linkHref(link.url, linkType);
               a.target = '_blank';
               a.rel = 'noopener';
@@ -3851,102 +3940,100 @@
           }
         } else if (particles) particles.remove();
 
-        /* Estilo global dos botões (variantes novas) */
-        const T2 = getComputedStyle(document.documentElement);
+        /* Estilo dos botões — global como fallback, individual por link.
+         Cada âncora tem data-link-idx e usa o próprio link.style
+         (merge sobre o estilo global para campos não definidos). */
         const thBtnbg  = { indigo:'#111827', light:'#2563eb', dark:'#1f2937', sunset:'#ea580c', ocean:'#0891b2', forest:'#16a34a', rose:'#e11d48' }[st.theme] || '#111827';
         const thInk    = { indigo:'#111827', light:'#1f2937', dark:'#e5e7eb', sunset:'#7c2d12', ocean:'#164e63', forest:'#14532d', rose:'#881337' }[st.theme] || '#111827';
         const thBtnink = { indigo:'#ffffff', light:'#ffffff', dark:'#f9fafb', sunset:'#ffffff', ocean:'#ffffff', forest:'#ffffff', rose:'#ffffff' }[st.theme] || '#ffffff';
-        /* Mesmas cores resolvidas do preview (admin: t.btnbg / t.btnink). */
-        const resolvedBtnBg  = st.btnBgColor || thBtnbg;
-        const resolvedBtnInk = st.btnTextColor || thBtnink;
-        const resolvedInk    = st.pageTextColor || thInk;
-        const SHAPES = {
-          square:    { borderRadius: '0px' },
-          soft:      { borderRadius: '6px' },
-          rounded:   { borderRadius: '16px' },
-          pill:      { borderRadius: '9999px' },
-          organic:   { borderRadius: '30% 70% 70% 30% / 30% 30% 70% 70%' },
-          bubble:    { borderRadius: '50% 20% 50% 20% / 20% 50% 20% 50%' },
-          diagonal:  { borderRadius: '20px 0px 20px 0px' },
-          double:    { borderRadius: '8px', border: '4px double currentColor' },
-          brutalist: { borderRadius: '0px', border: '3px solid #000', boxShadow: '5px 5px 0px #000' },
-          custom:    { borderRadius: ((st.btnRadius ?? 14) + 'px') }
-        };
-        const shape = SHAPES[st.btnShape] || SHAPES.rounded;
 
-        /* Estilo de sombra independente da variante (espelha o painel) */
-        const sStyle = st.btnShadowStyle || 'soft';
-        const alpha = (st.btnShadow ?? 30) / 100;
-        let shadow;
-        if (sStyle === 'none') shadow = 'none';
-        else if (sStyle === 'neumorph') shadow = '6px 6px 12px rgba(0,0,0,0.1), -6px -6px 12px rgba(255,255,255,0.8)';
-        else if (sStyle === 'glow') shadow = '0 0 15px currentColor';
-        else shadow = alpha > 0 ? '0 ' + Math.round(alpha*10) + 'px ' + Math.round(alpha*26) + 'px rgba(0,0,0,' + (alpha*.35).toFixed(2) + ')' : 'none';
-
-        function buildBtn() {
-          switch (st.btnVariant) {
-            case 'glass': {
-              /* Vidro premium dos botões (grupo buttonGlass; fallback legado
-                 use os mesmos valores do applyGlass). */
-              const bgrp = (cfg.style && cfg.style.buttonGlass) || {};
-              const col = bgrp.color || '#ffffff';
-              const op = bgrp.opacity != null ? bgrp.opacity : (st.btnGlassOpacity ?? st.glassOpacity ?? 15);
-              const aHi = Math.max(0, Math.min(1, op / 100));
-              const aLo = Math.max(0.02, aHi * 0.3);
-              const bl = (bgrp.blur != null ? bgrp.blur : (st.btnGlassBlur ?? st.glassBlur ?? 12)) + 'px';
-              const sat = bgrp.saturate ?? 180;
-              const glow = (bgrp.borderGlow ?? 40) / 100;
-              const df = Math.max(0, Math.min(1, (bgrp.shadowDepth ?? 18) / 60));
-              const grd = 'linear-gradient(135deg, ' + rgbaCss(col, aHi) + ' 0%, ' + rgbaCss(col, aLo) + ' 100%)';
-              const gShadow = [
-                'inset 0 1px 1px ' + rgbaCss('#ffffff', 0.9 * glow),
-                'inset 0 -1px 1px ' + rgbaCss('#ffffff', 0.35 * glow),
-                '0 ' + Math.round(4 + 26 * df) + 'px ' + Math.round(12 + 48 * df) + 'px ' + rgbaCss('#000000', 0.08 + 0.30 * df),
-                '0 ' + Math.round(1 + 5 * df) + 'px ' + Math.round(3 + 12 * df) + 'px ' + rgbaCss('#000000', 0.06 + 0.20 * df)
-              ].join(', ');
-              let bAlpha = 0.06 + 0.60 * glow;
-              if (bgrp.borderOpacity != null) {
-                bAlpha = Math.max(bAlpha, Math.max(0, Math.min(1, Number(bgrp.borderOpacity) / 100)));
-              }
-              return {
-                background: grd,
-                color: resolvedInk,
-                backdropFilter: 'blur(' + bl + ') saturate(' + sat + '%)',
-                webkitBackdropFilter: 'blur(' + bl + ') saturate(' + sat + '%)',
-                border: '1px solid ' + rgbaCss(col, bAlpha),
-                boxShadow: gShadow,
-                textShadow: '0 1px 2px ' + rgbaCss('#000000', 0.22),
-                ...shape
-              };
-            }
-            case 'neumorphic':
-              return {
-                background: /^#0/.test(thBtnbg) ? '#1f2937' : '#e0e5ec',
-                color: resolvedInk,
-                border: 'none',
-                boxShadow: shadow,
-                ...shape
-              };
-            case 'ghost':
-              return { background:'transparent', color:resolvedBtnBg, border:'2px solid '+resolvedBtnBg, boxShadow:shadow, ...shape };
-            case 'gradient-soft': {
-              const gBase = (/^#/.test(st.btnBgColor || '')) ? st.btnBgColor : resolvedBtnBg;
-              return { background:'linear-gradient(140deg,'+mixHex(gBase,'#ffffff',0.22)+','+mixHex(gBase,'#000000',0.16)+')', color:'#ffffff', border:'1px solid rgba(255,255,255,0.15)', boxShadow:shadow, ...shape };
-            }
-            case 'gradient':
-              return { background:'linear-gradient('+(st.btnGradientAngle||135)+'deg,'+(st.btnGradientStart||'#6366f1')+','+(st.btnGradientEnd||'#ec4899')+')', color:'#fff', border:'none', boxShadow:shadow, ...shape };
-            case 'neon': {
-              const g = st.btnGlowColor || '#22d3ee';
-              return { background:'transparent', color:g, border:'2px solid '+g, boxShadow:shadow, ...shape };
-            }
-            default:
-              return { background:resolvedBtnBg, color:resolvedBtnInk, border:'none', boxShadow:shadow, ...shape };
-          }
+        function axShapeFor(flat) {
+          const SHAPES = {
+            square:    { borderRadius: '0px' },
+            soft:      { borderRadius: '6px' },
+            rounded:   { borderRadius: '16px' },
+            pill:      { borderRadius: '9999px' },
+            organic:   { borderRadius: '30% 70% 70% 30% / 30% 30% 70% 70%' },
+            bubble:    { borderRadius: '50% 20% 50% 20% / 20% 50% 20% 50%' },
+            diagonal:  { borderRadius: '20px 0px 20px 0px' },
+            double:    { borderRadius: '8px', border: '4px double currentColor' },
+            brutalist: { borderRadius: '0px', border: '3px solid #000', boxShadow: '5px 5px 0px #000' },
+            custom:    { borderRadius: ((flat.btnRadius ?? 14) + 'px') }
+          };
+          return SHAPES[flat.btnShape] || SHAPES.rounded;
         }
 
-        const btnCSS = Object.assign({ transition: 'all 0.2s ease' }, buildBtn());
+        function axBtnStyle(flat, rBtnBg, rBtnInk, rInk, shape) {
+          const sStyle = flat.btnShadowStyle || 'soft';
+          const alpha = (flat.btnShadow ?? 30) / 100;
+          let shadow;
+          if (sStyle === 'none') shadow = 'none';
+          else if (sStyle === 'neumorph') shadow = '6px 6px 12px rgba(0,0,0,0.1), -6px -6px 12px rgba(255,255,255,0.8)';
+          else if (sStyle === 'glow') shadow = '0 0 15px currentColor';
+          else shadow = alpha > 0 ? '0 ' + Math.round(alpha*10) + 'px ' + Math.round(alpha*26) + 'px rgba(0,0,0,' + (alpha*.35).toFixed(2) + ')' : 'none';
+
+          function buildBtn() {
+            const bgrp = flat.buttonGlass || {};
+            switch (flat.btnVariant) {
+              case 'glass': {
+                const col = bgrp.color || '#ffffff';
+                const op = bgrp.opacity != null ? bgrp.opacity : (flat.btnGlassOpacity ?? 15);
+                const aHi = Math.max(0, Math.min(1, op / 100));
+                const aLo = Math.max(0.02, aHi * 0.3);
+                const bl = (bgrp.blur != null ? bgrp.blur : (flat.btnGlassBlur ?? 12)) + 'px';
+                const sat = bgrp.saturate ?? 180;
+                const glow = (bgrp.borderGlow ?? 40) / 100;
+                const df = Math.max(0, Math.min(1, (bgrp.shadowDepth ?? 18) / 60));
+                const grd = 'linear-gradient(135deg, ' + rgbaCss(col, aHi) + ' 0%, ' + rgbaCss(col, aLo) + ' 100%)';
+                const gShadow = [
+                  'inset 0 1px 1px ' + rgbaCss('#ffffff', 0.9 * glow),
+                  'inset 0 -1px 1px ' + rgbaCss('#ffffff', 0.35 * glow),
+                  '0 ' + Math.round(4 + 26 * df) + 'px ' + Math.round(12 + 48 * df) + 'px ' + rgbaCss('#000000', 0.08 + 0.30 * df),
+                  '0 ' + Math.round(1 + 5 * df) + 'px ' + Math.round(3 + 12 * df) + 'px ' + rgbaCss('#000000', 0.06 + 0.20 * df)
+                ].join(', ');
+                let bAlpha = 0.06 + 0.60 * glow;
+                if (bgrp.borderOpacity != null) {
+                  bAlpha = Math.max(bAlpha, Math.max(0, Math.min(1, Number(bgrp.borderOpacity) / 100)));
+                }
+                return {
+                  background: grd,
+                  color: rInk,
+                  backdropFilter: 'blur(' + bl + ') saturate(' + sat + '%)',
+                  webkitBackdropFilter: 'blur(' + bl + ') saturate(' + sat + '%)',
+                  border: '1px solid ' + rgbaCss(col, bAlpha),
+                  boxShadow: gShadow,
+                  textShadow: '0 1px 2px ' + rgbaCss('#000000', 0.22),
+                  ...shape
+                };
+              }
+              case 'neumorphic':
+                return {
+                  background: /^#0/.test(rBtnBg) ? '#1f2937' : '#e0e5ec',
+                  color: rInk,
+                  border: 'none',
+                  boxShadow: shadow,
+                  ...shape
+                };
+              case 'ghost':
+                return { background:'transparent', color:rBtnBg, border:'2px solid '+rBtnBg, boxShadow:shadow, ...shape };
+              case 'gradient-soft': {
+                const gBase = (/^#/.test(flat.btnBgColor || '')) ? flat.btnBgColor : rBtnBg;
+                return { background:'linear-gradient(140deg,'+mixHex(gBase,'#ffffff',0.22)+','+mixHex(gBase,'#000000',0.16)+')', color:'#ffffff', border:'1px solid rgba(255,255,255,0.15)', boxShadow:shadow, ...shape };
+              }
+              case 'gradient':
+                return { background:'linear-gradient('+(flat.btnGradientAngle||135)+'deg,'+(flat.btnGradientStart||'#6366f1')+','+(flat.btnGradientEnd||'#ec4899')+')', color:'#fff', border:'none', boxShadow:shadow, ...shape };
+              case 'neon': {
+                const g = flat.btnGlowColor || '#22d3ee';
+                return { background:'transparent', color:g, border:'2px solid '+g, boxShadow:shadow, ...shape };
+              }
+              default:
+                return { background:rBtnBg, color:rBtnInk, border:'none', boxShadow:shadow, ...shape };
+            }
+          }
+          return Object.assign({ transition: 'all 0.2s ease' }, buildBtn());
+        }
+
         const ANIMS = ['ax-anim-pulse','ax-anim-float','ax-anim-shine'];
-        const btnAnim = st.btnAnimation || 'none';
         /* Tipografia global dos botões (st.typoBtn) — espelha o painel.
            A tipografia por-link volta por cima em reapplyLinkTypoPublic. */
         const tyBtn = st.typoBtn || {};
@@ -3974,7 +4061,18 @@
             });
             return;
           }
-          Object.assign(el.style, btnCSS);
+          const li = Number(el.dataset.linkIdx);
+          const linkData = (!Number.isNaN(li) && Array.isArray(linkList)) ? linkList[li] : null;
+          const flat = axLinkStyleToFlat(linkData && linkData.style ? linkData.style : null, st);
+          const merged = Object.assign({}, st, flat);
+          const lBtnBg  = merged.btnBgColor || thBtnbg;
+          const lBtnInk = merged.btnTextColor || thBtnink;
+          const lInk    = st.pageTextColor || thInk;
+          const shape = axShapeFor(merged);
+          const bCSS = axBtnStyle(merged, lBtnBg, lBtnInk, lInk, shape);
+          const bVariant = merged.btnVariant || 'solid';
+          const bAnim = merged.btnAnimation || 'none';
+          Object.assign(el.style, bCSS);
           if (!el.classList.contains('social-icon')) Object.assign(el.style, tyBtnBase);
           if (el.classList.contains('social-icon')) {
             /* Ícones sociais preservam o círculo base (50%). O formato
@@ -3986,9 +4084,9 @@
           } else {
             Object.assign(el.style, shape);
           }
-          el.style.setProperty('--ui-bg', btnCSS.background);
-          if (st.btnVariant === 'glass') {
-            const bgrp = (cfg.style && cfg.style.buttonGlass) || {};
+          el.style.setProperty('--ui-bg', bCSS.background);
+          if (bVariant === 'glass') {
+            const bgrp = merged.buttonGlass || {};
             el.classList.add('gx-panel');
             el.classList.toggle('gx-highlight', !!(bgrp.highlight != null ? bgrp.highlight : true));
             el.classList.toggle('gx-noise', !!bgrp.noise);
@@ -3996,9 +4094,9 @@
             el.classList.remove('gx-panel', 'gx-highlight', 'gx-noise');
           }
           el.classList.remove(...ANIMS);
-          if (btnAnim === 'pulse') el.classList.add('ax-anim-pulse');
-          else if (btnAnim === 'float') el.classList.add('ax-anim-float');
-          else if (btnAnim === 'shine') el.classList.add('ax-anim-shine');
+          if (bAnim === 'pulse') el.classList.add('ax-anim-pulse');
+          else if (bAnim === 'float') el.classList.add('ax-anim-float');
+          else if (bAnim === 'shine') el.classList.add('ax-anim-shine');
         });
 
         /* Espaçamento entre blocos */
