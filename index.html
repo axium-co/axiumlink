@@ -814,7 +814,7 @@
     /* ---- Pós-primeira renderização (ax-stabilized) ----
        A classe é adicionada ao <html> pelo JS assim que a primeira
        renderização termina. A partir daí, qual quer bloco recriado
-       (re-polling de 30s, volta de aba, sincronização com o admin)
+       (re-polling de 10s, volta de aba, sincronização com o admin)
        NÃO REPETE a animação de entrada fadeSlideUp — era isso que
        fazia os ícones "piscarem" espontaneamente. Animações
        escolhidas pelo cliente (pulse/shake/shine e variantes
@@ -3688,7 +3688,7 @@
       /* ================================================================
          PASS PREMIUM — recursos novos do painel (cfg._premium = st)
          Tipografia, variantes de botão, animações e fundos especiais.
-         Idempotente: pode rodar a cada refresh de 30s sem duplicar.
+         Idempotente: pode rodar a cada refresh de 10s sem duplicar.
          ================================================================ */
       const st = cfg._premium;
       if (st && typeof st === 'object') {

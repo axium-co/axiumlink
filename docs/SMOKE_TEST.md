@@ -1,5 +1,9 @@
 # 🧪 Plano de Smoke Test — Migração Back4App → Supabase
 
+> **STATUS: migração concluída.** O código está 100% em `@supabase/supabase-js`
+> v2; este plano permanece como roteiro de homologação/regressão. Permissões
+> atuais do banco: ver `SUPABASE_PERMISSIONS.md` na raiz.
+
 > **Projeto Supabase:** `epshnbflnfdsrrqecjgt`
 > **Escopo:** homologação da migração completa do backend (Parse SDK/Back4App → @supabase/supabase-js v2)
 > **Pré-requisitos:** DDL executado (tabela `public.clients` + RLS + RPC), `js/env.js` preenchido, Auth Provider Email com *Confirm email* **OFF** (paridade Parse), query de normalização executada.
@@ -214,7 +218,7 @@ error ? console.log('✅ Proteção ativa:', error.message)
 
 ## Grupo 3 — Página pública `index.html?s=<slug>`
 
-> **Pipeline esperado:** `env.js` → `supabase-init.js` (createClient) → `readConfig()` faz `GET /rest/v1/clients?select=config&slug=eq.<slug>` **sem JWT (anon)** → `applyConfig()` renderiza → polling de 30s + BroadcastChannel ficam ativos.
+> **Pipeline esperado:** `env.js` → `supabase-init.js` (createClient) → `readConfig()` faz `GET /rest/v1/clients?select=config&slug=eq.<slug>` **sem JWT (anon)** → `applyConfig()` renderiza → polling de 10s + BroadcastChannel ficam ativos.
 
 ### Item 3.1 — Leitura anônima por slug funciona
 
@@ -247,7 +251,7 @@ error ? console.error('❌', error)
 
 ---
 
-### Item 3.2 — Edição reflete ao vivo (Broadcast 2s / Polling 30s)
+### Item 3.2 — Edição reflete ao vivo (Broadcast 2s / Polling 10s)
 
 **Passo a passo:**
 1. Deixe a página pública aberta **ao lado** do admin (mesmo browser).
@@ -259,13 +263,13 @@ error ? console.error('❌', error)
 | Janela | Canal | Latência esperada |
 |--------|-------|-------------------|
 | Mesma browser | BroadcastChannel | ≤ ~2s |
-| Anônima (sem canal compartilhado) | Polling `readConfig()` | ≤ 30s |
+| Anônima (sem canal compartilhado) | Polling `readConfig()` | ≤ 10s |
 
 **Se falhar (F12):**
 
 | Sintoma | Diagnóstico | Correção |
 |---------|-------------|----------|
-| Nem em 30s atualiza | Autosave falhando (ver 2.1) ou polling morto | Checar erros `[Axiumlink]` no console do admin |
+| Nem em 10s atualiza | Autosave falhando (ver 2.1) ou polling morto | Checar erros `[Axiumlink]` no console do admin |
 | Atualiza no anônimo mas não na mesma browser | BroadcastChannel bloqueado (raro) | Cosmético — polling cobre; seguir |
 
 ---
@@ -282,7 +286,7 @@ error ? console.error('❌', error)
 | 2.3 | Merge parcial via RPC | `_qa_probe` injetada sem perder chaves vizinhas | ☐ |
 | 2.4 | `user_id` imutável | UPDATE malicioso retorna erro | ☐ |
 | 3.1 | Leitura anônima por slug | Probe ✅ em janela normal E anônima | ☐ |
-| 3.2 | Sync ao vivo | 2s mesmo browser / ≤30s anônimo | ☐ |
+| 3.2 | Sync ao vivo | 2s mesmo browser / ≤10s anônimo | ☐ |
 
 **Critério de liberação:** 9/9 itens aprovados = migração homologada. Qualquer reprova nos itens 2.4 ou 3.1 = bloqueante de segurança, não prosseguir.
 
