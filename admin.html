@@ -389,6 +389,9 @@
   }
   .swatch:hover { transform:scale(1.1); }
   .swatch.active { border-color:var(--ink); transform:scale(1.08); }
+  .swatch.is-transparent {
+    background: repeating-conic-gradient(#e2e8f0 0% 25%, #fff 0% 50%) 0 0/8px 8px !important;
+  }
   /* Botão de remover cor: aparece no hover (desktop) e fica SEMPRE visível em
      telas de toque (sem :hover, impossível remover antes) */
   .swatch .swatch-remove { display:none; }
@@ -504,6 +507,23 @@
   .cp-btn-ok { background:var(--brand); color:#fff; }
   .cp-btn-cancel { background:rgba(255,255,255,.1); color:#94a3b8; }
   .cp-btn:hover { opacity:.85; }
+
+  /* Botão "Invisível" (sentinela 'transparent') + padrão xadrez */
+  .cp-invis {
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    margin-top:10px; width:100%; padding:7px 0; border-radius:8px;
+    border:1.5px dashed rgba(255,255,255,.35); background:rgba(255,255,255,.05);
+    color:#cbd5e1; font-size:12px; font-weight:700; letter-spacing:.06em;
+    cursor:pointer; transition:border .15s, background .15s;
+  }
+  .cp-invis::before {
+    content:''; width:14px; height:14px; border-radius:4px; flex-shrink:0;
+    background: repeating-conic-gradient(#e2e8f0 0% 25%, #fff 0% 50%) 0 0/8px 8px;
+  }
+  .cp-invis:hover, .cp-invis.active { border-color:var(--brand); background:rgba(37,99,235,.18); }
+  .cp-preview.is-transparent, .color-trigger-swatch.is-transparent {
+    background: repeating-conic-gradient(#e2e8f0 0% 25%, #fff 0% 50%) 0 0/8px 8px !important;
+  }
 
   /* Trigger button for native color inputs */
   .color-trigger {
@@ -4309,6 +4329,13 @@
     });
   }
 
+  /* Hex + sufixo de alpha (ex.: '#123456' + 'dd'). No sentinela 'transparent',
+     o sufixo é descartado — 'transparent' já é totalmente sem cor. */
+  function hexAlpha(hex, suffix) {
+    if (isInvisColor(hex)) return 'transparent';
+    return hex + suffix;
+  }
+
   function buildBackgroundCSS(st, t) {
     switch (st.bgVariant) {
       case 'gradient': {
@@ -4320,6 +4347,7 @@
             stops.map(s => {
               const alpha = s.alpha == null ? 100 : s.alpha;
               const hex = s.color || '#6366f1';
+              if (isInvisColor(hex)) return hex + ' ' + (s.pos ?? 0) + '%';
               if (alpha < 100) {
                 const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
                 return 'rgba(' + r + ',' + g + ',' + b + ',' + (alpha/100).toFixed(2) + ') ' + (s.pos ?? 0) + '%';
@@ -4333,10 +4361,10 @@
         return {
           backgroundColor: colors[colors.length - 1],
           backgroundImage: [
-            'radial-gradient(at 15% 15%, ' + colors[0] + 'dd 0px, transparent 55%)',
-            'radial-gradient(at 85% 10%, ' + (colors[1] || colors[0]) + 'cc 0px, transparent 55%)',
-            'radial-gradient(at 10% 85%, ' + (colors[2] || colors[0]) + 'bb 0px, transparent 55%)',
-            'radial-gradient(at 90% 90%, ' + (colors[3] || colors[colors.length - 1]) + 'aa 0px, transparent 55%)'
+            'radial-gradient(at 15% 15%, ' + hexAlpha(colors[0], 'dd') + ' 0px, transparent 55%)',
+            'radial-gradient(at 85% 10%, ' + hexAlpha(colors[1] || colors[0], 'cc') + ' 0px, transparent 55%)',
+            'radial-gradient(at 10% 85%, ' + hexAlpha(colors[2] || colors[0], 'bb') + ' 0px, transparent 55%)',
+            'radial-gradient(at 90% 90%, ' + hexAlpha(colors[3] || colors[colors.length - 1], 'aa') + ' 0px, transparent 55%)'
           ].join(', ')
         };
       }
@@ -4357,8 +4385,8 @@
           backgroundColor: '#0a0a0f',
           color: '#e5e7eb',
           backgroundImage: [
-            'radial-gradient(ellipse at 15% 10%, ' + primary + '26 0%, transparent 55%)',
-            'radial-gradient(ellipse at 85% 90%, ' + secondary + '26 0%, transparent 55%)',
+            'radial-gradient(ellipse at 15% 10%, ' + hexAlpha(primary, '26') + ' 0%, transparent 55%)',
+            'radial-gradient(ellipse at 85% 90%, ' + hexAlpha(secondary, '26') + ' 0%, transparent 55%)',
             'linear-gradient(rgba(255,255,255,' + intensity.toFixed(3) + ') 1px, transparent 1px)',
             'linear-gradient(90deg, rgba(255,255,255,' + intensity.toFixed(3) + ') 1px, transparent 1px)'
           ].join(', '),
@@ -4374,6 +4402,7 @@
             stops.map(s => {
               const alpha = s.alpha == null ? 100 : s.alpha;
               const hex = s.color || '#6366f1';
+              if (isInvisColor(hex)) return hex + ' ' + (s.pos ?? 0) + '%';
               if (alpha < 100) {
                 const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
                 return 'rgba(' + r + ',' + g + ',' + b + ',' + (alpha/100).toFixed(2) + ') ' + (s.pos ?? 0) + '%';
@@ -4672,7 +4701,7 @@
         };
       }
       case 'gradient-soft': {
-        const gBase = (/^#/.test(st.btnBgColor || '')) ? st.btnBgColor : t.btnbg;
+        const gBase = (st.btnBgColor && (/^#/.test(st.btnBgColor) || isInvisColor(st.btnBgColor))) ? st.btnBgColor : t.btnbg;
         return {
           ...base,
           background: 'linear-gradient(140deg, ' + mixHex(gBase, '#ffffff', 0.22) + ', ' + mixHex(gBase, '#000000', 0.16) + ')',
@@ -4757,6 +4786,7 @@
      shadowDepth, highlight, noise }. Todas as propriedades são 100%
      customizáveis; os defaults já entregam um resultado premium. */
   function rgbaCss(hex, alpha) {
+    if (isInvisColor(hex)) return 'transparent';
     const [r, gg, b] = hexToRgb(hex || '#ffffff');
     return 'rgba(' + r + ',' + gg + ',' + b + ',' + (Math.round(alpha * 1000) / 1000) + ')';
   }
@@ -5389,16 +5419,16 @@
     const pf = dp.profile || (dp.profile = {});
     setTriggerColor('avatarBorderColor', pf.borderOn ? (pf.borderColor || '') : '');
     const avLabel = $('avatarBorderColor')?.querySelector('.color-trigger-hex');
-    if (avLabel) avLabel.textContent = pf.borderOn && pf.borderColor ? pf.borderColor.toUpperCase() : 'AUTO';
+    if (avLabel) avLabel.textContent = triggerLabel(pf.borderOn ? pf.borderColor : '');
 
     setTriggerColor('verifiedColor', pf.verifiedColor || '');
     const vLabel = $('verifiedColor')?.querySelector('.color-trigger-hex');
-    if (vLabel) vLabel.textContent = pf.verifiedColor ? pf.verifiedColor.toUpperCase() : 'AUTO';
+    if (vLabel) vLabel.textContent = triggerLabel(pf.verifiedColor);
 
     setTriggerColor('nameColor', profileElem('name').color || '');
     const nameColor = profileElem('name').color || '';
     const nLabel = $('nameColor')?.querySelector('.color-trigger-hex');
-    if (nLabel) nLabel.textContent = nameColor ? nameColor.toUpperCase() : 'AUTO';
+    if (nLabel) nLabel.textContent = triggerLabel(nameColor);
 
     setTriggerColor('nameBg', profileElem('name').bg || '');
     const nmBg = profileElem('name').bg || '';
@@ -5406,23 +5436,23 @@
     if (nmBgEl) {
       const bLabel = nmBgEl.querySelector('.color-trigger-hex');
       setTriggerColor('nameBg', nmBg);
-      if (bLabel) bLabel.textContent = nmBg ? nmBg.toUpperCase() : 'AUTO';
+      if (bLabel) bLabel.textContent = triggerLabel(nmBg);
     }
 
     setTriggerColor('bioColor', (pf.text && pf.text.bio && pf.text.bio.color) || '');
     const bioColor = (pf.text && pf.text.bio && pf.text.bio.color) || '';
     const bioLabel = $('bioColor')?.querySelector('.color-trigger-hex');
-    if (bioLabel) bioLabel.textContent = bioColor ? bioColor.toUpperCase() : 'AUTO';
+    if (bioLabel) bioLabel.textContent = triggerLabel(bioColor);
 
     setTriggerColor('addressBg', (pf.address && pf.address.bg) || '');
     const addressBg = (pf.address && pf.address.bg) || '';
     const abLabel = $('addressBg')?.querySelector('.color-trigger-hex');
-    if (abLabel) abLabel.textContent = addressBg ? addressBg.toUpperCase() : 'AUTO';
+    if (abLabel) abLabel.textContent = triggerLabel(addressBg);
 
     setTriggerColor('addressTextColor', (pf.address && pf.address.color) || '');
     const addressColor = (pf.address && pf.address.color) || '';
     const atLabel = $('addressTextColor')?.querySelector('.color-trigger-hex');
-    if (atLabel) atLabel.textContent = addressColor ? addressColor.toUpperCase() : 'AUTO';
+    if (atLabel) atLabel.textContent = triggerLabel(addressColor);
 
     /* Banner scrim */
     const bn = dp.banner || (dp.banner = {});
@@ -5447,7 +5477,7 @@
       const val = st[id];
       setTriggerColor(id, val || '');
       const label = $(id)?.querySelector('.color-trigger-hex');
-      if (label) label.textContent = val ? val.toUpperCase() : 'AUTO';
+      if (label) label.textContent = triggerLabel(val);
     });
   }
 
@@ -5491,13 +5521,14 @@
       swatch.tabIndex = '0';
       swatch.style.cssText = 'flex:0 0 auto;width:36px;height:32px;padding:4px;cursor:pointer;';
       const swatchInner = document.createElement('div');
-      swatchInner.className = 'color-trigger-swatch';
-      swatchInner.style.background = stop.color;
+      swatchInner.className = 'color-trigger-swatch' + (isInvisColor(stop.color) ? ' is-transparent' : '');
+      swatchInner.style.background = swatchBg(stop.color) || '#000';
       swatch.appendChild(swatchInner);
       swatch.addEventListener('click', () => {
         openColorPicker(swatch, stop.color, (hex) => {
           stop.color = hex;
-          swatchInner.style.background = hex;
+          swatchInner.classList.toggle('is-transparent', isInvisColor(hex));
+          swatchInner.style.background = swatchBg(hex) || '#000';
           syncGradientPreview();
           applyThemeVars();
           markDirty();
@@ -5555,6 +5586,7 @@
       sorted.map(s => {
         const a = s.alpha == null ? 100 : s.alpha;
         const hex = s.color || '#6366f1';
+        if (isInvisColor(hex)) return hex + ' ' + (s.pos ?? 0) + '%';
         if (a < 100) {
           const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b2 = parseInt(hex.slice(5,7),16);
           return 'rgba(' + r + ',' + g + ',' + b2 + ',' + (a/100).toFixed(2) + ') ' + (s.pos ?? 0) + '%';
@@ -5662,7 +5694,8 @@
     (colorsArray || []).forEach((color, idx) => {
       const btn = document.createElement('button');
       btn.className = 'swatch';
-      btn.style.background = color;
+      btn.classList.toggle('is-transparent', isInvisColor(color));
+      btn.style.background = swatchBg(color) || '#000';
       btn.title = 'Cor ' + (idx + 1);
       btn.style.position = 'relative';
       const removeBtn = document.createElement('span');
@@ -5763,6 +5796,7 @@
   }
 
   function mixHex(c1, c2, t) {
+    if (isInvisColor(c1) || isInvisColor(c2)) return 'transparent';
     const a = hexToRgb(c1);
     const b = hexToRgb(c2);
     const rgb = a.map((x, i) => Math.round(x + (b[i] - x) * t));
@@ -5771,9 +5805,11 @@
 
   function openColorPicker(anchor, initialHex, onChange) {
     closeColorPicker();
-    const rgb = hexToRgb(initialHex);
+    const isInvis = isInvisColor(initialHex);
+    const rgb = isInvis ? [17, 24, 39] : hexToRgb(initialHex);
     const [ih, is, iv] = rgbToHsv(rgb[0], rgb[1], rgb[2]);
     let hue = ih, sat = is, val = iv;
+    let inv = isInvis;
     /* Hex "exibido" — prefere corresponder exatamente ao campo digitado
        (o round-trip RGB⇒HSV⇒RGB pode desviar 1/255 no canal). */
     let _lastHex = null;
@@ -5809,9 +5845,16 @@
     const hexInput = document.createElement('input');
     hexInput.className = 'cp-hex-input';
     hexInput.type = 'text';
-    hexInput.maxLength = 7;
+    hexInput.maxLength = 16;
     row.appendChild(preview);
     row.appendChild(hexInput);
+
+    /* Botão Invisível (sentinela 'transparent') */
+    const invisBtn = document.createElement('button');
+    invisBtn.type = 'button';
+    invisBtn.className = 'cp-invis';
+    invisBtn.textContent = 'INVISÍVEL';
+    invisBtn.title = 'Sem cor (transparente)';
 
     /* Quick swatches */
     const swRow = document.createElement('div');
@@ -5833,6 +5876,7 @@
     pop.appendChild(hueEl);
     pop.appendChild(row);
     pop.appendChild(swRow);
+    pop.appendChild(invisBtn);
     pop.appendChild(actions);
     document.body.appendChild(pop);
 
@@ -5857,11 +5901,18 @@
       svCursor.style.top = ((1 - val) * 100) + '%';
       svCursor.style.background = hex;
       hueCursor.style.left = (hue / 360 * 100) + '%';
-      preview.style.background = hex;
-      hexInput.value = hex.toUpperCase();
-      _lastHex = hex;
+      preview.classList.toggle('is-transparent', inv);
+      if (inv) {
+        preview.style.background = '';
+        hexInput.value = 'INVISÍVEL';
+      } else {
+        preview.style.background = hex;
+        hexInput.value = hex.toUpperCase();
+      }
+      _lastHex = inv ? 'transparent' : hex;
+      invisBtn.classList.toggle('active', inv);
       swRow.querySelectorAll('.cp-sw').forEach(sw => {
-        sw.classList.toggle('active', sw.dataset.hex.toUpperCase() === hex.toUpperCase());
+        sw.classList.toggle('active', !inv && sw.dataset.hex.toUpperCase() === hex.toUpperCase());
       });
     }
 
@@ -5871,6 +5922,7 @@
       const t = e.touches ? e.touches[0] : e;
       sat = Math.max(0, Math.min(1, (t.clientX - rect.left) / rect.width));
       val = Math.max(0.01, Math.min(1, 1 - (t.clientY - rect.top) / rect.height));
+      inv = false;
       updateAll();
     }
     function svStart(e) {
@@ -5891,6 +5943,7 @@
       const rect = hueEl.getBoundingClientRect();
       const t = e.touches ? e.touches[0] : e;
       hue = Math.max(0, Math.min(360, ((t.clientX - rect.left) / rect.width) * 360));
+      inv = false;
       updateAll();
     }
     function hueStart(e) {
@@ -5909,10 +5962,16 @@
     /* Hex input */
     hexInput.addEventListener('input', () => {
       let v = hexInput.value.trim();
+      if (v.toLowerCase() === COL_INVIS) {
+        inv = true;
+        updateAll();
+        return;
+      }
       if (!v.startsWith('#')) v = '#' + v;
       if (/^#[0-9a-fA-F]{6}$/.test(v)) {
         const [r, g, b] = hexToRgb(v);
         [hue, sat, val] = rgbToHsv(r, g, b);
+        inv = false;
         updateAll();
         _lastHex = v.toLowerCase();
         hexInput.value = v.toUpperCase();
@@ -5928,20 +5987,31 @@
       s.addEventListener('click', () => {
         const [r, g, b] = hexToRgb(c);
         [hue, sat, val] = rgbToHsv(r, g, b);
+        inv = false;
         updateAll();
       });
       swRow.appendChild(s);
     });
 
+    /* Invisível */
+    invisBtn.addEventListener('click', () => {
+      inv = true;
+      updateAll();
+    });
+
     /* OK / Cancel */
     okBtn.addEventListener('click', () => {
-      /* Aplica o hex exibido (fonte da verdade). Quando o campo não tem
-         hex válido, reconverte HSV→RGB para não aplicar nada quebrado. */
-      if (_lastHex) {
-        onChange(_lastHex);
+      if (inv) {
+        onChange(COL_INVIS);
       } else {
-        const [r, g, b] = hsvToRgb(hue, sat, val);
-        onChange(rgbToHex(r, g, b));
+        /* Aplica o hex exibido (fonte da verdade). Quando o campo não tem
+           hex válido, reconverte HSV→RGB para não aplicar nada quebrado. */
+        if (_lastHex) {
+          onChange(_lastHex);
+        } else {
+          const [r, g, b] = hsvToRgb(hue, sat, val);
+          onChange(rgbToHex(r, g, b));
+        }
       }
       closeColorPicker();
     });
@@ -5965,14 +6035,34 @@
     }
   }
 
+  /* Sentinela "invisível": o literal CSS 'transparent' (truthy, passa em
+     `|| default`, válido para background/color/border). O picker de cor usa o
+     mesmo valor; renderização faz a linha/hex saborear o sentinela. */
+  const COL_INVIS = 'transparent';
+  function isInvisColor(v) { return v === COL_INVIS; }
+
+  /* Label amigável de um color trigger: INVISÍVEL no sentinela, AUTO vazio */
+  function triggerLabel(v) {
+    if (isInvisColor(v)) return 'INVISÍVEL';
+    return v ? String(v).toUpperCase() : 'AUTO';
+  }
+
+  /* Fundo exibido num swatch (xadrez no caso de transparente) */
+  function swatchBg(v) {
+    return (v && !isInvisColor(v)) ? v : '';
+  }
+
   /* Atualiza visual de um .color-trigger (swatch + hex label) */
   function setTriggerColor(id, hex) {
     const el = $(id);
     if (!el) return;
     const swatch = el.querySelector('.color-trigger-swatch');
     const label = el.querySelector('.color-trigger-hex');
-    if (swatch) swatch.style.background = hex || '#000';
-    if (label) label.textContent = (hex || '#000000').toUpperCase();
+    if (swatch) {
+      swatch.classList.toggle('is-transparent', isInvisColor(hex));
+      swatch.style.background = swatchBg(hex) || '#000';
+    }
+    if (label) label.textContent = triggerLabel(hex);
   }
 
   /* Atualiza visibilidade das linhas condicionais */
@@ -6057,7 +6147,7 @@
           cfg.style.activePreset = '';
           setTriggerColor(id, hex);
           const label = el.querySelector('.color-trigger-hex');
-          if (label) label.textContent = hex.toUpperCase();
+          if (label) label.textContent = triggerLabel(hex);
           renderPresets();
           applyThemeVars();
           markDirty();
@@ -6165,8 +6255,8 @@
       colBox.style.marginTop = '8px';
       colBox.innerHTML = '<label>Cor do vidro (tint)</label>' +
         '<div class="color-trigger" id="' + g.prefix + 'GlassColor" role="button" tabindex="0">' +
-        '<div class="color-trigger-swatch" style="background:' + g.color + ';"></div>' +
-        '<span class="color-trigger-hex">' + g.color.toUpperCase() + '</span></div>';
+        '<div class="color-trigger-swatch" style="background:' + (isInvisColor(g.color) ? '' : g.color) + ';"></div>' +
+        '<span class="color-trigger-hex">' + triggerLabel(g.color) + '</span></div>';
       acc.appendChild(colBox);
 
       const mkToggle = (id, label) => {
@@ -6208,7 +6298,7 @@
           elRef().color = hex;
           setTriggerColor(g.prefix + 'GlassColor', hex);
           const tx = $(g.prefix + 'GlassColor') && $(g.prefix + 'GlassColor').querySelector('.color-trigger-hex');
-          if (tx) tx.textContent = hex.toUpperCase();
+          if (tx) tx.textContent = triggerLabel(hex);
           applyThemeVars();
           markDirty();
         });
@@ -6670,7 +6760,7 @@
         const col = t.color || g.color;
         setTriggerColor(g.prefix + 'GlassColor', col);
         const tx = gC.querySelector('.color-trigger-hex');
-        if (tx) tx.textContent = col.toUpperCase();
+        if (tx) tx.textContent = triggerLabel(col);
       }
     });
   }
@@ -6953,7 +7043,7 @@
     _pendingBlockTextColor = ltColor;
     setTriggerColor('blockTextColor', ltColor || '#ffffff');
     const ltLabel = $('blockTextColor')?.querySelector('.color-trigger-hex');
-    if (ltLabel) ltLabel.textContent = ltColor ? ltColor.toUpperCase() : 'AUTO';
+    if (ltLabel) ltLabel.textContent = triggerLabel(ltColor || '');
     /* Espaçamento individual do botão (0 = usar o global) */
     $('blockSpacing').value = (Number(l.spacing) > 0) ? Number(l.spacing) : 0;
     $('blockSpacingVal').textContent = $('blockSpacing').value + 'px';
@@ -7012,10 +7102,10 @@
     const co = ls.colors || { background: '', text: '' };
     setTriggerColor('perBtnBgColor', co.background || '');
     const bgLabel = $('perBtnBgColor')?.querySelector('.color-trigger-hex');
-    if (bgLabel) bgLabel.textContent = co.background ? co.background.toUpperCase() : 'AUTO';
+    if (bgLabel) bgLabel.textContent = triggerLabel(co.background);
     setTriggerColor('perBtnTextColor', co.text || '');
     const txLabel = $('perBtnTextColor')?.querySelector('.color-trigger-hex');
-    if (txLabel) txLabel.textContent = co.text ? co.text.toUpperCase() : 'AUTO';
+    if (txLabel) txLabel.textContent = triggerLabel(co.text);
     updatePerStyleVisibility(ls);
   }
 
@@ -7222,7 +7312,7 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
         _pendingBlockTextColor = hex;
         setTriggerColor('blockTextColor', hex);
         const label = $('blockTextColor')?.querySelector('.color-trigger-hex');
-        if (label) label.textContent = hex.toUpperCase();
+        if (label) label.textContent = triggerLabel(hex);
       });
     });
     safeOn('btnBlockImagePick', 'click', () => $('blockImageInput').click());
@@ -7267,7 +7357,7 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
         perStyle().colors.background = hex;
         setTriggerColor('perBtnBgColor', hex);
         const label = $('perBtnBgColor')?.querySelector('.color-trigger-hex');
-        if (label) label.textContent = hex.toUpperCase();
+        if (label) label.textContent = triggerLabel(hex);
       });
     });
     safeOn('perBtnTextColor', 'click', () => {
@@ -7276,7 +7366,7 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
         perStyle().colors.text = hex;
         setTriggerColor('perBtnTextColor', hex);
         const label = $('perBtnTextColor')?.querySelector('.color-trigger-hex');
-        if (label) label.textContent = hex.toUpperCase();
+        if (label) label.textContent = triggerLabel(hex);
       });
     });
     safeOn('perSetDefault', 'click', () => {
