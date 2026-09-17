@@ -216,14 +216,17 @@
       --avatar-s: min(var(--avatar-s-config), 96px);
       --banner-h: 150px;
 
-      /* Tokens do header (nome, bio e badge de endereço). Valores padrão
+/* Tokens do header (nome, bio e badge de endereço). Valores padrão
          do layout de referência; o Painel sobrescreve por cliente através
          de design.profile.text (estilos inline aplicados nos elementos). */
-      --profile-name-color: light-dark(#dc2626, #f87171);
-      --profile-bio-color: light-dark(#16a34a, #4ade80);
-      --profile-address-bg: rgba(12, 14, 22, 0.82);
-      --profile-address-text: #ffffff;
-      --profile-address-border: rgba(255, 255, 255, 0.16);
+       --profile-name-color: light-dark(#dc2626, #f87171);
+       --profile-bio-color: light-dark(#16a34a, #4ade80);
+       --profile-bio-bg: rgba(12, 14, 22, 0.72);
+       --profile-bio-text: var(--text-body);
+       --profile-bio-border: rgba(255, 255, 255, 0.12);
+       --profile-address-bg: rgba(12, 14, 22, 0.82);
+       --profile-address-text: #ffffff;
+       --profile-address-border: rgba(255, 255, 255, 0.16);
 
       display: flex;
       flex-direction: column;
@@ -439,14 +442,30 @@
     }
 
     .profile__subtitle {
+      display: inline-flex;
+      align-items: center;
       font-size: 0.9375rem;
       line-height: 1.6;
-      color: var(--text-body);
+      color: var(--profile-bio-text, var(--text-body));
       max-width: 42ch;
       width: 100%;
       margin-top: 0;
       margin-bottom: 0;
+      padding: 0.5rem 1rem;
+      border-radius: 999px;
+      background: var(--profile-bio-bg, rgba(12, 14, 22, 0.72));
+      border: 1px solid var(--profile-bio-border, rgba(255, 255, 255, 0.12));
+      -webkit-backdrop-filter: blur(6px);
+      backdrop-filter: blur(6px);
+      box-shadow: var(--shadow-xs);
       overflow-wrap: anywhere;
+      transition: border-color var(--transition), transform var(--transition), box-shadow var(--transition);
+    }
+
+    .profile__subtitle:hover {
+      border-color: color-mix(in srgb, var(--profile-bio-text, var(--text-body)) 30%, transparent);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-sm);
     }
 
     /* Endereço: badge fosco escuro (padrão do layout de referência), com
@@ -3152,7 +3171,7 @@
           if (aCfg.color) addrEl.style.color = aCfg.color;
           chipFor(addrEl, addressGlass, aCfg.padding || [8, 16], aCfg.radius != null ? aCfg.radius : 999, aCfg.bg || '', aCfg.align);
           const addrIconEl = addrEl.querySelector('svg');
-          if (addrIconEl) addrIconEl.style.display = showIcon ? '' : 'none';
+          if (addrIconEl) addrIconEl.style.visibility = showIcon ? 'visible' : 'hidden';
           /* O container (.profile__info) é flex-column align-items:center:
              o eixo horizontal de um item flex rege via align-self, senão
              esquerda/direita não surtem efeito no browser real. */
