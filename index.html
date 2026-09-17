@@ -3191,14 +3191,16 @@
           const aCfg = pElemAddress;
           if (aCfg.color) addrEl.style.color = aCfg.color;
           chipFor(addrEl, addressGlass, aCfg.padding || [8, 16], aCfg.radius != null ? aCfg.radius : 999, aCfg.bg || '', aCfg.align, aCfg.displayStyle);
-          const addrIconEl = addrEl.querySelector('svg');
-          if (addrIconEl) addrIconEl.style.visibility = showIcon ? 'visible' : 'hidden';
           /* O container (.profile__info) é flex-column align-items:center:
              o eixo horizontal de um item flex rege via align-self, senão
              esquerda/direita não surtem efeito no browser real. */
           addrEl.style.alignSelf = aCfg.align === 'left' ? 'flex-start' : aCfg.align === 'right' ? 'flex-end' : 'center';
           addrEl.style.marginLeft = '';
           addrEl.style.marginRight = '';
+          /* Ícone do endereço: visibilidade controlada pelo toggle "Mostrar ícone"
+             (pf.address.showIcon). Roda SEMPRE, mesmo no modo text-only. */
+          const addrIconEl = addrEl.querySelector('svg');
+          if (addrIconEl) addrIconEl.style.display = showIcon ? '' : 'none';
         } else {
           addrEl.style.setProperty('display', 'none', 'important');
         }
