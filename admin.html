@@ -1650,6 +1650,17 @@
           </details>
 
           <details style="margin-top:6px;">
+            <summary style="cursor:pointer;font-size:13px;font-weight:700;color:var(--ink);">Estilo de exibição</summary>
+            <p class="hint" style="margin:6px 0 8px;">Define como o Nome aparece na página.</p>
+            <div class="field" style="margin:10px 0 0;">
+              <label for="nameDisplayStyle">Estilo</label>
+              <select id="nameDisplayStyle" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+                <option value="box">Com caixa (chip com fundo/borda/vidro)</option>
+                <option value="text-only">Somente texto (sem container visual)</option>
+              </select>
+            </div>
+          </details>
+          <details style="margin-top:6px;" id="nameChipSection">
             <summary style="cursor:pointer;font-size:13px;font-weight:700;color:var(--ink);">Chip — fundo, forma e espaçamento</summary>
             <p class="hint" style="margin:6px 0 8px;">Preenchimento quando o Efeito Vidro estiver ativado (ou uma cor de fundo definida).</p>
             <div class="field" style="margin:10px 0 0;">
@@ -1798,6 +1809,18 @@
           </details>
 
           <details style="margin-top:6px;">
+            <summary style="cursor:pointer;font-size:13px;font-weight:700;color:var(--ink);">Estilo de exibição</summary>
+            <p class="hint" style="margin:6px 0 8px;">Define como a Bio aparece na página.</p>
+            <div class="field" style="margin:10px 0 0;">
+              <label for="bioDisplayStyle">Estilo</label>
+              <select id="bioDisplayStyle" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+                <option value="box">Com caixa (chip com fundo/borda/vidro)</option>
+                <option value="text-only">Somente texto (sem container visual)</option>
+              </select>
+            </div>
+          </details>
+
+          <details style="margin-top:6px;" id="bioChipSection">
             <summary style="cursor:pointer;font-size:13px;font-weight:700;color:var(--ink);">Chip — fundo, forma e espaçamento</summary>
             <p class="hint" style="margin:6px 0 8px;">Preenchimento quando o Efeito Vidro estiver ativado (ou uma cor de fundo definida).</p>
             <div class="field" style="margin:10px 0 0;">
@@ -1961,14 +1984,28 @@
             </div>
           </div>
 
-          <span class="elem-section-title">Chip — fundo, forma e espaçamento</span>
-          <div class="field" style="margin:10px 0 0;">
-            <label>Fundo do chip (se vazio, usa o vidro)</label>
-            <div class="color-trigger" id="addressBg" role="button" tabindex="0">
-              <div class="color-trigger-swatch" style="background:#0c0e16;"></div>
-              <span class="color-trigger-hex">AUTO</span>
+          <details style="margin-top:6px;">
+            <summary style="cursor:pointer;font-size:13px;font-weight:700;color:var(--ink);">Estilo de exibição</summary>
+            <p class="hint" style="margin:6px 0 8px;">Define como o Endereço aparece na página.</p>
+            <div class="field" style="margin:10px 0 0;">
+              <label for="addressDisplayStyle">Estilo</label>
+              <select id="addressDisplayStyle" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+                <option value="box">Com caixa (chip com fundo/borda/vidro)</option>
+                <option value="text-only">Somente texto (sem container visual)</option>
+              </select>
             </div>
-          </div>
+          </details>
+
+          <details style="margin-top:6px;" id="addressChipSection">
+            <summary style="cursor:pointer;font-size:13px;font-weight:700;color:var(--ink);">Chip — fundo, forma e espaçamento</summary>
+            <p class="hint" style="margin:6px 0 8px;">Preenchimento quando o Efeito Vidro estiver ativado (ou uma cor de fundo definida).</p>
+            <div class="field" style="margin:10px 0 0;">
+              <label>Fundo do chip (se vazio, usa o vidro)</label>
+              <div class="color-trigger" id="addressBg" role="button" tabindex="0">
+                <div class="color-trigger-swatch" style="background:#0c0e16;"></div>
+                <span class="color-trigger-hex">AUTO</span>
+              </div>
+            </div>
           <div class="ds-control">
             <label>Formato (border-radius)</label>
             <div class="ds-control-row">
@@ -2138,8 +2175,8 @@
                <input type="range" id="avatarOrder" min="0" max="10" step="1">
                <output class="ds-value" id="avatarOrderVal">0</output>
              </div>
-           </div>
-           </div>
+</div>
+          </details>
         </details>
         </div>
       </section>
@@ -2924,18 +2961,31 @@
         <summary style="cursor:pointer; font-size:13px; font-weight:700; color:var(--ink); user-select:none;">🎨 Estilo individual deste botão</summary>
         <div id="perStyleBody" style="margin-top:10px;">
 
-          <div class="field">
-            <label>Variante</label>
-            <select id="perBtnVariant" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
-              <option value="solid">Sólido (Tema)</option>
-              <option value="glass">Vidro (Glassmorphism)</option>
-              <option value="neumorphic">Neumórfico (Soft UI)</option>
-              <option value="ghost">Minimalista Vazado (Ghost)</option>
-              <option value="gradient-soft">Gradiente Suave (automático)</option>
-              <option value="gradient">Gradiente Personalizado</option>
-              <option value="neon">Glow Neon</option>
-            </select>
-          </div>
+          <details style="margin-bottom:8px;">
+            <summary style="cursor:pointer;font-size:13px;font-weight:700;color:var(--ink);">Estilo de exibição</summary>
+            <p class="hint" style="margin:6px 0 8px;">Define como este botão aparece na página.</p>
+            <div class="field" style="margin:10px 0 0;">
+              <label for="perBtnDisplayStyle">Estilo</label>
+              <select id="perBtnDisplayStyle" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+                <option value="box">Com caixa (botão com fundo/borda/vidro)</option>
+                <option value="text-only">Somente texto (link puro, sem container)</option>
+              </select>
+            </div>
+          </details>
+
+          <div id="perBtnBoxControls">
+            <div class="field">
+              <label>Variante</label>
+              <select id="perBtnVariant" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+                <option value="solid">Sólido (Tema)</option>
+                <option value="glass">Vidro (Glassmorphism)</option>
+                <option value="neumorphic">Neumórfico (Soft UI)</option>
+                <option value="ghost">Minimalista Vazado (Ghost)</option>
+                <option value="gradient-soft">Gradiente Suave (automático)</option>
+                <option value="gradient">Gradiente Personalizado</option>
+                <option value="neon">Glow Neon</option>
+              </select>
+            </div>
           <div class="field" id="perGlowColorRow" style="display:none;">
             <label>Cor do Glow Neon</label>
             <div class="color-trigger" id="perBtnGlowColor" role="button" tabindex="0"><div class="color-trigger-swatch"></div><span class="color-trigger-hex">#22D3EE</span></div>
@@ -3043,9 +3093,10 @@
               <div class="ds-control-row">
                 <input type="range" id="perButtonGlassBorderOpacity" min="0" max="100" step="1">
                 <output class="ds-value" id="perButtonGlassBorderOpacityVal">25%</output>
-              </div>
-            </div>
-          </div>
+</div>
+        </div>
+        <div id="perBtnBoxControls" style="display:block;">
+
           <div class="field">
             <label>Cores do Botão</label>
 <div class="color-grid-2" style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
@@ -3519,7 +3570,8 @@
     glow: '#22d3ee',
     gradient: { start: '#6366f1', end: '#ec4899', angle: 135 },
     glass: { enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: 25 },
-    colors: { background: '', text: '' }
+    colors: { background: '', text: '' },
+    displayStyle: 'box'
   });
 
   function flatToLinkStyle(globalSt) {
@@ -5204,9 +5256,9 @@
      (com migração única dos campos compartilhados antigos) e devolve a ref.
      O vidro do Nome fica em cfg.style.nameGlass (separado do textGlass da Bio). */
   const ELEM_DEFAULTS = {
-    name:    { font: '', size: 20, weight: 700, ls: 0, lh: 1.4, color: '', align: 'center', bg: '', radius: 10, padding: [4, 14], spacing: 0, order: 1 },
-    bio:     { font: '', size: 14, weight: 400, ls: 0, lh: 1.4, color: '', align: 'center', bg: '', radius: 10, padding: [4, 14], spacing: 0, order: 2 },
-    address: { font: '', size: 12, weight: 600, ls: 0, lh: 1.4, color: '', align: 'center', bg: '', radius: 999, padding: [8, 16], spacing: 0, order: 3 },
+    name:    { font: '', size: 20, weight: 700, ls: 0, lh: 1.4, color: '', align: 'center', bg: '', radius: 10, padding: [4, 14], spacing: 0, order: 1, displayStyle: 'box' },
+    bio:     { font: '', size: 14, weight: 400, ls: 0, lh: 1.4, color: '', align: 'center', bg: '', radius: 10, padding: [4, 14], spacing: 0, order: 2, displayStyle: 'box' },
+    address: { font: '', size: 12, weight: 600, ls: 0, lh: 1.4, color: '', align: 'center', bg: '', radius: 999, padding: [8, 16], spacing: 0, order: 3, displayStyle: 'box' },
     avatar:  { size: 96, shape: 'circle', radius: 999, borderStyle: 'solid', borderWidth: 4, borderColor: '#ffffff', shadowOn: true, shadowX: 0, shadowY: 12, shadowBlur: 24, shadowSpread: -10, shadowColor: '#000000', shadowAlpha: 50, glowOn: false, glowColor: '', glowIntensity: 35, spacing: 0, order: 0 }
   };
   function profileElem(key) {
@@ -6986,6 +7038,7 @@
     bindRange('namePadH', 'namePadHVal', (v) => v + 'px', (v) => { const nm = profileElem('name'); nm.padding = nm.padding || [4, 14]; nm.padding[1] = v; applyThemeVars(); });
     bindRange('nameSpace', 'nameSpaceVal', (v) => v + 'px', (v) => { profileElem('name').spacing = v; renderPreview(); });
     bindRange('nameOrder', 'nameOrderVal', (v) => String(v), (v) => { profileElem('name').order = v; renderPreview(); });
+    safeOn('nameDisplayStyle', 'change', (e) => { profileElem('name').displayStyle = e.target.value; updateNameChipVisibility(); renderPreview(); markDirty(); });
 
     /* Controles completos do elemento Bio — gravam em elem.bio (INDEPENDENTE) */
     safeOn('bioFont', 'change', (e) => { profileElem('bio').font = e.target.value; applyThemeVars(); markDirty(); });
@@ -7023,6 +7076,7 @@
     bindRange('bioPadH', 'bioPadHVal', (v) => v + 'px', (v) => { const bm = profileElem('bio'); bm.padding = bm.padding || [4, 14]; bm.padding[1] = v; applyThemeVars(); });
     bindRange('bioSpace', 'bioSpaceVal', (v) => v + 'px', (v) => { profileElem('bio').spacing = v; renderPreview(); });
     bindRange('bioOrder', 'bioOrderVal', (v) => String(v), (v) => { profileElem('bio').order = v; renderPreview(); });
+    safeOn('bioDisplayStyle', 'change', (e) => { profileElem('bio').displayStyle = e.target.value; updateBioChipVisibility(); renderPreview(); markDirty(); });
 
     safeOn('addressShow', 'change', (e) => {
       const pf = profileDesignRef();
@@ -7073,6 +7127,7 @@
     bindRange('addressPadH', 'addressPadHVal', (v) => v + 'px', (v) => { const am = profileElem('address'); am.padding = am.padding || [8, 16]; am.padding[1] = v; applyThemeVars(); });
     bindRange('addressSpace', 'addressSpaceVal', (v) => v + 'px', (v) => { profileElem('address').spacing = v; renderPreview(); });
     bindRange('addressOrder', 'addressOrderVal', (v) => String(v), (v) => { profileElem('address').order = v; renderPreview(); });
+    safeOn('addressDisplayStyle', 'change', (e) => { profileElem('address').displayStyle = e.target.value; updateAddressChipVisibility(); renderPreview(); markDirty(); });
 
     safeOn('bannerScrim', 'change', (e) => {
       const dp = cfg.design || (cfg.design = {});
@@ -7222,6 +7277,8 @@
     if ($('namePadH')) setRange('namePadH', (nmR.padding && nmR.padding[1]) != null ? nmR.padding[1] : 14);
     if ($('nameSpace')) setRange('nameSpace', nmR.spacing);
     if ($('nameOrder')) setRange('nameOrder', nmR.order ?? 1);
+    if ($('nameDisplayStyle')) $('nameDisplayStyle').value = nmR.displayStyle || 'box';
+    updateNameChipVisibility();
     /* Reflete os controles do elemento Bio (elem.bio) */
     const bmR = profileElem('bio');
     if ($('bioFont')) $('bioFont').value = bmR.font || '';
@@ -7237,6 +7294,8 @@
     if ($('bioPadH')) setRange('bioPadH', (bmR.padding && bmR.padding[1]) != null ? bmR.padding[1] : 14);
     if ($('bioSpace')) setRange('bioSpace', bmR.spacing);
     if ($('bioOrder')) setRange('bioOrder', bmR.order ?? 2);
+    if ($('bioDisplayStyle')) $('bioDisplayStyle').value = bmR.displayStyle || 'box';
+    updateBioChipVisibility();
     const addrShowEl = $('addressShow');
     if (addrShowEl) addrShowEl.checked = pf.addrShow !== false;
     const addrIconEl = $('addressIcon');
@@ -7256,7 +7315,33 @@
     if ($('addressPadH')) setRange('addressPadH', (amR.padding && amR.padding[1]) != null ? amR.padding[1] : 16);
     if ($('addressSpace')) setRange('addressSpace', amR.spacing);
     if ($('addressOrder')) setRange('addressOrder', amR.order ?? 3);
+    if ($('addressDisplayStyle')) $('addressDisplayStyle').value = amR.displayStyle || 'box';
+    updateAddressChipVisibility();
     renderDesignTriggers();
+  }
+
+  function updateNameChipVisibility() {
+    const style = profileElem('name').displayStyle || 'box';
+    const chipSection = $('nameChipSection');
+    const glassBlock = $('nameGlassBlock');
+    if (chipSection) chipSection.style.display = style === 'text-only' ? 'none' : '';
+    if (glassBlock) glassBlock.style.display = style === 'text-only' ? 'none' : '';
+  }
+
+  function updateBioChipVisibility() {
+    const style = profileElem('bio').displayStyle || 'box';
+    const chipSection = $('bioChipSection');
+    const glassBlock = $('bioGlassBlock');
+    if (chipSection) chipSection.style.display = style === 'text-only' ? 'none' : '';
+    if (glassBlock) glassBlock.style.display = style === 'text-only' ? 'none' : '';
+  }
+
+  function updateAddressChipVisibility() {
+    const style = profileElem('address').displayStyle || 'box';
+    const chipSection = $('addressChipSection');
+    const glassBlock = $('addressGlassBlock');
+    if (chipSection) chipSection.style.display = style === 'text-only' ? 'none' : '';
+    if (glassBlock) glassBlock.style.display = style === 'text-only' ? 'none' : '';
   }
 
   function bindRange(id, outId, fmt, onChange) {
@@ -7498,7 +7583,15 @@
     setTriggerColor('perBtnTextColor', co.text || '');
     const txLabel = $('perBtnTextColor')?.querySelector('.color-trigger-hex');
     if (txLabel) txLabel.textContent = triggerLabel(co.text);
+    if ($('perBtnDisplayStyle')) $('perBtnDisplayStyle').value = ls.displayStyle || 'box';
+    updatePerBtnBoxVisibility(ls);
     updatePerStyleVisibility(ls);
+  }
+
+  function updatePerBtnBoxVisibility(ls) {
+    const isTextOnly = (ls.displayStyle || 'box') === 'text-only';
+    const boxControls = $('perBtnBoxControls');
+    if (boxControls) boxControls.style.display = isTextOnly ? 'none' : 'block';
   }
 
   function updatePerStyleVisibility(ls) {
@@ -7523,6 +7616,7 @@
     gl.opacity = Number($('perButtonGlassOpacity').value) || 16;
     gl.borderOpacity = Number($('perButtonGlassBorderOpacity').value) || 25;
     ls.glass = gl;
+    if ($('perBtnDisplayStyle')) ls.displayStyle = $('perBtnDisplayStyle').value || 'box';
     _pendingBlockStyle = ls;
     return ls;
   }
@@ -7760,6 +7854,7 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
     safeOn('perButtonGlassBlur', 'input', (e) => { const v = Number(e.target.value); const o = $('perButtonGlassBlurVal'); if (o) o.textContent = v + 'px'; perStyle().glass.blur = v; });
     safeOn('perButtonGlassOpacity', 'input', (e) => { const v = Number(e.target.value); const o = $('perButtonGlassOpacityVal'); if (o) o.textContent = v + '%'; perStyle().glass.opacity = v; });
     safeOn('perButtonGlassBorderOpacity', 'input', (e) => { const v = Number(e.target.value); const o = $('perButtonGlassBorderOpacityVal'); if (o) o.textContent = v + '%'; perStyle().glass.borderOpacity = v; });
+    safeOn('perBtnDisplayStyle', 'change', (e) => { perStyle().displayStyle = e.target.value; updatePerBtnBoxVisibility(_pendingBlockStyle); });
     safeOn('perBtnGlowColor', 'click', () => {
       const cur = _pendingBlockStyle?.glow || '#22d3ee';
       openColorPicker($('perBtnGlowColor'), cur, (hex) => {

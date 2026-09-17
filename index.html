@@ -2225,7 +2225,8 @@
           glow: '#22d3ee',
           gradient: { start: '#6366f1', end: '#ec4899', angle: 135 },
           glass: { enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: 25 },
-          colors: { background: '', text: '' }
+          colors: { background: '', text: '' },
+          displayStyle: 'box'
         };
       }
 
@@ -2281,7 +2282,8 @@
           btnGlassBorderOpacity: gl.borderOpacity,
           btnBgColor: pick(co.background, ''),
           btnTextColor: pick(co.text, ''),
-          buttonGlass: { enabled: gl.enabled, blur: gl.blur, saturate: gl.saturate, opacity: gl.opacity, color: gl.color, borderGlow: gl.borderGlow, shadowDepth: gl.shadowDepth, highlight: gl.highlight, noise: gl.noise, borderOpacity: gl.borderOpacity }
+          buttonGlass: { enabled: gl.enabled, blur: gl.blur, saturate: gl.saturate, opacity: gl.opacity, color: gl.color, borderGlow: gl.borderGlow, shadowDepth: gl.shadowDepth, highlight: gl.highlight, noise: gl.noise, borderOpacity: gl.borderOpacity },
+          displayStyle: s.displayStyle || 'box'
         };
       }
 
@@ -3077,7 +3079,7 @@
           lh: tn.lh != null ? tn.lh : (s2.lineHeight != null ? s2.lineHeight : 1.4),
           color: tname.color || '',
           align: tname.align || 'center',
-          bg: '', radius: 10, padding: [4, 14]
+          bg: '', radius: 10, padding: [4, 14], displayStyle: 'box'
         });
       })();
       const pElemBio = (() => {
@@ -3094,7 +3096,7 @@
           lh: tb.lh != null ? tb.lh : 1.4,
           color: tbio.color || '',
           align: tbio.align || 'center',
-          bg: '', radius: 10, padding: [4, 14]
+          bg: '', radius: 10, padding: [4, 14], displayStyle: 'box'
         });
       })();
       const pElemAddress = (() => {
@@ -3112,15 +3114,34 @@
           align: taddr.align || 'center',
           bg: astyle.bg || 'rgba(12,14,22,.82)',
           radius: taddr.blockRadius != null ? (parseInt(String(taddr.blockRadius), 10) || 999) : (astyle.style === 'plain' ? 8 : 999),
-          padding: [8, 16]
+          padding: [8, 16], displayStyle: 'box'
         });
       })();
       const mkGlass = (cfg2, a, b) => Object.assign({}, neoGlass, (cfg2[a] || cfg2[b] || {}));
       const nameGlass = mkGlass((cfg.style || {}), 'nameGlass', 'textGlass');
       const bioGlass = mkGlass((cfg.style || {}), 'bioGlass', 'textGlass');
       const addressGlass = mkGlass((cfg.style || {}), 'addressGlass', null);
-      const chipFor = (el, g, pad, radius, solidBg, align) => {
+      const chipFor = (el, g, pad, radius, solidBg, align, displayStyle) => {
         if (!el) return;
+        /* Modo "Somente texto": remove todo container visual (fundo, borda, sombra, vidro, padding, radius)
+           mas mantém o espaçamento (margin-bottom) e alinhamento horizontal. */
+        if (displayStyle === 'text-only') {
+          const M = el.style;
+          M.removeProperty('display');
+          M.removeProperty('width');
+          M.removeProperty('marginLeft');
+          M.removeProperty('marginRight');
+          M.removeProperty('padding');
+          M.removeProperty('borderRadius');
+          M.removeProperty('background');
+          M.removeProperty('backgroundImage');
+          M.removeProperty('boxShadow');
+          M.removeProperty('backdropFilter');
+          M.removeProperty('webkitBackdropFilter');
+          M.removeProperty('border');
+          el.classList.remove('gx-panel', 'gx-highlight', 'gx-noise');
+          return;
+        }
         const M = el.style;
         if (g.enabled || solidBg) {
           /* display block (NÃO inline-block): margin auto só centraliza
@@ -3146,8 +3167,8 @@
         else if (solidBg) { M.background = solidBg; M.backgroundImage = 'none'; }
         else { M.removeProperty('background'); M.removeProperty('backgroundImage'); }
       };
-      chipFor(document.getElementById('pgTitle'), nameGlass, pElemName.padding || [4, 14], pElemName.radius != null ? pElemName.radius : 10, pElemName.bg || '', pElemName.align);
-      chipFor(document.getElementById('pgSubtitle'), bioGlass, pElemBio.padding || [4, 14], pElemBio.radius != null ? pElemBio.radius : 10, pElemBio.bg || '', pElemBio.align);
+      chipFor(document.getElementById('pgTitle'), nameGlass, pElemName.padding || [4, 14], pElemName.radius != null ? pElemName.radius : 10, pElemName.bg || '', pElemName.align, pElemName.displayStyle);
+      chipFor(document.getElementById('pgSubtitle'), bioGlass, pElemBio.padding || [4, 14], pElemBio.radius != null ? pElemBio.radius : 10, pElemBio.bg || '', pElemBio.align, pElemBio.displayStyle);
 
       /* Estilos do bloco endereço — some quando o perfil não tem endereço
          (nunca exibe o placeholder hardcoded do HTML). Quando exibido,
@@ -3169,7 +3190,7 @@
           addrEl.style.removeProperty('display');
           const aCfg = pElemAddress;
           if (aCfg.color) addrEl.style.color = aCfg.color;
-          chipFor(addrEl, addressGlass, aCfg.padding || [8, 16], aCfg.radius != null ? aCfg.radius : 999, aCfg.bg || '', aCfg.align);
+          chipFor(addrEl, addressGlass, aCfg.padding || [8, 16], aCfg.radius != null ? aCfg.radius : 999, aCfg.bg || '', aCfg.align, aCfg.displayStyle);
           const addrIconEl = addrEl.querySelector('svg');
           if (addrIconEl) addrIconEl.style.visibility = showIcon ? 'visible' : 'hidden';
           /* O container (.profile__info) é flex-column align-items:center:
@@ -3314,6 +3335,26 @@
          Limpa TODOS os estilos inline individuais antes de reaplicar —
          garante que valores vazios/'global' retornem ao CSS padrão. */
       function aplicarEstiloIndividual(btn, dados) {
+        /* Modo "Somente texto": remove todo container visual do botão/link
+           mas mantém o elemento clicável (href funciona). */
+        if (dados.style && dados.style.displayStyle === 'text-only') {
+          const M = btn.style;
+          M.removeProperty('background');
+          M.removeProperty('color');
+          M.removeProperty('border');
+          M.removeProperty('borderRadius');
+          M.removeProperty('boxShadow');
+          M.removeProperty('backdropFilter');
+          M.removeProperty('WebkitBackdropFilter');
+          M.removeProperty('textShadow');
+          M.removeProperty('borderWidth');
+          M.removeProperty('borderStyle');
+          M.removeProperty('borderColor');
+          M.removeProperty('padding');
+          btn.classList.remove('gx-panel', 'gx-highlight', 'gx-noise');
+          btn.style.cursor = 'pointer';
+          return;
+        }
         /* Limpa estilos inline anteriores */
         btn.style.removeProperty('--btn-bg');
         btn.style.removeProperty('--btn-color');
@@ -4139,6 +4180,29 @@
           const linkData = (!Number.isNaN(li) && Array.isArray(linkList)) ? linkList[li] : null;
           const flat = axLinkStyleToFlat(linkData && linkData.style ? linkData.style : null, st);
           const merged = Object.assign({}, st, flat);
+          
+          /* Modo "Somente texto": remove todo container visual do botão/link
+             mas mantém o elemento clicável (href funciona). */
+          if (linkData && linkData.style && linkData.style.displayStyle === 'text-only') {
+            const M = el.style;
+            M.removeProperty('background');
+            M.removeProperty('color');
+            M.removeProperty('border');
+            M.removeProperty('borderRadius');
+            M.removeProperty('boxShadow');
+            M.removeProperty('backdropFilter');
+            M.removeProperty('WebkitBackdropFilter');
+            M.removeProperty('textShadow');
+            M.removeProperty('borderWidth');
+            M.removeProperty('borderStyle');
+            M.removeProperty('borderColor');
+            M.removeProperty('padding');
+            el.classList.remove('gx-panel', 'gx-highlight', 'gx-noise', ...ANIMS);
+            // Garante que o link continue clicável
+            el.style.cursor = 'pointer';
+            return;
+          }
+          
           const lBtnBg  = merged.btnBgColor || thBtnbg;
           const lBtnInk = merged.btnTextColor || thBtnink;
           const lInk    = st.pageTextColor || thInk;
