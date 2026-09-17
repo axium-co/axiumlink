@@ -5903,13 +5903,13 @@
       swatch.style.cssText = 'flex:0 0 auto;width:36px;height:32px;padding:4px;cursor:pointer;';
       const swatchInner = document.createElement('div');
       swatchInner.className = 'color-trigger-swatch' + (isInvisColor(stop.color) ? ' is-transparent' : '');
-      swatchInner.style.background = swatchBg(stop.color) || '#000';
+      swatchInner.style.background = swatchBg(stop.color);
       swatch.appendChild(swatchInner);
       swatch.addEventListener('click', () => {
         openColorPicker(swatch, stop.color, (hex) => {
           stop.color = hex;
           swatchInner.classList.toggle('is-transparent', isInvisColor(hex));
-          swatchInner.style.background = swatchBg(hex) || '#000';
+          swatchInner.style.background = swatchBg(hex);
           syncGradientPreview();
           applyThemeVars();
           markDirty();
@@ -6076,7 +6076,7 @@
       const btn = document.createElement('button');
       btn.className = 'swatch';
       btn.classList.toggle('is-transparent', isInvisColor(color));
-      btn.style.background = swatchBg(color) || '#000';
+      btn.style.background = swatchBg(color);
       btn.title = 'Cor ' + (idx + 1);
       btn.style.position = 'relative';
       const removeBtn = document.createElement('span');
@@ -6187,7 +6187,9 @@
   function openColorPicker(anchor, initialHex, onChange) {
     closeColorPicker();
     const isInvis = isInvisColor(initialHex);
-    const rgb = isInvis ? [17, 24, 39] : hexToRgb(initialHex);
+    /* Neutro (cinza 50%) para o modo invisível — evita mostrar cor aleatória
+       no painel SV/Hue enquanto o usuário não escolhe uma cor. */
+    const rgb = isInvis ? [128, 128, 128] : hexToRgb(initialHex);
     const [ih, is, iv] = rgbToHsv(rgb[0], rgb[1], rgb[2]);
     let hue = ih, sat = is, val = iv;
     let inv = isInvis;
@@ -6343,7 +6345,8 @@
     /* Hex input */
     hexInput.addEventListener('input', () => {
       let v = hexInput.value.trim();
-      if (v.toLowerCase() === COL_INVIS) {
+      const vLower = v.toLowerCase();
+      if (vLower === COL_INVIS || vLower === 'invisível' || vLower === 'invisivel') {
         inv = true;
         updateAll();
         return;
@@ -6441,7 +6444,7 @@
     const label = el.querySelector('.color-trigger-hex');
     if (swatch) {
       swatch.classList.toggle('is-transparent', isInvisColor(hex));
-      swatch.style.background = swatchBg(hex) || '#000';
+      swatch.style.background = swatchBg(hex);
     }
     if (label) label.textContent = triggerLabel(hex);
   }
