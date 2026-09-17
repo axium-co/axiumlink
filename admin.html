@@ -732,7 +732,7 @@
     display:flex; align-items:center; justify-content:center; text-decoration:none;
     color:inherit; font-size:15px; box-shadow:0 2px 8px rgba(0,0,0,.08);
   }
-  .pv-banner { width:100%; aspect-ratio:3/1; overflow:hidden; position:relative; }
+  .pv-banner { width:100%; height:var(--pv-banner-height, 180px); overflow:hidden; position:relative; }
   .pv-banner img { width:100%; height:100%; object-fit:cover; display:block; }
   .pv-banner.no-banner { display:none; }
   .pv-avatar-wrap {
@@ -2617,6 +2617,15 @@
             <output class="ds-value" id="blockGapVal">10px</output>
           </div>
         </div>
+
+        <div class="ds-control">
+          <label>Tamanho dos ícones sociais</label>
+          <p class="hint" style="margin:-2px 0 8px;">Tamanho dos ícones circulares (modo grade/carrossel). Aplica no mockup e no link público.</p>
+          <div class="ds-control-row">
+            <input type="range" id="socialIconSize" min="24" max="80" step="4" value="52">
+            <output class="ds-value" id="socialIconSizeVal">52px</output>
+          </div>
+        </div>
         </div>
       </section>
 
@@ -2668,6 +2677,14 @@
           </div>
         </div>
 
+        <div class="ds-control" style="margin-top:12px; padding-top:12px; border-top:1px solid var(--bg);">
+          <label>Altura do Banner</label>
+          <p class="hint" style="margin:-2px 0 8px;">Altura fixa do banner (em pixels). Mesma altura no mockup e no link público.</p>
+          <div class="ds-control-row">
+            <input type="range" id="bannerHeight" min="100" max="400" step="10" value="180">
+            <output class="ds-value" id="bannerHeightVal">180px</output>
+          </div>
+        </div>
         <div class="ds-control" style="margin-top:12px; padding-top:12px; border-top:1px solid var(--bg);">
           <label>Espaçamento abaixo do Banner</label>
           <p class="hint" style="margin:-2px 0 8px;">Distância entre o Banner e o Avatar/Nome. 0 = manter o padrão atual.</p>
@@ -5776,10 +5793,23 @@
       } else if (bn.scrim === 'light') {
         scrim.hidden = false;
         scrim.style.background = 'rgba(255,255,255,' + ((bn.scrimOpacity == null ? 45 : bn.scrimOpacity) / 100) + ')';
-      } else {
+} else {
         scrim.hidden = true;
         scrim.style.background = '';
       }
+    }
+
+    /* Altura fixa do banner no mockup — usa CSS variable para consistência com CSS */
+    const pvBanner = $('pvBanner');
+    if (pvBanner && cfg.banner) {
+      const bnHeight = (dp.banner && dp.banner.height) ? dp.banner.height : 180;
+      pvBanner.style.setProperty('--pv-banner-height', bnHeight + 'px');
+      pvBanner.style.height = '';
+      pvBanner.style.aspectRatio = '';
+    } else if (pvBanner) {
+      pvBanner.style.removeProperty('--pv-banner-height');
+      pvBanner.style.height = '';
+      pvBanner.style.aspectRatio = '';
     }
 
     /* Reordena elementos do perfil com base no campo 'order' */
@@ -5892,6 +5922,7 @@
     const scrimEl = $('bannerScrim');
     if (scrimEl) scrimEl.checked = bn.scrim === 'dark';
     if ($('bannerScrimOpacity')) setRange('bannerScrimOpacity', bn.scrimOpacity == null ? 45 : bn.scrimOpacity);
+    if ($('bannerHeight')) setRange('bannerHeight', bn.height == null ? 180 : bn.height);
     if ($('bannerSpace')) setRange('bannerSpace', bn.spacing);
   }
 
@@ -6837,6 +6868,15 @@
       renderPreview();
       markDirty();
     });
+    safeOn('socialIconSize', 'input', (e) => {
+      const v = Number(e.target.value);
+      if (!cfg.style) cfg.style = {};
+      cfg.style.socialIconSize = v;
+      $('socialIconSizeVal').textContent = v + 'px';
+      applyThemeVars();
+      renderPreview();
+      markDirty();
+    });
     const BLOCK_CFG = [
       { key: 'typoBtn',  prefix: 'typoBtn'  }
     ];
@@ -7140,6 +7180,12 @@
       const dp = cfg.design || (cfg.design = {});
       dp.banner = dp.banner || {};
       dp.banner.scrimOpacity = v;
+      renderPreview();
+    });
+    bindRange('bannerHeight', 'bannerHeightVal', (v) => v + 'px', (v) => {
+      const dp = cfg.design || (cfg.design = {});
+      dp.banner = dp.banner || {};
+      dp.banner.height = v;
       renderPreview();
     });
     bindRange('bannerSpace', 'bannerSpaceVal', (v) => v + 'px', (v) => {
