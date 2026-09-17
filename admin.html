@@ -784,9 +784,11 @@
   }
   .pv-verified {
     display:inline-flex; align-items:center; justify-content:center;
-    width:20px; height:20px; border-radius:999px; flex-shrink:0;
-    background:#6366f1; color:#fff; font-size:11px; font-weight:800; line-height:1;
-    margin-top:12px;
+    width:22px; height:22px; border-radius:999px; flex-shrink:0;
+    background:#0095f6; color:#fff; vertical-align:middle;
+  }
+  .pv-verified svg {
+    width:14px; height:14px; flex-shrink:0;
   }
   .pv-verified[hidden] { display:none; }
   .pv-address {
@@ -804,6 +806,7 @@
     color:#fff; background:linear-gradient(135deg,#16a34a,#15803d);
     box-shadow:0 3px 10px rgba(22,163,74,.35);
   }
+  .pv-pix__ico { font-size:14px; line-height:1; flex-shrink:0; }
   .pv-pix[hidden] { display:none; }
   .pv-banner-scrim { position:absolute; inset:0; z-index:2; pointer-events:none; }
   .pv-banner-scrim[hidden] { display:none; }
@@ -954,7 +957,7 @@
   }
   .gx-noise::after {
     content:''; position:absolute; inset:0; border-radius:inherit;
-    pointer-events:none; z-index:-1; opacity:0.035;
+    pointer-events:none; opacity:0.035;
     background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/><feColorMatrix type='saturate' values='0'/></filter><rect width='120' height='120' filter='url(%23n)'/></svg>");
   }
 
@@ -1224,6 +1227,134 @@
     object-position: center;
     border: none;
   }
+
+  /* ================================================================
+     MODAL PIX (admin preview)
+     ================================================================ */
+  .pix-modal {
+    position: relative;
+    width: calc(100% - 2.5rem - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px));
+    max-width: 360px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--card, #fff);
+    color: var(--ink, #111827);
+    padding: 1.75rem 1.5rem;
+    margin: auto;
+    box-shadow: 0 25px 60px rgba(0,0,0,.3);
+  }
+
+  .pix-modal::backdrop {
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
+  }
+
+  .pix-modal[open] { animation: modal-in 0.2s ease; }
+
+  @keyframes modal-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .pix-modal__title {
+    font-size: 1.25rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    margin-bottom: 0.25rem;
+  }
+
+  .pix-modal__text {
+    font-size: 0.8125rem;
+    color: var(--muted, #6b7280);
+    margin-bottom: 1rem;
+  }
+
+  .pix-modal__key {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    background: var(--card, #fff);
+    color: var(--ink, #111827);
+    border: 1px solid var(--border, #e5e7eb);
+    border-radius: 10px;
+    padding: 0.75rem 0.875rem;
+    font-size: 0.8125rem;
+    word-break: break-all;
+    margin-bottom: 0.875rem;
+  }
+
+  .pix-modal__copy {
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--card, #fff);
+    background: var(--ink, #111827);
+    border-radius: 8px;
+    padding: 0.375rem 0.625rem;
+    transition: filter 0.15s ease;
+  }
+
+  .pix-modal__copy:hover { filter: brightness(0.9); }
+
+  .pix-modal__qr {
+    background: color-mix(in srgb, var(--ink) 6%, transparent);
+    border: 1px dashed color-mix(in srgb, var(--ink) 18%, transparent);
+    border-radius: 10px;
+    height: 140px;
+    display: grid;
+    place-items: center;
+    font-size: 0.8125rem;
+    color: var(--muted, #6b7280);
+    margin-bottom: 0.875rem;
+  }
+
+  .pix-modal__qr img {
+    width: 100%;
+    max-width: 200px;
+    height: auto;
+    display: block;
+    border-radius: 10px;
+  }
+
+  .pix-modal__cta {
+    display: block;
+    width: 100%;
+    text-align: center;
+    font-weight: 600;
+    min-height: 46px;
+    display: grid;
+    place-items: center;
+    background: var(--card, #fff);
+    color: var(--ink, #111827);
+    border-radius: 10px;
+    padding: 0.75rem;
+    touch-action: manipulation;
+    transition: transform 0.15s ease, filter 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .pix-modal__cta:hover { filter: brightness(1.06); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,0,0,.1); }
+  .pix-modal__cta:active { transform: scale(0.98); }
+
+  .pix-modal__close {
+    position: absolute;
+    top: 0.625rem;
+    right: 0.625rem;
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--ink) 8%, transparent);
+    display: grid;
+    place-items: center;
+    font-size: 1rem;
+    line-height: 1;
+  }
+
+  @media (max-width: 380px) {
+    .pix-modal { width: calc(100% - 1.5rem); padding: 1.25rem 1rem; }
+    .pix-modal__key { flex-wrap: wrap; justify-content: center; gap: 0.5rem; }
+    .pix-modal__copy { width: 100%; text-align: center; }
+  }
 </style>
 </head>
 <body>
@@ -1402,6 +1533,36 @@
             <label for="pixKey">Chave PIX</label>
             <input type="text" id="pixKey" placeholder="CPF, e-mail, celular ou chave aleatória" maxlength="80">
           </div>
+          <div class="field" style="margin:10px 0 0;">
+            <label for="pixButtonText">Texto do botão</label>
+            <input type="text" id="pixButtonText" placeholder="Pagar com PIX" maxlength="30">
+            <p class="hint">Deixe vazio para usar o padrão "Pagar com PIX"</p>
+          </div>
+          <div class="row-2" style="margin-top:10px;">
+            <div class="field">
+              <label>Cor de fundo do botão</label>
+              <div class="color-trigger" id="pixBtnBgColor" role="button" tabindex="0">
+                <div class="color-trigger-swatch" style="background:#16a34a;"></div>
+                <span class="color-trigger-hex">AUTO</span>
+              </div>
+            </div>
+            <div class="field">
+              <label>Cor do texto/ícone</label>
+              <div class="color-trigger" id="pixBtnTextColor" role="button" tabindex="0">
+                <div class="color-trigger-swatch" style="background:#ffffff;"></div>
+                <span class="color-trigger-hex">AUTO</span>
+              </div>
+            </div>
+          </div>
+          <div class="field" style="margin:10px 0 0;">
+            <label for="pixBtnShape">Formato do botão</label>
+            <select id="pixBtnShape" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+              <option value="rounded">Arredondado</option>
+              <option value="pill">Totalmente Arredondado (Pílula)</option>
+              <option value="square">Quadrado</option>
+              <option value="soft">Cantos Suaves</option>
+            </select>
+          </div>
           <div class="upload-row" style="margin-top:10px;">
             <div class="upload-thumb" id="pixQrThumb">🔳</div>
             <div class="upload-info">
@@ -1529,6 +1690,15 @@
             <div class="ds-control-row">
               <input type="range" id="nameSpace" min="0" max="48" step="1">
               <output class="ds-value" id="nameSpaceVal">0px</output>
+            </div>
+          </div>
+
+          <div class="ds-control">
+            <label>Ordem de exibição</label>
+            <p class="hint" style="margin:-2px 0 8px;">Define a posição do Nome em relação aos outros elementos (Avatar=0, Bio=2, Endereço=3). Menor valor = mais no topo.</p>
+            <div class="ds-control-row">
+              <input type="range" id="nameOrder" min="0" max="10" step="1">
+              <output class="ds-value" id="nameOrderVal">1</output>
             </div>
           </div>
 
@@ -1668,6 +1838,15 @@
             <div class="ds-control-row">
               <input type="range" id="bioSpace" min="0" max="48" step="1">
               <output class="ds-value" id="bioSpaceVal">0px</output>
+            </div>
+          </div>
+
+          <div class="ds-control">
+            <label>Ordem de exibição</label>
+            <p class="hint" style="margin:-2px 0 8px;">Define a posição da Bio em relação aos outros elementos (Avatar=0, Nome=1, Endereço=3). Menor valor = mais no topo.</p>
+            <div class="ds-control-row">
+              <input type="range" id="bioOrder" min="0" max="10" step="1">
+              <output class="ds-value" id="bioOrderVal">2</output>
             </div>
           </div>
 
@@ -1848,6 +2027,15 @@
               <output class="ds-value" id="addressSpaceVal">0px</output>
             </div>
           </div>
+
+          <div class="ds-control">
+            <label>Ordem de exibição</label>
+            <p class="hint" style="margin:-2px 0 8px;">Define a posição do Endereço em relação aos outros elementos (Avatar=0, Nome=1, Bio=2). Menor valor = mais no topo.</p>
+            <div class="ds-control-row">
+              <input type="range" id="addressOrder" min="0" max="10" step="1">
+              <output class="ds-value" id="addressOrderVal">3</output>
+            </div>
+          </div>
           </div>
         </details>
 
@@ -1933,16 +2121,25 @@
               <output class="ds-value" id="avatarGlowIntensityVal">35</output>
             </div>
           </div>
-          <span class="elem-section-title">Espaçamento</span>
-          <div class="ds-control">
-            <label>Espaçamento abaixo do Avatar</label>
-            <p class="hint" style="margin:-2px 0 8px;">Distância entre o Avatar e o próximo elemento. 0 = manter o padrão atual.</p>
-            <div class="ds-control-row">
-              <input type="range" id="avatarSpace" min="0" max="48" step="1">
-              <output class="ds-value" id="avatarSpaceVal">0px</output>
-            </div>
-          </div>
-          </div>
+<span class="elem-section-title">Espaçamento</span>
+           <div class="ds-control">
+             <label>Espaçamento abaixo do Avatar</label>
+             <p class="hint" style="margin:-2px 0 8px;">Distância entre o Avatar e o próximo elemento. 0 = manter o padrão atual.</p>
+             <div class="ds-control-row">
+               <input type="range" id="avatarSpace" min="0" max="48" step="1">
+               <output class="ds-value" id="avatarSpaceVal">0px</output>
+             </div>
+           </div>
+
+           <div class="ds-control">
+             <label>Ordem de exibição</label>
+             <p class="hint" style="margin:-2px 0 8px;">Define a posição do Avatar em relação aos outros elementos (Nome=1, Bio=2, Endereço=3). Menor valor = mais no topo.</p>
+             <div class="ds-control-row">
+               <input type="range" id="avatarOrder" min="0" max="10" step="1">
+               <output class="ds-value" id="avatarOrderVal">0</output>
+             </div>
+           </div>
+           </div>
         </details>
         </div>
       </section>
@@ -2483,7 +2680,11 @@
                   <div class="pv-name-row">
                     <div class="pv-name-wrap">
                       <h1 class="pv-name" id="pvName">Seu nome</h1>
-                      <span class="pv-verified" id="pvVerified" title="Perfil verificado" hidden>✓</span>
+                      <span class="pv-verified" id="pvVerified" title="Perfil verificado" aria-label="Perfil verificado" hidden>
+                        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15l11-11-1.41-1.41L10 14.17l-3.59-3.59L7 11.93 3.21 8.14c.63.93 1.13 2 1.13 3.18 0 4.08-3.05 7.44-7 7.93v.07z"/>
+                        </svg>
+                      </span>
                     </div>
                   </div>
                   <p class="pv-bio" id="pvBio"></p>
@@ -2492,13 +2693,29 @@
                     <span id="pvAddressText"></span>
                   </div>
 
-                  <button class="pv-pix" id="pvPix" type="button" hidden>💳 Pagar com PIX</button>
+                  <button class="pv-pix" id="pvPix" type="button" data-dialog-open hidden>
+            <span class="pv-pix__ico" aria-hidden="true">💳</span>
+            <span>Pagar com PIX</span>
+          </button>
 
                   <div class="pv-content">
                     <div id="previewLinksList"></div>
                     <p class="pv-footer">Feito com ⚡ Axiumlink</p>
                   </div>
                 </div>
+
+                <!-- PIX Modal (admin preview) -->
+                <dialog class="pix-modal" id="pvPixModal" aria-labelledby="pvPixTitle">
+                  <button class="pix-modal__close" type="button" data-dialog-close aria-label="Fechar">&times;</button>
+                  <h2 class="pix-modal__title" id="pvPixTitle">Pague com PIX</h2>
+                  <p class="pix-modal__text">Escaneie o QR Code ou copie a chave abaixo.</p>
+                  <div class="pix-modal__key" id="pvPixKeyBox" hidden>
+                    <span id="pvPixKey"></span>
+                    <button class="pix-modal__copy" type="button" data-copy>Copiar</button>
+                  </div>
+                  <div class="pix-modal__qr" id="pvPixQr" hidden></div>
+                  <a class="pix-modal__cta" id="pvPixCta" href="#" target="_blank" rel="noopener" hidden>Pagar agora</a>
+                </dialog>
               </div>
             </div>
           </div>
@@ -2903,7 +3120,7 @@
       try {
         const { data: profiles, error } = await supabase
           .from('clients')
-          .select('id, slug, config')
+          .select('id, slug, nome, config')
           .eq('user_id', user.id);
 
         if (error) throw error;
@@ -3542,6 +3759,7 @@
     renderThemeSwatches();
     renderPresets();
     bindStyleControls();
+    reflectStyleValues();
     if (!_editorEventsBound) {
       bindEditorEvents();
       _editorEventsBound = true;
@@ -3549,6 +3767,7 @@
     syncEditorInputs();
     syncPanelsVisibility();
     renderAll();
+    initPixModalDialog();
   }
 
   /* Re-sincroniza valores dos inputs sem recriar listeners */
@@ -3561,6 +3780,28 @@
     saveLocalDraft();
     schedulePreview();
     scheduleCloudSave();
+    syncLayoutOrder();
+  }
+
+  /* Sincroniza as ordens individuais dos elementos do perfil para cfg.layout.items
+     (usado pela página pública). O layout público trata o bloco de perfil como
+     uma unidade; usamos a ordem média dos elementos visíveis como referência. */
+  function syncLayoutOrder() {
+    if (!cfg.layout) cfg.layout = {};
+    if (!cfg.layout.items) cfg.layout.items = {};
+    
+    const nameOrder = profileElem('name').order ?? 1;
+    const bioOrder = profileElem('bio').order ?? 2;
+    const addressOrder = profileElem('address').order ?? 3;
+    const avatarOrder = profileElem('avatar').order ?? 0;
+    
+    // Calcula uma ordem representativa para o bloco de perfil inteiro
+    // Usa a menor ordem entre os elementos visíveis (o que aparece primeiro)
+    const orders = [avatarOrder, nameOrder, bioOrder, addressOrder];
+    const minOrder = Math.min(...orders);
+    
+    cfg.layout.items.info = cfg.layout.items.info || {};
+    cfg.layout.items.info.order = minOrder;
   }
 
   /* Render do mockup com debounce LEVE (150ms): reflete a edição ao vivo
@@ -3583,6 +3824,50 @@
         console.warn('[Axiumlink] Autosave falhou:', err.message);
       }
     }, 2000);
+  }
+
+  function initPixModalDialog() {
+    const dialog = document.getElementById('pvPixModal');
+    if (!dialog) return;
+    if (dialog._handlersBound) return;
+    dialog._handlersBound = true;
+
+    document.addEventListener('click', (e) => {
+      const opener = e.target.closest('[data-dialog-open]');
+      if (opener && !dialog.open) dialog.showModal();
+    });
+
+    document.querySelectorAll('[data-dialog-close]').forEach((btn) => {
+      btn.addEventListener('click', () => dialog.close());
+    });
+
+    dialog.addEventListener('click', (e) => {
+      const rect = dialog.getBoundingClientRect();
+      const inBox = e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom;
+      if (!inBox) dialog.close();
+    });
+
+    dialog.addEventListener('cancel', () => dialog.close());
+
+    const copyBtn = dialog.querySelector('[data-copy]');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', async () => {
+        const key = dialog.querySelector('#pvPixKey');
+        try {
+          await navigator.clipboard.writeText(key.textContent.trim());
+        } catch {
+          const range = document.createRange();
+          range.selectNodeContents(key);
+          const sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+          document.execCommand('copy');
+          sel.removeAllRanges();
+        }
+        copyBtn.textContent = 'Copiado!';
+        setTimeout(() => { copyBtn.textContent = 'Copiar'; }, 2000);
+      });
+    }
   }
 
   async function persistNow(button) {
@@ -3748,6 +4033,70 @@
     return parts.join('\n');
   }
 
+  function applyPixPreview() {
+    const pixC = (cfg.profile && cfg.profile.pix) || {};
+    const hasContent = !!(pixC.key || pixC.qr || pixC.link);
+    const on = !!pixC.enabled && hasContent;
+    const wrap = $('pvPix');
+    if (wrap) wrap.hidden = !on;
+    if (!on) return;
+
+    // Apply button customizations
+    const btnText = pixC.buttonText || 'Pagar com PIX';
+    const btnBgColor = pixC.btnBgColor || '#16a34a';
+    const btnTextColor = pixC.btnTextColor || '#ffffff';
+    const btnShape = pixC.btnShape || 'rounded';
+    
+    const radiusMap = {
+      square: '0px',
+      soft: '6px',
+      rounded: '16px',
+      pill: '9999px'
+    };
+    
+    const btnTextSpan = wrap.querySelector('span:last-child');
+    if (btnTextSpan) btnTextSpan.textContent = btnText;
+    wrap.style.background = btnBgColor;
+    wrap.style.color = btnTextColor;
+    wrap.style.borderRadius = radiusMap[btnShape] || '16px';
+
+    const keyBox = $('pvPixKeyBox');
+    const keyEl = $('pvPixKey');
+    if (keyBox) keyBox.hidden = !String(pixC.key || '').trim();
+    if (keyEl) keyEl.textContent = pixC.key || '';
+
+    const qrEl = $('pvPixQr');
+    if (qrEl) {
+      qrEl.replaceChildren();
+      const qrUrl = String(pixC.qr || '').trim();
+      const validQr = /^(data:image\/|https?:\/\/)/i.test(qrUrl);
+      if (validQr) {
+        qrEl.hidden = false;
+        qrEl.style.height = 'auto';
+        const img = document.createElement('img');
+        img.src = qrUrl;
+        img.alt = 'QR Code PIX';
+        img.loading = 'lazy';
+        qrEl.appendChild(img);
+      } else {
+        qrEl.hidden = true;
+        qrEl.style.height = '';
+      }
+    }
+
+    const cta = $('pvPixCta');
+    if (cta) {
+      const linkUrl = String(pixC.link || '').trim();
+      if (linkUrl) {
+        cta.href = linkUrl;
+        cta.hidden = false;
+      } else {
+        cta.href = '#';
+        cta.hidden = true;
+      }
+    }
+  }
+
   function renderPreview() {
     $('pvName').textContent = cfg.profile?.displayName || 'Seu nome';
     $('pvBio').textContent = cfg.profile?.bio || '';
@@ -3827,6 +4176,7 @@
     applyThemeVars();
     applyProfileDesignToMockup();
     applyTypographyBlocks(cfg.style || {});
+    applyPixPreview();
 
     /* Blocos de link no preview — reconstrói o DOM SÓ quando a estrutura
        muda (títulos/urls/tipos/ícones/imagens/estilo de card/largura).
@@ -4854,10 +5204,10 @@
      (com migração única dos campos compartilhados antigos) e devolve a ref.
      O vidro do Nome fica em cfg.style.nameGlass (separado do textGlass da Bio). */
   const ELEM_DEFAULTS = {
-    name:    { font: '', size: 20, weight: 700, ls: 0, lh: 1.4, color: '', align: 'center', bg: '', radius: 10, padding: [4, 14], spacing: 0 },
-    bio:     { font: '', size: 14, weight: 400, ls: 0, lh: 1.4, color: '', align: 'center', bg: '', radius: 10, padding: [4, 14], spacing: 0 },
-    address: { font: '', size: 12, weight: 600, ls: 0, lh: 1.4, color: '', align: 'center', bg: '', radius: 999, padding: [8, 16], spacing: 0 },
-    avatar:  { size: 96, shape: 'circle', radius: 999, borderStyle: 'solid', borderWidth: 4, borderColor: '#ffffff', shadowOn: true, shadowX: 0, shadowY: 12, shadowBlur: 24, shadowSpread: -10, shadowColor: '#000000', shadowAlpha: 50, glowOn: false, glowColor: '', glowIntensity: 35, spacing: 0 }
+    name:    { font: '', size: 20, weight: 700, ls: 0, lh: 1.4, color: '', align: 'center', bg: '', radius: 10, padding: [4, 14], spacing: 0, order: 1 },
+    bio:     { font: '', size: 14, weight: 400, ls: 0, lh: 1.4, color: '', align: 'center', bg: '', radius: 10, padding: [4, 14], spacing: 0, order: 2 },
+    address: { font: '', size: 12, weight: 600, ls: 0, lh: 1.4, color: '', align: 'center', bg: '', radius: 999, padding: [8, 16], spacing: 0, order: 3 },
+    avatar:  { size: 96, shape: 'circle', radius: 999, borderStyle: 'solid', borderWidth: 4, borderColor: '#ffffff', shadowOn: true, shadowX: 0, shadowY: 12, shadowBlur: 24, shadowSpread: -10, shadowColor: '#000000', shadowAlpha: 50, glowOn: false, glowColor: '', glowIntensity: 35, spacing: 0, order: 0 }
   };
   function profileElem(key) {
     cfg.design = cfg.design || {};
@@ -5287,7 +5637,7 @@
     const verified = $('pvVerified');
     if (verified) {
       verified.hidden = !(cfg.profile && cfg.profile.verified);
-      verified.style.background = pf.verifiedColor ? pf.verifiedColor : '#6366f1';
+      verified.style.background = pf.verifiedColor ? pf.verifiedColor : '#0095f6';
     }
 
     /* Nome: cor do texto + alinhamento — lê do próprio elem.name (INDEPENDENTE) */
@@ -5380,6 +5730,9 @@
       }
     }
 
+    /* Reordena elementos do perfil com base no campo 'order' */
+    reorderProfileElements();
+
     /* Espaçamento vertical entre blocos na ORDEM DA PÁGINA:
        Avatar → Nome → Bio → Endereço → Botões. Cada bloco recebe
        margin-bottom = espaçamento INDIVIDUAL do elemento
@@ -5401,6 +5754,34 @@
     setElemSpace(document.querySelector('.pv-name-row'), profileElem('name').spacing);
     setElemSpace($('pvBio'), profileElem('bio').spacing);
     setElemSpace($('pvAddress'), profileElem('address').spacing);
+  }
+
+  /* Reordena os elementos do perfil (Avatar, Nome, Bio, Endereço, PIX) 
+     com base no campo 'order' de cada elemento. */
+  function reorderProfileElements() {
+    const page = $('pvPage');
+    if (!page) return;
+    
+    const elements = [
+      { key: 'avatar', selector: '#pvAvatarWrap', getOrder: () => profileElem('avatar').order ?? 0 },
+      { key: 'name', selector: '.pv-name-row', getOrder: () => profileElem('name').order ?? 1 },
+      { key: 'bio', selector: '#pvBio', getOrder: () => profileElem('bio').order ?? 2 },
+      { key: 'address', selector: '#pvAddress', getOrder: () => profileElem('address').order ?? 3 },
+      { key: 'pix', selector: '#pvPix', getOrder: () => 4 } // PIX sempre por último
+    ];
+    
+    // Ordena por ordem
+    elements.sort((a, b) => a.getOrder() - b.getOrder());
+    
+    // Re-anexa os elementos na ordem correta
+    const container = page.querySelector('.pv-page > *:last-child')?.parentElement || page;
+    // Encontra um container comum - usamos o pvPage diretamente
+    elements.forEach(({ selector }) => {
+      const el = $(selector.replace('#', '')) || document.querySelector(selector);
+      if (el && el.parentElement === page) {
+        page.appendChild(el);
+      }
+    });
   }
 
   /* Renderiza os color triggers do perfil/banner com semântica AUTO
@@ -6547,6 +6928,7 @@
     });
     bindRange('avatarGlowIntensity', 'avatarGlowIntensityVal', (v) => String(v), (v) => { profileElem('avatar').glowIntensity = v; renderPreview(); });
     bindRange('avatarSpace', 'avatarSpaceVal', (v) => v + 'px', (v) => { profileElem('avatar').spacing = v; renderPreview(); });
+    bindRange('avatarOrder', 'avatarOrderVal', (v) => String(v), (v) => { profileElem('avatar').order = v; renderPreview(); });
 
     safeOn('profileVerified', 'change', (e) => {
       cfg.profile = cfg.profile || {};
@@ -6600,6 +6982,7 @@
     bindRange('namePadV', 'namePadVVal', (v) => v + 'px', (v) => { const nm = profileElem('name'); nm.padding = nm.padding || [4, 14]; nm.padding[0] = v; applyThemeVars(); });
     bindRange('namePadH', 'namePadHVal', (v) => v + 'px', (v) => { const nm = profileElem('name'); nm.padding = nm.padding || [4, 14]; nm.padding[1] = v; applyThemeVars(); });
     bindRange('nameSpace', 'nameSpaceVal', (v) => v + 'px', (v) => { profileElem('name').spacing = v; renderPreview(); });
+    bindRange('nameOrder', 'nameOrderVal', (v) => String(v), (v) => { profileElem('name').order = v; renderPreview(); });
 
     /* Controles completos do elemento Bio — gravam em elem.bio (INDEPENDENTE) */
     safeOn('bioFont', 'change', (e) => { profileElem('bio').font = e.target.value; applyThemeVars(); markDirty(); });
@@ -6636,6 +7019,7 @@
     bindRange('bioPadV', 'bioPadVVal', (v) => v + 'px', (v) => { const bm = profileElem('bio'); bm.padding = bm.padding || [4, 14]; bm.padding[0] = v; applyThemeVars(); });
     bindRange('bioPadH', 'bioPadHVal', (v) => v + 'px', (v) => { const bm = profileElem('bio'); bm.padding = bm.padding || [4, 14]; bm.padding[1] = v; applyThemeVars(); });
     bindRange('bioSpace', 'bioSpaceVal', (v) => v + 'px', (v) => { profileElem('bio').spacing = v; renderPreview(); });
+    bindRange('bioOrder', 'bioOrderVal', (v) => String(v), (v) => { profileElem('bio').order = v; renderPreview(); });
 
     safeOn('addressShow', 'change', (e) => {
       const pf = profileDesignRef();
@@ -6685,6 +7069,7 @@
     bindRange('addressPadV', 'addressPadVVal', (v) => v + 'px', (v) => { const am = profileElem('address'); am.padding = am.padding || [8, 16]; am.padding[0] = v; applyThemeVars(); });
     bindRange('addressPadH', 'addressPadHVal', (v) => v + 'px', (v) => { const am = profileElem('address'); am.padding = am.padding || [8, 16]; am.padding[1] = v; applyThemeVars(); });
     bindRange('addressSpace', 'addressSpaceVal', (v) => v + 'px', (v) => { profileElem('address').spacing = v; renderPreview(); });
+    bindRange('addressOrder', 'addressOrderVal', (v) => String(v), (v) => { profileElem('address').order = v; renderPreview(); });
 
     safeOn('bannerScrim', 'change', (e) => {
       const dp = cfg.design || (cfg.design = {});
@@ -6817,6 +7202,7 @@
     if ($('avatarGlow')) $('avatarGlow').checked = !!profileElem('avatar').glowOn;
     if ($('avatarGlowIntensity')) setRange('avatarGlowIntensity', profileElem('avatar').glowIntensity == null ? 35 : profileElem('avatar').glowIntensity);
     if ($('avatarSpace')) setRange('avatarSpace', profileElem('avatar').spacing);
+    if ($('avatarOrder')) setRange('avatarOrder', profileElem('avatar').order ?? 0);
     const verifiedEl = $('profileVerified');
     if (verifiedEl) verifiedEl.checked = !!(cfg.profile && cfg.profile.verified);
     const nameAlignEl = $('nameAlign');
@@ -6832,6 +7218,7 @@
     if ($('namePadV')) setRange('namePadV', (nmR.padding && nmR.padding[0]) != null ? nmR.padding[0] : 4);
     if ($('namePadH')) setRange('namePadH', (nmR.padding && nmR.padding[1]) != null ? nmR.padding[1] : 14);
     if ($('nameSpace')) setRange('nameSpace', nmR.spacing);
+    if ($('nameOrder')) setRange('nameOrder', nmR.order ?? 1);
     /* Reflete os controles do elemento Bio (elem.bio) */
     const bmR = profileElem('bio');
     if ($('bioFont')) $('bioFont').value = bmR.font || '';
@@ -6846,6 +7233,7 @@
     if ($('bioPadV')) setRange('bioPadV', (bmR.padding && bmR.padding[0]) != null ? bmR.padding[0] : 4);
     if ($('bioPadH')) setRange('bioPadH', (bmR.padding && bmR.padding[1]) != null ? bmR.padding[1] : 14);
     if ($('bioSpace')) setRange('bioSpace', bmR.spacing);
+    if ($('bioOrder')) setRange('bioOrder', bmR.order ?? 2);
     const addrShowEl = $('addressShow');
     if (addrShowEl) addrShowEl.checked = pf.addrShow !== false;
     const addrIconEl = $('addressIcon');
@@ -6864,6 +7252,7 @@
     if ($('addressPadV')) setRange('addressPadV', (amR.padding && amR.padding[0]) != null ? amR.padding[0] : 8);
     if ($('addressPadH')) setRange('addressPadH', (amR.padding && amR.padding[1]) != null ? amR.padding[1] : 16);
     if ($('addressSpace')) setRange('addressSpace', amR.spacing);
+    if ($('addressOrder')) setRange('addressOrder', amR.order ?? 3);
     renderDesignTriggers();
   }
 
@@ -7232,6 +7621,13 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
       renderPreview();
       markDirty();
     });
+    safeOn('pixButtonText', 'input', (e) => {
+      cfg.profile = cfg.profile || {};
+      cfg.profile.pix = cfg.profile.pix || {};
+      cfg.profile.pix.buttonText = e.target.value;
+      renderPreview();
+      markDirty();
+    });
     safeOn('pixKey', 'input', (e) => {
       cfg.profile = cfg.profile || {};
       cfg.profile.pix = cfg.profile.pix || {};
@@ -7243,6 +7639,37 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
       cfg.profile.pix = cfg.profile.pix || {};
       cfg.profile.pix.link = e.target.value;
       markDirty();
+    });
+    safeOn('pixBtnShape', 'change', (e) => {
+      cfg.profile = cfg.profile || {};
+      cfg.profile.pix = cfg.profile.pix || {};
+      cfg.profile.pix.btnShape = e.target.value;
+      renderPreview();
+      markDirty();
+    });
+    safeOn('pixBtnBgColor', 'click', () => {
+      const pix = cfg.profile?.pix || {};
+      const current = pix.btnBgColor || '#16a34a';
+      openColorPicker($('pixBtnBgColor'), current, (hex) => {
+        cfg.profile = cfg.profile || {};
+        cfg.profile.pix = cfg.profile.pix || {};
+        cfg.profile.pix.btnBgColor = hex;
+        setTriggerColor('pixBtnBgColor', hex);
+        renderPreview();
+        markDirty();
+      });
+    });
+    safeOn('pixBtnTextColor', 'click', () => {
+      const pix = cfg.profile?.pix || {};
+      const current = pix.btnTextColor || '#ffffff';
+      openColorPicker($('pixBtnTextColor'), current, (hex) => {
+        cfg.profile = cfg.profile || {};
+        cfg.profile.pix = cfg.profile.pix || {};
+        cfg.profile.pix.btnTextColor = hex;
+        setTriggerColor('pixBtnTextColor', hex);
+        renderPreview();
+        markDirty();
+      });
     });
     safeOn('btnPixPick', 'click', () => $('pixQrInput').click());
     safeOn('pixQrInput', 'change', (e) => {

@@ -426,12 +426,17 @@
       height: 22px;
       flex-shrink: 0;
       border-radius: 999px;
-      background: var(--primary);
+      background: #0095f6;
       color: #ffffff;
+      vertical-align: middle;
     }
     .profile__verified[hidden] { display: none; }
 
-    .profile__verified svg { width: 13px; height: 13px; }
+    .profile__verified svg {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+    }
 
     .profile__subtitle {
       font-size: 0.9375rem;
@@ -733,7 +738,7 @@
     }
     .gx-noise::after {
       content:''; position:absolute; inset:0; border-radius:inherit;
-      pointer-events:none; z-index:-1; opacity:0.035;
+      pointer-events:none; opacity:0.035;
       background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/><feColorMatrix type='saturate' values='0'/></filter><rect width='120' height='120' filter='url(%23n)'/></svg>");
     }
 
@@ -1791,8 +1796,8 @@
           <div class="profile__name-wrap">
             <h1 class="profile__title" id="pgTitle" data-bind="profileName">Nome do Cliente</h1>
             <span class="profile__verified" id="pgVerified" title="Perfil verificado" aria-label="Perfil verificado" hidden>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="m5 12 4 4L19 6" />
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15l11-11-1.41-1.41L10 14.17l-3.59-3.59L7 11.93 3.21 8.14c.63.93 1.13 2 1.13 3.18 0 4.08-3.05 7.44-7 7.93v.07z"/>
               </svg>
             </span>
           </div>
@@ -2545,6 +2550,28 @@
         const wrap = document.getElementById('pgPixWrap');
         if (wrap) wrap.hidden = !on;
         if (!on) return;
+
+        // Apply button customizations
+        const btnText = pixC.buttonText || 'Pagar com PIX';
+        const btnBgColor = pixC.btnBgColor || '#16a34a';
+        const btnTextColor = pixC.btnTextColor || '#ffffff';
+        const btnShape = pixC.btnShape || 'rounded';
+        
+        const radiusMap = {
+          square: '0px',
+          soft: '6px',
+          rounded: '16px',
+          pill: '9999px'
+        };
+        
+        const btn = wrap.querySelector('.pg-pix__btn');
+        const btnTextSpan = btn ? btn.querySelector('span') : null;
+        if (btn) {
+          btn.style.background = btnBgColor;
+          btn.style.color = btnTextColor;
+          btn.style.borderRadius = radiusMap[btnShape] || '16px';
+        }
+        if (btnTextSpan) btnTextSpan.textContent = btnText;
 
         const keyBox = document.getElementById('pixKeyBox');
         const keyEl = document.getElementById('pix-key');
