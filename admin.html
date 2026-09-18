@@ -4061,7 +4061,20 @@
       $('pixEnabled').checked = !!pixS.enabled;
       $('pixKey').value = pixS.key || '';
       $('pixLink').value = pixS.link || '';
+      $('pixButtonText').value = pixS.buttonText || '';
+      $('pixBtnShape').value = pixS.btnShape || 'rounded';
+      if ($('pixBtnBgColor')) {
+        setTriggerColor('pixBtnBgColor', pixS.btnBgColor || '#16a34a');
+        const label = $('pixBtnBgColor').querySelector('.color-trigger-hex');
+        if (label) label.textContent = triggerLabel(pixS.btnBgColor || '#16a34a');
+      }
+      if ($('pixBtnTextColor')) {
+        setTriggerColor('pixBtnTextColor', pixS.btnTextColor || '#ffffff');
+        const label = $('pixBtnTextColor').querySelector('.color-trigger-hex');
+        if (label) label.textContent = triggerLabel(pixS.btnTextColor || '#ffffff');
+      }
       $('pixQrHint').style.display = pixS.qr ? 'block' : 'none';
+      updatePixQrThumb(pixS.qr || '');
       $('avatarHintRow').style.display = cfg.profile.avatar ? 'block' : 'none';
     } else if (key === 'style') {
       setRange('btnRadius', cfg.style.btnRadius);
@@ -4166,6 +4179,28 @@
     }
   }
 
+  /* Atualiza o thumbnail do QR Code PIX no painel admin */
+  function updatePixQrThumb(url) {
+    const thumb = $('pixQrThumb');
+    if (!thumb) return;
+    let existingImg = thumb.querySelector('img');
+    if (url && /^(data:image\/|https?:\/\/)/i.test(url)) {
+      if (!existingImg) {
+        existingImg = document.createElement('img');
+        existingImg.style.cssText = 'width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;';
+        thumb.style.position = 'relative';
+        thumb.appendChild(existingImg);
+      }
+      existingImg.src = url;
+      existingImg.alt = 'QR Code PIX';
+      existingImg.hidden = false;
+      thumb.childNodes.forEach(n => { if (n.nodeType === 3) n.textContent = ''; });
+    } else {
+      if (existingImg) existingImg.hidden = true;
+      if (!thumb.textContent.trim()) thumb.textContent = '🔳';
+    }
+  }
+
   function renderPreview() {
     $('pvName').textContent = cfg.profile?.displayName || 'Seu nome';
     $('pvBio').textContent = cfg.profile?.bio || '';
@@ -4228,6 +4263,9 @@
         if (!thumb.textContent.trim()) thumb.textContent = '👤';
       }
     }
+
+    /* ---- Thumbnail "QR Code PIX" no painel ---- */
+    updatePixQrThumb(cfg.profile?.pix?.qr || '');
 
     const bannerBox = $('pvBanner');
     const bannerImg = $('pvBannerImg');
@@ -5671,7 +5709,16 @@
     nameRow.style.justifyContent = na === 'left' ? 'flex-start' : na === 'right' ? 'flex-end' : 'center';
     if (nameWrap) nameWrap.style.justifyContent = 'center';
     const pvNameEl = $('pvName');
-    if (pvNameEl) { pvNameEl.style.marginLeft = ''; pvNameEl.style.marginRight = ''; }
+    const pvVerifiedEl = $('pvVerified');
+    if (pvNameEl) { 
+      pvNameEl.style.marginLeft = ''; 
+      pvNameEl.style.marginRight = '';
+      /* Quando o selo está visível, remove o padding horizontal do nome
+         para que o texto fique centrado em relação ao selo (evita deslocamento visual). */
+      const badgeVisible = pvVerifiedEl && !pvVerifiedEl.hidden;
+      pvNameEl.style.paddingLeft = badgeVisible ? '0' : '';
+      pvNameEl.style.paddingRight = badgeVisible ? '0' : '';
+    }
   }
 
   /* Aplica o design de perfil/banner (cfg.design) ao mockup celular.
@@ -7390,6 +7437,20 @@
     if (addrShowEl) addrShowEl.checked = pf.addrShow !== false;
     const addrIconEl = $('addressIcon');
     if (addrIconEl) addrIconEl.checked = !(pf.address && pf.address.showIcon === false);
+    /* Reflete os controles de personalização do botão PIX */
+    const pixC = cfg.profile?.pix || {};
+    if ($('pixButtonText')) $('pixButtonText').value = pixC.buttonText || '';
+    if ($('pixBtnShape')) $('pixBtnShape').value = pixC.btnShape || 'rounded';
+    if ($('pixBtnBgColor')) {
+      setTriggerColor('pixBtnBgColor', pixC.btnBgColor || '#16a34a');
+      const label = $('pixBtnBgColor').querySelector('.color-trigger-hex');
+      if (label) label.textContent = triggerLabel(pixC.btnBgColor || '#16a34a');
+    }
+    if ($('pixBtnTextColor')) {
+      setTriggerColor('pixBtnTextColor', pixC.btnTextColor || '#ffffff');
+      const label = $('pixBtnTextColor').querySelector('.color-trigger-hex');
+      if (label) label.textContent = triggerLabel(pixC.btnTextColor || '#ffffff');
+    }
     /* Reflete os controles do elemento Endereço (elem.address) */
     const amR = profileElem('address');
     if ($('addressFont')) $('addressFont').value = amR.font || '';
@@ -7869,6 +7930,7 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
             cfg.profile.pix = cfg.profile.pix || {};
             cfg.profile.pix.qr = publicUrl;
             $('pixQrHint').style.display = 'block';
+            updatePixQrThumb(publicUrl);
             renderPreview();
             markDirty();
             showToast('QR Code atualizado!');
@@ -7887,6 +7949,7 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
       cfg.profile.pix = cfg.profile.pix || {};
       cfg.profile.pix.qr = '';
       $('pixQrHint').style.display = 'none';
+      updatePixQrThumb('');
       renderPreview();
       markDirty();
     });

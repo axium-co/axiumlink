@@ -3231,6 +3231,9 @@
       setElemSpace(document.getElementById('pgSubtitle'), spacingFromElem('bio'));
       setElemSpace(document.getElementById('pgAddress'), spacingFromElem('address'));
 
+      /* Reordena elementos do perfil com base no campo 'order' */
+      reorderProfileElementsPublic();
+
       /* Cor do selo de verificado */
       if (pf.verifiedColor) {
         const vEl = document.getElementById('pgVerified');
@@ -3257,10 +3260,45 @@
           nameRow.style.justifyContent = na === 'left' ? 'flex-start' : na === 'right' ? 'flex-end' : 'center';
           if (nameWrap) nameWrap.style.justifyContent = 'center';
           const tEl = document.getElementById('pgTitle');
-          if (tEl) { tEl.style.marginLeft = ''; tEl.style.marginRight = ''; }
+          const vEl = document.getElementById('pgVerified');
+          if (tEl) { 
+            tEl.style.marginLeft = ''; 
+            tEl.style.marginRight = '';
+            /* Quando o selo está visível, remove o padding horizontal do nome
+               para que o texto fique centrado em relação ao selo (evita deslocamento visual). */
+            const badgeVisible = vEl && !vEl.hidden;
+            tEl.style.paddingLeft = badgeVisible ? '0' : '';
+            tEl.style.paddingRight = badgeVisible ? '0' : '';
+          }
         }
       };
       alignNameRowPub();
+
+      /* Reordena elementos do perfil (Avatar, Nome, Bio, Endereço, PIX) 
+         com base no campo 'order' de cada elemento em pf.elem. */
+      function reorderProfileElementsPublic() {
+        const container = document.getElementById('pageProfileInfo');
+        if (!container) return;
+        
+        const elements = [
+          { key: 'avatar', selector: '#pgAvatarCard', getOrder: () => (pf.elem && pf.elem.avatar && pf.elem.avatar.order != null) ? pf.elem.avatar.order : 0 },
+          { key: 'name', selector: '.profile__name-row', getOrder: () => (pf.elem && pf.elem.name && pf.elem.name.order != null) ? pf.elem.name.order : 1 },
+          { key: 'bio', selector: '#pgSubtitle', getOrder: () => (pf.elem && pf.elem.bio && pf.elem.bio.order != null) ? pf.elem.bio.order : 2 },
+          { key: 'address', selector: '#pgAddress', getOrder: () => (pf.elem && pf.elem.address && pf.elem.address.order != null) ? pf.elem.address.order : 3 },
+          { key: 'pix', selector: '#pgPixWrap', getOrder: () => 4 } // PIX sempre por último
+        ];
+        
+        // Ordena por ordem
+        elements.sort((a, b) => a.getOrder() - b.getOrder());
+        
+        // Re-anexa os elementos na ordem correta
+        elements.forEach(({ selector }) => {
+          const el = container.querySelector(selector);
+          if (el && el.parentElement === container) {
+            container.appendChild(el);
+          }
+        });
+      }
 
       function toRgba(hex, alpha) {
         if (hex === COL_INVIS) return 'transparent';
