@@ -5397,60 +5397,73 @@
        Bio usa cfg.style.bioGlass (fallback textGlass) + elem.bio. */
     const nameCfg = profileElem('name');
     const bioCfg = profileElem('bio');
-    const chipFor = (el, g, pad, radius, bg, align) => {
+    const chipFor = (el, g, pad, radius, bg, align, displayStyle) => {
       if (!el) return;
+      const isTextOnly = displayStyle === 'text-only';
       if (el.hidden) {
-        /* Escondido no preview (ex.: Endereço com "mostrar na página"
-           desligado): o bloco de visibilidade domina o display (none) no
-           mockup e roda em chamadas de applyThemeVars posteriores a este
-           chipFor — aqui NÃO se aplica block/width/margins, senão o valor
-           inline volta a vencer o hidden. Os estilos do chip
-           (padding/raio/fundo/vidro) continuam aplicados para quando o
-           elemento for reexibido. */
         el.style.removeProperty('display');
         el.style.width = '';
         el.style.marginLeft = '';
         el.style.marginRight = '';
+      } else if (isTextOnly) {
+        /* Modo "Somente texto": sem container visual, sem padding, sem raio, sem vidro.
+           O elemento fica como texto puro sobre o fundo da página. */
+        el.style.removeProperty('display');
+        el.style.width = '';
+        el.style.marginLeft = '';
+        el.style.marginRight = '';
+        el.style.removeProperty('padding');
+        el.style.removeProperty('borderRadius');
+        applyGlass(el, { ...g, enabled: false });
+        el.style.removeProperty('background');
+        el.style.removeProperty('backgroundImage');
+        /* Alinhamento ainda se aplica via text-align no elemento pai ou no próprio elemento */
+        el.style.textAlign = align || 'center';
       } else if (g.enabled || bg) {
-        /* display block (NÃO inline-block): margin auto só centraliza em
-           elementos block-level; chip inline ficava à esquerda no browser. */
         el.style.setProperty('display', 'block');
         el.style.width = 'fit-content';
         if (align === 'left') { el.style.marginLeft = '0'; el.style.marginRight = 'auto'; }
         else if (align === 'right') { el.style.marginLeft = 'auto'; el.style.marginRight = '0'; }
         else { el.style.marginLeft = 'auto'; el.style.marginRight = 'auto'; }
+        el.style.padding = pad[0] + 'px ' + pad[1] + 'px';
+        el.style.borderRadius = radius + 'px';
+        applyGlass(el, g);
+        if (g.enabled) {
+        } else if (bg) {
+          el.style.background = bg;
+          el.style.backgroundImage = 'none';
+        } else {
+          el.style.removeProperty('background');
+          el.style.removeProperty('backgroundImage');
+        }
       } else {
         el.style.removeProperty('display');
         el.style.width = '';
         el.style.marginLeft = '';
         el.style.marginRight = '';
-      }
-      el.style.padding = pad[0] + 'px ' + pad[1] + 'px';
-      el.style.borderRadius = radius + 'px';
-      applyGlass(el, g);
-      if (g.enabled) {
-        /* mantém o preenchimento translúcido (opacidade/cor) definido por
-           applyGlass — o vidro fica perceptível mesmo com o fundo chapado;
-           o desfoque (backdrop-filter) dá profundidade quando há
-           imagem/gradiente atrás do chip. */
-      } else if (bg) {
-        el.style.background = bg;
-        el.style.backgroundImage = 'none';
-      } else {
-        el.style.removeProperty('background');
-        el.style.removeProperty('backgroundImage');
+        el.style.padding = pad[0] + 'px ' + pad[1] + 'px';
+        el.style.borderRadius = radius + 'px';
+        applyGlass(el, g);
+        if (g.enabled) {
+        } else if (bg) {
+          el.style.background = bg;
+          el.style.backgroundImage = 'none';
+        } else {
+          el.style.removeProperty('background');
+          el.style.removeProperty('backgroundImage');
+        }
       }
     };
     const nameG = Object.assign({
       enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff',
       borderGlow: 40, shadowDepth: 18, highlight: true, noise: false
     }, st.nameGlass || {});
-    chipFor($('pvName'), nameG, nameCfg.padding || [4, 14], nameCfg.radius != null ? nameCfg.radius : 10, nameCfg.bg || '', nameCfg.align);
+    chipFor($('pvName'), nameG, nameCfg.padding || [4, 14], nameCfg.radius != null ? nameCfg.radius : 10, nameCfg.bg || '', nameCfg.align, nameCfg.displayStyle || 'box');
     const bioG = Object.assign({
       enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff',
       borderGlow: 40, shadowDepth: 18, highlight: true, noise: false
     }, (st.bioGlass || st.textGlass || {}));
-    chipFor($('pvBio'), bioG, bioCfg.padding || [4, 14], bioCfg.radius != null ? bioCfg.radius : 10, bioCfg.bg || '', bioCfg.align);
+    chipFor($('pvBio'), bioG, bioCfg.padding || [4, 14], bioCfg.radius != null ? bioCfg.radius : 10, bioCfg.bg || '', bioCfg.align, bioCfg.displayStyle || 'box');
 
     /* Endereço: chip INDEPENDENTE (addressGlass + elem.address).
        Cobre tipografia transparente já aplicada em applyTypographyBlocks;
@@ -5460,7 +5473,7 @@
       enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff',
       borderGlow: 40, shadowDepth: 18, highlight: true, noise: false
     }, st.addressGlass || {});
-    chipFor($('pvAddress'), addrG, addrCfg.padding || [8, 16], addrCfg.radius != null ? addrCfg.radius : 999, addrCfg.bg || '', addrCfg.align);
+    chipFor($('pvAddress'), addrG, addrCfg.padding || [8, 16], addrCfg.radius != null ? addrCfg.radius : 999, addrCfg.bg || '', addrCfg.align, addrCfg.displayStyle || 'box');
   }
 
   function applyThemeVars() {
@@ -5536,16 +5549,42 @@
       const linkItem = (!Number.isNaN(idx) && cfg.links && cfg.links[idx]) ? cfg.links[idx] : null;
       const flat = linkItem ? linkStyleToFlat(linkItem.style, st) : {};
       const merged = Object.assign({}, st, flat);
-      const bCSS = buildButtonCSS(merged, t);
-      const bVariant = merged.btnVariant || 'solid';
-      const bAnim = merged.btnAnimation || 'none';
-      Object.assign(el.style, bCSS);
-      el.classList.remove('ghost', 'neumorphic');
-      if (bVariant === 'ghost' || bVariant === 'neumorphic') el.classList.add(bVariant);
-      el.classList.remove(...ANIM_CLASSES);
-      if (bAnim === 'pulse') el.classList.add('pv-anim-pulse');
-      else if (bAnim === 'float') el.classList.add('pv-anim-float');
-      else if (bAnim === 'shine') el.classList.add('pv-anim-shine');
+      const isTextOnly = (merged.displayStyle || 'box') === 'text-only';
+      
+      if (isTextOnly) {
+        /* Modo "Somente texto": link puro sem container visual, mas clicável.
+           Remove todos os estilos de botão/caixa, mantém tipografia e cursor. */
+        el.classList.remove('ghost', 'neumorphic', ...ANIM_CLASSES);
+        Object.assign(el.style, {
+          background: 'transparent',
+          border: 'none',
+          boxShadow: 'none',
+          padding: '0',
+          borderRadius: '0',
+          backdropFilter: 'none',
+          WebkitBackdropFilter: 'none',
+          textShadow: 'none',
+          display: 'inline',
+          width: 'auto',
+          maxWidth: 'none',
+          flex: 'none',
+          textDecoration: 'underline',
+          cursor: 'pointer'
+        });
+        /* Aplica largura se definida (full/half/compact não fazem sentido no modo texto, ignora) */
+        /* Mantém a tipografia por-link via reapplyLinkTypo */
+      } else {
+        const bCSS = buildButtonCSS(merged, t);
+        const bVariant = merged.btnVariant || 'solid';
+        const bAnim = merged.btnAnimation || 'none';
+        Object.assign(el.style, bCSS);
+        el.classList.remove('ghost', 'neumorphic');
+        if (bVariant === 'ghost' || bVariant === 'neumorphic') el.classList.add(bVariant);
+        el.classList.remove(...ANIM_CLASSES);
+        if (bAnim === 'pulse') el.classList.add('pv-anim-pulse');
+        else if (bAnim === 'float') el.classList.add('pv-anim-float');
+        else if (bAnim === 'shine') el.classList.add('pv-anim-shine');
+      }
     });
 
     /* Efeito vidro independente por elemento (sub-grupos) */
@@ -5738,6 +5777,7 @@
       const showAddr = hasAddrRaw && pf.addrShow !== false;
       const showIcon = (pf.address && pf.address.showIcon) !== false;
       const aCfg = profileElem('address');
+      const isAddrTextOnly = aCfg.displayStyle === 'text-only';
       addrBox.hidden = !showAddr;
       /* O chip/vidro do endereço aplica display:block INLINE
          (applyGlassToElements → chipFor), que VENCE o atributo hidden e
@@ -5752,7 +5792,9 @@
           borderGlow: 40, shadowDepth: 18, highlight: true, noise: false
         }, (cfg.style && cfg.style.addressGlass) || {});
         addrBox.style.removeProperty('display');
-        if (addrG.enabled || aCfg.bg) addrBox.style.setProperty('display', 'block');
+        if (!isAddrTextOnly && (addrG.enabled || aCfg.bg)) {
+          addrBox.style.setProperty('display', 'block');
+        }
         const addrText = $('pvAddressText');
         if (addrText) addrText.textContent = cfg.profile.address;
         /* Pílula/fundo/raio/padding/alinhamento/vidro são exclusivos do
@@ -5762,9 +5804,11 @@
            (o mockup pv-page é bloco; margens regem). alignSelf é inócuo. */
         const aAlign = aCfg.align;
         addrBox.style.alignSelf = aAlign === 'left' ? 'flex-start' : aAlign === 'right' ? 'flex-end' : 'center';
-        if (aAlign === 'left') { addrBox.style.marginLeft = '0'; addrBox.style.marginRight = 'auto'; }
-        else if (aAlign === 'right') { addrBox.style.marginLeft = 'auto'; addrBox.style.marginRight = '0'; }
-        else { addrBox.style.marginLeft = 'auto'; addrBox.style.marginRight = 'auto'; }
+        if (!isAddrTextOnly) {
+          if (aAlign === 'left') { addrBox.style.marginLeft = '0'; addrBox.style.marginRight = 'auto'; }
+          else if (aAlign === 'right') { addrBox.style.marginLeft = 'auto'; addrBox.style.marginRight = '0'; }
+          else { addrBox.style.marginLeft = 'auto'; addrBox.style.marginRight = 'auto'; }
+        }
       } else {
         addrBox.style.setProperty('display', 'none', 'important');
       }
