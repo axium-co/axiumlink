@@ -1821,7 +1821,7 @@
         <div class="profile__name-row">
           <div class="profile__name-wrap">
             <h1 class="profile__title" id="pgTitle" data-bind="profileName">Nome do Cliente</h1>
-            <span class="profile__verified" id="pgVerified" title="Perfil verificado" aria-label="Perfil verificado">
+            <span class="profile__verified" id="pgVerified" title="Perfil verificado" aria-label="Perfil verificado" hidden>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <polyline points="20 6 9 17 4 12"></polyline>
               </svg>
@@ -2812,7 +2812,7 @@
 
       /* ---- Selo de verificado (cfg.profile.verified) ---- */
       const verifiedEl = document.getElementById('pgVerified');
-      if (verifiedEl) verifiedEl.hidden = false;
+      if (verifiedEl) verifiedEl.hidden = !p.verified;
 
       /* ---- Banner superior (design.banner) ---- */
       const bn = (cfg.design && cfg.design.banner) || {};
