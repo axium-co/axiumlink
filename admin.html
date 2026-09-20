@@ -3800,49 +3800,66 @@
   /* ---- Element refs + inicialização do editor ---- */
   function initEditor() {
     /* Prioridade: config da nuvem > rascunho local */
-    if (_cloudConfigToLoad) {
-      applyConfig(_cloudConfigToLoad);
-      _isDirty = false;
-    } else {
-      loadLocalDraft();
-      _isDirty = true;
+    try {
+      if (_cloudConfigToLoad) {
+        applyConfig(_cloudConfigToLoad);
+        _isDirty = false;
+      } else {
+        loadLocalDraft();
+        _isDirty = true;
+      }
+    } catch (err) {
+      console.error('[Axiumlink] initEditor: falha ao carregar config:', err);
     }
 
     /* Garante estrutura mínima para que event handlers não falhem */
-    cfg.profile = cfg.profile || { displayName: '', bio: '', avatar: '', address: '', pix: { enabled: false, key: '', qr: '', link: '' } };
-    cfg.links = cfg.links || [];
-    cfg.style = cfg.style || DEFAULT_CFG().style;
-    /* Migração: vídeo de fundo foi removido do produto; configs antigas
-       caem para fundo sólido. */
-    if (cfg.style.bgVariant === 'video') cfg.style.bgVariant = 'solid';
-    cfg.banner = cfg.banner || '';
+    try {
+      cfg.profile = cfg.profile || { displayName: '', bio: '', avatar: '', address: '', pix: { enabled: false, key: '', qr: '', link: '' } };
+      cfg.links = cfg.links || [];
+      cfg.style = cfg.style || DEFAULT_CFG().style;
+      /* Migração: vídeo de fundo foi removido do produto; configs antigas
+         caem para fundo sólido. */
+      if (cfg.style.bgVariant === 'video') cfg.style.bgVariant = 'solid';
+      cfg.banner = cfg.banner || '';
 
-    /* Controles de estilo novos: refletem o config (default ou salvo) no load */
-    $('layoutSpacing').value = cfg.style.layoutSpacing || 'comfy';
+      /* Controles de estilo novos: refletem o config (default ou salvo) no load */
+      $('layoutSpacing').value = cfg.style.layoutSpacing || 'comfy';
 
-    $('displayName').value = cfg.profile?.displayName || '';
-    $('bio').value = cfg.profile?.bio || '';
-    $('address').value = cfg.profile?.address || '';
-    const pix0 = cfg.profile?.pix || {};
-    $('pixEnabled').checked = !!pix0.enabled;
-    $('pixKey').value = pix0.key || '';
-    $('pixLink').value = pix0.link || '';
-    $('pixQrHint').style.display = pix0.qr ? 'block' : 'none';
-    const activeProfile = window.userProfiles?.find(p => p.id === window.currentProfileId);
-    $('slugInput').value = activeProfile?.slug?.startsWith('perfil-inicial-') ? '' : ($('slugInput').value || '');
-
-    renderThemeSwatches();
-    renderPresets();
-    bindStyleControls();
-    reflectStyleValues();
-    if (!_editorEventsBound) {
-      bindEditorEvents();
-      _editorEventsBound = true;
+      $('displayName').value = cfg.profile?.displayName || '';
+      $('bio').value = cfg.profile?.bio || '';
+      $('address').value = cfg.profile?.address || '';
+      const pix0 = cfg.profile?.pix || {};
+      $('pixEnabled').checked = !!pix0.enabled;
+      $('pixKey').value = pix0.key || '';
+      $('pixLink').value = pix0.link || '';
+      $('pixQrHint').style.display = pix0.qr ? 'block' : 'none';
+      const activeProfile = window.userProfiles?.find(p => p.id === window.currentProfileId);
+      $('slugInput').value = activeProfile?.slug?.startsWith('perfil-inicial-') ? '' : ($('slugInput').value || '');
+    } catch (err) {
+      console.error('[Axiumlink] initEditor: falha ao configurar estrutura base:', err);
     }
-    syncEditorInputs();
-    syncPanelsVisibility();
-    renderAll();
-    initPixModalDialog();
+
+    /* Inicialização de UI - cada bloco isolado para não quebrar os seguintes */
+    try { renderThemeSwatches(); } catch (err) { console.error('[Axiumlink] renderThemeSwatches falhou:', err); }
+    try { renderPresets(); } catch (err) { console.error('[Axiumlink] renderPresets falhou:', err); }
+    try { bindStyleControls(); } catch (err) { console.error('[Axiumlink] bindStyleControls falhou:', err); }
+    try { reflectStyleValues(); } catch (err) { console.error('[Axiumlink] reflectStyleValues falhou:', err); }
+
+    /* CRÍTICO: bindEditorEvents SEMPRE deve rodar, mesmo se blocos acima falharem */
+    try {
+      if (!_editorEventsBound) {
+        bindEditorEvents();
+        _editorEventsBound = true;
+      }
+    } catch (err) {
+      console.error('[Axiumlink] bindEditorEvents FALHOU - listeners NÃO anexados:', err);
+    }
+
+    /* Demais inicializações (não bloqueiam se falharem) */
+    try { syncEditorInputs(); } catch (err) { console.error('[Axiumlink] syncEditorInputs falhou:', err); }
+    try { syncPanelsVisibility(); } catch (err) { console.error('[Axiumlink] syncPanelsVisibility falhou:', err); }
+    try { renderAll(); } catch (err) { console.error('[Axiumlink] renderAll falhou:', err); }
+    try { initPixModalDialog(); } catch (err) { console.error('[Axiumlink] initPixModalDialog falhou:', err); }
   }
 
   /* Re-sincroniza valores dos inputs sem recriar listeners */
@@ -3851,32 +3868,52 @@
   }
 
   function markDirty() {
-    _isDirty = true;
-    saveLocalDraft();
-    schedulePreview();
-    scheduleCloudSave();
-    syncLayoutOrder();
+    try {
+      _isDirty = true;
+      saveLocalDraft();
+      schedulePreview();
+      scheduleCloudSave();
+      syncLayoutOrder();
+    } catch (err) {
+      console.error('[Axiumlink] markDirty falhou:', err);
+      // Garante que preview e cloud save ainda sejam agendados mesmo se syncLayoutOrder falhar
+      try { schedulePreview(); } catch (_) {}
+      try { scheduleCloudSave(); } catch (_) {}
+    }
   }
 
   /* Sincroniza as ordens individuais dos elementos do perfil para cfg.layout.items
      (usado pela página pública). O layout público trata o bloco de perfil como
-     uma unidade; usamos a ordem média dos elementos visíveis como referência. */
+     uma unidade; usamos a menor ordem dos elementos visíveis como referência. */
   function syncLayoutOrder() {
-    if (!cfg.layout) cfg.layout = {};
-    if (!cfg.layout.items) cfg.layout.items = {};
-    
-    const nameOrder = profileElem('name').order ?? 1;
-    const bioOrder = profileElem('bio').order ?? 2;
-    const addressOrder = profileElem('address').order ?? 3;
-    const avatarOrder = profileElem('avatar').order ?? 0;
-    
-    // Calcula uma ordem representativa para o bloco de perfil inteiro
-    // Usa a menor ordem entre os elementos visíveis (o que aparece primeiro)
-    const orders = [avatarOrder, nameOrder, bioOrder, addressOrder];
-    const minOrder = Math.min(...orders);
-    
-    cfg.layout.items.info = cfg.layout.items.info || {};
-    cfg.layout.items.info.order = minOrder;
+    try {
+      if (!cfg.layout) cfg.layout = {};
+      if (!cfg.layout.items) cfg.layout.items = {};
+      
+      const getOrder = (key, fallback) => {
+        try {
+          const elem = profileElem(key);
+          return (elem && typeof elem.order === 'number') ? elem.order : fallback;
+        } catch (_) {
+          return fallback;
+        }
+      };
+
+      const nameOrder = getOrder('name', 1);
+      const bioOrder = getOrder('bio', 2);
+      const addressOrder = getOrder('address', 3);
+      const avatarOrder = getOrder('avatar', 0);
+      
+      // Calcula uma ordem representativa para o bloco de perfil inteiro
+      // Usa a menor ordem entre os elementos visíveis (o que aparece primeiro)
+      const orders = [avatarOrder, nameOrder, bioOrder, addressOrder].filter(n => Number.isFinite(n));
+      const minOrder = orders.length ? Math.min(...orders) : 0;
+      
+      cfg.layout.items.info = cfg.layout.items.info || {};
+      cfg.layout.items.info.order = minOrder;
+    } catch (err) {
+      console.error('[Axiumlink] syncLayoutOrder falhou:', err);
+    }
   }
 
   /* Render do mockup com debounce LEVE (150ms): reflete a edição ao vivo
