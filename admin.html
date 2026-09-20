@@ -2734,7 +2734,7 @@
                   <div class="pv-name-row">
                     <div class="pv-name-wrap">
                       <h1 class="pv-name" id="pvName">Seu nome</h1>
-                      <span class="pv-verified" id="pvVerified" title="Perfil verificado" aria-label="Perfil verificado" hidden>
+                      <span class="pv-verified" id="pvVerified" title="Perfil verificado" aria-label="Perfil verificado">
                         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                           <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15l11-11-1.41-1.41L10 14.17l-3.59-3.59L7 11.93 3.21 8.14c.63.93 1.13 2 1.13 3.18 0 4.08-3.05 7.44-7 7.93v.07z"/>
                         </svg>
@@ -5791,7 +5791,7 @@
     /* Selo de verificado */
     const verified = $('pvVerified');
     if (verified) {
-      verified.hidden = !(cfg.profile && cfg.profile.verified);
+      verified.hidden = false;
       verified.style.background = pf.verifiedColor ? pf.verifiedColor : '#0095f6';
     }
 
