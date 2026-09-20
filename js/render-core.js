@@ -171,6 +171,297 @@ const RenderCore = (function () {
     }
   }
 
+  /* ================================================================
+     SISTEMA DE ESTILO DE BOTÕES UNIFICADO (portado do admin.html)
+     ================================================================ */
+
+  /* Mapeamento de shapes para CSS */
+  const BUTTON_SHAPES = {
+    square:    { borderRadius: '0px' },
+    soft:      { borderRadius: '6px' },
+    rounded:   { borderRadius: '16px' },
+    pill:      { borderRadius: '9999px' },
+    organic:   { borderRadius: '30% 70% 70% 30% / 30% 30% 70% 70%' },
+    bubble:    { borderRadius: '50% 20% 50% 20% / 20% 50% 20% 50%' },
+    diagonal:  { borderRadius: '20px 0px 20px 0px' },
+    double:    { borderRadius: '8px', border: '4px double currentColor' },
+    brutalist: { borderRadius: '0px', border: '3px solid #000', boxShadow: '5px 5px 0px #000' },
+    custom:    { borderRadius: 'var(--btn-radius, 14px)' }
+  };
+
+  const ANIM_CLASSES = ['anim-pulse', 'anim-float', 'anim-shine', 'pv-anim-pulse', 'pv-anim-float', 'pv-anim-shine'];
+
+  function hexToRgb(hex) {
+    const clean = hex.replace('#', '');
+    const bigint = parseInt(clean, 16);
+    return [(bigint >> 16) & 255, (bigint >> 8) & 255, bigint & 255];
+  }
+
+  function mixHex(hex1, hex2, weight) {
+    const [r1, g1, b1] = hexToRgb(hex1);
+    const [r2, g2, b2] = hexToRgb(hex2);
+    const r = Math.round(r1 * (1 - weight) + r2 * weight);
+    const g = Math.round(g1 * (1 - weight) + g2 * weight);
+    const b = Math.round(b1 * (1 - weight) + b2 * weight);
+    return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+  }
+
+  function rgbaCss(hex, alpha) {
+    if (hex === 'transparent') return 'transparent';
+    const [r, g, b] = hexToRgb(hex);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+
+  function isInvisColor(hex) {
+    return hex === 'transparent' || hex === '';
+  }
+
+  /**
+   * Converte estilo individual (schema premium do admin) para formato flat
+   * compatível com buildButtonCSS
+   */
+  function linkStyleToFlat(linkStyle, globalStyle) {
+    if (!linkStyle) return {};
+    const base = {
+      variant: 'solid',
+      format: 'rounded',
+      animation: 'none',
+      shadow: { type: 'soft', intensity: 30 },
+      radius: 14,
+      glow: '#22d3ee',
+      gradient: { start: '#6366f1', end: '#ec4899', angle: 135 },
+      glass: { enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: 25 },
+      colors: { background: '', text: '' },
+      displayStyle: 'box'
+    };
+    const s = Object.assign({}, base, linkStyle);
+    const sh = Object.assign({ type: 'soft', intensity: 30 }, base.shadow, linkStyle.shadow || {});
+    const gr = Object.assign({ start: '#6366f1', end: '#ec4899', angle: 135 }, base.gradient, linkStyle.gradient || {});
+    const gl = Object.assign({}, base.glass, linkStyle.glass || {});
+    const co = Object.assign({ background: '', text: '' }, base.colors, linkStyle.colors || {});
+    const pick = (v, fb) => (v === '' || v == null) ? fb : v;
+    return {
+      btnVariant: s.variant,
+      btnShape: s.format,
+      btnAnimation: s.animation,
+      btnShadowStyle: sh.type,
+      btnShadow: sh.intensity,
+      btnRadius: s.radius,
+      btnGlowColor: s.glow,
+      btnGradientStart: gr.start,
+      btnGradientEnd: gr.end,
+      btnGradientAngle: gr.angle,
+      btnGlassOpacity: gl.opacity,
+      btnGlassBlur: gl.blur,
+      btnGlassBorderOpacity: gl.borderOpacity,
+      btnBgColor: pick(co.background, ''),
+      btnTextColor: pick(co.text, ''),
+      btnGlassEnabled: gl.enabled,
+      btnGlassSaturate: gl.saturate,
+      btnGlassColor: gl.color,
+      btnGlassBorderGlow: gl.borderGlow,
+      btnGlassShadowDepth: gl.shadowDepth,
+      btnGlassHighlight: gl.highlight,
+      btnGlassNoise: gl.noise,
+      displayStyle: s.displayStyle || 'box'
+    };
+  }
+
+  /**
+   * Gera CSS do botão baseado na variante (merge global + individual)
+   * st = estilo mesclado (global + individual), t = cores do tema
+   */
+  function buildButtonCSS(st, t) {
+    const shape = BUTTON_SHAPES[st.btnShape] || BUTTON_SHAPES.rounded;
+
+    /* Sombra */
+    const sStyle = st.btnShadowStyle || 'soft';
+    const alpha = (st.btnShadow ?? 30) / 100;
+    let shadow;
+    if (sStyle === 'none') shadow = 'none';
+    else if (sStyle === 'neumorph') shadow = '6px 6px 12px rgba(0,0,0,0.1), -6px -6px 12px rgba(255,255,255,0.8)';
+    else if (sStyle === 'glow') shadow = '0 0 15px currentColor';
+    else shadow = alpha > 0
+      ? `0 ${Math.round(alpha * 10)}px ${Math.round(alpha * 26)}px rgba(0,0,0,${(alpha * .35).toFixed(2)})`
+      : 'none';
+
+    const base = Object.assign({
+      boxShadow: shadow,
+      transition: 'all 0.2s ease'
+    }, shape);
+
+    switch (st.btnVariant) {
+      case 'glass': {
+        const blur = (st.btnGlassBlur ?? 12) + 'px';
+        const opacity = (st.btnGlassOpacity ?? 15) / 100;
+        return {
+          ...base,
+          background: `rgba(255,255,255,${opacity})`,
+          color: t.ink,
+          backdropFilter: `blur(${blur})`,
+          WebkitBackdropFilter: `blur(${blur})`,
+          border: '1px solid rgba(255,255,255,0.25)',
+          ...shape
+        };
+      }
+      case 'neon': {
+        const glow = st.btnGlowColor || '#22d3ee';
+        return {
+          ...base,
+          background: 'transparent',
+          color: glow,
+          border: `2px solid ${glow}`,
+          ...shape
+        };
+      }
+      case 'neumorphic': {
+        const isDark = t.bg.includes('dark') || t.bg.includes('#0b') || t.bg.includes('#0a') || t.bg.includes('#11');
+        const bgColor = isDark ? '#1f2937' : '#e0e5ec';
+        return {
+          ...base,
+          background: bgColor,
+          color: t.ink,
+          border: 'none',
+          ...shape
+        };
+      }
+      case 'ghost': {
+        return {
+          ...base,
+          background: 'transparent',
+          color: t.btnbg,
+          border: `2px solid ${t.btnbg}`,
+          ...shape
+        };
+      }
+      case 'gradient-soft': {
+        const gBase = (st.btnBgColor && !isInvisColor(st.btnBgColor)) ? st.btnBgColor : t.btnbg;
+        return {
+          ...base,
+          background: `linear-gradient(140deg, ${mixHex(gBase, '#ffffff', 0.22)}, ${mixHex(gBase, '#000000', 0.16)})`,
+          color: '#ffffff',
+          border: '1px solid rgba(255,255,255,0.15)',
+          ...shape
+        };
+      }
+      case 'gradient': {
+        return {
+          ...base,
+          background: `linear-gradient(${st.btnGradientAngle || 135}deg, ${st.btnGradientStart || '#6366f1'}, ${st.btnGradientEnd || '#ec4899'})`,
+          color: '#ffffff',
+          border: 'none',
+          ...shape
+        };
+      }
+      default: /* solid */
+        return {
+          ...base,
+          background: st.btnBgColor || t.btnbg,
+          color: st.btnTextColor || t.btnink,
+          border: 'none',
+          ...shape
+        };
+    }
+  }
+
+  /**
+   * Aplica estilos de botão (merge global + individual) ao elemento
+   */
+  function applyButtonStyles(btn, linkStyle, globalStyle, themeColors) {
+    if (!btn) return;
+
+    /* Remove classes de animação anteriores */
+    btn.classList.remove(...ANIM_CLASSES);
+
+    const isCustomImg = btn.classList.contains('featured__card--customimg');
+    const isHighlight = btn.classList.contains('featured__card--highlight');
+    const isTestimonial = btn.classList.contains('featured__card--testimonial');
+
+    /* Botões especiais (customimg, highlight, testimonial) não recebem estilo global de botão */
+    if (isCustomImg) {
+      Object.assign(btn.style, {
+        border: 'none',
+        boxShadow: 'none',
+        background: 'transparent',
+        backdropFilter: 'none',
+        WebkitBackdropFilter: 'none',
+        textShadow: 'none'
+      });
+      return;
+    }
+
+    if (isHighlight || isTestimonial) {
+      /* Estes usam o estilo do card, mas podem ter animação individual */
+      const merged = Object.assign({}, globalStyle, linkStyleToFlat(linkStyle, globalStyle));
+      const bAnim = merged.btnAnimation || 'none';
+      if (bAnim === 'pulse') btn.classList.add('anim-pulse');
+      else if (bAnim === 'float') btn.classList.add('anim-float');
+      else if (bAnim === 'shine') btn.classList.add('anim-shine');
+      return;
+    }
+
+    /* Botão padrão: merge global + individual */
+    const flat = linkStyleToFlat(linkStyle, globalStyle);
+    const merged = Object.assign({}, globalStyle, flat);
+    const isTextOnly = (merged.displayStyle || 'box') === 'text-only';
+
+    if (isTextOnly) {
+      btn.classList.remove('ghost', 'neumorphic');
+      Object.assign(btn.style, {
+        background: 'transparent',
+        border: 'none',
+        boxShadow: 'none',
+        padding: '0',
+        borderRadius: '0',
+        backdropFilter: 'none',
+        WebkitBackdropFilter: 'none',
+        textShadow: 'none',
+        display: 'inline',
+        width: 'auto',
+        maxWidth: 'none',
+        flex: 'none',
+        textDecoration: 'underline',
+        cursor: 'pointer'
+      });
+      return;
+    }
+
+    /* Aplica CSS da variante */
+    const bCSS = buildButtonCSS(merged, themeColors);
+    const bVariant = merged.btnVariant || 'solid';
+    const bAnim = merged.btnAnimation || 'none';
+
+    Object.assign(btn.style, bCSS);
+    btn.classList.remove('ghost', 'neumorphic');
+    if (bVariant === 'ghost' || bVariant === 'neumorphic') btn.classList.add(bVariant);
+    if (bAnim === 'pulse') btn.classList.add('anim-pulse');
+    else if (bAnim === 'float') btn.classList.add('anim-float');
+    else if (bAnim === 'shine') btn.classList.add('anim-shine');
+  }
+
+  /**
+   * Extrai cores do tema do cfg para passar ao buildButtonCSS
+   */
+  function extractThemeColors(cfg) {
+    const st = cfg.style || {};
+    const THEMES = {
+      indigo:  { bg:'#f9fafb', ink:'#111827', btnbg:'#111827', btnink:'#ffffff' },
+      light:   { bg:'#ffffff', ink:'#1f2937', btnbg:'#2563eb', btnink:'#ffffff' },
+      dark:    { bg:'#0b1220', ink:'#e5e7eb', btnbg:'#1f2937', btnink:'#f9fafb' },
+      sunset:  { bg:'linear-gradient(180deg,#fff7ed,#ffedd5)', ink:'#7c2d12', btnbg:'#ea580c', btnink:'#ffffff' },
+      ocean:   { bg:'linear-gradient(180deg,#ecfeff,#cffafe)', ink:'#164e63', btnbg:'#0891b2', btnink:'#ffffff' },
+      forest:  { bg:'linear-gradient(180deg,#f0fdf4,#dcfce7)', ink:'#14532d', btnbg:'#16a34a', btnink:'#ffffff' },
+      rose:    { bg:'linear-gradient(180deg,#fff1f2,#ffe4e6)', ink:'#881337', btnbg:'#e11d48', btnink:'#ffffff' }
+    };
+    const th = THEMES[st.theme] || THEMES.indigo;
+    return {
+      bg: st.pageBgColor || th.bg,
+      ink: st.pageTextColor || th.ink,
+      btnbg: st.btnBgColor || th.btnbg,
+      btnink: st.btnTextColor || th.btnink
+    };
+  }
+
   /**
    * Renderiza tabs de categorias + lista de links
    * Retorna o wrapper das tabs (para insertBefore no linksContainer)
@@ -263,6 +554,9 @@ const RenderCore = (function () {
         img.alt = displayTitle;
         img.loading = 'lazy';
         a.appendChild(img);
+        /* Aplica estilo (limpa estilos de botão para customimg) */
+        const themeColors = extractThemeColors(cfg);
+        applyButtonStyles(a, link.style, cfg.style, themeColors);
         wrap.appendChild(a);
         return;
       }
@@ -295,6 +589,9 @@ const RenderCore = (function () {
           body.appendChild(sub);
         }
         a.appendChild(body);
+        /* Aplica estilo (animação individual) */
+        const themeColors = extractThemeColors(cfg);
+        applyButtonStyles(a, link.style, cfg.style, themeColors);
         wrap.appendChild(a);
         return;
       }
@@ -313,6 +610,9 @@ const RenderCore = (function () {
           body.appendChild(sub);
         }
         a.appendChild(body);
+        /* Aplica estilo (animação individual) */
+        const themeColors2 = extractThemeColors(cfg);
+        applyButtonStyles(a, link.style, cfg.style, themeColors2);
         wrap.appendChild(a);
         return;
       }
@@ -351,6 +651,10 @@ const RenderCore = (function () {
       arrow.className = 'featured__arrow';
       arrow.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>`;
       a.appendChild(arrow);
+
+      /* Aplica estilo de botão (merge global + individual do link.style) */
+      const themeColors = extractThemeColors(cfg);
+      applyButtonStyles(a, link.style, cfg.style, themeColors);
 
       wrap.appendChild(a);
     });
