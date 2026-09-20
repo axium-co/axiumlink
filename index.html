@@ -397,9 +397,9 @@
       margin-bottom: 0;
       min-width: 0;
     }
-    /* Nome + selo de verificado são um ÚNICO bloco centralizado: o wrap
-       flex posiciona os dois juntos (justify-content) com um espaçamento
-       pequeno e fixo, independente das margens do chip do Nome. */
+    /* Nome + selo de verificado: o wrap posiciona o nome centralizado;
+       o badge fica posicionado absolutamente à direita do nome, sem
+       afetar o centro do bloco. */
     .profile__name-wrap {
       display: flex;
       align-items: center;
@@ -408,6 +408,8 @@
       gap: 0.5rem;
       max-width: 100%;
       min-width: 0;
+      position: relative;
+      padding-right: 28px; /* reserva espaço para o badge */
     }
 
     .profile__title {
@@ -422,6 +424,10 @@
     }
 
     .profile__verified {
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -431,9 +437,10 @@
       border-radius: 999px;
       background: #0095f6;
       color: #ffffff;
-      vertical-align: middle;
     }
-    .profile__verified[hidden] { display: none; }
+    .profile__verified[hidden] {
+      display: none;
+    }
 
     .profile__verified svg {
       width: 14px;
@@ -3259,17 +3266,6 @@
           const na = pElemName.align || (ptext.name && ptext.name.align) || '';
           nameRow.style.justifyContent = na === 'left' ? 'flex-start' : na === 'right' ? 'flex-end' : 'center';
           if (nameWrap) nameWrap.style.justifyContent = 'center';
-          const tEl = document.getElementById('pgTitle');
-          const vEl = document.getElementById('pgVerified');
-          if (tEl) { 
-            tEl.style.marginLeft = ''; 
-            tEl.style.marginRight = '';
-            /* Quando o selo está visível, remove o padding horizontal do nome
-               para que o texto fique centrado em relação ao selo (evita deslocamento visual). */
-            const badgeVisible = vEl && !vEl.hidden;
-            tEl.style.paddingLeft = badgeVisible ? '0' : '';
-            tEl.style.paddingRight = badgeVisible ? '0' : '';
-          }
         }
       };
       alignNameRowPub();

@@ -781,8 +781,14 @@
   .pv-name-wrap {
     display:flex; align-items:center; justify-content:center; gap:7px;
     flex-wrap:wrap; max-width:100%; min-width:0;
+    position: relative;
+    padding-right: 28px;
   }
   .pv-verified {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
     display:inline-flex; align-items:center; justify-content:center;
     width:22px; height:22px; border-radius:999px; flex-shrink:0;
     background:#0095f6; color:#fff; vertical-align:middle;
@@ -5697,7 +5703,7 @@
     }
   }
 
-  /* Centraliza Nome+selo como um ÚNICO bloco: o wrap (.pv-name-wrap) posiciona
+/* Centraliza Nome+selo como um ÚNICO bloco: o wrap (.pv-name-wrap) posiciona
      os dois juntos (justify-content no wrap). O row só posiciona o wrap
      (esquerda/centro/direita). As margens:auto do chip do Nome são limpas
      para que a dupla não se desloque. */
@@ -5709,15 +5715,9 @@
     nameRow.style.justifyContent = na === 'left' ? 'flex-start' : na === 'right' ? 'flex-end' : 'center';
     if (nameWrap) nameWrap.style.justifyContent = 'center';
     const pvNameEl = $('pvName');
-    const pvVerifiedEl = $('pvVerified');
-    if (pvNameEl) { 
-      pvNameEl.style.marginLeft = ''; 
+    if (pvNameEl) {
+      pvNameEl.style.marginLeft = '';
       pvNameEl.style.marginRight = '';
-      /* Quando o selo está visível, remove o padding horizontal do nome
-         para que o texto fique centrado em relação ao selo (evita deslocamento visual). */
-      const badgeVisible = pvVerifiedEl && !pvVerifiedEl.hidden;
-      pvNameEl.style.paddingLeft = badgeVisible ? '0' : '';
-      pvNameEl.style.paddingRight = badgeVisible ? '0' : '';
     }
   }
 
