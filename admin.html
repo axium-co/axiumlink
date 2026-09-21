@@ -1149,6 +1149,10 @@
     border-radius: 18px;
     transition: all 0.3s ease;
     font-family: inherit;
+    position: relative;
+  }
+  .profile-select-card:focus-visible {
+    outline: 2px solid var(--brand); outline-offset: 3px;
   }
   .profile-select-card:hover {
     transform: translateY(-5px);
@@ -1185,6 +1189,23 @@
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     padding: 0 8px;
   }
+
+  /* Botão de excluir perfil no card */
+  .psc-del {
+    position: absolute; top: 8px; right: 8px;
+    width: 30px; height: 30px; border-radius: 999px;
+    background: rgba(17,24,39,.6); color: #fca5a5;
+    border: 1px solid rgba(255,255,255,.14);
+    display: grid; place-items: center; cursor: pointer;
+    font-size: 13px; line-height: 1; padding: 0;
+    opacity: 0; transition: opacity .2s ease, background .2s ease, color .2s ease, transform .1s ease;
+    font-family: inherit; z-index: 2;
+  }
+  .profile-select-card:hover .psc-del,
+  .psc-del:focus-visible { opacity: 1; }
+  .psc-del:hover { background: var(--danger, #dc2626); color: #fff; }
+  .psc-del:active { transform: scale(.92); }
+  @media (hover: none) { .psc-del { opacity: 1; } }
 
   @media (max-width: 600px) {
     .pd-header { padding: 16px 18px; }
@@ -1403,6 +1424,19 @@
       <button id="pdConfirmCreate" style="flex:2; padding:12px; border:none; border-radius:10px; background:var(--brand); color:#fff; font-weight:700; cursor:pointer;">Criar perfil</button>
     </div>
     <p id="pdCreateMsg" style="color:var(--danger); font-size:13px; margin-top:10px;"></p>
+  </div>
+</div>
+
+<!-- ===== MODAL EXCLUIR PERFIL ===== -->
+<div class="modal-backdrop" id="pdDeleteModal">
+  <div class="modal-box">
+    <h3 style="margin-bottom:8px;">Excluir perfil?</h3>
+    <p id="pdDeleteDesc" style="font-size:14px; color:var(--muted); margin:0 0 18px; line-height:1.5;"></p>
+    <div style="display:flex; gap:10px; margin-top:8px;">
+      <button class="btn-mini" id="pdCancelDelete" style="flex:1; padding:12px;">Cancelar</button>
+      <button id="pdConfirmDelete" style="flex:2; padding:12px; border:none; border-radius:10px; background:var(--danger); color:#fff; font-weight:700; cursor:pointer;">Excluir</button>
+    </div>
+    <p id="pdDeleteMsg" style="color:var(--danger); font-size:13px; margin-top:10px;"></p>
   </div>
 </div>
 
@@ -8391,9 +8425,21 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
     grid.innerHTML = '';
 
     (window.userProfiles || []).forEach((p) => {
-      const card = document.createElement('button');
-      card.type = 'button';
+      const card = document.createElement('div');
       card.className = 'profile-select-card';
+      card.setAttribute('role', 'button');
+      card.setAttribute('tabindex', '0');
+
+      const del = document.createElement('button');
+      del.type = 'button';
+      del.className = 'psc-del';
+      del.title = 'Excluir perfil';
+      del.setAttribute('aria-label', 'Excluir perfil ' + profileDisplayName(p));
+      del.textContent = '✕';
+      del.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openDeleteProfileModal(p);
+      });
 
       const avatar = document.createElement('div');
       avatar.className = 'psc-avatar';
@@ -8413,9 +8459,16 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
       name.className = 'psc-name';
       name.textContent = profileDisplayName(p);
 
+      card.appendChild(del);
       card.appendChild(avatar);
       card.appendChild(name);
       card.addEventListener('click', () => selectProfileFromDashboard(p.id));
+      card.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          selectProfileFromDashboard(p.id);
+        }
+      });
       grid.appendChild(card);
     });
   }
@@ -8559,6 +8612,20 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
     });
 
     safeOn('pdConfirmCreate', 'click', createProfileFromModal);
+
+    safeOn('pdCancelDelete', 'click', () => {
+      $('pdDeleteModal').classList.remove('open');
+      _pendingDeleteProfile = null;
+    });
+
+    safeOn('pdDeleteModal', 'click', (e) => {
+      if (e.target === $('pdDeleteModal')) {
+        $('pdDeleteModal').classList.remove('open');
+        _pendingDeleteProfile = null;
+      }
+    });
+
+    safeOn('pdConfirmDelete', 'click', confirmDeleteProfile);
   }
 
   async function createProfileFromModal() {
@@ -8602,6 +8669,65 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
     $('pdCreateModal').classList.remove('open');
     renderProfileDashboard();
     showToast('Perfil "' + name + '" criado!');
+  }
+
+  /* ---- Modal "Excluir Perfil" ---- */
+  let _pendingDeleteProfile = null;
+
+  function openDeleteProfileModal(p) {
+    if (!p) return;
+    if ((window.userProfiles || []).length <= 1) {
+      showToast('Não é possível excluir: mantenha ao menos 1 perfil.');
+      return;
+    }
+    _pendingDeleteProfile = p;
+    $('pdDeleteDesc').textContent =
+      'O perfil "' + profileDisplayName(p) + '" será excluído permanentemente. Essa ação não pode ser desfeita.';
+    $('pdDeleteMsg').textContent = '';
+    $('pdDeleteModal').classList.add('open');
+  }
+
+  async function confirmDeleteProfile() {
+    const p = _pendingDeleteProfile;
+    const msgEl = $('pdDeleteMsg');
+    if (!p || !SupaApp.currentUser) return;
+
+    const btn = $('pdConfirmDelete');
+    btn.disabled = true;
+    msgEl.style.color = 'var(--muted)';
+    msgEl.textContent = 'Excluindo...';
+
+    const { error } = await supabase
+      .from('clients')
+      .delete()
+      .eq('id', p.id)
+      .eq('user_id', SupaApp.currentUser.id);
+
+    btn.disabled = false;
+
+    if (error) {
+      console.error('[Axiumlink] Erro ao excluir perfil:', error);
+      msgEl.style.color = 'var(--danger)';
+      msgEl.textContent = 'Erro: ' + (error.message || 'não foi possível excluir.');
+      return;
+    }
+
+    /* Remove do cache local e limpa estado de perfil ativo, se necessário */
+    window.userProfiles = (window.userProfiles || []).filter(x => x.id !== p.id);
+    if (window.currentProfileId === p.id) {
+      const next = window.userProfiles[0] || null;
+      window.currentProfileId = next ? next.id : null;
+      window.currentProfileSlug = next ? (next.slug || 'default') : 'default';
+      SupaApp.currentClient = next;
+    }
+    try {
+      localStorage.removeItem('axiumlink-preview-v1-' + (p.slug || 'default'));
+    } catch (_) {}
+
+    _pendingDeleteProfile = null;
+    $('pdDeleteModal').classList.remove('open');
+    renderProfileDashboard();
+    showToast('Perfil "' + profileDisplayName(p) + '" excluído.');
   }
 
   function switchTab(which) {

@@ -39,7 +39,7 @@ linhas do usuário autenticado (`user_id = auth.uid()`).
 | **SELECT** | ✅ Autenticado | Dono | Listar/carregar perfis no painel — `user_id = auth.uid()` |
 | **INSERT** | ✅ Autenticado | Dono | Autocriação do primeiro perfil — `with check (user_id = auth.uid())` |
 | **UPDATE** | ✅ Autenticado | Dono | Autosave com filtro duplo `id` + `user_id` |
-| **DELETE** | ❌ Ninguém | — | Bloquear por padrão (sem UI de exclusão) |
+| **DELETE** | ✅ Autenticado | Dono | Excluir perfil no painel — `using (user_id = auth.uid())` (duplo check `id` + `user_id` no cliente) |
 
 ### Trigger de integridade
 
@@ -99,7 +99,7 @@ linhas do usuário autenticado (`user_id = auth.uid()`).
 - [ ] SELECT de leitura pública por slug habilitado para `anon`
 - [ ] INSERT com `with check (user_id = auth.uid())`
 - [ ] UPDATE/GET restritos a `user_id = auth.uid()`
-- [ ] DELETE desabilitada
+- [ ] DELETE restrito a `user_id = auth.uid()`
 - [ ] Trigger `protect_clients_user_id` ativo (UPDATE de `user_id` falha)
 - [ ] RPC de merge aplica `config || patch` (nunca substituição)
 - [ ] Storage `avatars` com pasta por usuário + leitura pública
