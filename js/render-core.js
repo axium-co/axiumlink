@@ -392,7 +392,7 @@ const RenderCore = (function () {
 
     if (isHighlight || isTestimonial) {
       /* Estes usam o estilo do card, mas podem ter animação individual */
-      const merged = Object.assign({}, globalStyle, linkStyleToFlat(linkStyle, globalStyle));
+      const merged = linkStyleToFlat(linkStyle, globalStyle);
       const bAnim = merged.btnAnimation || 'none';
       if (bAnim === 'pulse') btn.classList.add('anim-pulse');
       else if (bAnim === 'float') btn.classList.add('anim-float');
@@ -400,9 +400,11 @@ const RenderCore = (function () {
       return;
     }
 
-    /* Botão padrão: merge global + individual */
+    /* Botão padrão: estilo individual vence; global é fallback apenas
+       para links LEGADO (sem style próprio). Mockup e público usam a
+       MESMA lógica — fonte única. */
     const flat = linkStyleToFlat(linkStyle, globalStyle);
-    const merged = Object.assign({}, globalStyle, flat);
+    const merged = linkStyle ? flat : Object.assign({}, globalStyle, flat);
     const isTextOnly = (merged.displayStyle || 'box') === 'text-only';
 
     if (isTextOnly) {

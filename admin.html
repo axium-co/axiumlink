@@ -5629,7 +5629,10 @@
       const idx = Number(el.dataset.linkIdx);
       const linkItem = (!Number.isNaN(idx) && cfg.links && cfg.links[idx]) ? cfg.links[idx] : null;
       const flat = linkItem ? linkStyleToFlat(linkItem.style, st) : {};
-      const merged = Object.assign({}, st, flat);
+      /* Estilo individual é a fonte de verdade quando o link tem style
+         próprio; o global (st) é apenas fallback para links LEGADO sem
+         estilo individual. Mockup e público seguem idênticos. */
+      const merged = (linkItem && linkItem.style) ? flat : Object.assign({}, st, flat);
       const isTextOnly = (merged.displayStyle || 'box') === 'text-only';
       
       if (isTextOnly) {

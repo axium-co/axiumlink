@@ -5,7 +5,8 @@
    Ele é gerado/exportado pelo Painel (admin.html) e também pode
    ser lido manualmente. O index.html consome este objeto na carga.
 
-   Estrutura idêntica ao payload salvo pelo painel (console.log).
+   ARQUITETURA: Apenas estilo individual por link (sem estilo global).
+   Cada link carrega seu próprio objeto `style` completo.
    ================================================================ */
 window.AXIUMLINK_CONFIG = {
   profile: {
@@ -21,33 +22,64 @@ window.AXIUMLINK_CONFIG = {
       title: "Agende via WhatsApp",
       url: "https://wa.me/5500000000000",
       icon: "whatsapp",
-      image: null
+      image: null,
+      style: {
+        variant: "solid",
+        format: "rounded",
+        animation: "none",
+        shadow: { type: "soft", intensity: 30 },
+        radius: 14,
+        glow: "#22d3ee",
+        gradient: { start: "#6366f1", end: "#ec4899", angle: 135 },
+        glass: { enabled: false, blur: 20, saturate: 180, opacity: 16, color: "#ffffff", borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: 25 },
+        colors: { background: "#2563eb", text: "#ffffff" },
+        displayStyle: "box"
+      }
     },
     {
       id: "link-2",
       title: "Conheça nosso Instagram",
       url: "https://instagram.com/seu_usuario",
       icon: "instagram",
-      image: null
+      image: null,
+      style: {
+        variant: "gradient",
+        format: "rounded",
+        animation: "pulse",
+        shadow: { type: "glow", intensity: 40 },
+        radius: 14,
+        glow: "#ec4899",
+        gradient: { start: "#ec4899", end: "#f43f5e", angle: 135 },
+        glass: { enabled: false, blur: 20, saturate: 180, opacity: 16, color: "#ffffff", borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: 25 },
+        colors: { background: "", text: "#ffffff" },
+        displayStyle: "box"
+      }
     },
     {
       id: "link-3",
       title: "Confira nossa Localização",
       url: "https://www.google.com/maps",
       icon: "localizacao",
-      image: null
+      image: null,
+      style: {
+        variant: "glass",
+        format: "rounded",
+        animation: "none",
+        shadow: { type: "soft", intensity: 20 },
+        radius: 14,
+        glow: "#06b6d4",
+        gradient: { start: "#06b6d4", end: "#0891b2", angle: 135 },
+        glass: { enabled: true, blur: 20, saturate: 180, opacity: 16, color: "#ffffff", borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: 25 },
+        colors: { background: "", text: "#0f172a" },
+        displayStyle: "box"
+      }
     }
   ],
   visual: {
-    /* null/"" = tema padrão (light-dark). Texto em tinta escura para
-       o tema claro premium; no dark mode o CSS inverte automaticamente. */
+    /* Apenas propriedades globais de página (fundo, fonte, raio dos cards de perfil) */
     pageBg: null,
     textColor: "#0f172a",
     borderColor: null,
-    cardBg: null,
-    cardText: "#0f172a",
-    radius: "arredondado",
-    radiusLabel: "Arredondado",
     font: "Inter",
     bgImage: null
   },

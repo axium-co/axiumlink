@@ -3323,6 +3323,14 @@
           const na = pElemName.align || (ptext.name && ptext.name.align) || '';
           nameRow.style.justifyContent = na === 'left' ? 'flex-start' : na === 'right' ? 'flex-end' : 'center';
           if (nameWrap) nameWrap.style.justifyContent = 'center';
+          /* Limpa as margens:auto que o chipFor aplica no Nome (width
+             fit-content): absorvem o espaço livre do wrap flex e expulsam
+             o selo para a borda. Espelha o alignNameRow do admin. */
+          const nameTitle = document.getElementById('pgTitle');
+          if (nameTitle) {
+            nameTitle.style.marginLeft = '';
+            nameTitle.style.marginRight = '';
+          }
         }
       };
       alignNameRowPub();
@@ -4290,7 +4298,11 @@
           const li = Number(el.dataset.linkIdx);
           const linkData = (!Number.isNaN(li) && Array.isArray(linkList)) ? linkList[li] : null;
           const flat = axLinkStyleToFlat(linkData && linkData.style ? linkData.style : null, st);
-          const merged = Object.assign({}, st, flat);
+          /* Estilo individual é a fonte de verdade quando o link tem
+             style próprio; o global (st) serve apenas como fallback para
+             links LEGADO sem estilo individual. Mockup e público seguem
+             idênticos (render-core usa a mesma regra). */
+          const merged = (linkData && linkData.style) ? flat : Object.assign({}, st, flat);
           
           /* Modo "Somente texto": remove todo container visual do botão/link
              mas mantém o elemento clicável (href funciona). */
