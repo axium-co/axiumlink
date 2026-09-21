@@ -1,4 +1,4 @@
-const SW_VERSION = 'axiumlink-v5.0.0';
+const SW_VERSION = 'axiumlink-v5.1.0';
 const PRECACHE_URLS = [
   './',
   './index.html',
@@ -40,54 +40,66 @@ self.addEventListener('fetch', (event) => {
 
   if (request.mode === 'navigate') {
     event.respondWith(
-      fetch(request)
-        .then((response) => {
-          const copy = response.clone();
-          caches.open(SW_VERSION).then((cache) => cache.put(request, copy));
-          return response;
-        })
-        .catch(() => caches.match(request).then((hit) => hit || caches.match('./index.html')))
+      safeRespondWith(
+        fetch(request)
+          .then((response) => {
+            const copy = response.clone();
+            caches.open(SW_VERSION).then((cache) => cache.put(request, copy));
+            return response;
+          })
+          .catch(() => caches.match(request).then((hit) => hit || caches.match('./index.html')))
+      )
     );
     return;
   }
 
   if (url.origin === self.location.origin) {
     if (url.pathname.split('?')[0].endsWith('/config.js')) {
-      event.respondWith(networkFirst(request));
+      event.respondWith(safeRespondWith(networkFirst(request)));
       return;
     }
     if (url.pathname.split('?')[0].endsWith('/index.html') || url.pathname.split('?')[0].endsWith('/admin.html')) {
-      event.respondWith(networkFirst(request));
+      event.respondWith(safeRespondWith(networkFirst(request)));
       return;
     }
-    event.respondWith(staleWhileRevalidate(request));
+    event.respondWith(safeRespondWith(staleWhileRevalidate(request)));
     return;
   }
 
   if (url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com') {
-    event.respondWith(staleWhileRevalidate(request));
-    return;
-  }
-
-  /* CDNs usados pela página (Font Awesome, Supabase SDK etc.) — entra
-     no cache na primeira visita e fica disponível offline no PWA. */
-  if (url.hostname === 'cdnjs.cloudflare.com' || url.hostname === 'cdn.jsdelivr.net' || url.hostname === 'unpkg.com') {
-    event.respondWith(staleWhileRevalidate(request));
+    event.respondWith(safeRespondWith(staleWhileRevalidate(request)));
   }
 });
+
+/* CDNs de CSS/ícones (Font Awesome etc.) NÃO são interceptados: o SW
+   guardava uma cópia opaca em paralelo ao cache HTTP, gerando o padrão
+   "failed + disk cache" no Network e servindo conteúdo envelhecido.
+   O navegador cacheia esses CDNs sozinho (Cache-Control do jsdelivr/
+   cdnjs é longo). O index.html já tem fallback automático (onerror). */
 
 async function staleWhileRevalidate(request) {
   const cache = await caches.open(SW_VERSION);
   const cached = await cache.match(request);
-  const network = fetch(request)
-    .then((response) => {
-      if (response && (response.status === 200 || response.type === 'opaque')) {
-        cache.put(request, response.clone());
-      }
-      return response;
-    })
-    .catch(() => cached);
-  return cached || network;
+  if (cached) {
+    /* Revalida em segundo plano; se falhar, o cache já respondeu. */
+    fetch(request)
+      .then((response) => {
+        if (response && (response.status === 200 || response.type === 'opaque')) {
+          cache.put(request, response.clone());
+        }
+      })
+      .catch(() => {});
+    return cached;
+  }
+  try {
+    const response = await fetch(request);
+    if (response && (response.status === 200 || response.type === 'opaque')) {
+      cache.put(request, response.clone());
+    }
+    return response;
+  } catch (err) {
+    return null;
+  }
 }
 
 async function networkFirst(request) {
@@ -101,4 +113,10 @@ async function networkFirst(request) {
     if (cached) return cached;
     return cache.match('./config.js');
   }
+}
+
+/* Nunca deixa respondWith receber undefined (vira ERR_FAILED no browser). */
+async function safeRespondWith(handler) {
+  const result = await handler;
+  return result || new Response('', { status: 502, statusText: 'SW fallback' });
 }
