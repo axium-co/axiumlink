@@ -1681,7 +1681,7 @@
 
     /* Textos dentro dos botões: truncam, nunca empurram o layout */
     .featured__card strong,
-    .featured__card span {
+    .featured___card span {
       min-width: 0;
       max-width: 100%;
       overflow-wrap: break-word;
@@ -1690,6 +1690,56 @@
     /* Mídia: jamais excede o container */
     img, svg, video {
       max-width: 100%;
+    }
+
+    /* ================================================================
+       DESKTOP OVERRIDES — garante que elementos não desapareçam e
+       botões tenham largura controlada em telas grandes
+       ================================================================ */
+    @media (min-width: 768px) {
+      /* Container principal: permite largura maior no desktop */
+      #pageFlow {
+        max-width: 720px;
+        padding: 2rem 2rem;
+      }
+
+      /* Cards de links: largura máxima controlada, centralizados */
+      .pg-links--list .featured__card {
+        max-width: 560px;
+        margin-left: auto;
+        margin-right: auto;
+        width: 100%;
+      }
+
+      /* Garante que o bloco de informações do perfil NÃO seja ocultado */
+      .profile__info {
+        display: flex !important;
+      }
+
+      /* Garante que o botão PIX não seja ocultado se tiver conteúdo */
+      .pg-pix:not([hidden]) {
+        display: flex !important;
+      }
+
+      /* Garante que títulos dos links não desapareçam */
+      .featured__card .featured__body strong,
+      .featured__card .featured__body span {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+      }
+    }
+
+    @media (min-width: 980px) {
+      #pageFlow {
+        max-width: 760px;
+        padding: 3rem 2rem;
+      }
+
+      .pg-links--list .featured__card {
+        max-width: 600px;
+        padding: 1rem 1.5rem;
+      }
     }
 
     /* ================================================================
@@ -3812,51 +3862,60 @@
         });
       }
 
-      /* ================================================================
-         ESTILO GLOBAL DOS BOTÕES — motor único da página pública.
-         Precedência garantida por camada:
-           1. Individual  → inline styles (aplicarEstiloIndividual, na
-              renderização de cada botão; vence por cascata)
-           2. Global      → variáveis CSS (:root e --ui-* por elemento)
-           3. Padrão      → fallback declarado no próprio var()
-         Mapeamento do formulário (admin):
-           visual.cardBg           -> backgroundColor (--card-destaque-bg)
-           visual.textColor/
-           cardText                -> color (texto + ícones via currentColor)
-           visual.radius           -> border-radius (--global-radius)
-           visual.btnBorder +
-           visual.borderColor       -> border-style/width/color (--ui-border)
-         ================================================================ */
-      const estiloContorno = v.btnBorder || 'borda-fina';
-      const corBorda = v.borderColor || 'var(--ui-border-color)';
-      const corTexto = v.textColor || v.cardText || 'var(--card-fg)';
-      let bordaBotao = 'none';
-      let fundoBotao = null;
-      let desfoqueBotao = '';
+/* ================================================================
+          ESTILO GLOBAL DOS BOTÕES — motor único da página pública.
+          Precedência garantida por camada:
+            1. Individual  → inline styles (aplicarEstiloIndividual, na
+               renderização de cada botão; vence por cascata)
+            2. Global      → variáveis CSS (:root e --ui-* por elemento)
+            3. Padrão      → fallback declarado no próprio var()
+          Mapeamento do formulário (admin):
+            visual.cardBg           -> backgroundColor (--card-destaque-bg)
+            visual.textColor/
+            cardText                -> color (texto + ícones via currentColor)
+            visual.radius           -> border-radius (--global-radius)
+            visual.btnBorder +
+            visual.borderColor       -> border-style/width/color (--ui-border)
+          ================================================================ */
+       const estiloContorno = v.btnBorder || 'borda-fina';
+       const corBorda = v.borderColor || 'var(--ui-border-color)';
+       const corTexto = v.textColor || v.cardText || 'var(--card-fg)';
+       let bordaBotao = 'none';
+       let fundoBotao = null;
+       let desfoqueBotao = '';
 
-      if (estiloContorno === 'borda-media') bordaBotao = '2px solid ' + corBorda;
-      else if (estiloContorno === 'borda-grossa') bordaBotao = '4px solid ' + corBorda;
-      else if (estiloContorno === 'outline') {
-        bordaBotao = '2px solid ' + corTexto;
-        fundoBotao = 'transparent';
-      } else if (estiloContorno === 'vidro') {
-        bordaBotao = '1px solid rgba(255, 255, 255, 0.35)';
-        fundoBotao = 'rgba(255, 255, 255, 0.18)';
-        desfoqueBotao = 'blur(10px) saturate(150%)';
-      } else if (estiloContorno === 'sem-borda') bordaBotao = 'none';
-      else bordaBotao = '1px solid ' + corBorda;
+       /* Cor de fundo padrão do botão (tema) — garante consistência
+          antes do pass premium aplicar estilos individuais. */
+       const temaBtnBg = v.btnBg || v.cardBg || 'var(--card-destaque-bg, var(--card-bg))';
 
-      const radiusExtras = radiusOpt.extras || {};
-      const extrasBorder = radiusExtras.border || bordaBotao;
-      const extrasShadow = radiusExtras.boxShadow || 'var(--shadow-sm)';
+       if (estiloContorno === 'borda-media') bordaBotao = '2px solid ' + corBorda;
+       else if (estiloContorno === 'borda-grossa') bordaBotao = '4px solid ' + corBorda;
+       else if (estiloContorno === 'outline') {
+         bordaBotao = '2px solid ' + corTexto;
+         fundoBotao = 'transparent';
+       } else if (estiloContorno === 'vidro') {
+         bordaBotao = '1px solid rgba(255, 255, 255, 0.35)';
+         fundoBotao = 'rgba(255, 255, 255, 0.18)';
+         desfoqueBotao = 'blur(10px) saturate(150%)';
+       } else if (estiloContorno === 'sem-borda') {
+         bordaBotao = 'none';
+         fundoBotao = temaBtnBg;
+       } else {
+         bordaBotao = '1px solid ' + corBorda;
+         fundoBotao = temaBtnBg;
+       }
 
-      document.querySelectorAll('.featured__card, .social-icon').forEach((t) => {
-        t.style.setProperty('--ui-border', extrasBorder);
-        t.style.setProperty('--ui-shadow', extrasShadow);
-        t.style.setProperty('--ui-blur', desfoqueBotao || 'none');
-        if (fundoBotao) t.style.setProperty('--ui-bg', fundoBotao);
-        else t.style.removeProperty('--ui-bg');
-      });
+       const radiusExtras = radiusOpt.extras || {};
+       const extrasBorder = radiusExtras.border || bordaBotao;
+       const extrasShadow = radiusExtras.boxShadow || 'var(--shadow-sm)';
+
+       document.querySelectorAll('.featured__card, .social-icon').forEach((t) => {
+         t.style.setProperty('--ui-border', extrasBorder);
+         t.style.setProperty('--ui-shadow', extrasShadow);
+         t.style.setProperty('--ui-blur', desfoqueBotao || 'none');
+         if (fundoBotao) t.style.setProperty('--ui-bg', fundoBotao);
+         else t.style.removeProperty('--ui-bg');
+       });
 
       function clampOrder(value, fallback) {
         const n = parseInt(value, 10);
@@ -3904,10 +3963,18 @@
         /* PIX: o trigger vive no fluxo entre as informações e os links.
            replaceChildren() remove o resto do fluxo, por isso guardamos a
            referência ANTES e re-anexamos aqui (idempotente — appendChild
-           move, não duplica). */
+           move, não duplica). Garante visibilidade correta no desktop. */
         const pixFlowWrap = document.getElementById('pgPixWrap');
         flow.replaceChildren(profile);
-        if (pixFlowWrap) flow.appendChild(pixFlowWrap);
+        if (pixFlowWrap) {
+          flow.appendChild(pixFlowWrap);
+          /* Re-aplica visibilidade do PIX após mover para o fluxo —
+             evita que hidden=true persista incorretamente no desktop. */
+          const pixC = (p.pix && typeof p.pix === 'object') ? p.pix : {};
+          const hasContent = !!(pixC.key || pixC.qr || pixC.link);
+          const on = !!pixC.enabled && hasContent;
+          pixFlowWrap.hidden = !on;
+        }
 
         sections.forEach((s) => {
           s.node.style.order = s.order;
