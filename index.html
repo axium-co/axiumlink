@@ -2632,9 +2632,13 @@
         const pixC = (p.pix && typeof p.pix === 'object') ? p.pix : {};
         const hasContent = !!(pixC.key || pixC.qr || pixC.link);
         const on = !!pixC.enabled && hasContent;
+        const inList = (typeof pixC.order === 'number' && pixC.order >= 0);
         const wrap = document.getElementById('pgPixWrap');
-        if (wrap) wrap.hidden = !on;
-        if (!on) return;
+        /* O bloco do header aparece APENAS quando o PIX não é item da lista
+           (sem pix.order). Como card na lista, o trigger é a âncora
+           .featured__card--pix (data-pix) dentro do .pg-links-list. */
+        if (wrap) wrap.hidden = !on || inList;
+        if (!on || inList) return;
 
         // Apply button customizations
         const btnText = pixC.buttonText || 'Pagar com PIX';
@@ -3674,11 +3678,16 @@
            preview e público com o MESMO resultado. */
         function applyLinkSpacing(wrap, list) {
           const globalGap = Number(cfg.style?.blockGap) >= 0 ? Number(cfg.style?.blockGap) : 10;
-          Array.from(wrap.children).forEach((child, i) => {
-            const link = list && list[i];
+          let idx = 0;
+          let first = true;
+          Array.from(wrap.children).forEach((child) => {
+            const isPix = (child.getAttribute && child.getAttribute('data-pix') === '1');
+            const link = isPix ? null : (list && list[idx]);
             const slot = (link && Number(link.spacing) > 0) ? Number(link.spacing) : globalGap;
-            child.style.marginTop = (i === 0 ? 0 : slot) + 'px';
+            child.style.marginTop = (first ? 0 : slot) + 'px';
             child.style.marginBottom = '0px';
+            if (!isPix) idx++;
+            first = false;
           });
         }
 
@@ -3690,9 +3699,43 @@
           wrap.style.display = 'flex';
           wrap.style.flexDirection = 'column';
 
+          /* PIX como item da lista de links (pix.order definido): o card
+             entra intercalado na posição order — espelho do admin. Sem
+             pix.order o PIX vive no header (#pgPixWrap) e nada entra aqui. */
+          const pixConf = (p.pix && typeof p.pix === 'object') ? p.pix : {};
+          const pixOnPub = !!pixConf.enabled && !!(pixConf.key || pixConf.qr || pixConf.link);
+          const pixOrderPub = (typeof pixConf.order === 'number' && pixConf.order >= 0) ? pixConf.order : null;
+          const appendPixCard = (target) => {
+            if (!target) return;
+            const pa = document.createElement('a');
+            pa.className = 'featured__card featured__card--pix';
+            pa.href = '#';
+            pa.setAttribute('data-dialog-open', '');
+            pa.setAttribute('role', 'button');
+            pa.setAttribute('data-pix', '1');
+            pa.setAttribute('aria-label', pixConf.buttonText || 'Pagar com PIX');
+            const icon = document.createElement('span');
+            icon.className = 'featured__icon';
+            icon.setAttribute('aria-hidden', 'true');
+            const i = document.createElement('i');
+            i.className = 'fas fa-qrcode';
+            icon.appendChild(i);
+            pa.appendChild(icon);
+            const body = document.createElement('span');
+            body.className = 'featured__body';
+            const strong = document.createElement('strong');
+            strong.textContent = pixConf.buttonText || 'Pagar com PIX';
+            body.appendChild(strong);
+            pa.appendChild(body);
+            pa.appendChild(makeArrow());
+            pa.addEventListener('click', (ev) => ev.preventDefault());
+            target.appendChild(pa);
+          };
+
         list.forEach((link, li) => {
           const linkType = link.type || link.icon || '';
           if (isLinksList) {
+            if (pixOnPub && pixOrderPub === li) appendPixCard(wrap);
             const a = document.createElement('a');
             a.className = 'featured__card';
             a.dataset.linkIdx = String(li);
@@ -3852,6 +3895,9 @@
             }
           });
 
+          /* PIX no fim da lista quando order >= quantidade de links */
+          if (isLinksList && pixOnPub && pixOrderPub != null && pixOrderPub >= list.length) appendPixCard(wrap);
+
           applyLinkSpacing(wrap, list);
           linksContainer.appendChild(wrap);
         }
@@ -3984,11 +4030,13 @@
         if (pixFlowWrap) {
           flow.appendChild(pixFlowWrap);
           /* Re-aplica visibilidade do PIX após mover para o fluxo —
-             evita que hidden=true persista incorretamente no desktop. */
+             evita que hidden=true persista incorretamente no desktop.
+             Oculto também quando o PIX é item da lista (pix.order). */
           const pixC = (p.pix && typeof p.pix === 'object') ? p.pix : {};
           const hasContent = !!(pixC.key || pixC.qr || pixC.link);
+          const inList = (typeof pixC.order === 'number' && pixC.order >= 0);
           const on = !!pixC.enabled && hasContent;
-          pixFlowWrap.hidden = !on;
+          pixFlowWrap.hidden = !on || inList;
         }
 
         sections.forEach((s) => {

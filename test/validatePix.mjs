@@ -43,7 +43,7 @@ export async function run() {
     check('admin: cfg.profile.pix salvo', JSON.stringify(wCfg.profile.pix) === JSON.stringify(PIX_CFG().profile.pix));
   }
 
-  console.log('\n━━━ PIX admin: bindings gravam em cfg.profile.pix ━━━');
+    console.log('\n━━━ PIX admin: bindings gravam em cfg.profile.pix ━━━');
   {
     const { window: w } = await boot(ADMIN_PATH, { supabase: supabaseStub(null), url: 'https://axiumlink.test/admin.html' });
     const d = w.document;
@@ -145,6 +145,60 @@ export async function run() {
     check('público: só chave → #pixKeyBox visível', d.getElementById('pixKeyBox').hidden === false);
     check('público: só chave → QR oculto', d.getElementById('pix-qr').hidden === true);
     check('público: só chave → CTA oculto', d.getElementById('pixCta').hidden === true);
+  }
+
+  /* ========================== INTERCALAÇÃO pix.order ========================== */
+  console.log('\n━━━ PIX intercalado como item da lista (pix.order) ━━━');
+  {
+    /* config: 2 links + PIX intercalado na posição 1 */
+    const orderCfg = () => {
+      const c = PIX_CFG();
+      c.profile.pix = Object.assign({}, c.profile.pix, { order: 1 });
+      c.links = [
+        { id: 'l1', title: 'WhatsApp', url: 'https://wa.me/1', icon: 'whatsapp' },
+        { id: 'l2', title: 'Site', url: 'https://site.com', icon: 'site' }
+      ];
+      return c;
+    };
+
+    /* ---- ADMIN: preview virtual intercala o card PIX na posição ---- */
+    {
+      const { window: w } = await boot(ADMIN_PATH, { supabase: supabaseStub(null), url: 'https://axiumlink.test/admin.html' });
+      const d = w.document;
+      w.__axEditor.init(orderCfg());
+
+      const list = d.getElementById('previewLinksList');
+      const pixCards = list.querySelectorAll('[data-pix]');
+      const pixCard = list.querySelector('[data-pix]');
+      check('admin: preview intercala card PIX (data-pix)', pixCards.length === 1 && !!pixCard);
+      check('admin: card PIX intercalado na posição 1 (entre os 2 links)',
+        Array.from(list.children).indexOf(pixCard) === 1 &&
+        list.children.length === 3);
+      check('admin: intercalado mantém data-dialog-open', pixCard && pixCard.getAttribute('data-dialog-open') !== null);
+      check('admin: header #pvPix oculto quando PIX na lista (inList)', w.__axEditor.dom('pvPix')._hidden === true);
+
+      const saved = w.__axEditor.cfg().profile.pix;
+      check('admin: pix.order persistido', saved.order === 1);
+    }
+
+    /* ---- PÚBLICO: card PIX intercalado + #pgPixWrap oculto neste caso ---- */
+    {
+      const { window: w } = await boot(INDEX_PATH, { supabase: supabaseStub(null), url: 'https://axiumlink.test/?s=teste' });
+      const d = w.document;
+      w.__alaPublica.aplicar(orderCfg());
+
+      const listWrap = w.__alaPublica.dom('#pgPixWrap');
+      check('público: #pgPixWrap oculto quando PIX na lista', listWrap && listWrap._hidden === true);
+
+      const linksList = d.querySelector('#pgLinks .pg-links-list');
+      const pixPub = linksList && linksList.querySelector('[data-pix]');
+      const pixCount = linksList ? linksList.querySelectorAll('[data-pix]').length : 0;
+      check('público: card PIX intercalado na lista ([data-pix])', pixCount === 1 && !!pixPub);
+      check('público: intercalado na posição 1 (entre os 2 links)',
+        linksList && Array.from(linksList.children).indexOf(pixPub) === 1 &&
+        linksList.children.length === 3,
+        `(${linksList ? linksList.children.length : '?'} children)`);
+    }
   }
 
   console.log(`  ✅ PIX Passed: ${pass}  |  ❌ Failed: ${fail}`);

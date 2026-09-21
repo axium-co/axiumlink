@@ -4155,6 +4155,11 @@
         l.customButtonHeight || '', l.sub || '', l.id || '', l.category || ''
       ].join('|'));
     });
+    /* PIX entra na estrutura da lista: estado (on) + posição (order). */
+    const pixC = (cfg.profile && cfg.profile.pix) || {};
+    const pixOn = !!pixC.enabled && !!(pixC.key || pixC.qr || pixC.link);
+    const pixOrder = (typeof pixC.order === 'number' && pixC.order >= 0) ? String(pixC.order) : '';
+    parts.push('pix|' + (pixOn ? '1' : '0') + '|' + pixOrder);
     return parts.join('\n');
   }
 
@@ -4162,9 +4167,13 @@
     const pixC = (cfg.profile && cfg.profile.pix) || {};
     const hasContent = !!(pixC.key || pixC.qr || pixC.link);
     const on = !!pixC.enabled && hasContent;
+    const inList = (typeof pixC.order === 'number' && pixC.order >= 0);
     const wrap = $('pvPix');
-    if (wrap) wrap.hidden = !on;
-    if (!on) return;
+    /* O botão do header aparece APENAS quando o PIX não é item da lista
+       (sem pix.order). Como card na lista, o trigger é a própria âncora
+       .link-block--pix (data-pix) dentro de #previewLinksList. */
+    if (wrap) wrap.hidden = !on || inList;
+    if (!on || inList) return;
 
     // Apply button customizations
     const btnText = pixC.buttonText || 'Pagar com PIX';
@@ -4351,8 +4360,43 @@
     _previewLinksSig = listSig;
     list.innerHTML = '';
 
+    /* PIX como item da lista de links (pix.order definido): o card entra
+       intercalado na posição order. Sem pix.order o PIX vive no header
+       (#pvPix) e nada entra na lista. */
+    const pixCfg = (cfg.profile && cfg.profile.pix) || {};
+    const pixOn = !!pixCfg.enabled && !!(pixCfg.key || pixCfg.qr || pixCfg.link);
+    const pixOrder = (typeof pixCfg.order === 'number' && pixCfg.order >= 0) ? pixCfg.order : null;
+    const listLinks = cfg.links || [];
+    const appendPixCard = (target) => {
+      if (!target) return;
+      const pa = document.createElement('a');
+      pa.className = 'link-block link-block--pix';
+      pa.href = '#';
+      pa.setAttribute('data-dialog-open', '');
+      pa.setAttribute('role', 'button');
+      pa.setAttribute('data-pix', '1');
+      const head = document.createElement('div');
+      head.className = 'link-block__head';
+      const iconWrap = document.createElement('span');
+      iconWrap.className = 'link-block-icon';
+      const i = document.createElement('i');
+      i.className = 'fas fa-qrcode';
+      iconWrap.appendChild(i);
+      head.appendChild(iconWrap);
+      const txt = document.createElement('span');
+      txt.className = 'link-block-txt';
+      const tt = document.createElement('span');
+      tt.className = 'link-block-title';
+      tt.textContent = pixCfg.buttonText || 'Pagar com PIX';
+      txt.appendChild(tt);
+      head.appendChild(txt);
+      pa.appendChild(head);
+      pa.addEventListener('click', (ev) => ev.preventDefault());
+      target.appendChild(pa);
+    };
+
     /* Categorias / Tabs no preview */
-    const cats = [...new Set((cfg.links || []).map(l => l.category).filter(Boolean))];
+    const cats = [...new Set(listLinks.map(l => l.category).filter(Boolean))];
     if (cats.length > 0) {
       const tabsWrap = document.createElement('div');
       tabsWrap.className = 'pg-tabs';
@@ -4369,7 +4413,9 @@
       list.appendChild(tabsWrap);
     }
 
-    (cfg.links || []).forEach((l, idx) => {
+    for (let idx = 0; idx < listLinks.length; idx++) {
+      const l = listLinks[idx];
+      if (pixOn && pixOrder === idx) appendPixCard(list);
       const a = document.createElement('a');
       a.className = 'link-block' + (l.iconAlign === 'center' ? ' icon-center' : l.iconAlign === 'right' ? ' icon-right' : '');
       a.dataset.linkIdx = String(idx);
@@ -4396,7 +4442,7 @@
         ca.appendChild(cimg);
         ca.addEventListener('click', (ev) => ev.preventDefault());
         list.appendChild(ca);
-        return;
+        continue;
       }
 
       if (l.cardStyle === 'highlight') {
@@ -4472,7 +4518,10 @@
         applyLinkTextTypo(a, l);
         list.appendChild(a);
       }
-    });
+    }
+
+    /* PIX no fim da lista quando order >= quantidade de links */
+    if (pixOn && pixOrder != null && pixOrder >= listLinks.length) appendPixCard(list);
     list.style.display = 'flex';
     list.style.flexDirection = 'column';
 
@@ -5729,17 +5778,20 @@
     const st = cfg.style || {};
     const globalGap = Number(st.blockGap) >= 0 ? Number(st.blockGap) : 10;
     let idx = 0;
+    let first = true;
     for (const child of listEl.children) {
       if (child.classList && child.classList.contains('pg-tabs')) {
         child.style.marginTop = '0px';
         child.style.marginBottom = globalGap + 'px';
         continue;
       }
-      const link = links && links[idx];
+      const isPix = (child.getAttribute && child.getAttribute('data-pix') === '1');
+      const link = isPix ? null : (links && links[idx]);
       const slot = (link && Number(link.spacing) > 0) ? Number(link.spacing) : globalGap;
-      child.style.marginTop = (idx === 0 ? 0 : slot) + 'px';
+      child.style.marginTop = (first ? 0 : slot) + 'px';
       child.style.marginBottom = '0px';
-      idx++;
+      if (!isPix) idx++;
+      first = false;
     }
   }
 
@@ -7564,109 +7616,162 @@
   /* ================================================================
      LISTAS DO ADMIN — LINKS E RÁPIDOS
      ================================================================ */
+  /* Lista virtual de itens do editor: links reais + o PIX intercalado na
+     posição cfg.profile.pix.order. Sem pix.order a linha PIX fica no final
+     da lista (posição padrão após todos os links). Retorna o array de rows
+     { kind:'link', link, idx } | { kind:'pix' } na ordem de exibição. */
+  function buildLinkRows() {
+    const rows = (cfg.links || []).map((link, idx) => ({ kind: 'link', link, idx }));
+    const pixC = (cfg.profile && cfg.profile.pix) || {};
+    const hasContent = !!(pixC.key || pixC.qr || pixC.link);
+    if (!!pixC.enabled && hasContent) {
+      const order = typeof pixC.order === 'number' && pixC.order >= 0 ? pixC.order : rows.length;
+      rows.splice(Math.min(order, rows.length), 0, { kind: 'pix' });
+    }
+    return rows;
+  }
+
+  /* Espelha a ordem da lista virtual de volta para o estado: cfg.links
+     (links na ordem arrastada) + cfg.profile.pix.order (posição do PIX). */
+  function syncRowsToState(rows) {
+    cfg.links = rows.filter((r) => r.kind === 'link').map((r) => r.link);
+    const pixPos = rows.findIndex((r) => r.kind === 'pix');
+    if (pixPos >= 0) {
+      cfg.profile = cfg.profile || {};
+      cfg.profile.pix = cfg.profile.pix || {};
+      cfg.profile.pix.order = pixPos;
+    }
+    markDirty();
+    renderAll();
+  }
+
   function renderLinksList() {
     const list = $('linksList');
     list.innerHTML = '';
-    $('linksCount').textContent = (cfg.links?.length || 0) + ' itens';
+    const currentRows = buildLinkRows();
+    $('linksCount').textContent = currentRows.length + ' itens';
 
-    (cfg.links || []).forEach((l, i) => {
-      const row = document.createElement('div');
-      row.className = 'link-item';
-      row.draggable = true;
+    currentRows.forEach((row, i) => {
+      const rowEl = document.createElement('div');
+      rowEl.className = 'link-item';
+      rowEl.draggable = true;
 
       const handle = document.createElement('span');
       handle.className = 'drag-handle';
       handle.textContent = '⋮⋮';
 
-      const main = document.createElement('div');
-      main.className = 'link-item-main';
-      const tt = document.createElement('div');
-      tt.className = 'link-item-title';
-      const iconType = l.type || l.icon || '';
-      const fallbackLabel = iconType ? (iconType.charAt(0).toUpperCase() + iconType.slice(1)) : 'Sem título';
-      tt.textContent = l.title || fallbackLabel;
-      if (l.cardStyle) {
+      if (row.kind === 'pix') {
+        rowEl.classList.add('link-item--pix');
+
+        const main = document.createElement('div');
+        main.className = 'link-item-main';
+        const tt = document.createElement('div');
+        tt.className = 'link-item-title';
+        tt.textContent = (cfg.profile && cfg.profile.pix && cfg.profile.pix.buttonText) || 'Pagar com PIX';
         const badge = document.createElement('span');
-        badge.style.cssText = 'margin-left:6px;font-size:10px;padding:1px 6px;border-radius:8px;background:var(--brand);color:#fff;font-weight:600;vertical-align:middle;';
-        badge.textContent = l.cardStyle === 'highlight' ? 'Destaque' : l.cardStyle === 'testimonial' ? 'Depoimento' : l.cardStyle;
+        badge.style.cssText = 'margin-left:6px;font-size:10px;padding:1px 6px;border-radius:8px;background:#16a34a;color:#fff;font-weight:600;vertical-align:middle;';
+        badge.textContent = 'PIX';
         tt.appendChild(badge);
-      }
-      if (l.category) {
-        const catBadge = document.createElement('span');
-        catBadge.style.cssText = 'margin-left:6px;font-size:10px;padding:1px 6px;border-radius:8px;background:#6366f1;color:#fff;font-weight:600;vertical-align:middle;';
-        catBadge.textContent = l.category;
-        tt.appendChild(catBadge);
-      }
-      if (l.customButtonImage) {
-        const imgBadge = document.createElement('span');
-        imgBadge.style.cssText = 'margin-left:6px;font-size:10px;padding:1px 6px;border-radius:8px;background:#22c55e;color:#fff;font-weight:600;vertical-align:middle;';
-        imgBadge.textContent = 'Imagem';
-        tt.appendChild(imgBadge);
-      }
-      const uu = document.createElement('div');
-      uu.className = 'link-item-url';
-      uu.textContent = l.url || '';
+        const uu = document.createElement('div');
+        uu.className = 'link-item-url';
+        uu.textContent = 'Botão PIX · modal (chave/QR) · arraste para posicionar entre os links';
+        main.appendChild(tt);
+        main.appendChild(uu);
 
-      /* Click analytics: exibe contagem se houver */
-      try {
-        const slug = (window.currentProfileSlug || 'default');
-        const clickData = JSON.parse(localStorage.getItem('axiumlink_clicks_' + slug) || '{}');
-        const clicks = clickData[l.id] || 0;
-        if (clicks > 0) {
-          const clickBadge = document.createElement('span');
-          clickBadge.style.cssText = 'margin-left:8px;font-size:10px;padding:1px 6px;border-radius:8px;background:#f59e0b;color:#000;font-weight:600;vertical-align:middle;';
-          clickBadge.textContent = clicks + ' cliques';
-          uu.appendChild(clickBadge);
+        rowEl.appendChild(handle);
+        rowEl.appendChild(main);
+      } else {
+        const l = row.link;
+
+        const main = document.createElement('div');
+        main.className = 'link-item-main';
+        const tt = document.createElement('div');
+        tt.className = 'link-item-title';
+        const iconType = l.type || l.icon || '';
+        const fallbackLabel = iconType ? (iconType.charAt(0).toUpperCase() + iconType.slice(1)) : 'Sem título';
+        tt.textContent = l.title || fallbackLabel;
+        if (l.cardStyle) {
+          const badge = document.createElement('span');
+          badge.style.cssText = 'margin-left:6px;font-size:10px;padding:1px 6px;border-radius:8px;background:var(--brand);color:#fff;font-weight:600;vertical-align:middle;';
+          badge.textContent = l.cardStyle === 'highlight' ? 'Destaque' : l.cardStyle === 'testimonial' ? 'Depoimento' : l.cardStyle;
+          tt.appendChild(badge);
         }
-      } catch(_) {}
+        if (l.category) {
+          const catBadge = document.createElement('span');
+          catBadge.style.cssText = 'margin-left:6px;font-size:10px;padding:1px 6px;border-radius:8px;background:#6366f1;color:#fff;font-weight:600;vertical-align:middle;';
+          catBadge.textContent = l.category;
+          tt.appendChild(catBadge);
+        }
+        if (l.customButtonImage) {
+          const imgBadge = document.createElement('span');
+          imgBadge.style.cssText = 'margin-left:6px;font-size:10px;padding:1px 6px;border-radius:8px;background:#22c55e;color:#fff;font-weight:600;vertical-align:middle;';
+          imgBadge.textContent = 'Imagem';
+          tt.appendChild(imgBadge);
+        }
+        const uu = document.createElement('div');
+        uu.className = 'link-item-url';
+        uu.textContent = l.url || '';
 
-      main.appendChild(tt);
-      main.appendChild(uu);
+        /* Click analytics: exibe contagem se houver */
+        try {
+          const slug = (window.currentProfileSlug || 'default');
+          const clickData = JSON.parse(localStorage.getItem('axiumlink_clicks_' + slug) || '{}');
+          const clicks = clickData[l.id] || 0;
+          if (clicks > 0) {
+            const clickBadge = document.createElement('span');
+            clickBadge.style.cssText = 'margin-left:8px;font-size:10px;padding:1px 6px;border-radius:8px;background:#f59e0b;color:#000;font-weight:600;vertical-align:middle;';
+            clickBadge.textContent = clicks + ' cliques';
+            uu.appendChild(clickBadge);
+          }
+        } catch(_) {}
 
-      const actions = document.createElement('div');
-      actions.className = 'link-item-actions';
+        main.appendChild(tt);
+        main.appendChild(uu);
 
-      const editBtn = document.createElement('button');
-      editBtn.className = 'icon-btn';
-      editBtn.title = 'Editar';
-      editBtn.textContent = '✏️';
-      editBtn.addEventListener('click', () => openBlockModal(i));
+        const actions = document.createElement('div');
+        actions.className = 'link-item-actions';
 
-      const delBtn = document.createElement('button');
-      delBtn.className = 'icon-btn del';
-      delBtn.title = 'Excluir';
-      delBtn.textContent = '🗑️';
-      delBtn.addEventListener('click', () => {
-        if (!confirm('Excluir "' + (l.title || 'este link') + '"?')) return;
-        cfg.links.splice(i, 1);
-        markDirty();
-        renderAll();
-      });
+        const editBtn = document.createElement('button');
+        editBtn.className = 'icon-btn';
+        editBtn.title = 'Editar';
+        editBtn.textContent = '✏️';
+        editBtn.addEventListener('click', () => openBlockModal(row.idx));
 
-      actions.appendChild(editBtn);
-      actions.appendChild(delBtn);
-      row.appendChild(handle);
-      row.appendChild(main);
-      row.appendChild(actions);
+        const delBtn = document.createElement('button');
+        delBtn.className = 'icon-btn del';
+        delBtn.title = 'Excluir';
+        delBtn.textContent = '🗑️';
+        delBtn.addEventListener('click', () => {
+          if (!confirm('Excluir "' + (l.title || 'este link') + '"?')) return;
+          cfg.links.splice(row.idx, 1);
+          markDirty();
+          renderAll();
+        });
 
-      /* Drag & drop para reordenar */
-      row.addEventListener('dragstart', (ev) => {
-        row.classList.add('dragging');
+        actions.appendChild(editBtn);
+        actions.appendChild(delBtn);
+        rowEl.appendChild(handle);
+        rowEl.appendChild(main);
+        rowEl.appendChild(actions);
+      }
+
+      /* Drag & drop para reordenar (links + PIX na mesma lista virtual) */
+      rowEl.addEventListener('dragstart', (ev) => {
+        rowEl.classList.add('dragging');
         ev.dataTransfer.setData('text/plain', String(i));
       });
-      row.addEventListener('dragend', () => row.classList.remove('dragging'));
-      row.addEventListener('dragover', (ev) => ev.preventDefault());
-      row.addEventListener('drop', (ev) => {
+      rowEl.addEventListener('dragend', () => rowEl.classList.remove('dragging'));
+      rowEl.addEventListener('dragover', (ev) => ev.preventDefault());
+      rowEl.addEventListener('drop', (ev) => {
         ev.preventDefault();
         const from = Number(ev.dataTransfer.getData('text/plain'));
         if (Number.isNaN(from) || from === i) return;
-        const [moved] = cfg.links.splice(from, 1);
-        cfg.links.splice(i, 0, moved);
-        markDirty();
-        renderAll();
+        const [moved] = currentRows.splice(from, 1);
+        currentRows.splice(i, 0, moved);
+        syncRowsToState(currentRows);
       });
 
-      list.appendChild(row);
+      list.appendChild(rowEl);
     });
   }
 
