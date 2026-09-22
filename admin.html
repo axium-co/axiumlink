@@ -804,7 +804,7 @@
     background:rgba(12,14,22,.82); border:1px solid rgba(255,255,255,.16);
   }
   .pv-address[hidden] { display:none; }
-  .pv-address-ico { font-size:11px; line-height:1; }
+  .pv-address svg { width:14px; height:14px; flex-shrink:0; }
   /* Modo "Somente texto" (displayStyle:'text-only') — espelho do público.
      O chipFor do preview só limpa estilos INLINE, mas o container visual
      de .pv-name/.pv-bio/.pv-address/.link-block vem de regra de CLASSE.
@@ -2822,7 +2822,12 @@
                   </div>
                   <p class="pv-bio" id="pvBio"></p>
                   <div class="pv-address" id="pvAddress" hidden>
-                    <span class="pv-address-ico" id="pvAddressIco">📍</span>
+                    <span class="pv-address-ico" id="pvAddressIco" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
+                        <circle cx="12" cy="10" r="3"></circle>
+                      </svg>
+                    </span>
                     <span id="pvAddressText"></span>
                   </div>
 

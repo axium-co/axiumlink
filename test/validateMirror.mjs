@@ -26,8 +26,13 @@
      painel do admin; o browser real não dispara esse caminho → raio da
      pílula comparado por ALVO no lado público. */
 
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
 import { boot, supabaseStub, ADMIN_PATH, INDEX_PATH } from './harness.mjs';
 import { NEW_CONFIG } from './fixtures.mjs';
+
+const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 
 /* ================================================================
    Extração de contrato visual (estilos inline + vars + classes)
@@ -482,6 +487,93 @@ function enderecoTargetedChecks(wA, wP, cfg) {
   return opts;
 }
 
+/* ================================================================
+   ÍCONE DE LOCALIZAÇÃO DO ENDEREÇO (BUG do emoji 📍 hardcoded).
+   Checagem específica do pin: MESMO desenho (svg + path + circle +
+   atributos idênticos) entre preview admin e página pública, MESMO
+   tamanho (regra CSS) e consistência com a fonte única render-core.
+   ================================================================ */
+
+/* Desenho canônico de um <svg> real no DOM (atributos na ordem,
+   filhos path/circle na ordem do autor). */
+function svgDrawing(el) {
+  if (!el || el.tagName.toLowerCase() !== 'svg') return null;
+  const attr = (n) => el.getAttribute(n) || '';
+  const parts = [
+    'viewBox=' + attr('viewBox'),
+    'fill=' + attr('fill'),
+    'stroke=' + attr('stroke'),
+    'stroke-width=' + attr('stroke-width'),
+    'stroke-linecap=' + attr('stroke-linecap'),
+    'stroke-linejoin=' + attr('stroke-linejoin'),
+    'aria-hidden=' + attr('aria-hidden')
+  ];
+  for (const kid of el.children) {
+    if (kid.tagName.toLowerCase() === 'path') parts.push('path:' + (kid.getAttribute('d') || ''));
+    else if (kid.tagName.toLowerCase() === 'circle') parts.push('circle:' + ((kid.getAttribute('cx') || '') + ',' + (kid.getAttribute('cy') || '') + ',' + (kid.getAttribute('r') || '')));
+    else parts.push(kid.tagName.toLowerCase() + ':' + (kid.textContent || '').trim());
+  }
+  return parts.join(' ');
+}
+
+/* Mesmo desenho extraído de um FRAGMENTO HTML (string) — usado para
+   comparar a constante render-core.ICONS.pin sem carregar JS extra. */
+function drawFromHtmlFragment(frag) {
+  if (!frag) return '';
+  const v = (re) => { const m = frag.match(re); return m ? m[1] : ''; };
+  return [
+    'viewBox=' + v(/viewBox="([^"]*)"/),
+    'fill=' + v(/fill="([^"]*)"/),
+    'stroke=' + v(/stroke="([^"]*)"/),
+    'stroke-width=' + v(/stroke-width="([^"]*)"/),
+    'stroke-linecap=' + v(/stroke-linecap="([^"]*)"/),
+    'stroke-linejoin=' + v(/stroke-linejoin="([^"]*)"/),
+    'aria-hidden=' + v(/aria-hidden="([^"]*)"/),
+    'path:' + v(/<path[^>]*d="([^"]*)"/),
+    'circle:' + v(/cx="([^"]*)"/) + ',' + v(/cy="([^"]*)"/) + ',' + v(/r="([^"]*)"/)
+  ].join(' ');
+}
+
+function svgSizeRule(rs, sel) {
+  const r = findRule(rs, sel);
+  return r
+    ? (r.style.getPropertyValue('width') + '||' + r.style.getPropertyValue('height') + '||' + r.style.getPropertyValue('flex-shrink'))
+    : '(sem regra)';
+}
+
+function addressIconChecks(wA, wP) {
+  const opts = [];
+  const a = wA.document.querySelector('#pvAddressIco svg');
+  const p = wP.document.querySelector('#pgAddress svg');
+  const isSvgEl = (el) => !!el && el.tagName.toLowerCase() === 'svg';
+  opts.push(['ícone endereço: preview e público usam SVG de pin (sem emoji)', isSvgEl(a) && isSvgEl(p),
+    'admin=' + (a ? a.tagName : '(ausente)') + ' público=' + (p ? p.tagName : '(ausente)')]);
+
+  const aDraw = svgDrawing(a);
+  const pDraw = svgDrawing(p);
+  opts.push(['ícone endereço: desenho presente nos DOIS', !!(aDraw && pDraw),
+    'admin=' + (aDraw || '(vazio)') + ' público=' + (pDraw || '(vazio)')]);
+  if (aDraw && pDraw) {
+    opts.push(['ícone endereço: MESMO desenho (viewBox/fill/stroke/path/circle) admin==público',
+      aDraw === pDraw, aDraw]);
+  }
+
+  const aRule = svgSizeRule(allRules(wA), '.pv-address svg');
+  const pRule = svgSizeRule(allRules(wP), '.profile__address svg');
+  const sizeOk = (st) => /^14px\|\|14px\|\|0/.test(st);
+  opts.push(['ícone endereço: tamanho 14px no admin (.pv-address svg)', sizeOk(aRule), aRule]);
+  opts.push(['ícone endereço: tamanho 14px no público (.profile__address svg)', sizeOk(pRule), pRule]);
+  opts.push(['ícone endereço: regra de TAMANHO admin==público', aRule === pRule, 'admin=' + aRule + ' público=' + pRule]);
+
+  const rc = readFileSync(join(REPO_ROOT, 'js', 'render-core.js'), 'utf8');
+  const m = rc.match(/pin:\s*'([^']*)'/);
+  const rcDraw = m ? drawFromHtmlFragment(m[1]) : '';
+  const rcOk = !!rcDraw && aDraw === rcDraw && pDraw === rcDraw;
+  opts.push(['ícone endereço: fonte única — render-core.ICONS.pin == preview == público',
+    rcOk, 'render-core=' + (rcDraw || '(não encontrado)')]);
+  return opts;
+}
+
 /* Normaliza texto de fundo: alfa com zeros à direita + lowercase + espaço */
 function normAlpha(s) {
   return String(s || '')
@@ -666,6 +758,96 @@ function descWrapChecks(wA, wP) {
 }
 
 /* ================================================================
+   Paridade ESTRUTURAL (árvore DOM), além dos estilos computados.
+   Garante que preview e público montem o MESMO esqueleto de tags/peças.
+   Diferenças de DESIGN são normalizadas aqui: prefixos de classe
+   (pv- frente a profile__ / pg), wrappers de maquete (link-block__head,
+   link-block-txt, featured__body), a seta só do público (featured__arrow),
+   o <img> do banner (público usa background-image) e o <svg> do selo/
+   endereço. O que SOBRAR como diferença de árvore é falha real. */
+const CLASS_KEY = new Map([
+  ['pv-name-row', 'row'], ['profile__name-row', 'row'],
+  ['pv-name-wrap', 'wrap'], ['profile__name-wrap', 'wrap'],
+  ['pv-name', 'name'], ['profile__title', 'name'],
+  ['pv-verified', 'verified'], ['profile__verified', 'verified'],
+  ['pv-bio', 'bio'], ['profile__subtitle', 'bio'],
+  ['pv-address', 'address'], ['profile__address', 'address'],
+  ['pv-address-ico', 'wrap'],
+  ['pv-avatar', 'avatar'], ['profile__avatar', 'avatar'],
+  ['pv-banner', 'banner'], ['profile__banner', 'banner'],
+  ['pv-banner-scrim', 'scrim'], ['profile__banner-scrim', 'scrim'],
+  ['link-block__head', 'wrap'], ['link-block-txt', 'wrap'], ['featured__body', 'wrap'],
+  ['link-block-icon', 'icon'], ['featured__icon', 'icon'],
+  ['link-block-title', 'title'],
+  ['link-block-sub', 'sub'], ['featured__sub', 'sub'],
+  ['link-block-customimg-img', 'customimg'], ['featured__customimg', 'customimg'],
+  ['featured__arrow', 'arrow']
+]);
+
+function structKey(el) {
+  if (el.nodeType !== 1) return null;
+  /* getAttribute('class') (não classList): o jsdom precisa funcionar também
+     para SVG em namespace (seta do card, selo, endereço). */
+  for (const cls of (el.getAttribute('class') || '').split(/\s+/)) {
+    const k = CLASS_KEY.get(cls);
+    if (k) return k;
+  }
+  return null;
+}
+
+/* Assinatura estrutural canônica: preorder de peças, ordem de filhos
+   ignorada (overflow: o CSS ordena), classes/ids de design removidas. */
+function structSig(el, opts) {
+  const optsN = opts || {};
+  const kids = [];
+  for (const ch of el.children) {
+    const s = sigOne(ch, optsN);
+    if (s !== null) kids.push(s);
+  }
+  kids.sort();
+  return kids.join('|');
+}
+
+function sigOne(el, opts) {
+  const key = structKey(el);
+  if (key === 'wrap') return structSig(el, opts);          /* wrappers de maquete */
+  if (key === 'arrow') return null;                        /* seta é só do público */
+  if (key === 'icon' && !el.children.length && !(el.textContent || '').trim()) return null; /* ícone vazio (admin mantém display:none, público omite) */
+  if (el.tagName.toLowerCase() === 'svg') return 'icon';   /* svg (selo/endereço) vira peça "icon" */
+  if (el.tagName.toLowerCase() === 'img' && opts && opts.dropBannerImg) return null; /* banner: admin tem <img>, público usa background-image */
+  let tag = key || el.tagName.toLowerCase();
+  if (key === null && el.tagName === 'STRONG') tag = 'title';
+  const inner = structSig(el, opts);
+  return inner ? tag + '(' + inner + ')' : tag;
+}
+
+function structCompare(label, aEl, pEl, opts) {
+  const a = aEl ? structSig(aEl, opts) : '(ausente)';
+  const p = pEl ? structSig(pEl, opts) : '(ausente)';
+  return [label, a === p, 'admin=' + a + ' público=' + p];
+}
+
+function structureChecks(wA, wP) {
+  const dA = wA.document;
+  const dP = wP.document;
+  const opts = [];
+  opts.push(structCompare('estrut.: bloco Nome (row/wrap/título/selo)', dA.querySelector('.pv-name-row'), dP.querySelector('.profile__name-row')));
+  opts.push(structCompare('estrut.: Bio', dA.querySelector('#pvBio'), dP.querySelector('#pgSubtitle')));
+  opts.push(structCompare('estrut.: Endereço', dA.querySelector('#pvAddress'), dP.querySelector('#pgAddress')));
+  opts.push(structCompare('estrut.: Banner', dA.querySelector('#pvBanner'), dP.querySelector('#pgBanner'), { dropBannerImg: true }));
+  opts.push(structCompare('estrut.: Avatar', dA.querySelector('#pvAvatarWrap'), dP.querySelector('#pgAvatarCard')));
+  const aCards = Array.from(dA.querySelectorAll('#previewLinksList > *'));
+  const pCards = Array.from(dP.querySelectorAll('.pg-links-list > *'));
+  if (aCards.length !== pCards.length) {
+    opts.push(['estrut.: nº de cards na lista de links', false, 'admin=' + aCards.length + ' público=' + pCards.length]);
+  }
+  for (let i = 0; i < Math.min(aCards.length, pCards.length); i++) {
+    opts.push(structCompare('estrut.: card#' + i, aCards[i], pCards[i]));
+  }
+  return opts;
+}
+
+/* ================================================================
    Runner
    ================================================================ */
 export async function run() {
@@ -763,7 +945,7 @@ export async function run() {
 
     /* Alvos direcionados */
     const checks = [];
-    checks.push(...avatarChecks(wA, wP, cfg), ...enderecoTargetedChecks(wA, wP, cfg), ...fundoChecks(wA, wP, cfg), ...blockSpacingChecks(wA, wP, cfg), ...descWrapChecks(wA, wP), ...iconAlignChecks(wA, wP, cfg));
+    checks.push(...avatarChecks(wA, wP, cfg), ...enderecoTargetedChecks(wA, wP, cfg), ...addressIconChecks(wA, wP), ...fundoChecks(wA, wP, cfg), ...blockSpacingChecks(wA, wP, cfg), ...descWrapChecks(wA, wP), ...iconAlignChecks(wA, wP, cfg), ...structureChecks(wA, wP));
     if (/banner/i.test(variant.name)) checks.push(...bannerOverlayAbsentChecks(wA, wP));
     if (/verificado/i.test(variant.name)) checks.push(...verifiedChecks(wA, wP, cfg));
 
