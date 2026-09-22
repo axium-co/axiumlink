@@ -4426,7 +4426,7 @@
              style próprio; o global (st) serve apenas como fallback para
              links LEGADO sem estilo individual. Mockup e público seguem
              idênticos (render-core usa a mesma regra). */
-          const merged = (linkData && linkData.style) ? flat : Object.assign({}, st, flat);
+          let merged = (linkData && linkData.style) ? flat : Object.assign({}, st, flat);
           
           /* Modo "Somente texto": remove todo container visual do botão/link
              mas mantém o elemento clicável (href funciona). */
@@ -4467,6 +4467,34 @@
             return;
           }
           
+          /* Espelho do preview admin (applyGlassToElements): o vidro GLOBAL
+             do botão também alcança botões com estilo individual. O estilo
+             per-link sobrescreve apenas os campos que definiu; cor cai no
+             global. Assim a Cor do Vidro escolhida no painel chega na página. */
+          const gBtnP = Object.assign({
+            enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff',
+            borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: 25
+          }, st.buttonGlass || {});
+          const lsGlassP = (linkData && linkData.style && linkData.style.glass) ? linkData.style.glass : null;
+          const wantGlassP = (st.btnVariant === 'glass') || !!gBtnP.enabled || (lsGlassP && lsGlassP.enabled);
+          if (wantGlassP) {
+            const gEffP = (lsGlassP && lsGlassP.enabled)
+              ? Object.assign({}, gBtnP, {
+                  enabled: true,
+                  blur: lsGlassP.blur != null ? lsGlassP.blur : gBtnP.blur,
+                  saturate: lsGlassP.saturate != null ? lsGlassP.saturate : gBtnP.saturate,
+                  opacity: lsGlassP.opacity != null ? lsGlassP.opacity : gBtnP.opacity,
+                  color: lsGlassP.color || gBtnP.color,
+                  borderGlow: lsGlassP.borderGlow != null ? lsGlassP.borderGlow : gBtnP.borderGlow,
+                  shadowDepth: lsGlassP.shadowDepth != null ? lsGlassP.shadowDepth : gBtnP.shadowDepth,
+                  highlight: lsGlassP.highlight != null ? lsGlassP.highlight : gBtnP.highlight,
+                  noise: lsGlassP.noise != null ? lsGlassP.noise : gBtnP.noise,
+                  borderOpacity: lsGlassP.borderOpacity != null ? lsGlassP.borderOpacity : gBtnP.borderOpacity
+                })
+              : Object.assign({}, gBtnP, { enabled: true });
+            merged = Object.assign({}, merged, { btnVariant: 'glass', buttonGlass: gEffP });
+          }
+
           const lBtnBg  = merged.btnBgColor || thBtnbg;
           const lBtnInk = merged.btnTextColor || thBtnink;
           const lInk    = st.pageTextColor || thInk;
