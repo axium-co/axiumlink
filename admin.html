@@ -732,18 +732,33 @@
     display:flex; align-items:center; justify-content:center; text-decoration:none;
     color:inherit; font-size:15px; box-shadow:0 2px 8px rgba(0,0,0,.08);
   }
-  .pv-banner { width:100%; height:var(--pv-banner-height, 180px); overflow:hidden; position:relative; }
+  .pv-banner {
+    width:auto; max-width:100%; box-sizing:border-box;
+    margin:0 16px;
+    height:var(--pv-banner-height, 190px);
+    overflow:hidden; position:relative;
+    border-radius:18px; box-shadow:0 1px 2px rgba(15,23,42,.05);
+    background:linear-gradient(135deg,#0f172a 0%,#334155 55%,#64748b 100%);
+  }
   .pv-banner img { width:100%; height:100%; object-fit:cover; display:block; }
+  /* Fade inferior integrando o cover ao fundo da página (espelho do
+     .profile__banner::after público). color-mix usa --p-bg (cor plana);
+     em temas com gradiente o fallback rgba assume. */
+  .pv-banner::after {
+    content:''; position:absolute; inset:0; z-index:2; pointer-events:none;
+    background:linear-gradient(180deg, transparent 58%, rgba(15,23,42,.10));
+    background:linear-gradient(180deg, transparent 58%, color-mix(in srgb, var(--p-bg) 80%, transparent));
+  }
   .pv-banner.no-banner { display:none; }
   .pv-avatar-wrap {
-    width:96px; height:96px; margin:-48px auto 0; position:relative; z-index:10;
+    width:96px; height:96px; margin:-27px auto 0; position:relative; z-index:10;
   }
   /* Sem banner: avatar não sobrepõe nada — assenta no topo com espaçamento normal */
   .pv-page.no-banner .pv-avatar-wrap { margin-top: 0; }
   /* Container circular blindado — trava o formato 1:1 */
   .pv-avatar {
     width:100%; height:100%; border-radius:50%;
-    border:4px solid rgba(255,255,255,.9);
+    border:4px solid var(--p-bg);
     background:#e2e8f0; color:#334155;
     display:flex; align-items:center; justify-content:center;
     font-size:34px; font-weight:800; overflow:hidden;
@@ -772,7 +787,7 @@
   }
   .pv-name { text-align:center; font-size:20px; font-weight:800; margin-top:0; margin-bottom:0; padding:0 24px; }
   .pv-bio {
-    text-align:center; font-size:13.5px; opacity:.75; margin-top:0; margin-bottom:0; padding:0 32px; line-height:1.55;
+    text-align:center; font-size:14px; margin-top:0; margin-bottom:0; padding:0 24px; line-height:1.4;
   }
   .pv-name-row {
     display:flex; align-items:center; justify-content:center; padding:0 24px;
@@ -798,10 +813,12 @@
   }
   .pv-verified[hidden] { display:none; }
   .pv-address {
-    display:inline-flex; align-items:center; justify-content:center; gap:5px;
+    display:inline-flex; align-items:center; justify-content:center; gap:6px;
     margin:0 auto 0; padding:6px 13px; border-radius:999px; box-sizing:border-box;
     font-size:11.5px; font-weight:600; color:#fff; max-width:calc(100% - 48px);
     background:rgba(12,14,22,.82); border:1px solid rgba(255,255,255,.16);
+    -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
+    box-shadow:0 1px 2px rgba(15,23,42,.05);
   }
   .pv-address[hidden] { display:none; }
   .pv-address svg { width:14px; height:14px; flex-shrink:0; }
@@ -836,15 +853,16 @@
     box-shadow: none;
   }
   .pv-pix {
-    display:flex; align-items:center; justify-content:center; gap:6px;
-    margin:10px auto 0; width:fit-content; padding:8px 20px; border:none;
-    border-radius:12px; font-size:12.5px; font-weight:700; cursor:pointer;
-    color:#fff; background:linear-gradient(135deg,#16a34a,#15803d);
-    box-shadow:0 3px 10px rgba(22,163,74,.35);
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    margin:10px auto 0; width:100%; max-width:420px; padding:0.8rem 1.25rem; border:none;
+    border-radius:14px; font-size:0.9375rem; font-weight:700; cursor:pointer;
+    color:#fff; background:linear-gradient(135deg,#22c55e,#15803d);
+    box-shadow:0 4px 14px rgba(22,163,74,.35); box-sizing:border-box;
   }
-  .pv-pix__ico { font-size:14px; line-height:1; flex-shrink:0; }
+  .pv-pix__ico { width:18px; height:18px; font-size:16px; line-height:1; flex-shrink:0; }
+  .pv-pix__ico svg { width:100%; height:100%; }
   .pv-pix[hidden] { display:none; }
-  .pv-banner-scrim { position:absolute; inset:0; z-index:2; pointer-events:none; }
+  .pv-banner-scrim { position:absolute; inset:0; z-index:1; pointer-events:none; }
   .pv-banner-scrim[hidden] { display:none; }
 
   .pv-content { padding:20px 16px 0; max-width:560px; margin:0 auto; }
@@ -852,10 +870,23 @@
   /* Blocos de link */
   .link-block {
     display:block; text-decoration:none; color:inherit;
-    border-radius:14px; padding:13px 15px; margin-bottom:10px;
+    border-radius:var(--global-radius,14px); padding:10px 14px; margin-bottom:10px;
     transition:transform .15s ease, box-shadow .15s ease;
-    position:relative; width:100%; min-height:48px; box-sizing:border-box;
+    position:relative; width:100%; min-height:68px; box-sizing:border-box;
   }
+  /* Seta do card (espelho do .featured__arrow público): mesma geometria,
+     posicionada à direita, opacity .5, avança 3px no hover. */
+  .link-block .featured__arrow {
+    position:absolute; right:14px; top:50%; transform:translateY(-50%);
+    width:18px; height:18px; opacity:.5; margin-left:0; pointer-events:none;
+  }
+  .link-block .featured__arrow svg { width:18px; height:18px; display:block; }
+  .link-block:hover .featured__arrow { transform:translateY(-50%) translateX(3px); opacity:.9; }
+  .link-block.icon-center .featured__arrow,
+  .link-block.icon-right .featured__arrow,
+  .link-block.featured__card--highlight .featured__arrow,
+  .link-block.featured__card--testimonial .featured__arrow,
+  .link-block-customimg .featured__arrow { display:none; }
   .link-block:hover { transform:translateY(-2px); box-shadow:0 6px 18px rgba(0,0,0,.12), 0 0 20px color-mix(in srgb, var(--p-btnbg, #111827) 20%, transparent); }
   .link-block:active { transform:translateY(0); }
 
@@ -877,20 +908,22 @@
   .link-block__head {
     display:flex; align-items:center; justify-content:center;
     width:100%; text-align:center;
-    padding-left:48px; padding-right:26px; box-sizing:border-box;
+    padding-left:62px; padding-right:34px; box-sizing:border-box;
   }
   .link-block-icon {
-    position:absolute; left:12px; top:50%; transform:translateY(-50%);
-    width:38px; height:38px; border-radius:11px;
+    position:absolute; left:14px; top:50%; transform:translateY(-50%);
+    width:48px; height:48px; border-radius:10px;
+    background:color-mix(in srgb, currentColor 10%, transparent);
     flex-shrink:0; object-fit:cover;
-    display:flex; align-items:center; justify-content:center; font-size:17px;
+    display:flex; align-items:center; justify-content:center; font-size:22px;
     overflow:hidden; white-space:nowrap; text-overflow:clip;
   }
-  .link-block-icon i { font-size:17px; line-height:1; }
+  .link-block-icon i { font-size:22px; line-height:1; }
   .link-block-icon img { width:100%; height:100%; object-fit:cover; }
   .link-block-txt { min-width:0; flex:0 1 auto; max-width:100%; }
   .link-block-title {
-    font-size:14.5px; font-weight:700;
+    font-size:15px; font-weight:600; line-height:1.35;
+    letter-spacing:-0.01em;
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
     display:block;
   }
@@ -915,8 +948,8 @@
      Padrão 'left': absoluto em left:12px — texto permanece centralizado
      pois o head compensa com padding. 'right' espelha a lógica.
      'center': ícone vira item estático do flex, ao lado do texto. */
-  .link-block.icon-right .link-block-icon { left:auto; right:12px; }
-  .link-block.icon-right .link-block__head { padding-left:26px; padding-right:48px; }
+  .link-block.icon-right .link-block-icon { left:auto; right:14px; }
+  .link-block.icon-right .link-block__head { padding-left:14px; padding-right:62px; }
   .link-block.icon-center .link-block__head { padding-left:0; padding-right:0; gap:8px; }
    .link-block.icon-center .link-block-icon {
     position:static; transform:none;
@@ -4449,6 +4482,24 @@
     const pixOn = !!pixCfg.enabled && !!(pixCfg.key || pixCfg.qr || pixCfg.link);
     const pixOrder = (typeof pixCfg.order === 'number' && pixCfg.order >= 0) ? pixCfg.order : null;
     const listLinks = cfg.links || [];
+    /* Seta do card — espelho do makeArrow público: MESMO svg e classe
+       (.featured__arrow) que o link público renderiza. O teste de espelho
+       ignora a seta, então a classe canônica não quebra a assinatura. */
+    function makePVArrow() {
+      const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      arrow.setAttribute('class', 'featured__arrow');
+      arrow.setAttribute('viewBox', '0 0 24 24');
+      arrow.setAttribute('fill', 'none');
+      arrow.setAttribute('stroke', 'currentColor');
+      arrow.setAttribute('stroke-width', '2');
+      arrow.setAttribute('stroke-linecap', 'round');
+      arrow.setAttribute('stroke-linejoin', 'round');
+      arrow.setAttribute('aria-hidden', 'true');
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', 'm9 18 6-6-6-6');
+      arrow.appendChild(path);
+      return arrow;
+    }
     const appendPixCard = (target) => {
       if (!target) return;
       const pa = document.createElement('a');
@@ -4473,6 +4524,7 @@
       txt.appendChild(tt);
       head.appendChild(txt);
       pa.appendChild(head);
+      pa.appendChild(makePVArrow());
       pa.addEventListener('click', (ev) => ev.preventDefault());
       target.appendChild(pa);
     };
@@ -4595,6 +4647,7 @@
         head.appendChild(iconWrap);
         head.appendChild(txt);
         a.appendChild(head);
+        a.appendChild(makePVArrow());
 
         a.addEventListener('click', (ev) => ev.preventDefault());
         applyLinkTextTypo(a, l);
@@ -5599,8 +5652,15 @@
           noise: ls.glass.noise != null ? ls.glass.noise : btnG.noise
         });
         applyGlass(el, gPer);
+      } else if (btnIsGlass) {
+        /* Variante ou exigência GLOBAL de vidro sem o grupo habilitado:
+           aplica o receituário completo (espelho do público — wantGlassP). */
+        applyGlass(el, Object.assign({}, btnG, { enabled: true }));
       } else {
-        applyGlass(el, btnG);
+        /* SEM vidro: NÃO limpa o que buildButtonCSS aplicou. Limpar aqui
+           deixava o fundo do botão sólido/ghost/gradient transparente no
+           mockup (o público mantém o fundo — o preview ficava "bugado"). */
+        el.classList.remove('gx-panel', 'gx-highlight', 'gx-noise');
       }
     });
 
@@ -5934,7 +5994,7 @@
       else av.style.borderRadius = (aCfg.radius != null ? aCfg.radius : 14) + 'px';
       av.style.border = (aCfg.borderStyle === 'none' || !aCfg.borderWidth)
         ? 'none'
-        : (aCfg.borderWidth || 4) + 'px ' + (aCfg.borderStyle || 'solid') + ' ' + (aCfg.borderColor || '#ffffff');
+        : (aCfg.borderWidth || 4) + 'px ' + (aCfg.borderStyle || 'solid') + ' ' + (aCfg.borderColor || 'var(--p-bg)');
       const shadows = [];
       if (aCfg.glowOn && aCfg.glowColor) {
         shadows.push('0 0 ' + (aCfg.glowIntensity != null ? aCfg.glowIntensity : 35) + 'px ' + aCfg.glowColor);
@@ -5980,7 +6040,12 @@
       wrap.style.height = size + 'px';
       /* Só sobrepõe o banner quando há banner; sem banner o avatar assenta
          no topo com margem normal (evita subir/cortar no estado sem banner). */
-      wrap.style.marginTop = cfg.banner ? (-(size / 2) + 'px') : '0px';
+      /* Sobreposição do avatar sobre o banner: MESMA matemática do público
+         (index.html) — -0.35*avatar no celular (≤420px) e -0.45*avatar no
+         desktop (≥768px). Antes era -50% fixo, e o nome/bio baixavam mais
+         no mockup do que no link público. */
+      const overlapK = (window.currentPreviewMode || 'mobile') === 'desktop' ? 0.45 : 0.35;
+      wrap.style.marginTop = cfg.banner ? (-(size * overlapK) + 'px') : '0px';
     }
 
     /* Selo de verificado */
@@ -6087,7 +6152,7 @@
     /* Altura fixa do banner no mockup — usa CSS variable para consistência com CSS */
     const pvBanner = $('pvBanner');
     if (pvBanner && cfg.banner) {
-      const bnHeight = (dp.banner && dp.banner.height) ? dp.banner.height : 180;
+      const bnHeight = (dp.banner && dp.banner.height) ? dp.banner.height : 190;
       pvBanner.style.setProperty('--pv-banner-height', bnHeight + 'px');
       pvBanner.style.height = '';
       pvBanner.style.aspectRatio = '';
