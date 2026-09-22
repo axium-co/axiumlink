@@ -805,6 +805,36 @@
   }
   .pv-address[hidden] { display:none; }
   .pv-address-ico { font-size:11px; line-height:1; }
+  /* Modo "Somente texto" (displayStyle:'text-only') — espelho do público.
+     O chipFor do preview só limpa estilos INLINE, mas o container visual
+     de .pv-name/.pv-bio/.pv-address/.link-block vem de regra de CLASSE.
+     Classe modificadora (.ax-text-only) anula o box e os hovers. */
+  .pv-name.ax-text-only,
+  .pv-bio.ax-text-only,
+  .pv-address.ax-text-only {
+    padding: 0;
+    border-radius: 0;
+    background: none;
+    border: none;
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .link-block.ax-text-only {
+    background: none;
+    border: none;
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    padding: 0;
+    border-radius: 0;
+    min-height: 0;
+  }
+  .link-block.ax-text-only:hover,
+  .link-block.ax-text-only:active {
+    transform: none;
+    box-shadow: none;
+  }
   .pv-pix {
     display:flex; align-items:center; justify-content:center; gap:6px;
     margin:10px auto 0; width:fit-content; padding:8px 20px; border:none;
@@ -2658,6 +2688,15 @@
           </div>
         </div>
 
+        <div class="toggle-row" style="margin-bottom:12px;">
+          <span class="toggle-label">Mostrar abas de filtro por categoria</span>
+          <label class="switch">
+            <input type="checkbox" id="showCategoryTabs">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <p class="hint" style="margin:-6px 0 12px;">Exibe uma barra "Todos / Categoria" acima dos links, agrupando por categoria. Desligado, a barra nunca aparece, mesmo que links tenham categoria preenchida.</p>
+
         <div class="ds-control">
           <label>Tamanho dos ícones sociais</label>
           <p class="hint" style="margin:-2px 0 8px;">Tamanho dos ícones circulares (modo grade/carrossel). Aplica no mockup e no link público.</p>
@@ -3684,6 +3723,7 @@
       btnGlassBorderOpacity: gl.borderOpacity,
       btnBgColor: resolved(co.background, ''),
       btnTextColor: resolved(co.text, ''),
+      displayStyle: s.displayStyle || 'box',
       buttonGlass: { enabled: gl.enabled, blur: gl.blur, saturate: gl.saturate, opacity: gl.opacity, color: gl.color, borderGlow: gl.borderGlow, shadowDepth: gl.shadowDepth, highlight: gl.highlight, noise: gl.noise, borderOpacity: gl.borderOpacity }
     };
   }
@@ -3759,6 +3799,9 @@
       layoutSpacing: 'comfy',
       letterSpacing: 0,
       lineHeight: 1.4,
+      /* Abas de filtro por categoria: só renderizam quando o usuário liga
+         explicitamente — evita barra "Todos/X" vinda de dados órfãos. */
+      showCategoryTabs: false,
       /* Tipografia por elemento (sub-blocos independentes).
          font='' significa "Mesma da página" (usa st.font como fallback). */
       typoName: { font: '', size: 20, weight: 700, ls: 0, lh: 1.4 },
@@ -4181,7 +4224,7 @@
   function previewLinksSig(cfg) {
     const links = cfg.links || [];
     const cats = [...new Set(links.map(l => l.category).filter(Boolean))];
-    const parts = [JSON.stringify(cats)];
+    const parts = [JSON.stringify(cats), JSON.stringify(!!cfg.style?.showCategoryTabs)];
     links.forEach((l, i) => {
       parts.push([
         i, l.title || '', l.url || '', l.type || '', l.icon || '', l.iconImg || '',
@@ -4431,7 +4474,7 @@
 
     /* Categorias / Tabs no preview */
     const cats = [...new Set(listLinks.map(l => l.category).filter(Boolean))];
-    if (cats.length > 0) {
+    if (cfg.style?.showCategoryTabs && cats.length > 0) {
       const tabsWrap = document.createElement('div');
       tabsWrap.className = 'pg-tabs';
       const allTab = document.createElement('button');
@@ -5564,6 +5607,9 @@
     const chipFor = (el, g, pad, radius, bg, align, displayStyle) => {
       if (!el) return;
       const isTextOnly = displayStyle === 'text-only';
+      /* O container visual de .pv-name/.pv-bio/.pv-address vem de regra de
+         CLASSE — o inline não vence. Classe modificadora neutraliza o box. */
+      el.classList.toggle('ax-text-only', isTextOnly);
       if (el.hidden) {
         el.style.removeProperty('display');
         el.style.width = '';
@@ -5579,10 +5625,13 @@
         el.style.removeProperty('padding');
         el.style.removeProperty('borderRadius');
         applyGlass(el, { ...g, enabled: false });
-        el.style.removeProperty('background');
-        el.style.removeProperty('backgroundImage');
-        /* Alinhamento ainda se aplica via text-align no elemento pai ou no próprio elemento */
-        el.style.textAlign = align || 'center';
+        el.style.background = '';
+        el.style.backgroundImage = '';
+        /* text-align NÃO é definido aqui: nome/bio recebem o seu em
+           applyTypographyBlocks (center), e o endereço fica vazio — a
+           centralização vem do container (flex justify-center), como no
+           público. Definir center no endereço aqui deixaria o preview
+           divergir do público no espelho. */
       } else if (g.enabled || bg) {
         el.style.setProperty('display', 'block');
         el.style.width = 'fit-content';
@@ -5597,8 +5646,8 @@
           el.style.background = bg;
           el.style.backgroundImage = 'none';
         } else {
-          el.style.removeProperty('background');
-          el.style.removeProperty('backgroundImage');
+          el.style.background = '';
+          el.style.backgroundImage = '';
         }
       } else {
         el.style.removeProperty('display');
@@ -5613,8 +5662,8 @@
           el.style.background = bg;
           el.style.backgroundImage = 'none';
         } else {
-          el.style.removeProperty('background');
-          el.style.removeProperty('backgroundImage');
+          el.style.background = '';
+          el.style.backgroundImage = '';
         }
       }
     };
@@ -5722,6 +5771,7 @@
         /* Modo "Somente texto": link puro sem container visual, mas clicável.
            Remove todos os estilos de botão/caixa, mantém tipografia e cursor. */
         el.classList.remove('ghost', 'neumorphic', ...ANIM_CLASSES);
+        el.classList.add('ax-text-only');
         Object.assign(el.style, {
           background: 'transparent',
           border: 'none',
@@ -5745,6 +5795,7 @@
         const bVariant = merged.btnVariant || 'solid';
         const bAnim = merged.btnAnimation || 'none';
         Object.assign(el.style, bCSS);
+        el.classList.remove('ax-text-only');
         el.classList.remove('ghost', 'neumorphic');
         if (bVariant === 'ghost' || bVariant === 'neumorphic') el.classList.add(bVariant);
         el.classList.remove(...ANIM_CLASSES);
@@ -7094,6 +7145,13 @@
       renderPreview();
       markDirty();
     });
+    safeOn('showCategoryTabs', 'change', (e) => {
+      if (!cfg.style) cfg.style = {};
+      cfg.style.showCategoryTabs = e.target.checked;
+      renderPreview();
+      renderLinksList();
+      markDirty();
+    });
     const BLOCK_CFG = [
       { key: 'typoBtn',  prefix: 'typoBtn'  }
     ];
@@ -7487,6 +7545,7 @@
     $('fontFamily').value = st.font || 'Inter';
     $('layoutSpacing').value = st.layoutSpacing || 'comfy';
     setTriggerColor('btnGlowColor', st.btnGlowColor || '#22d3ee');
+    if ($('showCategoryTabs')) $('showCategoryTabs').checked = !!st.showCategoryTabs;
     $('btnShape').value = st.btnShape || 'rounded';
     $('btnShadowStyle').value = st.btnShadowStyle || 'soft';
     $('btnAnimation').value = st.btnAnimation || 'none';

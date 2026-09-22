@@ -223,6 +223,18 @@ const CASE_VARIANTS = [
       return c;
     }
   },
+  { name: 'SOMENTE TEXTO: Bio/Nome/Endereço + Botão (box anulado por classe)',
+    make: (c) => {
+      c.design.profile.elem.name.displayStyle = 'text-only';
+      c.design.profile.elem.bio.displayStyle = 'text-only';
+      c.design.profile.elem.address.displayStyle = 'text-only';
+      c.links = [
+        { id: 'l1', title: 'Site', url: 'https://site.com', type: 'site' },
+        { id: 'l2', title: 'Contato', url: 'https://contato.com', type: 'site', style: { displayStyle: 'text-only' } }
+      ];
+      return c;
+    }
+  },
   { name: 'links: imagem customizada + altura',
     make: (c) => {
       c.links = [
@@ -985,6 +997,101 @@ export async function run() {
       report(`${label}: #pvName AINDA sem margens auto após sliders do painel (tipografia/vidro/padding/raio)`, mAfter.noAuto, 'ml=' + mAfter.ml + ' mr=' + mAfter.mr);
       report(`${label}: wrap AINDA centraliza Nome+Selo após sliders do painel`, wrapAfter.ok, wrapAfter.det);
     }
+  }
+
+  /* ================================================================
+     REGRESSÃO PERMANENTE — PIX + cor padrão do Nome/Bio.
+     BUG A: o trigger #pgPixWrap vivia FORA de #pageProfileInfo (irmão do
+     header, filho direto de #pageFlow, sem order → flex order 0 > perfil
+     com order 1) → aparecia no TOPO no público. Agora vive DENTRO do
+     bloco de informações, como irmão do endereço = espelho do admin
+     (#pvPix após #pvAddress).
+     BUG B: o público hardcoded --profile-name-color (vermelho/salmão) e
+     --profile-bio-color (verde) que VENCIAM a tinta do tema (--text-title),
+     enquanto o admin segue --p-ink (escuro). Agora ambos seguem a tinta.
+     Testa também: sem PIX nada aparece (hidden em ambos), com PIX mesma
+     posição relativa.
+     ================================================================ */
+  {
+    const report = (label, ok, det = '') => {
+      console.log(`  ${ok ? '✅' : '❌'} ${label}${ok ? '' : ' — ' + det}`);
+      if (ok) pass++; else fail++;
+    };
+    const mk = (baseC, mutate) => {
+      const c = JSON.parse(JSON.stringify(baseC));
+      c.links = [{ id: 'l1', title: 'Site', url: 'https://site.com', type: 'site' }];
+      if (mutate) mutate(c);
+      return c;
+    };
+    const prevPix = (win) => {
+      const el = win.document.getElementById(win === wA ? 'pvPix' : 'pgPixWrap');
+      return el ? { el, hidden: el.hidden, parent: el.parentElement } : null;
+    };
+
+    console.log('\n━━━ ESPELHO | REGRESSÃO PIX + cor Nome/Bio (BUG A+B — permanente) ━━━');
+
+    /* ---- BUG A: PIX dentro do bloco de informações, espelho do admin ---- */
+    const pixReg = mk(NEW_CONFIG, (c) => {
+      c.profile.pix = { enabled: true, key: 'jose@ventura.com', qr: 'https://cdn.axium.test/pix-qr.png', link: 'https://pay.axium.test/123' };
+    });
+    wA.__axEditor.init(pixReg);
+    wP.__alaPublica.aplicar(pixReg);
+    const aPix = prevPix(wA);
+    const pPix = prevPix(wP);
+    const pParent = pPix && pPix.parent;
+    report('PIX ligado: trigger visível nos DOIS lados', !!(aPix && pPix && !aPix.hidden && !pPix.hidden), 'admin=' + (aPix && aPix.hidden) + ' público=' + (pPix && pPix.hidden));
+    report('PIX ligado: #pgPixWrap vive DENTRO de #pageProfileInfo (público)', !!(pParent && pParent.id === 'pageProfileInfo'), pParent ? ('pai=' + pParent.id + '/' + pParent.className) : '(sem pai)');
+    report('PIX ligado: #pvPix vive no MESMO container do endereço (admin)', !!(aPix && aPix.parent && aPix.parent.contains(wA.document.getElementById('pvAddress'))), aPix && aPix.parent ? ('pai=' + aPix.parent.id + '/' + aPix.parent.className) : '(sem pai)');
+    const docPixFollowsAddr = (doc, wrapId, addrId) => {
+      const wrap = doc.getElementById(wrapId);
+      const addr = doc.getElementById(addrId);
+      const N = doc.defaultView.Node;
+      return !!(wrap && addr && (addr.compareDocumentPosition(wrap) & N.DOCUMENT_POSITION_FOLLOWING));
+    };
+    report('PIX ligado: endereço vem ANTES do PIX nos DOIS lados (mesma ordem relativa)', docPixFollowsAddr(wA.document, 'pvPix', 'pvAddress') && docPixFollowsAddr(wP.document, 'pgPixWrap', 'pgAddress'));
+
+    const pixOff = mk(NEW_CONFIG, (c) => {
+      c.profile.pix = { enabled: true, key: '', qr: '', link: '' };
+    });
+    wA.__axEditor.init(pixOff);
+    wP.__alaPublica.aplicar(pixOff);
+    const aPoff = prevPix(wA);
+    const pPoff = prevPix(wP);
+    report('PIX sem conteúdo: oculto nos DOIS lados', !!(aPoff && pPoff && aPoff.hidden && pPoff.hidden), 'admin=' + (aPoff && aPoff.hidden) + ' público=' + (pPoff && pPoff.hidden));
+    report('PIX disabled: oculto nos DOIS lados', !!(aPoff && aPoff.hidden) || (function () {
+      const c = mk(NEW_CONFIG, (cfg) => { cfg.profile.pix = { enabled: false, key: 'x', qr: '', link: '' }; });
+      wA.__axEditor.init(c);
+      wP.__alaPublica.aplicar(c);
+      const a = prevPix(wA), p = prevPix(wP);
+      return a && p && a.hidden && p.hidden;
+    })());
+
+    /* ---- BUG B: cor padrão do Nome/Bio segue a TINTA (não hardcoded) ---- */
+    const noColor = mk(NEW_CONFIG, (c) => {
+      delete c.design.profile.elem.name.color;
+      delete c.design.profile.elem.bio.color;
+      c.design.profile.elem.name.bg = '';
+      c.design.profile.elem.bio.bg = '';
+    });
+    wA.__axEditor.init(noColor);
+    wP.__alaPublica.aplicar(noColor);
+    const nameSnapA = snapshot(wA, '#pvName');
+    const nameSnapP = snapshot(wP, '#pgTitle');
+    const nameDiff = comparePair('nome-cor', nameSnapA, nameSnapP, PAIR_ALLOW({ admin: '#pvName', public: '#pgTitle' })).filter((d) => d.prop === 'color');
+    const bioSnapA = snapshot(wA, '#pvBio');
+    const bioSnapP = snapshot(wP, '#pgSubtitle');
+    const bioDiff = comparePair('bio-cor', bioSnapA, bioSnapP, PAIR_ALLOW({ admin: '#pvBio', public: '#pgSubtitle' })).filter((d) => d.prop === 'color');
+    report('Nome sem cor custom: sem cor inline EM INLINE nos dois (nada divergente)', nameDiff.length === 0, nameDiff.map((d) => d.prop + '=' + d.a + '→' + d.b).join('; '));
+    report('Bio sem cor custom: sem cor inline EM INLINE nos dois (nada divergente)', bioDiff.length === 0, bioDiff.map((d) => d.prop + '=' + d.a + '→' + d.b).join('; '));
+
+    const pRules = allRules(wP);
+    const nameColorRule = findRule(pRules, '.profile');
+    const nameVar = nameColorRule && nameColorRule.style.getPropertyValue('--profile-name-color');
+    const bioVar = nameColorRule && nameColorRule.style.getPropertyValue('--profile-bio-color');
+    const noHardcoded = (v) => !v || !/dc2626|f87171|16a34a|4ade80/i.test(v) && /var\(--text-(title|body)\)/i.test(v);
+    report('Público: --profile-name-color segue a TINTA (--text-title), nunca vermelho/salmão', noHardcoded(nameVar), nameVar || '(vazio)');
+    report('Público: --profile-bio-color segue a TINTA (--text-body), nunca verde', noHardcoded(bioVar), bioVar || '(vazio)');
+    report('Admin: .pv-name/.pv-bio sem cor própria (herdam --p-ink da página)', !wA.document.querySelector('#pvName').style.color && !wA.document.querySelector('#pvBio').style.color, 'name=' + (wA.document.querySelector('#pvName').style.color || '(vazio)') + ' bio=' + (wA.document.querySelector('#pvBio').style.color || '(vazio)'));
   }
 
   /* Resumo — lista real (não-conhecidas) deduplicada */

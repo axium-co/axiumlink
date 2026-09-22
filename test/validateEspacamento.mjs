@@ -161,6 +161,7 @@ export async function run() {
     /* (d) Tabs de categoria: margin-bottom = global; itens seguem. */
     const cD = baseCfg((c) => {
       c.style.blockGap = 10;
+      c.style.showCategoryTabs = true;
       c.links = [
         { id: 'l1', title: 'Instagram', url: 'https://ig.com', type: 'instagram', category: 'social' },
         { id: 'l2', title: 'WhatsApp', url: 'https://wa.me/1', type: 'whatsapp', category: 'social' },

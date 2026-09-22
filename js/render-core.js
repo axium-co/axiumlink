@@ -379,6 +379,7 @@ const RenderCore = (function () {
 
     /* Botões especiais (customimg, highlight, testimonial) não recebem estilo global de botão */
     if (isCustomImg) {
+      btn.classList.remove('ax-text-only');
       Object.assign(btn.style, {
         border: 'none',
         boxShadow: 'none',
@@ -409,6 +410,7 @@ const RenderCore = (function () {
 
     if (isTextOnly) {
       btn.classList.remove('ghost', 'neumorphic');
+      btn.classList.add('ax-text-only');
       Object.assign(btn.style, {
         background: 'transparent',
         border: 'none',
@@ -434,6 +436,7 @@ const RenderCore = (function () {
     const bAnim = merged.btnAnimation || 'none';
 
     Object.assign(btn.style, bCSS);
+    btn.classList.remove('ax-text-only');
     btn.classList.remove('ghost', 'neumorphic');
     if (bVariant === 'ghost' || bVariant === 'neumorphic') btn.classList.add(bVariant);
     if (bAnim === 'pulse') btn.classList.add('anim-pulse');
@@ -489,7 +492,7 @@ const RenderCore = (function () {
     const categories = [...new Set((links || []).map(l => l.category).filter(Boolean))];
     let tabsWrap = null;
 
-    if (categories.length > 0) {
+    if (cfg.style?.showCategoryTabs && categories.length > 0) {
       tabsWrap = document.createElement('div');
       tabsWrap.className = 'pg-tabs';
       const allTab = document.createElement('button');

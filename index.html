@@ -225,9 +225,12 @@
 
 /* Tokens do header (nome, bio e badge de endereço). Valores padrão
          do layout de referência; o Painel sobrescreve por cliente através
-         de design.profile.text (estilos inline aplicados nos elementos). */
-       --profile-name-color: light-dark(#dc2626, #f87171);
-       --profile-bio-color: light-dark(#16a34a, #4ade80);
+         de design.profile.text (estilos inline aplicados nos elementos).
+         Nome e bio seguem a TINTA do tema (--text-title/--text-body),
+         igual ao admin (.pv-name/.pv-bio herdam --p-ink) — sem overrides
+         de cor próprios para não divergir do mockup. */
+       --profile-name-color: var(--text-title);
+       --profile-bio-color: var(--text-body);
        --profile-bio-bg: rgba(12, 14, 22, 0.72);
        --profile-bio-text: var(--text-body);
        --profile-bio-border: rgba(255, 255, 255, 0.12);
@@ -515,6 +518,49 @@
     .profile__address span { overflow-wrap: anywhere; min-width: 0; }
 
     .profile__address svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+    /* Modo "Somente texto" (displayStyle:'text-only') — o chipFor só limpa
+       estilos INLINE, mas o container visual de Bio/Endereço/links vem de
+       regra de CLASSE (.profile__subtitle/.profile__address/.featured__card).
+       Classe modificadora neutraliza o box e os hovers, SEM depender do
+       inline. Aplicada via JS (chipFor / tratarEstiloIndividualPublic) para
+       Bio, Nome, Endereço e botões. Especificidade alta o bastante para
+       vencer os hovers e o min-height do modo lista (.pg-links--list). */
+    .profile__title.ax-text-only,
+    .profile__subtitle.ax-text-only,
+    .profile__address.ax-text-only {
+      padding: 0;
+      border-radius: 0;
+      background: none;
+      border: none;
+      box-shadow: none;
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+    .profile__subtitle.ax-text-only:hover,
+    .profile__address.ax-text-only:hover {
+      border-color: transparent;
+      transform: none;
+      box-shadow: none;
+    }
+    .pg-links--list .featured__card.ax-text-only,
+    .featured__card.ax-text-only,
+    .social-icon.ax-text-only {
+      background: none;
+      border: none;
+      box-shadow: none;
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+      padding: 0;
+      border-radius: 0;
+    }
+    .pg-links--list .featured__card.ax-text-only { min-height: 0; }
+    .featured__card.ax-text-only::after { display: none; }
+    .featured__card.ax-text-only:hover,
+    .featured__card.ax-text-only:active {
+      transform: none;
+      box-shadow: none;
+    }
 
     /* ================================================================
        FLUXO LIVRE — seções num único container flex
@@ -1899,22 +1945,22 @@
           <span data-bind="profileAddress">Rua Exemplo, 123 – Cidade/UF</span>
         </a>
 
+        <!-- TODO: remover a trigger PIX se o cliente não usa PIX -->
+        <!-- ================================================================
+             PAGAR COM PIX (trigger preenchido dinamicamente por applyPix)
+             ================================================================ -->
+        <div id="pgPixWrap" class="pg-pix" hidden>
+          <button class="pg-pix__btn" type="button" data-dialog-open aria-haspopup="dialog">
+            <svg class="pg-pix__ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z" />
+            </svg>
+            <span>Pagar com PIX</span>
+          </button>
+        </div>
+
       </div>
 
     </header>
-
-    <!-- ================================================================
-         PAGAR COM PIX (trigger preenchido dinamicamente por applyPix)
-         ================================================================ -->
-
-      <div id="pgPixWrap" class="pg-pix" hidden>
-        <button class="pg-pix__btn" type="button" data-dialog-open aria-haspopup="dialog">
-          <svg class="pg-pix__ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z" />
-          </svg>
-          <span>Pagar com PIX</span>
-        </button>
-      </div>
 
     <!-- ================================================================
          LISTA DE LINKS (gerada dinamicamente a partir de cfg.links)
@@ -3202,16 +3248,18 @@
           M.removeProperty('marginRight');
           M.removeProperty('padding');
           M.removeProperty('borderRadius');
-          M.removeProperty('background');
-          M.removeProperty('backgroundImage');
+          M.background = '';
+          M.backgroundImage = '';
           M.removeProperty('boxShadow');
           M.removeProperty('backdropFilter');
           M.removeProperty('webkitBackdropFilter');
           M.removeProperty('border');
           el.classList.remove('gx-panel', 'gx-highlight', 'gx-noise');
+          el.classList.add('ax-text-only');
           return;
         }
         const M = el.style;
+        el.classList.remove('ax-text-only');
         if (g.enabled || solidBg) {
           /* display block (NÃO inline-block): margin auto só centraliza
              elementos block-level; chip inline ficava ancorado à esquerda
@@ -3234,7 +3282,7 @@
              (backdrop-filter) dá profundidade quando há imagem/gradiente atrás. */
         }
         else if (solidBg) { M.background = solidBg; M.backgroundImage = 'none'; }
-        else { M.removeProperty('background'); M.removeProperty('backgroundImage'); }
+        else { M.background = ''; M.backgroundImage = ''; }
       };
       chipFor(document.getElementById('pgTitle'), nameGlass, pElemName.padding || [4, 14], pElemName.radius != null ? pElemName.radius : 10, pElemName.bg || '', pElemName.align, pElemName.displayStyle);
       chipFor(document.getElementById('pgSubtitle'), bioGlass, pElemBio.padding || [4, 14], pElemBio.radius != null ? pElemBio.radius : 10, pElemBio.bg || '', pElemBio.align, pElemBio.displayStyle);
@@ -3445,20 +3493,39 @@
            mas mantém o elemento clicável (href funciona). */
         if (dados.style && dados.style.displayStyle === 'text-only') {
           const M = btn.style;
-          M.removeProperty('background');
           M.removeProperty('color');
-          M.removeProperty('border');
-          M.removeProperty('borderRadius');
-          M.removeProperty('boxShadow');
-          M.removeProperty('backdropFilter');
-          M.removeProperty('WebkitBackdropFilter');
-          M.removeProperty('textShadow');
-          M.removeProperty('borderWidth');
-          M.removeProperty('borderStyle');
-          M.removeProperty('borderColor');
-          M.removeProperty('padding');
+          /* Remove os VARS de container que a base CSS lê (--ui-*) — senão
+             o box volta via var mesmo sem propriedade inline de fondo. */
+          M.removeProperty('--ui-bg');
+          M.removeProperty('--ui-border');
+          M.removeProperty('--ui-shadow');
+          M.removeProperty('--ui-blur');
+          /* Neutraliza o container visual por INLINE (espelho exato do
+             preview admin) e por CLASSE (.ax-text-only) — o box de
+             .featured__card vem de regra de classe, não só de inline. */
+          Object.assign(M, {
+            background: 'transparent',
+            border: 'none',
+            boxShadow: 'none',
+            padding: '0',
+            borderRadius: '0',
+            backdropFilter: 'none',
+            WebkitBackdropFilter: 'none',
+            textShadow: 'none'
+          });
+          btn.classList.add('ax-text-only');
           btn.classList.remove('gx-panel', 'gx-highlight', 'gx-noise');
           btn.style.cursor = 'pointer';
+          /* Botão de texto vira LINK puro e sublinhado, igual ao preview
+             admin. Ícones sociais mantêm a geometria circular (não viram
+             inline). */
+          if (!btn.classList.contains('social-icon')) {
+            M.display = 'inline';
+            M.width = 'auto';
+            M.maxWidth = 'none';
+            M.flex = 'none';
+            M.textDecoration = 'underline';
+          }
           return;
         }
         /* Limpa estilos inline anteriores */
@@ -3488,6 +3555,7 @@
         btn.style.borderRadius = '';
         btn.style.fontSize = '';
         btn.style.fontWeight = '';
+        btn.classList.remove('ax-text-only');
 
         if (dados.btnBg) btn.style.background = dados.btnBg;
         if (dados.btnColor) btn.style.color = dados.btnColor;
@@ -3634,7 +3702,7 @@
         /* ---- Categorias / Tabs ---- */
         const categories = [...new Set(linkList.map(l => l.category).filter(Boolean))];
         let activeCat = null;
-        if (categories.length > 0) {
+        if (cfg.style?.showCategoryTabs && categories.length > 0) {
           const tabsWrap = document.createElement('div');
           tabsWrap.className = 'pg-tabs';
           const allTab = document.createElement('button');
@@ -4021,17 +4089,18 @@
           .filter((s) => s.node && s.visible)
           .sort((a, b) => a.order - b.order);
 
-        /* PIX: o trigger vive no fluxo entre as informações e os links.
-           replaceChildren() remove o resto do fluxo, por isso guardamos a
-           referência ANTES e re-anexamos aqui (idempotente — appendChild
-           move, não duplica). Garante visibilidade correta no desktop. */
+        /* PIX: o trigger agora vive DENTRO do bloco de informações
+           (#pageProfileInfo, #pgPixWrap) — replaceChildren() preserva
+           porque o elemento é descendente de profile. Só re-aplicamos a
+           visibilidade aqui (idempotente — evita que hidden=true persista
+           incorretamente no desktop). Oculto também quando o PIX é item
+           da lista (pix.order). */
         const pixFlowWrap = document.getElementById('pgPixWrap');
         flow.replaceChildren(profile);
         if (pixFlowWrap) {
-          flow.appendChild(pixFlowWrap);
-          /* Re-aplica visibilidade do PIX após mover para o fluxo —
-             evita que hidden=true persista incorretamente no desktop.
-             Oculto também quando o PIX é item da lista (pix.order). */
+          /* Re-aplica visibilidade do PIX após o render — evita que
+             hidden=true persista incorretamente no desktop. Oculto
+             também quando o PIX é item da lista (pix.order). */
           const pixC = (p.pix && typeof p.pix === 'object') ? p.pix : {};
           const hasContent = !!(pixC.key || pixC.qr || pixC.link);
           const inList = (typeof pixC.order === 'number' && pixC.order >= 0);
@@ -4147,6 +4216,7 @@
           else if (st.titleFont) titleEl.style.fontFamily = FONT_STACKS[st.titleFont] || 'Georgia, serif';
           else titleEl.style.removeProperty('font-family');
           if (pElemName.color) titleEl.style.color = pElemName.color;
+          else titleEl.style.removeProperty('color');
           titleEl.style.textAlign = pElemName.align || 'center';
         }
         const bioEl = document.getElementById('pgSubtitle');
@@ -4158,6 +4228,7 @@
           if (pElemBio.font) bioEl.style.fontFamily = FONT_STACKS[pElemBio.font] || 'Georgia, serif';
           else bioEl.style.removeProperty('font-family');
           if (pElemBio.color) bioEl.style.color = pElemBio.color;
+          else bioEl.style.removeProperty('color');
           bioEl.style.textAlign = pElemBio.align || '';
         }
         const addrElTypo = addrEl;
@@ -4332,7 +4403,7 @@
              regras da stylesheet (border none, background transparent, sem
              sombra) e reintroduziria borda/linha residual cruzando a imagem. */
           if (el.classList.contains('featured__card--customimg')) {
-            el.classList.remove(...ANIMS);
+            el.classList.remove('ax-text-only', ...ANIMS);
             Object.assign(el.style, {
               border: 'none',
               boxShadow: 'none',
@@ -4356,21 +4427,38 @@
              mas mantém o elemento clicável (href funciona). */
           if (linkData && linkData.style && linkData.style.displayStyle === 'text-only') {
             const M = el.style;
-            M.removeProperty('background');
             M.removeProperty('color');
-            M.removeProperty('border');
-            M.removeProperty('borderRadius');
-            M.removeProperty('boxShadow');
-            M.removeProperty('backdropFilter');
-            M.removeProperty('WebkitBackdropFilter');
-            M.removeProperty('textShadow');
-            M.removeProperty('borderWidth');
-            M.removeProperty('borderStyle');
-            M.removeProperty('borderColor');
-            M.removeProperty('padding');
+            /* Remove os VARS de container que a base CSS lê (--ui-*) — o box
+               voltaria via var mesmo sem propriedade inline de fondo. */
+            M.removeProperty('--ui-bg');
+            M.removeProperty('--ui-border');
+            M.removeProperty('--ui-shadow');
+            M.removeProperty('--ui-blur');
+            /* Neutraliza o box por INLINE (espelho exato do preview admin) e
+               por CLASSE (.ax-text-only) — o box de .featured__card vem de
+               regra de classe, não só de inline. */
+            Object.assign(M, {
+              background: 'transparent',
+              border: 'none',
+              boxShadow: 'none',
+              padding: '0',
+              borderRadius: '0',
+              backdropFilter: 'none',
+              WebkitBackdropFilter: 'none',
+              textShadow: 'none'
+            });
+            el.classList.add('ax-text-only');
             el.classList.remove('gx-panel', 'gx-highlight', 'gx-noise', ...ANIMS);
-            // Garante que o link continue clicável
             el.style.cursor = 'pointer';
+            /* Link de texto vira elemento inline sublinhado (espelho do
+               preview admin). Ícones sociais mantêm a geometria circular. */
+            if (!el.classList.contains('social-icon')) {
+              M.display = 'inline';
+              M.width = 'auto';
+              M.maxWidth = 'none';
+              M.flex = 'none';
+              M.textDecoration = 'underline';
+            }
             return;
           }
           
@@ -4382,6 +4470,7 @@
           const bVariant = merged.btnVariant || 'solid';
           const bAnim = merged.btnAnimation || 'none';
           Object.assign(el.style, bCSS);
+          el.classList.remove('ax-text-only');
           if (!el.classList.contains('social-icon')) Object.assign(el.style, tyBtnBase);
           if (el.classList.contains('social-icon')) {
             /* Ícones sociais preservam o círculo base (50%). O formato

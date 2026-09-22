@@ -39,7 +39,7 @@ const TEST_CFG = {
     { id: '3', title: 'Site', url: 'https://site.com', icon: 'site', category: 'CONTATO' }
   ],
   layout: { cardsMode: 'list' },
-  style: { blockGap: 12 },
+  style: { blockGap: 12, showCategoryTabs: true },
   design: {
     profile: {
       elem: {
