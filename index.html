@@ -491,6 +491,7 @@
     .profile__address {
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 0.375rem;
       margin-top: 0;
       margin-bottom: 0;
@@ -3308,12 +3309,16 @@
           const aCfg = pElemAddress;
           if (aCfg.color) addrEl.style.color = aCfg.color;
           chipFor(addrEl, addressGlass, aCfg.padding || [8, 16], aCfg.radius != null ? aCfg.radius : 999, aCfg.bg || '', aCfg.align, aCfg.displayStyle);
-          /* O container (.profile__info) é flex-column align-items:center:
-             o eixo horizontal de um item flex rege via align-self, senão
-             esquerda/direita não surtem efeito no browser real. */
+          /* Espelha o admin: força display:flex de NÍVEL BLOCO + width
+             fit-content para as margens automáticas centralizarem em QUALQUER
+             pai (flex ou block); align-self fica como redundância quando o
+             pai é flex (antigamente dependíamos só dele e zerávamos margens). */
+          addrEl.style.setProperty('display', 'flex');
+          addrEl.style.setProperty('width', 'fit-content');
           addrEl.style.alignSelf = aCfg.align === 'left' ? 'flex-start' : aCfg.align === 'right' ? 'flex-end' : 'center';
-          addrEl.style.marginLeft = '';
-          addrEl.style.marginRight = '';
+          if (aCfg.align === 'left') { addrEl.style.marginLeft = '0'; addrEl.style.marginRight = 'auto'; }
+          else if (aCfg.align === 'right') { addrEl.style.marginLeft = 'auto'; addrEl.style.marginRight = '0'; }
+          else { addrEl.style.marginLeft = 'auto'; addrEl.style.marginRight = 'auto'; }
           /* Ícone do endereço: visibilidade controlada pelo toggle "Mostrar ícone"
              (pf.address.showIcon). Roda SEMPRE, mesmo no modo text-only. */
           const addrIconEl = addrEl.querySelector('svg');

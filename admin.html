@@ -5604,7 +5604,7 @@
        Bio usa cfg.style.bioGlass (fallback textGlass) + elem.bio. */
     const nameCfg = profileElem('name');
     const bioCfg = profileElem('bio');
-    const chipFor = (el, g, pad, radius, bg, align, displayStyle) => {
+    const chipFor = (el, g, pad, radius, bg, align, displayStyle, forceAlign) => {
       if (!el) return;
       const isTextOnly = displayStyle === 'text-only';
       /* O container visual de .pv-name/.pv-bio/.pv-address vem de regra de
@@ -5666,6 +5666,19 @@
           el.style.backgroundImage = '';
         }
       }
+      /* Endereço (forceAlign): mesmo SEM vidro/fundo o chip volta a
+         display:inline-flex num pai BLOCO e margens 'auto' são inertes em
+         elemento inline → endereço colado à esquerda. Reafirmamos display:flex
+         de NÍVEL BLOCO + width fit-content + margens do align ao FINAL de
+         qualquer branch (roda depois do bloco de alinhamento do runPreview,
+         então vale também para re-chamadas de applyThemeVars). */
+      if (forceAlign && !el.hidden) {
+        el.style.setProperty('display', 'flex');
+        el.style.width = 'fit-content';
+        if (align === 'left') { el.style.marginLeft = '0'; el.style.marginRight = 'auto'; }
+        else if (align === 'right') { el.style.marginLeft = 'auto'; el.style.marginRight = '0'; }
+        else { el.style.marginLeft = 'auto'; el.style.marginRight = 'auto'; }
+      }
     };
     const nameG = Object.assign({
       enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff',
@@ -5686,7 +5699,7 @@
       enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff',
       borderGlow: 40, shadowDepth: 18, highlight: true, noise: false
     }, st.addressGlass || {});
-    chipFor($('pvAddress'), addrG, addrCfg.padding || [8, 16], addrCfg.radius != null ? addrCfg.radius : 999, addrCfg.bg || '', addrCfg.align, addrCfg.displayStyle || 'box');
+    chipFor($('pvAddress'), addrG, addrCfg.padding || [8, 16], addrCfg.radius != null ? addrCfg.radius : 999, addrCfg.bg || '', addrCfg.align, addrCfg.displayStyle || 'box', true);
   }
 
   function applyThemeVars() {
@@ -6015,24 +6028,23 @@
           enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff',
           borderGlow: 40, shadowDepth: 18, highlight: true, noise: false
         }, (cfg.style && cfg.style.addressGlass) || {});
-        addrBox.style.removeProperty('display');
-        if (!isAddrTextOnly && (addrG.enabled || aCfg.bg)) {
-          addrBox.style.setProperty('display', 'block');
-        }
         const addrText = $('pvAddressText');
         if (addrText) addrText.textContent = cfg.profile.address;
         /* Pílula/fundo/raio/padding/alinhamento/vidro são exclusivos do
            chip (applyGlassToElements → chipFor com elem.address + addressGlass). */
         addrBox.style.color = aCfg.color || '#ffffff';
-        /* Posiciona a pílula pelo próprio align mesmo sem chip de fundo
-           (o mockup pv-page é bloco; margens regem). alignSelf é inócuo. */
+        /* Sempre que visível, força display:flex de NÍVEL BLOCO + width
+           fit-content para as margens automáticas centralizarem de verdade:
+           o mockup pv-page é bloco e um elemento INLINE (inline-flex) ignora
+           margens auto (ficava sempre fixo à esquerda sem fundo/vidro).
+           alignSelf fica como redundância para pais flex. */
+        addrBox.style.setProperty('display', 'flex');
+        addrBox.style.setProperty('width', 'fit-content');
         const aAlign = aCfg.align;
         addrBox.style.alignSelf = aAlign === 'left' ? 'flex-start' : aAlign === 'right' ? 'flex-end' : 'center';
-        if (!isAddrTextOnly) {
-          if (aAlign === 'left') { addrBox.style.marginLeft = '0'; addrBox.style.marginRight = 'auto'; }
-          else if (aAlign === 'right') { addrBox.style.marginLeft = 'auto'; addrBox.style.marginRight = '0'; }
-          else { addrBox.style.marginLeft = 'auto'; addrBox.style.marginRight = 'auto'; }
-        }
+        if (aAlign === 'left') { addrBox.style.marginLeft = '0'; addrBox.style.marginRight = 'auto'; }
+        else if (aAlign === 'right') { addrBox.style.marginLeft = 'auto'; addrBox.style.marginRight = '0'; }
+        else { addrBox.style.marginLeft = 'auto'; addrBox.style.marginRight = 'auto'; }
       } else {
         addrBox.style.setProperty('display', 'none', 'important');
       }

@@ -1094,6 +1094,69 @@ export async function run() {
     report('Admin: .pv-name/.pv-bio sem cor própria (herdam --p-ink da página)', !wA.document.querySelector('#pvName').style.color && !wA.document.querySelector('#pvBio').style.color, 'name=' + (wA.document.querySelector('#pvName').style.color || '(vazio)') + ' bio=' + (wA.document.querySelector('#pvBio').style.color || '(vazio)'));
   }
 
+  /* ================================================================
+     REGRESSÃO PERMANENTE — alinhamento do Endereço (fixo à esquerda).
+     A pílula de endereço visível SEMPRE força display:flex de nível BLOCO +
+     width:fit-content + margens conforme o align nos DOIS lados. Antes:
+     sem fundo/vidro o chipFor voltava a display:inline-flex num pai BLOCO
+     (admin pv-page) e margens 'auto' são inertes em elemento inline → o
+     endereço ficava sempre colado à esquerda. alignSelf é redundância.
+     ================================================================ */
+  {
+    const report = (label, ok, det = '') => {
+      console.log(`  ${ok ? '✅' : '❌'} ${label}${ok ? '' : ' — ' + det}`);
+      if (ok) pass++; else fail++;
+    };
+    const mk = (baseC, mutate) => {
+      const c = JSON.parse(JSON.stringify(baseC));
+      c.links = [{ id: 'l1', title: 'Site', url: 'https://site.com', type: 'site' }];
+      if (mutate) mutate(c);
+      return c;
+    };
+    const mkAddr = (align, bg) => mk(NEW_CONFIG, (c) => {
+      c.design.profile.elem.address = Object.assign({}, c.design.profile.elem.address, { align, bg });
+    });
+    const addrSnap = (win, id) => {
+      const el = win.document.getElementById(id);
+      const s = win.getComputedStyle(el);
+      return {
+        display: el.style.display || s.display,
+        width: el.style.width || s.width,
+        ml: el.style.marginLeft || s.marginLeft,
+        mr: el.style.marginRight || s.marginRight,
+        alignSelf: el.style.alignSelf || s.alignSelf,
+      };
+    };
+    const readPair = () => ({ a: addrSnap(wA, 'pvAddress'), p: addrSnap(wP, 'pgAddress') });
+    const flex = (x) => /^flex$/.test(String(x));
+    const fit = (x) => /fit-content/.test(String(x));
+
+    console.log('\n━━━ ESPELHO | REGRESSÃO Endereço — nunca preso à esquerda ━━━');
+
+    const checkAlign = (align, label) => {
+      const c = mkAddr(align, '');
+      wA.__axEditor.init(c);
+      wP.__alaPublica.aplicar(c);
+      const { a, p } = readPair();
+      const col = (v) => /^0(px)?$/.test(String(v));
+      const ok = (m) => align === 'left' ? col(m[0]) && m[1] === 'auto' : align === 'right' ? m[0] === 'auto' && col(m[1]) : m[0] === 'auto' && m[1] === 'auto';
+      const det = (x) => `admin[display=${x.display} width=${x.width} ml=${x.ml} mr=${x.mr}] público[display=${p.display} width=${p.width} ml=${p.ml} mr=${p.mr}]`;
+      report(`${label}: pílula block-level flex + width fit-content nos DOIS lados`, flex(a.display) && fit(a.width) && flex(p.display) && fit(p.width), det(a));
+      report(`${label}: margens ${align === 'left' ? 'colam à esquerda' : align === 'right' ? 'colam à direita' : 'centralizam'} nos DOIS lados`, ok([a.ml, a.mr]) && ok([p.ml, p.mr]), `admin ml=${a.ml}/mr=${a.mr} público ml=${p.ml}/mr=${p.mr}`);
+      report(`${label}: alignSelf redundante e IGUAL nos DOIS lados`, /flex-start|flex-end|center/.test(a.alignSelf) && a.alignSelf === p.alignSelf, `admin=${a.alignSelf} público=${p.alignSelf}`);
+    };
+
+    checkAlign('center', 'Endereço sem chip');
+    checkAlign('left', 'Endereço sem chip');
+    checkAlign('right', 'Endereço sem chip');
+
+    const c = mkAddr('center', 'rgba(12,14,22,.82)');
+    wA.__axEditor.init(c);
+    wP.__alaPublica.aplicar(c);
+    const { a, p } = readPair();
+    report('Endereço com chip de fundo: continua block-level flex + margens que centralizam', flex(a.display) && flex(p.display) && fit(a.width) && fit(p.width) && a.ml === 'auto' && a.mr === 'auto' && p.ml === 'auto' && p.mr === 'auto', `admin[${a.display}|${a.width}|${a.ml}|${a.mr}] público[${p.display}|${p.width}|${p.ml}|${p.mr}]`);
+  }
+
   /* Resumo — lista real (não-conhecidas) deduplicada */
   const real = divsAll.filter((d) => !d.conhecida);
   console.log(`\n  ✅ ESPELHO checks: ${pass}  |  ❌ DIVERGÊNCIAS: ${fail}`);
