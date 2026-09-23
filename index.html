@@ -2396,6 +2396,25 @@
         };
       }
 
+      /* Resolve o flat do botão PIX no público — mesmo contrato do preview
+         admin (pixStyleFlat). pix.style é a fonte de verdade quando existe;
+         configs legadas (btnShape/btnBgColor/btnTextColor) são migradas com
+         as cores padrão verdes como fallback. */
+      function axPixStyleFlat(pixC, globalSt) {
+        const p = (pixC && typeof pixC === 'object') ? pixC : {};
+        const style = (p.style && typeof p.style === 'object') ? p.style : null;
+        if (style) return axLinkStyleToFlat(Object.assign({}, axDefaultLinkStyle(), {
+          colors: { background: '#16a34a', text: '#ffffff' }
+        }, style), globalSt);
+        return axLinkStyleToFlat({
+          format: p.btnShape || 'rounded',
+          colors: {
+            background: p.btnBgColor || '#16a34a',
+            text: p.btnTextColor || '#ffffff'
+          }
+        }, globalSt);
+      }
+
       /* ================================================================
          ADAPTADOR DE SCHEMA — painel novo → formato legado da página.
          O admin grava { profile:{displayName,avatar}, style:{...},
@@ -2685,7 +2704,8 @@
         if (wrap) wrap.hidden = !on || inList;
         if (!on || inList) return;
 
-        // Apply button customizations
+        // Apply button customizations (linhas de cor mantidas para o caso
+        // legado sem PASS PREMIUM; o PASS PREMIUM reaplica o estilo completo)
         const btnText = pixC.buttonText || 'Pagar com PIX';
         const btnBgColor = pixC.btnBgColor || '#16a34a';
         const btnTextColor = pixC.btnTextColor || '#ffffff';
@@ -4417,13 +4437,23 @@
             return;
           }
           const li = Number(el.dataset.linkIdx);
+          const isPixCardPub = el.getAttribute && el.getAttribute('data-pix') === '1';
           const linkData = (!Number.isNaN(li) && Array.isArray(linkList)) ? linkList[li] : null;
-          const flat = axLinkStyleToFlat(linkData && linkData.style ? linkData.style : null, st);
+          let flatPub;
+          if (isPixCardPub) {
+            /* Card PIX intercalado na lista: usa o estilo INDIVIDUAL do PIX
+               (mesmo comportamento do link com style próprio). */
+            const pixPubC = (p.pix && typeof p.pix === 'object') ? p.pix : {};
+            flatPub = axPixStyleFlat(pixPubC, st);
+          } else {
+            flatPub = axLinkStyleToFlat(linkData && linkData.style ? linkData.style : null, st);
+          }
           /* Estilo individual é a fonte de verdade quando o link tem
              style próprio; o global (st) serve apenas como fallback para
              links LEGADO sem estilo individual. Mockup e público seguem
              idênticos (render-core usa a mesma regra). */
-          let merged = (linkData && linkData.style) ? flat : Object.assign({}, st, flat);
+          let merged = isPixCardPub ? flatPub
+            : ((linkData && linkData.style) ? flatPub : Object.assign({}, st, flatPub));
           
           /* Modo "Somente texto": remove todo container visual do botão/link
              mas mantém o elemento clicável (href funciona). */
@@ -4472,7 +4502,9 @@
             enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff',
             borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: 25
           }, st.buttonGlass || {});
-          const lsGlassP = (linkData && linkData.style && linkData.style.glass) ? linkData.style.glass : null;
+          const lsGlassP = isPixCardPub
+            ? (((p.pix && p.pix.style) || {}).glass || null)
+            : ((linkData && linkData.style && linkData.style.glass) ? linkData.style.glass : null);
           const wantGlassP = (st.btnVariant === 'glass') || !!gBtnP.enabled || (lsGlassP && lsGlassP.enabled);
           if (wantGlassP) {
             const gEffP = (lsGlassP && lsGlassP.enabled)
@@ -4526,6 +4558,42 @@
           else if (bAnim === 'float') el.classList.add('ax-anim-float');
           else if (bAnim === 'shine') el.classList.add('ax-anim-shine');
         });
+
+        /* Botão PIX do header (#pgPixWrap) — mesmo contrato do card, quando
+           o PIX NÃO é item da lista (sem order). applyPix() cuida da
+           visibilidade/texto; aqui o estilo completo do botão por cima. */
+        const pixHdrC = (p.pix && typeof p.pix === 'object') ? p.pix : {};
+        const pixHdrOn = !!pixHdrC.enabled && !!(pixHdrC.key || pixHdrC.qr || pixHdrC.link);
+        const pixHdrInList = (typeof pixHdrC.order === 'number' && pixHdrC.order >= 0);
+        const pixHdrWrap = document.getElementById('pgPixWrap');
+        const pixHdrBtn = pixHdrWrap && pixHdrWrap.querySelector('.pg-pix__btn');
+        if (pixHdrBtn && pixHdrOn && !pixHdrInList) {
+          const pixHdrFlat = axPixStyleFlat(pixHdrC, st);
+          const pixHdrBg = pixHdrFlat.btnBgColor || thBtnbg;
+          const pixHdrInk = pixHdrFlat.btnTextColor || thBtnink;
+          const pixHdrShape = axShapeFor(pixHdrFlat);
+          const pixHdrCSS = axBtnStyle(pixHdrFlat, pixHdrBg, pixHdrInk, thInk, pixHdrShape);
+          Object.assign(pixHdrBtn.style, pixHdrCSS, pixHdrShape);
+          pixHdrBtn.style.setProperty('--ui-bg', pixHdrCSS.background);
+          const pixHdrVariant = pixHdrFlat.btnVariant || 'solid';
+          const pixHdrGlassPer = pixHdrFlat.buttonGlass || {};
+          const wantPixGlass = (pixHdrVariant === 'glass') || !!((st.buttonGlass || {}).enabled) || !!pixHdrGlassPer.enabled;
+          if (wantPixGlass) {
+            const gEffH = (pixHdrGlassPer && pixHdrGlassPer.enabled)
+              ? Object.assign({}, st.buttonGlass || {}, pixHdrGlassPer, { enabled: true })
+              : Object.assign({}, st.buttonGlass || {}, { enabled: true });
+            pixHdrBtn.classList.add('gx-panel');
+            pixHdrBtn.classList.toggle('gx-highlight', !!(gEffH.highlight != null ? gEffH.highlight : true));
+            pixHdrBtn.classList.toggle('gx-noise', !!gEffH.noise);
+          } else {
+            pixHdrBtn.classList.remove('gx-panel', 'gx-highlight', 'gx-noise');
+          }
+          pixHdrBtn.classList.remove(...ANIMS);
+          const pixHdrAnim = pixHdrFlat.btnAnimation || 'none';
+          if (pixHdrAnim === 'pulse') pixHdrBtn.classList.add('ax-anim-pulse');
+          else if (pixHdrAnim === 'float') pixHdrBtn.classList.add('ax-anim-float');
+          else if (pixHdrAnim === 'shine') pixHdrBtn.classList.add('ax-anim-shine');
+        }
 
         /* Espaçamento entre blocos */
         const lc = document.getElementById('pgLinks');

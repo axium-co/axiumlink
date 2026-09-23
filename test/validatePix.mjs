@@ -147,6 +147,110 @@ export async function run() {
     check('público: só chave → CTA oculto', d.getElementById('pixCta').hidden === true);
   }
 
+  /* =============== ESTILO COMPLETO DO BOTÃO PIX (painel) =============== */
+  const PIX_STYLE = () => ({
+    variant: 'neon', format: 'pill', animation: 'float',
+    shadow: { type: 'none', intensity: 0 },
+    radius: 24, glow: '#22d3ee',
+    gradient: { start: '#16a34a', end: '#15803d', angle: 60 },
+    glass: { enabled: false, blur: 20, opacity: 16, borderOpacity: 25 },
+    colors: { background: '#0f172a', text: '#f8fafc' }
+  });
+  const PIX_STYLE_CFG = () => {
+    const c = PIX_CFG();
+    c.profile.pix.style = PIX_STYLE();
+    return c;
+  };
+
+  console.log('\n━━━ PIX estilo: painel completo reflete + grava pix.style ━━━');
+  {
+    const { window: w } = await boot(ADMIN_PATH, { supabase: supabaseStub(null), url: 'https://axiumlink.test/admin.html' });
+    const d = w.document;
+    w.__axEditor.init(PIX_STYLE_CFG());
+
+    const sel = (id) => d.getElementById(id);
+    check('admin: #pixStVariant reflete pix.style.variant', sel('pixStVariant').value === 'neon');
+    check('admin: #pixBtnShape reflete o format (10 opções)', sel('pixBtnShape').value === 'pill');
+    check('admin: #pixBtnShape oferece as 10 opções (3 optgroups)', sel('pixBtnShape').querySelectorAll('option').length === 10);
+    check('admin: #pixStAnimation reflete animation', sel('pixStAnimation').value === 'float');
+    check('admin: #pixStShadowStyle reflete shadow.type', sel('pixStShadowStyle').value === 'none');
+    check('admin: #pixStGlassToggle desligado (glass default off)', sel('pixStGlassToggle').checked === false);
+
+    /* Binding: muda variante → grava em profile.pix.style */
+    const varSel = sel('pixStVariant');
+    varSel.value = 'gradient';
+    varSel.dispatchEvent(new w.Event('change', { bubbles: true }));
+    check('admin: variante → pix.style.variant', w.__axEditor.cfg().profile.pix.style.variant === 'gradient');
+
+    /* Binding: formato → grava em pix.style.format */
+    const fmtSel = sel('pixBtnShape');
+    fmtSel.value = 'organic';
+    fmtSel.dispatchEvent(new w.Event('change', { bubbles: true }));
+    check('admin: formato → pix.style.format', w.__axEditor.cfg().profile.pix.style.format === 'organic');
+
+    /* Binding: animação → grava e reflete na classe do preview */
+    const animSel = sel('pixStAnimation');
+    animSel.value = 'shine';
+    animSel.dispatchEvent(new w.Event('change', { bubbles: true }));
+    check('admin: animação → pix.style.animation', w.__axEditor.cfg().profile.pix.style.animation === 'shine');
+    check('admin: animação aplicada no header (#pvPix pv-anim-shine)', d.getElementById('pvPix').classList.contains('pv-anim-shine'));
+
+    /* Binding: vidro → grava glass.enabled */
+    const glass = sel('pixStGlassToggle');
+    glass.checked = true;
+    glass.dispatchEvent(new w.Event('change', { bubbles: true }));
+    check('admin: vidro → pix.style.glass.enabled', w.__axEditor.cfg().profile.pix.style.glass.enabled === true);
+    check('admin: vidro aplicado no header (#pvPix gx-panel)', d.getElementById('pvPix').classList.contains('gx-panel'));
+  }
+
+  console.log('\n━━━ PIX estilo: header do preview aplica o flat (neon/pill) ━━━');
+  {
+    const { window: w } = await boot(ADMIN_PATH, { supabase: supabaseStub(null), url: 'https://axiumlink.test/admin.html' });
+    const d = w.document;
+    w.__axEditor.init(PIX_STYLE_CFG());
+
+    const node = d.getElementById('pvPix');
+    const cs = w.getComputedStyle(node);
+    check('admin: header neon → fundo transparente', cs.backgroundColor === 'rgba(0, 0, 0, 0)');
+    check('admin: header neon → cor = glow (#22d3ee)', cs.color.toLowerCase().replace(/\s/g, '') === 'rgb(34,211,238)');
+    check('admin: formato pill → border-radius 9999px', cs.borderRadius === '9999px');
+  }
+
+  console.log('\n━━━ PIX estilo: público aplica o flat no header e no card intercalado ━━━');
+  {
+    /* ---- Header (#pgPixWrap .pg-pix__btn) sem order ---- */
+    {
+      const { window: w } = await boot(INDEX_PATH, { supabase: supabaseStub(null), url: 'https://axiumlink.test/?s=teste' });
+      const d = w.document;
+      w.__alaPublica.aplicar(PIX_STYLE_CFG());
+      const btn = d.querySelector('.pg-pix__btn');
+      const cs = w.getComputedStyle(btn);
+      check('público: header neon → fundo transparente', cs.backgroundColor === 'rgba(0, 0, 0, 0)');
+      check('público: header neon → cor = glow', cs.color.toLowerCase().replace(/\s/g, '') === 'rgb(34,211,238)');
+      check('público: header pill → border-radius 9999px', cs.borderRadius === '9999px');
+      check('público: header animação float (ax-anim-float)', btn.classList.contains('ax-anim-float'));
+    }
+
+    /* ---- Card intercalado (pix.order) usa o estilo individual ---- */
+    {
+      const c = PIX_STYLE_CFG();
+      c.profile.pix.order = 1;
+      c.links = [
+        { id: 'l1', title: 'WhatsApp', url: 'https://wa.me/1', icon: 'whatsapp' },
+        { id: 'l2', title: 'Site', url: 'https://site.com', icon: 'site' }
+      ];
+      const { window: w } = await boot(INDEX_PATH, { supabase: supabaseStub(null), url: 'https://axiumlink.test/?s=teste' });
+      const d = w.document;
+      w.__alaPublica.aplicar(c);
+      const card = d.querySelector('[data-pix]');
+      const cs = w.getComputedStyle(card);
+      check('público: card intercalado neon → fundo transparente', cs.backgroundColor === 'rgba(0, 0, 0, 0)');
+      check('público: card intercalado neon → cor = glow', cs.color.toLowerCase().replace(/\s/g, '') === 'rgb(34,211,238)');
+      check('público: card intercalado pill → border-radius 9999px', cs.borderRadius === '9999px');
+      check('público: card intercalado animação float', card.classList.contains('ax-anim-float'));
+    }
+  }
+
   /* ========================== INTERCALAÇÃO pix.order ========================== */
   console.log('\n━━━ PIX intercalado como item da lista (pix.order) ━━━');
   {

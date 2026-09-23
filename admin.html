@@ -1649,15 +1649,131 @@
               </div>
             </div>
           </div>
-          <div class="field" style="margin:10px 0 0;">
-            <label for="pixBtnShape">Formato do botão</label>
-            <select id="pixBtnShape" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
-              <option value="rounded">Arredondado</option>
-              <option value="pill">Totalmente Arredondado (Pílula)</option>
-              <option value="square">Quadrado</option>
-              <option value="soft">Cantos Suaves</option>
-            </select>
-          </div>
+          <details class="elem-block" style="margin:10px 0 0;" id="pixStyleSection">
+            <summary style="cursor:pointer;font-size:13px;font-weight:700;color:var(--ink);">🎨 Estilo do botão PIX</summary>
+            <div style="margin-top:10px;">
+              <div class="field">
+                <label>Variante</label>
+                <select id="pixStVariant" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+                  <option value="solid">Sólido (Tema)</option>
+                  <option value="glass">Vidro (Glassmorphism)</option>
+                  <option value="neumorphic">Neumórfico (Soft UI)</option>
+                  <option value="ghost">Minimalista Vazado (Ghost)</option>
+                  <option value="gradient-soft">Gradiente Suave (automático)</option>
+                  <option value="gradient">Gradiente Personalizado</option>
+                  <option value="neon">Glow Neon</option>
+                </select>
+              </div>
+              <div class="field" id="pixStGlowColorRow" style="display:none;">
+                <label>Cor do Glow Neon</label>
+                <div class="color-trigger" id="pixStGlowColor" role="button" tabindex="0"><div class="color-trigger-swatch"></div><span class="color-trigger-hex">#22D3EE</span></div>
+              </div>
+              <div class="field" style="margin:10px 0 0;">
+                <label for="pixBtnShape">Formato do botão</label>
+                <select id="pixBtnShape" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+                  <optgroup label="Geometricos">
+                    <option value="square">Quadrado Rigido</option>
+                    <option value="soft">Cantos Suaves</option>
+                    <option value="rounded">Arredondado Medio</option>
+                    <option value="pill">Totalmente Arredondado (Pilula)</option>
+                  </optgroup>
+                  <optgroup label="Organicos">
+                    <option value="organic">Cantos Assimetricos 1 (Folha)</option>
+                    <option value="bubble">Cantos Assimetricos 2 (Bolha)</option>
+                    <option value="diagonal">Estilo Diagonal</option>
+                  </optgroup>
+                  <optgroup label="Especiais">
+                    <option value="double">Borda Dupla</option>
+                    <option value="brutalist">Estilo Brutalista</option>
+                    <option value="custom">Formato Customizado (Slider)</option>
+                  </optgroup>
+                </select>
+              </div>
+              <div class="ds-control" id="pixStRadiusRow" style="display:none;">
+                <label>Arredondamento</label>
+                <div class="ds-control-row">
+                  <input type="range" id="pixStRadius" min="0" max="50" step="1">
+                  <output class="ds-value" id="pixStRadiusVal">14px</output>
+                </div>
+              </div>
+              <div class="field" style="margin:10px 0 0;">
+                <label>Animação</label>
+                <select id="pixStAnimation" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+                  <option value="none">Nenhuma</option>
+                  <option value="pulse">Pulsação Contínua</option>
+                  <option value="shine">Brilho Passante (Shine)</option>
+                  <option value="float">Flutuação Suave</option>
+                </select>
+              </div>
+              <div class="field" id="pixStGradientRow" style="margin:10px 0 0;display:none;">
+                <label>Gradiente do Botão (2 cores)</label>
+                <div class="row-2">
+                  <div class="field">
+                    <label>Cor Inicial</label>
+                    <div class="color-trigger" id="pixStGradientStart" role="button" tabindex="0"><div class="color-trigger-swatch"></div><span class="color-trigger-hex">#16A34A</span></div>
+                  </div>
+                  <div class="field">
+                    <label>Cor Final</label>
+                    <div class="color-trigger" id="pixStGradientEnd" role="button" tabindex="0"><div class="color-trigger-swatch"></div><span class="color-trigger-hex">#15803D</span></div>
+                  </div>
+                </div>
+                <div class="ds-control">
+                  <label>Ângulo do Gradiente</label>
+                  <div class="ds-control-row">
+                    <input type="range" id="pixStGradientAngle" min="0" max="360" step="1">
+                    <output class="ds-value" id="pixStGradientAngleVal">135deg</output>
+                  </div>
+                </div>
+              </div>
+              <div class="field" style="margin:10px 0 0;">
+                <label>Estilo de Sombra</label>
+                <select id="pixStShadowStyle" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+                  <option value="soft">Sombra Suave Projetada</option>
+                  <option value="none">Nenhuma Sombra</option>
+                  <option value="neumorph">Efeito Soft UI / Neumorphism</option>
+                  <option value="glow">Brilho Neon (Glow)</option>
+                </select>
+              </div>
+              <div class="ds-control" id="pixStShadowRow">
+                <label>Intensidade da Sombra</label>
+                <div class="ds-control-row">
+                  <input type="range" id="pixStShadow" min="0" max="100" step="5">
+                  <output class="ds-value" id="pixStShadowVal">30%</output>
+                </div>
+              </div>
+              <div class="glass-block" style="margin-top:10px;">
+                <div class="glass-block-head">💠 Efeito Vidro neste botão</div>
+                <div class="toggle-row" style="padding:2px 0 6px;">
+                  <span class="toggle-label">Ativar efeito vidro</span>
+                  <label class="switch">
+                    <input type="checkbox" id="pixStGlassToggle">
+                    <span class="slider"></span>
+                  </label>
+                </div>
+                <div class="ds-control">
+                  <label>Desfoque (Blur)</label>
+                  <div class="ds-control-row">
+                    <input type="range" id="pixStGlassBlur" min="0" max="40" step="1">
+                    <output class="ds-value" id="pixStGlassBlurVal">20px</output>
+                  </div>
+                </div>
+                <div class="ds-control">
+                  <label>Opacidade do vidro</label>
+                  <div class="ds-control-row">
+                    <input type="range" id="pixStGlassOpacity" min="0" max="100" step="1">
+                    <output class="ds-value" id="pixStGlassOpacityVal">16%</output>
+                  </div>
+                </div>
+                <div class="ds-control">
+                  <label>Opacidade da borda</label>
+                  <div class="ds-control-row">
+                    <input type="range" id="pixStGlassBorderOpacity" min="0" max="100" step="1">
+                    <output class="ds-value" id="pixStGlassBorderOpacityVal">25%</output>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </details>
           <div class="upload-row" style="margin-top:10px;">
             <div class="upload-thumb" id="pixQrThumb">🔳</div>
             <div class="upload-info">
@@ -3533,6 +3649,99 @@
     displayStyle: 'box'
   });
 
+  /* Estilo padrão do botão PIX — espelha DEFAULT_LINK_STYLE, mas as cores
+     padrão são as do PIX (verde) para preservar o visual atual quando o
+     usuário não personaliza. */
+  const DEFAULT_PIX_STYLE = () => Object.assign({}, DEFAULT_LINK_STYLE(), {
+    colors: { background: '#16A34A', text: '#ffffff' },
+    gradient: { start: '#16a34a', end: '#15803d', angle: 135 }
+  });
+
+  /* Resolve o flat do botão PIX a partir de profile.pix.
+     - pix.style (schema do link) é a fonte de verdade quando existe;
+     - configs LEGADAS (btnBgColor/btnTextColor/btnShape) são migradas para
+       o schema aninhado com as cores padrão verdes do PIX como fallback. */
+  function pixStyleFlat(pixC, globalSt) {
+    const p = (pixC && typeof pixC === 'object') ? pixC : {};
+    const style = (p.style && typeof p.style === 'object') ? p.style : null;
+    if (style) return linkStyleToFlat(Object.assign({}, DEFAULT_PIX_STYLE(), style), globalSt);
+    const dflt = DEFAULT_PIX_STYLE();
+    return linkStyleToFlat({
+      format: p.btnShape || dflt.format,
+      colors: {
+        background: p.btnBgColor || dflt.colors.background,
+        text: p.btnTextColor || dflt.colors.text
+      }
+    }, globalSt);
+  }
+
+  /* Objeto style do PIX vivendo em cfg.profile.pix.style. Cria a partir dos
+     campos legados (btnBgColor/btnTextColor/btnShape) quando o usuário agir
+     no painel — migração idempotente: uma vez criado, o style é a fonte. */
+  function pixStyleEditable() {
+    cfg.profile = cfg.profile || {};
+    cfg.profile.pix = cfg.profile.pix || {};
+    const p = cfg.profile.pix;
+    if (!p.style || typeof p.style !== 'object') {
+      p.style = DEFAULT_PIX_STYLE();
+      p.style.colors.background = p.btnBgColor || p.style.colors.background;
+      p.style.colors.text = p.btnTextColor || p.style.colors.text;
+      p.style.format = p.btnShape || p.style.format;
+    }
+    return p.style;
+  }
+
+  function reflectPixStyleControls() {
+    const p = (cfg.profile && cfg.profile.pix) || {};
+    const ls = p.style && typeof p.style === 'object'
+      ? Object.assign({}, DEFAULT_PIX_STYLE(), p.style)
+      : DEFAULT_PIX_STYLE();
+    const setSel = (id, val) => { const el = $(id); if (el) el.value = val; };
+    setSel('pixStVariant', ls.variant);
+    setSel('pixBtnShape', ls.format);
+    setSel('pixStAnimation', ls.animation);
+    const sh = ls.shadow || {};
+    setSel('pixStShadowStyle', sh.type || 'soft');
+    const shI = sh.intensity != null ? sh.intensity : 30;
+    if ($('pixStShadow')) $('pixStShadow').value = shI;
+    if ($('pixStShadowVal')) $('pixStShadowVal').textContent = shI + '%';
+    const r = ls.radius ?? 14;
+    if ($('pixStRadius')) $('pixStRadius').value = r;
+    if ($('pixStRadiusVal')) $('pixStRadiusVal').textContent = r + 'px';
+    const gr = ls.gradient || {};
+    setTriggerColor('pixStGradientStart', gr.start || '#16a34a');
+    const grL = $('pixStGradientStart')?.querySelector('.color-trigger-hex');
+    if (grL) grL.textContent = triggerLabel(gr.start || '#16a34a');
+    setTriggerColor('pixStGradientEnd', gr.end || '#15803d');
+    const grE = $('pixStGradientEnd')?.querySelector('.color-trigger-hex');
+    if (grE) grE.textContent = triggerLabel(gr.end || '#15803d');
+    const ga = gr.angle ?? 135;
+    if ($('pixStGradientAngle')) $('pixStGradientAngle').value = ga;
+    if ($('pixStGradientAngleVal')) $('pixStGradientAngleVal').textContent = ga + 'deg';
+    setTriggerColor('pixStGlowColor', ls.glow || '#22d3ee');
+    const gl = ls.glass || {};
+    if ($('pixStGlassToggle')) $('pixStGlassToggle').checked = !!gl.enabled;
+    const gb = gl.blur ?? 20;
+    if ($('pixStGlassBlur')) $('pixStGlassBlur').value = gb;
+    if ($('pixStGlassBlurVal')) $('pixStGlassBlurVal').textContent = gb + 'px';
+    const go = gl.opacity ?? 16;
+    if ($('pixStGlassOpacity')) $('pixStGlassOpacity').value = go;
+    if ($('pixStGlassOpacityVal')) $('pixStGlassOpacityVal').textContent = go + '%';
+    const gbo = gl.borderOpacity ?? 25;
+    if ($('pixStGlassBorderOpacity')) $('pixStGlassBorderOpacity').value = gbo;
+    if ($('pixStGlassBorderOpacityVal')) $('pixStGlassBorderOpacityVal').textContent = gbo + '%';
+    updatePixStyleVisibility(ls);
+  }
+
+  function updatePixStyleVisibility(ls) {
+    const l = ls || {};
+    const bv = l.variant || 'solid';
+    if ($('pixStGradientRow')) $('pixStGradientRow').style.display = bv === 'gradient' ? 'block' : 'none';
+    if ($('pixStGlowColorRow')) $('pixStGlowColorRow').style.display = bv === 'neon' ? 'block' : 'none';
+    if ($('pixStRadiusRow')) $('pixStRadiusRow').style.display = (l.format || 'rounded') === 'custom' ? 'block' : 'none';
+    if ($('pixStShadowRow')) $('pixStShadowRow').style.display = (l.shadow?.type || 'soft') === 'soft' ? 'block' : 'none';
+  }
+
   function flatToLinkStyle(globalSt) {
     const gs = globalSt || {};
     const bg = gs.buttonGlass || {};
@@ -4057,6 +4266,7 @@
       }
       $('pixQrHint').style.display = pixS.qr ? 'block' : 'none';
       updatePixQrThumb(pixS.qr || '');
+      reflectPixStyleControls();
       $('avatarHintRow').style.display = cfg.profile.avatar ? 'block' : 'none';
     } else if (key === 'style') {
       setRange('btnRadius', cfg.style.btnRadius);
@@ -4103,6 +4313,65 @@
     return parts.join('\n');
   }
 
+  /* Aplica o estilo completo do botão PIX (variante, formato, animação,
+     glow, gradiente, raio, sombra, vidro e cores) a um elemento do preview.
+     Espelha o loop de .link-block em applyThemeVars: merged = flat do PIX
+     (fonte de verdade), com o tema obtido de `t`. Reutilizado pelo botão do
+     header (#pvPix) e pelo card intercalado na lista (.link-block--pix). */
+  function applyPixStyleToEl(el, pixC, st, t) {
+    if (!el) return;
+    const flat = pixStyleFlat(pixC, st);
+    /* buildButtonCSS do admin usa t.btnbg no sólido — as cores individuais
+       do PIX (btnBgColor/btnTextColor) precisam chegar no sólido igual ao
+       público (axBtnStyle default). Passa um tPix que resolve a cor do PIX
+       antes do tema global. */
+    const tPix = {
+      bg: t.bg, ink: t.ink,
+      btnbg: flat.btnBgColor || t.btnbg,
+      btnink: flat.btnTextColor || t.btnink
+    };
+    const bCSS = buildButtonCSS(flat, tPix);
+    const bVariant = flat.btnVariant || 'solid';
+    const bAnim = flat.btnAnimation || 'none';
+    const ANIMS = ['pv-anim-pulse', 'pv-anim-float', 'pv-anim-shine'];
+    Object.assign(el.style, bCSS);
+    el.classList.remove('ghost', 'neumorphic', ...ANIMS, 'ax-text-only');
+    if (bVariant === 'ghost' || bVariant === 'neumorphic') el.classList.add(bVariant);
+    if (bAnim === 'pulse') el.classList.add('pv-anim-pulse');
+    else if (bAnim === 'float') el.classList.add('pv-anim-float');
+    else if (bAnim === 'shine') el.classList.add('pv-anim-shine');
+
+    /* Vidro do PIX: estilo individual, senão global do botão. O fundo
+       glass (variante/vidro global) alcança qualquer variante; o glass
+       individual do PIX sobrescreve apenas os campos que definiu. Mesma
+       regra do público e do applyGlassToElements. */
+    const gPer = flat.buttonGlass || {};
+    const gBtn = Object.assign({
+      enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff',
+      borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: 25
+    }, (st && st.buttonGlass) || {});
+    const wantGlass = (bVariant === 'glass') || !!gBtn.enabled || !!gPer.enabled;
+    if (wantGlass) {
+      const eff = (gPer && gPer.enabled)
+        ? Object.assign({}, gBtn, {
+            enabled: true,
+            blur: gPer.blur != null ? gPer.blur : gBtn.blur,
+            saturate: gPer.saturate != null ? gPer.saturate : gBtn.saturate,
+            opacity: gPer.opacity != null ? gPer.opacity : gBtn.opacity,
+            color: gPer.color || gBtn.color,
+            borderGlow: gPer.borderGlow != null ? gPer.borderGlow : gBtn.borderGlow,
+            shadowDepth: gPer.shadowDepth != null ? gPer.shadowDepth : gBtn.shadowDepth,
+            highlight: gPer.highlight != null ? gPer.highlight : gBtn.highlight,
+            noise: gPer.noise != null ? gPer.noise : gBtn.noise,
+            borderOpacity: gPer.borderOpacity != null ? gPer.borderOpacity : gBtn.borderOpacity
+          })
+        : Object.assign({}, gBtn, { enabled: true });
+      applyGlass(el, eff);
+    } else {
+      el.classList.remove('gx-panel', 'gx-highlight', 'gx-noise');
+    }
+  }
+
   function applyPixPreview() {
     const pixC = (cfg.profile && cfg.profile.pix) || {};
     const hasContent = !!(pixC.key || pixC.qr || pixC.link);
@@ -4115,24 +4384,20 @@
     if (wrap) wrap.hidden = !on || inList;
     if (!on || inList) return;
 
-    // Apply button customizations
-    const btnText = pixC.buttonText || 'Pagar com PIX';
-    const btnBgColor = pixC.btnBgColor || '#16a34a';
-    const btnTextColor = pixC.btnTextColor || '#ffffff';
-    const btnShape = pixC.btnShape || 'rounded';
-    
-    const radiusMap = {
-      square: '0px',
-      soft: '6px',
-      rounded: '16px',
-      pill: '9999px'
+    /* Tema para buildButtonCSS — mesmas regras de applyThemeVars */
+    const st0 = Object.assign({}, DEFAULT_CFG().style, cfg.style || {});
+    const base0 = THEMES[st0.theme] || THEMES.indigo;
+    const t0 = {
+      bg: st0.pageBgColor || base0.bg,
+      ink: st0.pageTextColor || base0.ink,
+      btnbg: st0.btnBgColor || base0.btnbg,
+      btnink: st0.btnTextColor || base0.btnink
     };
-    
+    applyPixStyleToEl(wrap, pixC, st0, t0);
+
+    const btnText = pixC.buttonText || 'Pagar com PIX';
     const btnTextSpan = wrap.querySelector('span:last-child');
     if (btnTextSpan) btnTextSpan.textContent = btnText;
-    wrap.style.background = btnBgColor;
-    wrap.style.color = btnTextColor;
-    wrap.style.borderRadius = radiusMap[btnShape] || '16px';
 
     const keyBox = $('pvPixKeyBox');
     const keyEl = $('pvPixKey');
@@ -5462,8 +5727,11 @@
       /* Botão com imagem customizada é a própria imagem — não recebe vidro */
       if (el.classList.contains('link-block-customimg')) return;
       const idx = Number(el.dataset.linkIdx);
+      const isPixCard = el.getAttribute && el.getAttribute('data-pix') === '1';
       const linkItem = (!Number.isNaN(idx) && cfg.links && cfg.links[idx]) ? cfg.links[idx] : null;
-      const ls = (linkItem && linkItem.style) ? linkItem.style : null;
+      const ls = isPixCard
+        ? ((cfg.profile && cfg.profile.pix && cfg.profile.pix.style) || null)
+        : ((linkItem && linkItem.style) ? linkItem.style : null);
       if (ls && ls.glass && ls.glass.enabled) {
         const gPer = Object.assign({}, btnG, {
           enabled: true,
@@ -5662,12 +5930,22 @@
         return;
       }
       const idx = Number(el.dataset.linkIdx);
+      const isPixCard = el.getAttribute && el.getAttribute('data-pix') === '1';
       const linkItem = (!Number.isNaN(idx) && cfg.links && cfg.links[idx]) ? cfg.links[idx] : null;
-      const flat = linkItem ? linkStyleToFlat(linkItem.style, st) : {};
+      let flat;
+      if (isPixCard) {
+        /* Card PIX intercalado na lista: usa o estilo INDIVIDUAL do PIX
+           (mesmo comportamento do .link-block normal com style próprio). */
+        const pixC0 = (cfg.profile && cfg.profile.pix) || {};
+        flat = pixStyleFlat(pixC0, st);
+      } else {
+        flat = linkItem ? linkStyleToFlat(linkItem.style, st) : {};
+      }
       /* Estilo individual é a fonte de verdade quando o link tem style
          próprio; o global (st) é apenas fallback para links LEGADO sem
          estilo individual. Mockup e público seguem idênticos. */
-      const merged = (linkItem && linkItem.style) ? flat : Object.assign({}, st, flat);
+      const merged = isPixCard ? flat
+        : ((linkItem && linkItem.style) ? flat : Object.assign({}, st, flat));
       const isTextOnly = (merged.displayStyle || 'box') === 'text-only';
       
       if (isTextOnly) {
@@ -5694,7 +5972,10 @@
         /* Aplica largura se definida (full/half/compact não fazem sentido no modo texto, ignora) */
         /* Mantém a tipografia por-link via reapplyLinkTypo */
       } else {
-        const bCSS = buildButtonCSS(merged, t);
+        const tEl = isPixCard
+          ? { bg: t.bg, ink: t.ink, btnbg: flat.btnBgColor || t.btnbg, btnink: flat.btnTextColor || t.btnink }
+          : t;
+        const bCSS = buildButtonCSS(merged, tEl);
         const bVariant = merged.btnVariant || 'solid';
         const bAnim = merged.btnAnimation || 'none';
         Object.assign(el.style, bCSS);
@@ -7569,6 +7850,7 @@
       const label = $('pixBtnTextColor').querySelector('.color-trigger-hex');
       if (label) label.textContent = triggerLabel(pixC.btnTextColor || '#ffffff');
     }
+    reflectPixStyleControls();
     /* Reflete os controles do elemento Endereço (elem.address) */
     const amR = profileElem('address');
     if ($('addressFont')) $('addressFont').value = amR.font || '';
@@ -8063,6 +8345,8 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
       cfg.profile = cfg.profile || {};
       cfg.profile.pix = cfg.profile.pix || {};
       cfg.profile.pix.btnShape = e.target.value;
+      pixStyleEditable().format = e.target.value;
+      updatePixStyleVisibility(pixStyleEditable());
       renderPreview();
       markDirty();
     });
@@ -8073,6 +8357,7 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
         cfg.profile = cfg.profile || {};
         cfg.profile.pix = cfg.profile.pix || {};
         cfg.profile.pix.btnBgColor = hex;
+        pixStyleEditable().colors.background = hex;
         setTriggerColor('pixBtnBgColor', hex);
         renderPreview();
         markDirty();
@@ -8085,10 +8370,121 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
         cfg.profile = cfg.profile || {};
         cfg.profile.pix = cfg.profile.pix || {};
         cfg.profile.pix.btnTextColor = hex;
+        pixStyleEditable().colors.text = hex;
         setTriggerColor('pixBtnTextColor', hex);
         renderPreview();
         markDirty();
       });
+    });
+    /* Estilo completo do botão PIX — grava em profile.pix.style */
+    safeOn('pixStVariant', 'change', (e) => {
+      pixStyleEditable().variant = e.target.value;
+      updatePixStyleVisibility(pixStyleEditable());
+      renderPreview();
+      markDirty();
+    });
+    safeOn('pixStAnimation', 'change', (e) => {
+      pixStyleEditable().animation = e.target.value;
+      renderPreview();
+      markDirty();
+    });
+    safeOn('pixStShadowStyle', 'change', (e) => {
+      pixStyleEditable().shadow = pixStyleEditable().shadow || {};
+      pixStyleEditable().shadow.type = e.target.value;
+      updatePixStyleVisibility(pixStyleEditable());
+      renderPreview();
+      markDirty();
+    });
+    safeOn('pixStShadow', 'input', (e) => {
+      pixStyleEditable().shadow = pixStyleEditable().shadow || {};
+      pixStyleEditable().shadow.intensity = Number(e.target.value);
+      const out = $('pixStShadowVal');
+      if (out) out.textContent = e.target.value + '%';
+      renderPreview();
+      markDirty();
+    });
+    safeOn('pixStRadius', 'input', (e) => {
+      pixStyleEditable().radius = Number(e.target.value);
+      const out = $('pixStRadiusVal');
+      if (out) out.textContent = e.target.value + 'px';
+      renderPreview();
+      markDirty();
+    });
+    safeOn('pixStGradientStart', 'click', () => {
+      const ls = pixStyleEditable();
+      const current = (ls.gradient && ls.gradient.start) || '#16a34a';
+      openColorPicker($('pixStGradientStart'), current, (hex) => {
+        ls.gradient = ls.gradient || {};
+        ls.gradient.start = hex;
+        setTriggerColor('pixStGradientStart', hex);
+        const label = $('pixStGradientStart').querySelector('.color-trigger-hex');
+        if (label) label.textContent = triggerLabel(hex);
+        renderPreview();
+        markDirty();
+      });
+    });
+    safeOn('pixStGradientEnd', 'click', () => {
+      const ls = pixStyleEditable();
+      const current = (ls.gradient && ls.gradient.end) || '#15803d';
+      openColorPicker($('pixStGradientEnd'), current, (hex) => {
+        ls.gradient = ls.gradient || {};
+        ls.gradient.end = hex;
+        setTriggerColor('pixStGradientEnd', hex);
+        const label = $('pixStGradientEnd').querySelector('.color-trigger-hex');
+        if (label) label.textContent = triggerLabel(hex);
+        renderPreview();
+        markDirty();
+      });
+    });
+    safeOn('pixStGradientAngle', 'input', (e) => {
+      pixStyleEditable().gradient = pixStyleEditable().gradient || {};
+      pixStyleEditable().gradient.angle = Number(e.target.value);
+      const out = $('pixStGradientAngleVal');
+      if (out) out.textContent = e.target.value + 'deg';
+      renderPreview();
+      markDirty();
+    });
+    safeOn('pixStGlowColor', 'click', () => {
+      const ls = pixStyleEditable();
+      const current = ls.glow || '#22d3ee';
+      openColorPicker($('pixStGlowColor'), current, (hex) => {
+        ls.glow = hex;
+        setTriggerColor('pixStGlowColor', hex);
+        const label = $('pixStGlowColor').querySelector('.color-trigger-hex');
+        if (label) label.textContent = triggerLabel(hex);
+        renderPreview();
+        markDirty();
+      });
+    });
+    safeOn('pixStGlassToggle', 'change', (e) => {
+      pixStyleEditable().glass = pixStyleEditable().glass || {};
+      pixStyleEditable().glass.enabled = e.target.checked;
+      renderPreview();
+      markDirty();
+    });
+    safeOn('pixStGlassBlur', 'input', (e) => {
+      pixStyleEditable().glass = pixStyleEditable().glass || {};
+      pixStyleEditable().glass.blur = Number(e.target.value);
+      const out = $('pixStGlassBlurVal');
+      if (out) out.textContent = e.target.value + 'px';
+      renderPreview();
+      markDirty();
+    });
+    safeOn('pixStGlassOpacity', 'input', (e) => {
+      pixStyleEditable().glass = pixStyleEditable().glass || {};
+      pixStyleEditable().glass.opacity = Number(e.target.value);
+      const out = $('pixStGlassOpacityVal');
+      if (out) out.textContent = e.target.value + '%';
+      renderPreview();
+      markDirty();
+    });
+    safeOn('pixStGlassBorderOpacity', 'input', (e) => {
+      pixStyleEditable().glass = pixStyleEditable().glass || {};
+      pixStyleEditable().glass.borderOpacity = Number(e.target.value);
+      const out = $('pixStGlassBorderOpacityVal');
+      if (out) out.textContent = e.target.value + '%';
+      renderPreview();
+      markDirty();
     });
     safeOn('btnPixPick', 'click', () => $('pixQrInput').click());
     safeOn('pixQrInput', 'change', (e) => {
