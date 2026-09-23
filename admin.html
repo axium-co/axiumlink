@@ -741,14 +741,6 @@
     background:linear-gradient(135deg,#0f172a 0%,#334155 55%,#64748b 100%);
   }
   .pv-banner img { width:100%; height:100%; object-fit:cover; display:block; }
-  /* Fade inferior integrando o cover ao fundo da página (espelho do
-     .profile__banner::after público). color-mix usa --p-bg (cor plana);
-     em temas com gradiente o fallback rgba assume. */
-  .pv-banner::after {
-    content:''; position:absolute; inset:0; z-index:2; pointer-events:none;
-    background:linear-gradient(180deg, transparent 58%, rgba(15,23,42,.10));
-    background:linear-gradient(180deg, transparent 58%, color-mix(in srgb, var(--p-bg) 80%, transparent));
-  }
   .pv-banner.no-banner { display:none; }
   .pv-avatar-wrap {
     width:96px; height:96px; margin:-27px auto 0; position:relative; z-index:10;
