@@ -6029,13 +6029,11 @@
     }
 
     /* Tamanho do avatar (contém também a sobreposição do banner).
-       Espelha os caps responsivos do público (index.html media queries):
-       ≤420px → 76px | ≥768px → 112px | entre → 96px. A largura lógica do
-       mockup é a do dispositivo ativo (390px no celular / tela do desktop). */
+       Usa o valor configurado sem cap responsivo — o slider vale de 48 a 160px. */
     const wrap = $('pvAvatarWrap');
     if (wrap) {
       const avCfg = profileElem('avatar');
-      const size = Math.min(avCfg.size || 96, avatarResponsiveCap());
+      const size = avCfg.size || 96;
       wrap.style.width = size + 'px';
       wrap.style.height = size + 'px';
       /* Só sobrepõe o banner quando há banner; sem banner o avatar assenta
@@ -6230,9 +6228,15 @@
   function renderDesignTriggers() {
     const dp = cfg.design || (cfg.design = {});
     const pf = dp.profile || (dp.profile = {});
-    setTriggerColor('avatarBorderColor', pf.borderOn ? (pf.borderColor || '') : '');
+    const avB = profileElem('avatar');
+    const avBorderColor = avB.borderStyle === 'none' ? '' : (avB.borderColor || '');
+    setTriggerColor('avatarBorderColor', avBorderColor);
     const avLabel = $('avatarBorderColor')?.querySelector('.color-trigger-hex');
-    if (avLabel) avLabel.textContent = triggerLabel(pf.borderOn ? pf.borderColor : '');
+    if (avLabel) avLabel.textContent = triggerLabel(avBorderColor);
+
+    setTriggerColor('avatarGlowColor', profileElem('avatar').glowColor || '');
+    const avGlowLabel = $('avatarGlowColor')?.querySelector('.color-trigger-hex');
+    if (avGlowLabel) avGlowLabel.textContent = triggerLabel(profileElem('avatar').glowColor);
 
     setTriggerColor('verifiedColor', pf.verifiedColor || '');
     const vLabel = $('verifiedColor')?.querySelector('.color-trigger-hex');
@@ -6252,18 +6256,22 @@
       if (bLabel) bLabel.textContent = triggerLabel(nmBg);
     }
 
-    setTriggerColor('bioColor', (pf.text && pf.text.bio && pf.text.bio.color) || '');
-    const bioColor = (pf.text && pf.text.bio && pf.text.bio.color) || '';
+    setTriggerColor('bioColor', profileElem('bio').color || '');
+    setTriggerColor('bioBg', profileElem('bio').bg || '');
+    const bioColor = profileElem('bio').color || '';
     const bioLabel = $('bioColor')?.querySelector('.color-trigger-hex');
     if (bioLabel) bioLabel.textContent = triggerLabel(bioColor);
+    const bioBg = profileElem('bio').bg || '';
+    const bioBgLabel = $('bioBg')?.querySelector('.color-trigger-hex');
+    if (bioBgLabel) bioBgLabel.textContent = triggerLabel(bioBg);
 
-    setTriggerColor('addressBg', (pf.address && pf.address.bg) || '');
-    const addressBg = (pf.address && pf.address.bg) || '';
+    setTriggerColor('addressBg', profileElem('address').bg || '');
+    const addressBg = profileElem('address').bg || '';
     const abLabel = $('addressBg')?.querySelector('.color-trigger-hex');
     if (abLabel) abLabel.textContent = triggerLabel(addressBg);
 
-    setTriggerColor('addressTextColor', (pf.address && pf.address.color) || '');
-    const addressColor = (pf.address && pf.address.color) || '';
+    setTriggerColor('addressTextColor', profileElem('address').color || '');
+    const addressColor = profileElem('address').color || '';
     const atLabel = $('addressTextColor')?.querySelector('.color-trigger-hex');
     if (atLabel) atLabel.textContent = triggerLabel(addressColor);
 
@@ -7367,7 +7375,16 @@
     });
     safeOn('avatarShadow', 'change', (e) => { profileElem('avatar').shadowOn = e.target.checked; renderPreview(); markDirty(); });
     bindRange('avatarShadowBlur', 'avatarShadowBlurVal', (v) => v + 'px', (v) => { profileElem('avatar').shadowBlur = v; renderPreview(); });
-    safeOn('avatarGlow', 'change', (e) => { profileElem('avatar').glowOn = e.target.checked; renderPreview(); markDirty(); });
+    safeOn('avatarGlow', 'change', (e) => {
+      const aCfg = profileElem('avatar');
+      aCfg.glowOn = e.target.checked;
+      if (e.target.checked && !aCfg.glowColor) {
+        aCfg.glowColor = '#22d3ee';
+        renderDesignTriggers();
+      }
+      renderPreview();
+      markDirty();
+    });
     safeOn('avatarGlowColor', 'click', () => {
       const aCfg = profileElem('avatar');
       const current = aCfg.glowColor || '#22d3ee';
@@ -8910,17 +8927,6 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
 
     applyThemeVars(); /* re-aplica espaçamentos/estilos no novo contexto */
     if (mode === 'mobile') layoutPhonePreview();
-  }
-
-  /* Teto responsivo do avatar — MESMOS caps da página pública:
-     largura lógica ≤420px → 76px, ≥768px → 112px, no meio → 96px.
-     jsdom (sem layout) devolve 96 e não muda nada nos testes. */
-  function avatarResponsiveCap() {
-    const mode = window.currentPreviewMode || 'mobile';
-    const host = mode === 'desktop' ? $('dmScroll') : document.getElementById('previewScroll');
-    const w = host ? host.clientWidth : 0;
-    if (!w) return 96;
-    return w <= 420 ? 76 : (w >= 768 ? 112 : 96);
   }
 
   /* Encaixa a página do mockup celular numa largura lógica FIXA de 390px

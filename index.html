@@ -220,7 +220,7 @@
        ================================================================ */
     .profile {
       --avatar-s-config: 96px;
-      --avatar-s: min(var(--avatar-s-config), 96px);
+      --avatar-s: var(--avatar-s-config);
       --banner-h: 150px;
 
 /* Tokens do header (nome, bio e badge de endereço). Valores padrão
@@ -1610,7 +1610,6 @@
 
     @media (min-width: 768px) {
       .profile {
-        --avatar-s: min(var(--avatar-s-config), 112px);
         --banner-h: 200px;
       }
 
@@ -1688,7 +1687,6 @@
        perderia a especificidade e nunca seria aplicada.
        ================================================================ */
     @media (max-width: 420px) {
-      .profile { --avatar-s: min(var(--avatar-s-config), 76px); }
       .profile__banner:not([hidden]) + .profile__info { margin-top: calc(var(--avatar-s) * -0.35); }
       .profile__title { font-size: 1.25rem; }
     }
@@ -3082,7 +3080,7 @@
       if (pgHeader && pf.marginTop != null) pgHeader.style.marginTop = pf.marginTop + 'px';
       if (pgAvatarCard && pf.zIndex != null) pgAvatarCard.style.zIndex = pf.zIndex;
       /* Tamanho do avatar: define --avatar-s-config (o CSS usa
-         min(var(--avatar-s-config), breakpoint) para respeitar responsivo). */
+         var(--avatar-s-config) diretamente, sem cap responsivo). */
       if (pgHeader) {
         if (pElemAvatar.size) pgHeader.style.setProperty('--avatar-s-config', pElemAvatar.size + 'px');
         else pgHeader.style.removeProperty('--avatar-s-config');
