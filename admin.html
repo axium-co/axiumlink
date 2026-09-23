@@ -1017,8 +1017,8 @@
     background:linear-gradient(180deg, rgba(255,255,255,0.34) 0%, rgba(255,255,255,0.10) 42%, rgba(255,255,255,0) 70%);
   }
   .gx-noise::after {
-    content:''; position:absolute; inset:0; border-radius:inherit;
-    pointer-events:none; opacity:0.035;
+    content:''; position:absolute; inset:0; z-index:1; border-radius:inherit;
+    pointer-events:none; opacity:0.05;
     background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/><feColorMatrix type='saturate' values='0'/></filter><rect width='120' height='120' filter='url(%23n)'/></svg>");
   }
 
@@ -1770,6 +1770,20 @@
                     <input type="range" id="pixStGlassBorderOpacity" min="0" max="100" step="1">
                     <output class="ds-value" id="pixStGlassBorderOpacityVal">25%</output>
                   </div>
+                </div>
+                <div class="toggle-row" style="padding:2px 0 6px;">
+                  <span class="toggle-label">Reflexo de luz no topo</span>
+                  <label class="switch">
+                    <input type="checkbox" id="pixStGlassHighlight">
+                    <span class="slider"></span>
+                  </label>
+                </div>
+                <div class="toggle-row" style="padding:2px 0 6px;">
+                  <span class="toggle-label">Textura sutil (ruído)</span>
+                  <label class="switch">
+                    <input type="checkbox" id="pixStGlassNoise">
+                    <span class="slider"></span>
+                  </label>
                 </div>
               </div>
             </div>
@@ -3730,6 +3744,8 @@
     const gbo = gl.borderOpacity ?? 25;
     if ($('pixStGlassBorderOpacity')) $('pixStGlassBorderOpacity').value = gbo;
     if ($('pixStGlassBorderOpacityVal')) $('pixStGlassBorderOpacityVal').textContent = gbo + '%';
+    if ($('pixStGlassHighlight')) $('pixStGlassHighlight').checked = gl.highlight != null ? !!gl.highlight : true;
+    if ($('pixStGlassNoise')) $('pixStGlassNoise').checked = !!gl.noise;
     updatePixStyleVisibility(ls);
   }
 
@@ -8483,6 +8499,18 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
       pixStyleEditable().glass.borderOpacity = Number(e.target.value);
       const out = $('pixStGlassBorderOpacityVal');
       if (out) out.textContent = e.target.value + '%';
+      renderPreview();
+      markDirty();
+    });
+    safeOn('pixStGlassHighlight', 'change', (e) => {
+      pixStyleEditable().glass = pixStyleEditable().glass || {};
+      pixStyleEditable().glass.highlight = e.target.checked;
+      renderPreview();
+      markDirty();
+    });
+    safeOn('pixStGlassNoise', 'change', (e) => {
+      pixStyleEditable().glass = pixStyleEditable().glass || {};
+      pixStyleEditable().glass.noise = e.target.checked;
       renderPreview();
       markDirty();
     });

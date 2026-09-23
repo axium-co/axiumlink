@@ -817,8 +817,8 @@
       background:linear-gradient(180deg, rgba(255,255,255,0.34) 0%, rgba(255,255,255,0.10) 42%, rgba(255,255,255,0) 70%);
     }
     .gx-noise::after {
-      content:''; position:absolute; inset:0; border-radius:inherit;
-      pointer-events:none; opacity:0.035;
+      content:''; position:absolute; inset:0; z-index:1; border-radius:inherit;
+      pointer-events:none; opacity:0.05;
       background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/><feColorMatrix type='saturate' values='0'/></filter><rect width='120' height='120' filter='url(%23n)'/></svg>");
     }
 
@@ -4571,22 +4571,24 @@
           const pixHdrFlat = axPixStyleFlat(pixHdrC, st);
           const pixHdrBg = pixHdrFlat.btnBgColor || thBtnbg;
           const pixHdrInk = pixHdrFlat.btnTextColor || thBtnink;
+          const pixHdrVariant = pixHdrFlat.btnVariant || 'solid';
+          const pixHdrGlassPer = pixHdrFlat.buttonGlass || {};
+          const wantPixGlass = (pixHdrVariant === 'glass') || !!((st.buttonGlass || {}).enabled) || !!pixHdrGlassPer.enabled;
           const pixHdrShape = axShapeFor(pixHdrFlat);
           const pixHdrCSS = axBtnStyle(pixHdrFlat, pixHdrBg, pixHdrInk, thInk, pixHdrShape);
           Object.assign(pixHdrBtn.style, pixHdrCSS, pixHdrShape);
           pixHdrBtn.style.setProperty('--ui-bg', pixHdrCSS.background);
-          const pixHdrVariant = pixHdrFlat.btnVariant || 'solid';
-          const pixHdrGlassPer = pixHdrFlat.buttonGlass || {};
-          const wantPixGlass = (pixHdrVariant === 'glass') || !!((st.buttonGlass || {}).enabled) || !!pixHdrGlassPer.enabled;
+          /* Vidro: mesma ordem do applyPixStyleToEl do admin — o receituário
+             completo (fundo translúcido + blur + borda + sombra + ruído) é
+             aplicado DEPOIS do axBtnStyle, para o backdropFilter e o ruído
+             chegarem mesmo quando a variante não é 'glass'. */
           if (wantPixGlass) {
             const gEffH = (pixHdrGlassPer && pixHdrGlassPer.enabled)
               ? Object.assign({}, st.buttonGlass || {}, pixHdrGlassPer, { enabled: true })
               : Object.assign({}, st.buttonGlass || {}, { enabled: true });
-            pixHdrBtn.classList.add('gx-panel');
-            pixHdrBtn.classList.toggle('gx-highlight', !!(gEffH.highlight != null ? gEffH.highlight : true));
-            pixHdrBtn.classList.toggle('gx-noise', !!gEffH.noise);
+            applyGlass(pixHdrBtn, gEffH);
           } else {
-            pixHdrBtn.classList.remove('gx-panel', 'gx-highlight', 'gx-noise');
+            applyGlass(pixHdrBtn, { enabled: false });
           }
           pixHdrBtn.classList.remove(...ANIMS);
           const pixHdrAnim = pixHdrFlat.btnAnimation || 'none';

@@ -153,7 +153,7 @@ export async function run() {
     shadow: { type: 'none', intensity: 0 },
     radius: 24, glow: '#22d3ee',
     gradient: { start: '#16a34a', end: '#15803d', angle: 60 },
-    glass: { enabled: false, blur: 20, opacity: 16, borderOpacity: 25 },
+    glass: { enabled: false, blur: 20, opacity: 16, borderOpacity: 25, highlight: true, noise: true },
     colors: { background: '#0f172a', text: '#f8fafc' }
   });
   const PIX_STYLE_CFG = () => {
@@ -174,7 +174,9 @@ export async function run() {
     check('admin: #pixBtnShape oferece as 10 opções (3 optgroups)', sel('pixBtnShape').querySelectorAll('option').length === 10);
     check('admin: #pixStAnimation reflete animation', sel('pixStAnimation').value === 'float');
     check('admin: #pixStShadowStyle reflete shadow.type', sel('pixStShadowStyle').value === 'none');
-    check('admin: #pixStGlassToggle desligado (glass default off)', sel('pixStGlassToggle').checked === false);
+    check('admin: #pixStGlassToggle reflete glass.enabled (off)', sel('pixStGlassToggle').checked === false);
+    check('admin: #pixStGlassNoise reflete glass.noise', sel('pixStGlassNoise').checked === true);
+    check('admin: #pixStGlassHighlight reflete glass.highlight', sel('pixStGlassHighlight').checked === true);
 
     /* Binding: muda variante → grava em profile.pix.style */
     const varSel = sel('pixStVariant');
@@ -195,12 +197,25 @@ export async function run() {
     check('admin: animação → pix.style.animation', w.__axEditor.cfg().profile.pix.style.animation === 'shine');
     check('admin: animação aplicada no header (#pvPix pv-anim-shine)', d.getElementById('pvPix').classList.contains('pv-anim-shine'));
 
-    /* Binding: vidro → grava glass.enabled */
+    /* Binding: vidro → grava glass.enabled e aplica gx-panel no header */
     const glass = sel('pixStGlassToggle');
     glass.checked = true;
     glass.dispatchEvent(new w.Event('change', { bubbles: true }));
     check('admin: vidro → pix.style.glass.enabled', w.__axEditor.cfg().profile.pix.style.glass.enabled === true);
     check('admin: vidro aplicado no header (#pvPix gx-panel)', d.getElementById('pvPix').classList.contains('gx-panel'));
+
+    /* Binding: ruído → grava glass.noise e aplica gx-noise no header */
+    const noise = sel('pixStGlassNoise');
+    noise.checked = true;
+    noise.dispatchEvent(new w.Event('change', { bubbles: true }));
+    check('admin: ruído → pix.style.glass.noise', w.__axEditor.cfg().profile.pix.style.glass.noise === true);
+    check('admin: ruído aplicado no header (#pvPix gx-noise)', d.getElementById('pvPix').classList.contains('gx-noise'));
+
+    /* Binding: blur → grava glass.blur e o backdropFilter do preview reflete */
+    const blur = sel('pixStGlassBlur');
+    blur.value = '30';
+    blur.dispatchEvent(new w.Event('input', { bubbles: true }));
+    check('admin: blur → pix.style.glass.blur = 30', w.__axEditor.cfg().profile.pix.style.glass.blur === 30);
   }
 
   console.log('\n━━━ PIX estilo: header do preview aplica o flat (neon/pill) ━━━');
@@ -229,6 +244,23 @@ export async function run() {
       check('público: header neon → cor = glow', cs.color.toLowerCase().replace(/\s/g, '') === 'rgb(34,211,238)');
       check('público: header pill → border-radius 9999px', cs.borderRadius === '9999px');
       check('público: header animação float (ax-anim-float)', btn.classList.contains('ax-anim-float'));
+    }
+
+    /* ---- Header com variante SÓLIDA mas vidro global/individual ligado:
+           blur (backdropFilter) e ruído precisam chegar MESMO sem glass variant ---- */
+    {
+      const c = PIX_STYLE_CFG();
+      c.profile.pix.style.variant = 'solid';
+      c.profile.pix.style.glass = { enabled: true, blur: 24, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: true, borderOpacity: 25 };
+      const { window: w } = await boot(INDEX_PATH, { supabase: supabaseStub(null), url: 'https://axiumlink.test/?s=teste' });
+      const d = w.document;
+      w.__alaPublica.aplicar(c);
+      const btn = d.querySelector('.pg-pix__btn');
+      const cs = w.getComputedStyle(btn);
+      check('público: header sólido+vidro → blur inline no botão', /blur\(24px\)/.test(btn.style.backdropFilter || ''), String(btn.style.backdropFilter));
+      check('público: header sólido+vidro → classe gx-noise', btn.classList.contains('gx-noise'));
+      check('público: header sólido+vidro → classe gx-highlight', btn.classList.contains('gx-highlight'));
+      check('público: header sólido+vidro → classe gx-panel', btn.classList.contains('gx-panel'));
     }
 
     /* ---- Card intercalado (pix.order) usa o estilo individual ---- */
