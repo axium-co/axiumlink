@@ -6202,14 +6202,15 @@
     
     // Ordena por ordem
     elements.sort((a, b) => a.getOrder() - b.getOrder());
-    
-    // Re-anexa os elementos na ordem correta
-    const container = page.querySelector('.pv-page > *:last-child')?.parentElement || page;
-    // Encontra um container comum - usamos o pvPage diretamente
+
+    // Os links (pv-content) ficam SEMPRE por último na página:
+    // avatar/name/bio/address/pix são inseridos ANTES do container de links.
+    const anchor = page.querySelector('.pv-content');
     elements.forEach(({ selector }) => {
       const el = $(selector.replace('#', '')) || document.querySelector(selector);
       if (el && el.parentElement === page) {
-        page.appendChild(el);
+        if (anchor) page.insertBefore(el, anchor);
+        else page.appendChild(el);
       }
     });
   }
