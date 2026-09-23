@@ -1898,7 +1898,7 @@
             <div class="ds-control">
               <label>Formato (border-radius)</label>
               <div class="ds-control-row">
-                <input type="range" id="nameRadius" min="0" max="30" step="1">
+                <input type="range" id="nameRadius" min="0" max="50" step="1">
                 <output class="ds-value" id="nameRadiusVal">10px</output>
               </div>
             </div>
@@ -1989,7 +1989,7 @@
             <div class="ds-control">
               <label>Tamanho da fonte</label>
               <div class="ds-control-row">
-                <input type="range" id="bioSize" min="11" max="26" step="1">
+                <input type="range" id="bioSize" min="11" max="34" step="1">
                 <output class="ds-value" id="bioSizeVal">14px</output>
               </div>
             </div>
@@ -2058,7 +2058,7 @@
             <div class="ds-control">
               <label>Formato (border-radius)</label>
               <div class="ds-control-row">
-                <input type="range" id="bioRadius" min="0" max="30" step="1">
+                <input type="range" id="bioRadius" min="0" max="50" step="1">
                 <output class="ds-value" id="bioRadiusVal">10px</output>
               </div>
             </div>
@@ -2166,7 +2166,7 @@
           <div class="ds-control">
             <label>Tamanho da fonte</label>
             <div class="ds-control-row">
-              <input type="range" id="addressSize" min="10" max="24" step="1">
+              <input type="range" id="addressSize" min="10" max="34" step="1">
               <output class="ds-value" id="addressSizeVal">12px</output>
             </div>
           </div>
@@ -2234,7 +2234,7 @@
           <div class="ds-control">
             <label>Formato (border-radius)</label>
             <div class="ds-control-row">
-              <input type="range" id="addressRadius" min="0" max="30" step="1">
+              <input type="range" id="addressRadius" min="0" max="50" step="1">
               <output class="ds-value" id="addressRadiusVal">20px</output>
             </div>
           </div>
@@ -2619,7 +2619,7 @@
           <div class="ds-control">
             <label>Tamanho da fonte</label>
             <div class="ds-control-row">
-              <input type="range" id="typoBtnSize" min="12" max="24" step="1">
+              <input type="range" id="typoBtnSize" min="12" max="34" step="1">
               <output class="ds-value" id="typoBtnSizeVal">15px</output>
             </div>
           </div>
@@ -3015,7 +3015,7 @@
         <div class="ds-control">
           <label>Tamanho da fonte</label>
           <div class="ds-control-row">
-            <input type="range" id="blockTypoSize" min="12" max="24" step="1">
+            <input type="range" id="blockTypoSize" min="12" max="34" step="1">
             <output class="ds-value" id="blockTypoSizeVal">15px</output>
           </div>
         </div>
@@ -8132,7 +8132,7 @@
     $('blockCustomHeightVal').textContent = _pendingBlockHeight + 'px';
     /* Tipografia por-link (override opcional do texto do botão) */
     $('blockTypoFont').value = l.linkFont || '';
-    $('blockTypoSize').value = (Number(l.linkFontSize) >= 12 && Number(l.linkFontSize) <= 24) ? Number(l.linkFontSize) : 15;
+    $('blockTypoSize').value = (Number(l.linkFontSize) >= 12 && Number(l.linkFontSize) <= 34) ? Number(l.linkFontSize) : 15;
     $('blockTypoSizeVal').textContent = $('blockTypoSize').value + 'px';
     $('blockTypoWeight').value = (Number(l.linkFontWeight) >= 300 && Number(l.linkFontWeight) <= 900) ? Number(l.linkFontWeight) : 600;
     $('blockTypoWeightVal').textContent = $('blockTypoWeight').value;
