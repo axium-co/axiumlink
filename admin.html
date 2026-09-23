@@ -2301,172 +2301,6 @@
         </div>
       </section>
 
-      <!-- ESTILO DO BOTÃO — Template padrão para novos links -->
-      <section class="panel sec collapsed" data-section="style">
-        <div class="sec-head">
-          <button type="button" class="sec-toggle" aria-expanded="false">
-            <span class="sec-caret" aria-hidden="true">▾</span>
-            <span class="sec-ico" aria-hidden="true">🔘</span>
-            <span class="sec-label">Estilo padrão para novos links</span>
-          </button>
-          <button class="panel-del" data-section="style" title="Remover seção Estilo da página">🗑</button>
-        </div>
-        <div class="sec-body">
-          <p class="hint" style="margin:0 0 10px; font-size:12px; color:var(--muted); background:#f8fafc; padding:8px 10px; border-radius:8px; border-left:3px solid var(--brand);">
-            Este estilo é aplicado apenas a links novos ao criar. Cada link pode ter seu estilo individual — edite o link e use "🎨 Estilo individual".
-          </p>
-        <div class="field">
-          <label>Variante do Botão</label>
-          <select id="btnVariant" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
-            <option value="solid">Sólido (Tema)</option>
-            <option value="glass">Vidro (Glassmorphism)</option>
-            <option value="neumorphic">Neumórfico (Soft UI)</option>
-            <option value="ghost">Minimalista Vazado (Ghost)</option>
-            <option value="gradient-soft">Gradiente Suave (automático)</option>
-            <option value="gradient">Gradiente Personalizado</option>
-            <option value="neon">Glow Neon</option>
-          </select>
-        </div>
-
-        <div class="field" id="glowColorRow" style="display:none;">
-          <label for="btnGlowColor">Cor do Glow Neon</label>
-          <div class="color-trigger" id="btnGlowColor" role="button" tabindex="0"><div class="color-trigger-swatch"></div><span class="color-trigger-hex">#22D3EE</span></div>
-        </div>
-
-        <div class="row-2">
-          <div class="field">
-            <label for="btnShape">Formato dos Botões</label>
-            <select id="btnShape" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
-              <optgroup label="Geometricos">
-                <option value="square">Quadrado Rigido</option>
-                <option value="soft">Cantos Suaves</option>
-                <option value="rounded">Arredondado Medio</option>
-                <option value="pill">Totalmente Arredondado (Pilula)</option>
-              </optgroup>
-              <optgroup label="Organicos">
-                <option value="organic">Cantos Assimetricos 1 (Folha)</option>
-                <option value="bubble">Cantos Assimetricos 2 (Bolha)</option>
-                <option value="diagonal">Estilo Diagonal</option>
-              </optgroup>
-              <optgroup label="Especiais">
-                <option value="double">Borda Dupla</option>
-                <option value="brutalist">Estilo Brutalista</option>
-                <option value="custom">Formato Customizado (Slider)</option>
-              </optgroup>
-            </select>
-          </div>
-          <div class="field">
-            <label for="btnAnimation">Animação</label>
-            <select id="btnAnimation" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
-              <option value="none">Nenhuma</option>
-              <option value="pulse">Pulsação Contínua</option>
-              <option value="shine">Brilho Passante (Shine)</option>
-              <option value="float">Flutuação Suave</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="field" id="btnGradientRow" style="display:none;">
-          <label>Gradiente do Botão (2 cores)</label>
-          <div class="row-2">
-            <div class="field">
-              <label>Cor Inicial</label>
-              <div class="color-trigger" id="btnGradientStart" role="button" tabindex="0"><div class="color-trigger-swatch"></div><span class="color-trigger-hex">#6366F1</span></div>
-            </div>
-            <div class="field">
-              <label>Cor Final</label>
-              <div class="color-trigger" id="btnGradientEnd" role="button" tabindex="0"><div class="color-trigger-swatch"></div><span class="color-trigger-hex">#EC4899</span></div>
-            </div>
-          </div>
-          <div class="ds-control">
-            <label>Ângulo do Gradiente</label>
-            <div class="ds-control-row">
-              <input type="range" id="btnGradientAngle" min="0" max="360" step="1">
-              <output class="ds-value" id="btnGradientAngleVal">135deg</output>
-            </div>
-          </div>
-        </div>
-
-        <div class="ds-control" id="btnRadiusRow">
-          <label>Arredondamento dos botões</label>
-          <div class="ds-control-row">
-            <input type="range" id="btnRadius" min="0" max="50" step="1">
-            <output class="ds-value" id="btnRadiusVal">14px</output>
-          </div>
-        </div>
-
-        <div class="field">
-          <label for="btnShadowStyle">Estilo de Sombra</label>
-          <select id="btnShadowStyle" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
-            <option value="soft">Sombra Suave Projetada</option>
-            <option value="none">Nenhuma Sombra</option>
-            <option value="neumorph">Efeito Soft UI / Neumorphism</option>
-            <option value="glow">Brilho Neon (Glow)</option>
-          </select>
-        </div>
-
-        <div class="ds-control" id="btnShadowRow">
-          <label>Intensidade da Sombra Suave</label>
-          <div class="ds-control-row">
-            <input type="range" id="btnShadow" min="0" max="100" step="5">
-            <output class="ds-value" id="btnShadowVal">30%</output>
-          </div>
-        </div>
-
-        <div class="glass-block" id="buttonGlassBlock">
-          <div class="glass-block-head">💠 Efeito Vidro no botão</div>
-          <div class="toggle-row" style="padding:2px 0 6px;">
-            <span class="toggle-label">Ativar efeito vidro</span>
-            <label class="switch">
-              <input type="checkbox" id="buttonGlassToggle">
-              <span class="slider"></span>
-            </label>
-          </div>
-          <div class="ds-control">
-            <label>Desfoque (Blur)</label>
-            <div class="ds-control-row">
-              <input type="range" id="buttonGlassBlur" min="0" max="40" step="1">
-              <output class="ds-value" id="buttonGlassBlurVal">20px</output>
-            </div>
-          </div>
-          <div class="ds-control">
-            <label>Opacidade do vidro</label>
-            <div class="ds-control-row">
-              <input type="range" id="buttonGlassOpacity" min="0" max="100" step="1">
-              <output class="ds-value" id="buttonGlassOpacityVal">16%</output>
-            </div>
-          </div>
-          <div class="ds-control">
-            <label>Opacidade da borda</label>
-            <div class="ds-control-row">
-              <input type="range" id="buttonGlassBorderOpacity" min="0" max="100" step="1">
-              <output class="ds-value" id="buttonGlassBorderOpacityVal">25%</output>
-            </div>
-          </div>
-        </div>
-
-        <div class="field">
-          <label>Cores do Botão</label>
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-            <div class="field" style="margin:0;">
-              <label style="font-size:11px;">Fundo</label>
-              <div class="color-trigger" id="btnBgColor" role="button" tabindex="0">
-                <div class="color-trigger-swatch" style="background:#111827;"></div>
-                <span class="color-trigger-hex">AUTO</span>
-              </div>
-            </div>
-            <div class="field" style="margin:0;">
-              <label style="font-size:11px;">Texto</label>
-              <div class="color-trigger" id="btnTextColor" role="button" tabindex="0">
-                <div class="color-trigger-swatch" style="background:#ffffff;"></div>
-                <span class="color-trigger-hex">AUTO</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        </div>
-      </section>
-
       <!-- TEMA E FUNDO -->
       <section class="panel sec" data-section="style">
         <div class="sec-head">
@@ -3251,8 +3085,7 @@
             </div>
           </div>
 
-          <button class="btn-mini" id="perSetDefault" style="width:100%; margin-top:8px; background:var(--bg); border:1px dashed var(--border); color:var(--muted); font-size:12px; padding:8px;">📌 Usar como estilo padrão para novos links</button>
-        </div>
+          </div>
       </details>
 
       <div style="display:flex; gap:10px; margin-top:18px;">
@@ -3884,10 +3717,9 @@
     if (!target || typeof target !== 'object') return;
     const gs = target.style || {};
     if (!Array.isArray(target.links)) return;
-    const defaultLs = (typeof gs.buttonDefault === 'object' && gs.buttonDefault) ? gs.buttonDefault : null;
     target.links.forEach((l) => {
       if (l && typeof l === 'object' && (!l.style || typeof l.style !== 'object')) {
-        l.style = JSON.parse(JSON.stringify(defaultLs || flatToLinkStyle(gs)));
+        l.style = JSON.parse(JSON.stringify(flatToLinkStyle(gs)));
       }
     });
   }
@@ -4240,7 +4072,8 @@
       reflectTypographyInputs();
       reflectGlassInputs();
       setRange('blockGap', cfg.style.blockGap);
-      $('btnShadowStyle').value = cfg.style.btnShadowStyle || 'soft';
+      const eBtnShadowStyle = $('btnShadowStyle');
+      if (eBtnShadowStyle) eBtnShadowStyle.value = cfg.style.btnShadowStyle || 'soft';
       $('layoutSpacing').value = cfg.style.layoutSpacing || 'comfy';
     }
   }
@@ -6497,9 +6330,6 @@
     });
     cfg.style.activePreset = key;
 
-    /* Preset também vira o template padrão para links novos */
-    cfg.style.buttonDefault = flatToLinkStyle(cfg.style);
-
     /* Re-render todos os controles afetados */
     renderPresets();
     renderThemeSwatches();
@@ -6910,12 +6740,17 @@
     /* Glass agora vive em sub-grupos por elemento (botão/ícone/banner/texto),
        cada um com estado próprio — não há mais seção global de vidro. */
 
-    /* Slider de raio só no modo Personalizado; intensidade só na sombra Suave */
-    $('btnRadiusRow').style.display = (st.btnShape || 'rounded') === 'custom' ? '' : 'none';
-    $('btnShadowRow').style.display = (st.btnShadowStyle || 'soft') === 'soft' ? '' : 'none';
+    /* Slider de raio só no modo Personalizado; intensidade só na sombra Suave
+       (controles globais de botão foram removidos — só há estilo individual por link) */
+    const eRadiusRow = $('btnRadiusRow');
+    if (eRadiusRow) eRadiusRow.style.display = (st.btnShape || 'rounded') === 'custom' ? '' : 'none';
+    const eShadowRow = $('btnShadowRow');
+    if (eShadowRow) eShadowRow.style.display = (st.btnShadowStyle || 'soft') === 'soft' ? '' : 'none';
 
-    $('btnGradientRow').style.display = btnVar === 'gradient' ? '' : 'none';
-    $('glowColorRow').style.display = btnVar === 'neon' ? '' : 'none';
+    const eGradientRow = $('btnGradientRow');
+    if (eGradientRow) eGradientRow.style.display = btnVar === 'gradient' ? '' : 'none';
+    const eGlowRow = $('glowColorRow');
+    if (eGlowRow) eGlowRow.style.display = btnVar === 'neon' ? '' : 'none';
 
     /* Re-render swatches dinâmicos */
     if (bgVar === 'mesh') {
@@ -7598,15 +7433,17 @@
   /* Reflete os valores dos sub-grupos de efeito vidro nos controles. */
   function reflectGlassInputs() {
     const st = (cfg.style = cfg.style || {});
+    /* Vidro do botão agora é controlado por-link (secção "Estilo padrão" removida).
+       Aqui só refletimos os grupos de vidro que ainda têm controles globais. */
     const groups = [
-      { key: 'buttonGlass', prefix: 'buttonGlass', blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: 25 },
       { key: 'nameGlass',   prefix: 'nameGlass',   blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: null },
       { key: 'bioGlass',   prefix: 'bioGlass',   blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: null },
       { key: 'addressGlass', prefix: 'addressGlass', blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: null }
     ];
     groups.forEach((g) => {
       const t = st[g.key] || {};
-      $(g.prefix + 'Toggle').checked = !!t.enabled;
+      const tgl = $(g.prefix + 'Toggle');
+      if (tgl) tgl.checked = !!t.enabled;
       setRange(g.prefix + 'Blur', t.blur != null ? t.blur : g.blur);
       setRange(g.prefix + 'Opacity', t.opacity != null ? t.opacity : g.opacity);
       if (g.borderOpacity != null) {
@@ -7633,7 +7470,8 @@
   function reflectStyleValues() {
     const st = cfg.style || {};
     $('bgVariant').value = st.bgVariant || 'solid';
-    $('btnVariant').value = st.btnVariant || 'solid';
+    const eBtnVariant = $('btnVariant');
+    if (eBtnVariant) eBtnVariant.value = st.btnVariant || 'solid';
     renderGradientStops();
     setTriggerColor('btnGradientStart', st.btnGradientStart || '#6366f1');
     setTriggerColor('btnGradientEnd', st.btnGradientEnd || '#ec4899');
@@ -7646,9 +7484,12 @@
     $('layoutSpacing').value = st.layoutSpacing || 'comfy';
     setTriggerColor('btnGlowColor', st.btnGlowColor || '#22d3ee');
     if ($('showCategoryTabs')) $('showCategoryTabs').checked = !!st.showCategoryTabs;
-    $('btnShape').value = st.btnShape || 'rounded';
-    $('btnShadowStyle').value = st.btnShadowStyle || 'soft';
-    $('btnAnimation').value = st.btnAnimation || 'none';
+    const eBtnShape = $('btnShape');
+    if (eBtnShape) eBtnShape.value = st.btnShape || 'rounded';
+    const eBtnShadowStyle = $('btnShadowStyle');
+    if (eBtnShadowStyle) eBtnShadowStyle.value = st.btnShadowStyle || 'soft';
+    const eBtnAnimation = $('btnAnimation');
+    if (eBtnAnimation) eBtnAnimation.value = st.btnAnimation || 'none';
 
     setRange('btnRadius', st.btnRadius);
     setRange('btnShadow', st.btnShadow);
@@ -8016,7 +7857,7 @@
     updateBlockImageUI();
 
     /* Estilo individual do botão (per-link) */
-    const _defLs = (cfg.style && cfg.style.buttonDefault && typeof cfg.style.buttonDefault === 'object') ? cfg.style.buttonDefault : flatToLinkStyle(cfg.style || {});
+    const _defLs = flatToLinkStyle(cfg.style || {});
     _pendingBlockStyle = l.style
       ? JSON.parse(JSON.stringify(Object.assign({}, DEFAULT_LINK_STYLE(), l.style || {})))
       : JSON.parse(JSON.stringify(_defLs));
@@ -8384,13 +8225,6 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
         const label = $('perBtnTextColor')?.querySelector('.color-trigger-hex');
         if (label) label.textContent = triggerLabel(hex);
       });
-    });
-    safeOn('perSetDefault', 'click', () => {
-      const ls = JSON.parse(JSON.stringify(readPerStyleControls()));
-      cfg.style = cfg.style || {};
-      cfg.style.buttonDefault = ls;
-      showToast('Este estilo agora é o padrão para novos links');
-      markDirty();
     });
     safeOn('blockImageInput', 'change', async (e) => {
       const file = e.target.files?.[0];
