@@ -283,6 +283,93 @@ export async function run() {
     }
   }
 
+  console.log('\n━━━ PIX estilo: tipografia do botão (font/fontSize/fontWeight) ━━━');
+  {
+    const SIZED = () => {
+      const c = PIX_STYLE_CFG();
+      c.profile.pix.style.font = 'Poppins';
+      c.profile.pix.style.fontSize = 22;
+      c.profile.pix.style.fontWeight = 800;
+      return c;
+    };
+
+    /* ---- ADMIN: controles refletem + binding grava + preview aplica ---- */
+    {
+      const { window: w } = await boot(ADMIN_PATH, { supabase: supabaseStub(null), url: 'https://axiumlink.test/admin.html' });
+      const d = w.document;
+      w.__axEditor.init(SIZED());
+      check('admin: #pixStFont reflete pix.style.font', d.getElementById('pixStFont').value === 'Poppins');
+      check('admin: #pixStFontSize reflete pix.style.fontSize', d.getElementById('pixStFontSize').value === '22');
+      check('admin: #pixStFontSizeVal mostra 22px', d.getElementById('pixStFontSizeVal').textContent === '22px');
+      check('admin: #pixStFontWeight reflete pix.style.fontWeight', d.getElementById('pixStFontWeight').value === '800');
+
+      const node = d.getElementById('pvPix');
+      check('admin: header aplica font-size 22px', node.style.fontSize === '22px', node.style.fontSize);
+      check('admin: header aplica font-weight 800', node.style.fontWeight === '800', node.style.fontWeight);
+      check('admin: header aplica fonte Poppins', (node.style.fontFamily || '').indexOf('Poppins') >= 0, node.style.fontFamily);
+      check('admin: header mantém padding padrão', node.style.padding === '0.8rem 1.25rem', node.style.padding);
+      check('admin: header mantém ícone 18px', node.querySelector('.pv-pix__ico').style.width === '18px');
+
+      const fontSel = d.getElementById('pixStFont');
+      fontSel.value = 'Inter';
+      fontSel.dispatchEvent(new w.Event('change', { bubbles: true }));
+      check('admin: change → pix.style.font = Inter', w.__axEditor.cfg().profile.pix.style.font === 'Inter');
+      const fs = d.getElementById('pixStFontSize');
+      fs.value = '12';
+      fs.dispatchEvent(new w.Event('input', { bubbles: true }));
+      check('admin: fonte → pix.style.fontSize = 12', w.__axEditor.cfg().profile.pix.style.fontSize === 12);
+      check('admin: output da fonte vira 12px', d.getElementById('pixStFontSizeVal').textContent === '12px');
+      const fw = d.getElementById('pixStFontWeight');
+      fw.value = '300';
+      fw.dispatchEvent(new w.Event('input', { bubbles: true }));
+      check('admin: peso → pix.style.fontWeight = 300', w.__axEditor.cfg().profile.pix.style.fontWeight === 300);
+      check('admin: output do peso vira 300', d.getElementById('pixStFontWeightVal').textContent === '300');
+    }
+
+    /* ---- PÚBLICO: header com fonte/tamanho/peso ---- */
+    {
+      const { window: w } = await boot(INDEX_PATH, { supabase: supabaseStub(null), url: 'https://axiumlink.test/?s=teste' });
+      const d = w.document;
+      w.__alaPublica.aplicar(SIZED());
+      const btn = d.querySelector('.pg-pix__btn');
+      check('público: header font-size 22px', btn.style.fontSize === '22px', btn.style.fontSize);
+      check('público: header font-weight 800', btn.style.fontWeight === '800', btn.style.fontWeight);
+      check('público: header fonte Poppins', (btn.style.fontFamily || '').indexOf('Poppins') >= 0, btn.style.fontFamily);
+      check('público: header maxWidth padrão 420px', btn.style.maxWidth === '420px', btn.style.maxWidth);
+      const ico = btn.querySelector('.pg-pix__ico');
+      check('público: header ícone 18px', ico.style.width === '18px' && ico.style.height === '18px');
+    }
+
+    /* ---- PÚBLICO: sem tipografia → padrão (15px / 600) ---- */
+    {
+      const c = PIX_STYLE_CFG();
+      delete c.profile.pix.style.font;
+      delete c.profile.pix.style.fontSize;
+      delete c.profile.pix.style.fontWeight;
+      const { window: w } = await boot(INDEX_PATH, { supabase: supabaseStub(null), url: 'https://axiumlink.test/?s=teste' });
+      const d = w.document;
+      w.__alaPublica.aplicar(c);
+      const btn = d.querySelector('.pg-pix__btn');
+      check('público: default preserva padding', btn.style.padding === '0.8rem 1.25rem', btn.style.padding);
+      check('público: default fonte 15px', btn.style.fontSize === '15px', btn.style.fontSize);
+      check('público: default peso 600', btn.style.fontWeight === '600', btn.style.fontWeight);
+    }
+
+    /* ---- PÚBLICO: card intercalado recebe a tipografia ---- */
+    {
+      const c = SIZED();
+      c.profile.pix.order = 1;
+      c.links = [{ id: 'l1', title: 'WhatsApp', url: 'https://wa.me/1', icon: 'whatsapp' }];
+      const { window: w } = await boot(INDEX_PATH, { supabase: supabaseStub(null), url: 'https://axiumlink.test/?s=teste' });
+      const d = w.document;
+      w.__alaPublica.aplicar(c);
+      const card = d.querySelector('[data-pix]');
+      check('público: card intercalado font-size 22px', card.style.fontSize === '22px', card.style.fontSize);
+      check('público: card intercalado font-weight 800', card.style.fontWeight === '800', card.style.fontWeight);
+      check('público: card intercalado maxWidth padrão 420px', card.style.maxWidth === '420px', card.style.maxWidth);
+    }
+  }
+
   /* ========================== INTERCALAÇÃO pix.order ========================== */
   console.log('\n━━━ PIX intercalado como item da lista (pix.order) ━━━');
   {

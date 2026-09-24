@@ -1705,6 +1705,39 @@
                   <option value="float">Flutuação Suave</option>
                 </select>
               </div>
+              <div class="field" id="pixStTypoPanel" style="margin:10px 0 0; padding-top:12px; border-top:1px solid var(--bg);">
+                <label style="font-size:13px; font-weight:700; color:var(--ink);">Tipografia do texto do botão PIX</label>
+                <p class="hint" style="margin-bottom:10px;">Mesmo painel dos outros botões: estiliza o texto do botão PIX.</p>
+                <div class="field">
+                  <label for="pixStFont">Fonte</label>
+                  <select id="pixStFont" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+                    <option value="">Mesma da página</option>
+                    <option value="Playfair Display">Playfair Display (serifa elegante)</option>
+                    <option value="Cormorant Garamond">Cormorant Garamond (serifa leve)</option>
+                    <option value="DM Serif Display">DM Serif Display (serifa editorial)</option>
+                    <option value="Lora">Lora (serifa clássica)</option>
+                    <option value="Inter">Inter (sans neutra)</option>
+                    <option value="Montserrat">Montserrat (sans corporativa)</option>
+                    <option value="Poppins">Poppins (sans amigável)</option>
+                    <option value="Syne">Syne (artística/moderna)</option>
+                    <option value="Space Grotesk">Space Grotesk (tech)</option>
+                  </select>
+                </div>
+                <div class="ds-control">
+                  <label for="pixStFontSize">Tamanho da fonte</label>
+                  <div class="ds-control-row">
+                    <input type="range" id="pixStFontSize" min="12" max="34" step="1">
+                    <output class="ds-value" id="pixStFontSizeVal">15px</output>
+                  </div>
+                </div>
+                <div class="ds-control">
+                  <label for="pixStFontWeight">Peso da fonte (negrito)</label>
+                  <div class="ds-control-row">
+                    <input type="range" id="pixStFontWeight" min="300" max="900" step="100">
+                    <output class="ds-value" id="pixStFontWeightVal">600</output>
+                  </div>
+                </div>
+              </div>
               <div class="field" id="pixStGradientRow" style="margin:10px 0 0;display:none;">
                 <label>Gradiente do Botão (2 cores)</label>
                 <div class="row-2">
@@ -3660,7 +3693,13 @@
     gradient: { start: '#6366f1', end: '#ec4899', angle: 135 },
     glass: { enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: 25 },
     colors: { background: '', text: '' },
-    displayStyle: 'box'
+    displayStyle: 'box',
+    /* Tipografia do texto do botão — mesmo painel dos outros botões
+       (linkFont/linkFontSize/linkFontWeight): font = '' herda a página;
+       fontSize 12–34px; fontWeight 300–900. */
+    font: '',
+    fontSize: 15,
+    fontWeight: 600
   });
 
   /* Estilo padrão do botão PIX — espelha DEFAULT_LINK_STYLE, mas as cores
@@ -3714,6 +3753,13 @@
     setSel('pixStVariant', ls.variant);
     setSel('pixBtnShape', ls.format);
     setSel('pixStAnimation', ls.animation);
+    setSel('pixStFont', ls.font || '');
+    const fsN = (Number(ls.fontSize) >= 12 && Number(ls.fontSize) <= 34) ? Number(ls.fontSize) : 15;
+    if ($('pixStFontSize')) $('pixStFontSize').value = fsN;
+    if ($('pixStFontSizeVal')) $('pixStFontSizeVal').textContent = fsN + 'px';
+    const fwN = (Number(ls.fontWeight) >= 300 && Number(ls.fontWeight) <= 900) ? Number(ls.fontWeight) : 600;
+    if ($('pixStFontWeight')) $('pixStFontWeight').value = fwN;
+    if ($('pixStFontWeightVal')) $('pixStFontWeightVal').textContent = String(fwN);
     const sh = ls.shadow || {};
     setSel('pixStShadowStyle', sh.type || 'soft');
     const shI = sh.intensity != null ? sh.intensity : 30;
@@ -3811,6 +3857,9 @@
       btnGlassBorderOpacity: gl.borderOpacity,
       btnBgColor: resolved(co.background, ''),
       btnTextColor: resolved(co.text, ''),
+      btnFont: s.font || '',
+      btnFontSize: (Number(s.fontSize) >= 12 && Number(s.fontSize) <= 34) ? Number(s.fontSize) : 15,
+      btnFontWeight: (Number(s.fontWeight) >= 300 && Number(s.fontWeight) <= 900) ? Number(s.fontWeight) : 600,
       displayStyle: s.displayStyle || 'box',
       buttonGlass: { enabled: gl.enabled, blur: gl.blur, saturate: gl.saturate, opacity: gl.opacity, color: gl.color, borderGlow: gl.borderGlow, shadowDepth: gl.shadowDepth, highlight: gl.highlight, noise: gl.noise, borderOpacity: gl.borderOpacity }
     };
@@ -4329,11 +4378,32 @@
     return parts.join('\n');
   }
 
+  /* Tipografia + geometria base do botão PIX (header + card intercalado).
+     Espelho EXATO do público (index.html axApplyPixSize). Padding, largura
+     e ícone ficam no visual atual padrão; fonte/tamanho/peso vêm do mesmo
+     painel de tipografia dos outros botões (btnFont/btnFontSize/
+     btnFontWeight), com padrão = tipografia global (15px / 600). */
+  function applyPixSizing(el, flat) {
+    if (!el) return;
+    el.style.padding = '0.8rem 1.25rem';
+    el.style.maxWidth = '420px';
+    const fs = (flat && Number(flat.btnFontSize) >= 12) ? Number(flat.btnFontSize) : 15;
+    el.style.fontSize = fs + 'px';
+    const fw = (flat && Number(flat.btnFontWeight) >= 300) ? Number(flat.btnFontWeight) : 600;
+    el.style.fontWeight = String(fw);
+    if (flat && flat.btnFont) el.style.fontFamily = '"' + flat.btnFont + '", system-ui, sans-serif';
+    el.querySelectorAll('.pv-pix__ico, .pg-pix__ico').forEach((ico) => {
+      ico.style.width = '18px';
+      ico.style.height = '18px';
+    });
+  }
+
   /* Aplica o estilo completo do botão PIX (variante, formato, animação,
-     glow, gradiente, raio, sombra, vidro e cores) a um elemento do preview.
-     Espelha o loop de .link-block em applyThemeVars: merged = flat do PIX
-     (fonte de verdade), com o tema obtido de `t`. Reutilizado pelo botão do
-     header (#pvPix) e pelo card intercalado na lista (.link-block--pix). */
+     glow, gradiente, raio, sombra, vidro, cores e tamanho) a um elemento
+     do preview. Espelha o loop de .link-block em applyThemeVars: merged =
+     flat do PIX (fonte de verdade), com o tema obtido de `t`. Reutilizado
+     pelo botão do header (#pvPix) e pelo card intercalado na lista
+     (.link-block--pix). */
   function applyPixStyleToEl(el, pixC, st, t) {
     if (!el) return;
     const flat = pixStyleFlat(pixC, st);
@@ -4351,6 +4421,7 @@
     const bAnim = flat.btnAnimation || 'none';
     const ANIMS = ['pv-anim-pulse', 'pv-anim-float', 'pv-anim-shine'];
     Object.assign(el.style, bCSS);
+    applyPixSizing(el, flat);
     el.classList.remove('ghost', 'neumorphic', ...ANIMS, 'ax-text-only');
     if (bVariant === 'ghost' || bVariant === 'neumorphic') el.classList.add(bVariant);
     if (bAnim === 'pulse') el.classList.add('pv-anim-pulse');
@@ -5995,6 +6066,7 @@
         const bVariant = merged.btnVariant || 'solid';
         const bAnim = merged.btnAnimation || 'none';
         Object.assign(el.style, bCSS);
+        if (isPixCard) applyPixSizing(el, flat);
         el.classList.remove('ax-text-only');
         el.classList.remove('ghost', 'neumorphic');
         if (bVariant === 'ghost' || bVariant === 'neumorphic') el.classList.add(bVariant);
@@ -8401,6 +8473,27 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
     });
     safeOn('pixStAnimation', 'change', (e) => {
       pixStyleEditable().animation = e.target.value;
+      renderPreview();
+      markDirty();
+    });
+    safeOn('pixStFont', 'change', (e) => {
+      pixStyleEditable().font = e.target.value;
+      renderPreview();
+      markDirty();
+    });
+    safeOn('pixStFontSize', 'input', (e) => {
+      const v = Number(e.target.value);
+      pixStyleEditable().fontSize = (v >= 12) ? v : 15;
+      const out = $('pixStFontSizeVal');
+      if (out) out.textContent = v + 'px';
+      renderPreview();
+      markDirty();
+    });
+    safeOn('pixStFontWeight', 'input', (e) => {
+      const v = Number(e.target.value);
+      pixStyleEditable().fontWeight = (v >= 300) ? v : 600;
+      const out = $('pixStFontWeightVal');
+      if (out) out.textContent = e.target.value;
       renderPreview();
       markDirty();
     });

@@ -2335,7 +2335,13 @@
           gradient: { start: '#6366f1', end: '#ec4899', angle: 135 },
           glass: { enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: 25 },
           colors: { background: '', text: '' },
-          displayStyle: 'box'
+          displayStyle: 'box',
+          /* Tipografia do texto do botão — mesmo painel dos outros botões
+             (linkFont/linkFontSize/linkFontWeight): font = '' herda a página;
+             fontSize 12–34px; fontWeight 300–900. */
+          font: '',
+          fontSize: 15,
+          fontWeight: 600
         };
       }
 
@@ -2391,6 +2397,9 @@
           btnGlassBorderOpacity: gl.borderOpacity,
           btnBgColor: pick(co.background, ''),
           btnTextColor: pick(co.text, ''),
+          btnFont: s.font || '',
+          btnFontSize: (Number(s.fontSize) >= 12 && Number(s.fontSize) <= 34) ? Number(s.fontSize) : 15,
+          btnFontWeight: (Number(s.fontWeight) >= 300 && Number(s.fontWeight) <= 900) ? Number(s.fontWeight) : 600,
           buttonGlass: { enabled: gl.enabled, blur: gl.blur, saturate: gl.saturate, opacity: gl.opacity, color: gl.color, borderGlow: gl.borderGlow, shadowDepth: gl.shadowDepth, highlight: gl.highlight, noise: gl.noise, borderOpacity: gl.borderOpacity },
           displayStyle: s.displayStyle || 'box'
         };
@@ -4409,6 +4418,26 @@
         }
 
         const ANIMS = ['ax-anim-pulse','ax-anim-float','ax-anim-shine'];
+
+        /* Tipografia + geometria base do botão PIX (header + card intercalado).
+           Espelho EXATO do admin (applyPixSizing). Padding, largura e ícone
+           ficam no visual atual padrão; fonte/tamanho/peso vêm do mesmo
+           painel de tipografia dos outros botões (btnFont/btnFontSize/
+           btnFontWeight), com padrão = tipografia global (15px / 600). */
+        function axApplyPixSize(el, flat) {
+          if (!el) return;
+          el.style.padding = '0.8rem 1.25rem';
+          el.style.maxWidth = '420px';
+          const fs = (flat && Number(flat.btnFontSize) >= 12) ? Number(flat.btnFontSize) : 15;
+          el.style.fontSize = fs + 'px';
+          const fw = (flat && Number(flat.btnFontWeight) >= 300) ? Number(flat.btnFontWeight) : 600;
+          el.style.fontWeight = String(fw);
+          if (flat && flat.btnFont) el.style.fontFamily = '"' + flat.btnFont + '", system-ui, sans-serif';
+          el.querySelectorAll('.pg-pix__ico, .pv-pix__ico').forEach((ico) => {
+            ico.style.width = '18px';
+            ico.style.height = '18px';
+          });
+        }
         /* Tipografia global dos botões (st.typoBtn) — espelha o painel.
            A tipografia por-link volta por cima em reapplyLinkTypoPublic. */
         const tyBtn = st.typoBtn || {};
@@ -4534,6 +4563,9 @@
           Object.assign(el.style, bCSS);
           el.classList.remove('ax-text-only');
           if (!el.classList.contains('social-icon')) Object.assign(el.style, tyBtnBase);
+          /* Tamanho próprio do PIX (preset/fonte) volta por cima da tipografia
+             global dos botões — o card PIX é um botão da lista. */
+          if (isPixCardPub) axApplyPixSize(el, flatPub);
           if (el.classList.contains('social-icon')) {
             /* Ícones sociais preservam o círculo base (50%). O formato
                global só deve mudá-los quando for explicitamente angular
@@ -4577,6 +4609,7 @@
           const pixHdrShape = axShapeFor(pixHdrFlat);
           const pixHdrCSS = axBtnStyle(pixHdrFlat, pixHdrBg, pixHdrInk, thInk, pixHdrShape);
           Object.assign(pixHdrBtn.style, pixHdrCSS, pixHdrShape);
+          axApplyPixSize(pixHdrBtn, pixHdrFlat);
           pixHdrBtn.style.setProperty('--ui-bg', pixHdrCSS.background);
           /* Vidro: mesma ordem do applyPixStyleToEl do admin — o receituário
              completo (fundo translúcido + blur + borda + sombra + ruído) é
