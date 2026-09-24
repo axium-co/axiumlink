@@ -639,7 +639,8 @@
       justify-content: center;
       gap: 0.5rem;
       width: 100%;
-      max-width: 420px;
+      max-width: 560px;
+      min-height: 72px;
       padding: 0.8rem 1.25rem;
       border: none;
       border-radius: var(--radius-md, 14px);
@@ -2336,12 +2337,18 @@
           glass: { enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: 25 },
           colors: { background: '', text: '' },
           displayStyle: 'box',
-          /* Tipografia do texto do botão — mesmo painel dos outros botões
-             (linkFont/linkFontSize/linkFontWeight): font = '' herda a página;
+          /* Tipografia do texto do botão — MESMO PAINEL dos links e dos
+             elementos (nome/bio/endereço): font = '' herda a página;
              fontSize 12–34px; fontWeight 300–900. */
           font: '',
           fontSize: 15,
-          fontWeight: 600
+          fontWeight: 600,
+          /* Tamanho físico do botão PIX — mesmas medidas dos outros botões:
+             width = largura máxima em px (padrão 560, igual aos cards de
+             link); height = altura mínima em px (padrão 72 como os outros
+             botões; 0 = automática). */
+          width: 560,
+          height: 72
         };
       }
 
@@ -2400,6 +2407,8 @@
           btnFont: s.font || '',
           btnFontSize: (Number(s.fontSize) >= 12 && Number(s.fontSize) <= 34) ? Number(s.fontSize) : 15,
           btnFontWeight: (Number(s.fontWeight) >= 300 && Number(s.fontWeight) <= 900) ? Number(s.fontWeight) : 600,
+          btnWidth: (Number(s.width) >= 160 && Number(s.width) <= 640) ? Number(s.width) : 420,
+          btnHeight: (Number(s.height) >= 0 && Number(s.height) <= 120) ? Number(s.height) : 0,
           buttonGlass: { enabled: gl.enabled, blur: gl.blur, saturate: gl.saturate, opacity: gl.opacity, color: gl.color, borderGlow: gl.borderGlow, shadowDepth: gl.shadowDepth, highlight: gl.highlight, noise: gl.noise, borderOpacity: gl.borderOpacity },
           displayStyle: s.displayStyle || 'box'
         };
@@ -4419,15 +4428,19 @@
 
         const ANIMS = ['ax-anim-pulse','ax-anim-float','ax-anim-shine'];
 
-        /* Tipografia + geometria base do botão PIX (header + card intercalado).
-           Espelho EXATO do admin (applyPixSizing). Padding, largura e ícone
-           ficam no visual atual padrão; fonte/tamanho/peso vêm do mesmo
-           painel de tipografia dos outros botões (btnFont/btnFontSize/
-           btnFontWeight), com padrão = tipografia global (15px / 600). */
+        /* Tamanho (largura/altura) + tipografia do botão PIX (header + card
+           intercalado). Espelho EXATO do admin (applyPixSizing):
+           btnWidth = largura máxima em px (padrão 560 = mesmo dos outros
+           botões); btnHeight = altura mínima em px (padrão 72 = mesmo dos
+           outros botões; 0 = automática); fonte/tamanho/peso do mesmo painel
+           dos links/nome/bio/endereço (padrão 15px / 600). Ícone 18px. */
         function axApplyPixSize(el, flat) {
           if (!el) return;
           el.style.padding = '0.8rem 1.25rem';
-          el.style.maxWidth = '420px';
+          const bw = (flat && Number(flat.btnWidth) >= 160) ? Number(flat.btnWidth) : 560;
+          el.style.maxWidth = bw + 'px';
+          const bh = (flat && Number(flat.btnHeight) >= 0) ? Number(flat.btnHeight) : 72;
+          el.style.minHeight = bh > 0 ? bh + 'px' : '';
           const fs = (flat && Number(flat.btnFontSize) >= 12) ? Number(flat.btnFontSize) : 15;
           el.style.fontSize = fs + 'px';
           const fw = (flat && Number(flat.btnFontWeight) >= 300) ? Number(flat.btnFontWeight) : 600;

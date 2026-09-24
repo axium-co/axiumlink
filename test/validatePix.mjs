@@ -283,10 +283,12 @@ export async function run() {
     }
   }
 
-  console.log('\n━━━ PIX estilo: tipografia do botão (font/fontSize/fontWeight) ━━━');
+  console.log('\n━━━ PIX estilo: tamanho do botão (width/height) + tipografia ━━━');
   {
     const SIZED = () => {
       const c = PIX_STYLE_CFG();
+      c.profile.pix.style.width = 560;
+      c.profile.pix.style.height = 72;
       c.profile.pix.style.font = 'Poppins';
       c.profile.pix.style.fontSize = 22;
       c.profile.pix.style.fontWeight = 800;
@@ -298,18 +300,34 @@ export async function run() {
       const { window: w } = await boot(ADMIN_PATH, { supabase: supabaseStub(null), url: 'https://axiumlink.test/admin.html' });
       const d = w.document;
       w.__axEditor.init(SIZED());
+      check('admin: #pixStWidth reflete pix.style.width', d.getElementById('pixStWidth').value === '560');
+      check('admin: #pixStWidthVal mostra 560px', d.getElementById('pixStWidthVal').textContent === '560px');
+      check('admin: #pixStHeight reflete pix.style.height', d.getElementById('pixStHeight').value === '72');
+      check('admin: #pixStHeightVal mostra 72px', d.getElementById('pixStHeightVal').textContent === '72px');
       check('admin: #pixStFont reflete pix.style.font', d.getElementById('pixStFont').value === 'Poppins');
       check('admin: #pixStFontSize reflete pix.style.fontSize', d.getElementById('pixStFontSize').value === '22');
       check('admin: #pixStFontSizeVal mostra 22px', d.getElementById('pixStFontSizeVal').textContent === '22px');
       check('admin: #pixStFontWeight reflete pix.style.fontWeight', d.getElementById('pixStFontWeight').value === '800');
 
       const node = d.getElementById('pvPix');
+      check('admin: header aplica largura 560px', node.style.maxWidth === '560px', node.style.maxWidth);
+      check('admin: header aplica altura 72px', node.style.minHeight === '72px', node.style.minHeight);
       check('admin: header aplica font-size 22px', node.style.fontSize === '22px', node.style.fontSize);
       check('admin: header aplica font-weight 800', node.style.fontWeight === '800', node.style.fontWeight);
       check('admin: header aplica fonte Poppins', (node.style.fontFamily || '').indexOf('Poppins') >= 0, node.style.fontFamily);
       check('admin: header mantém padding padrão', node.style.padding === '0.8rem 1.25rem', node.style.padding);
       check('admin: header mantém ícone 18px', node.querySelector('.pv-pix__ico').style.width === '18px');
 
+      const widthSlider = d.getElementById('pixStWidth');
+      widthSlider.value = '300';
+      widthSlider.dispatchEvent(new w.Event('input', { bubbles: true }));
+      check('admin: largura → pix.style.width = 300', w.__axEditor.cfg().profile.pix.style.width === 300);
+      check('admin: output da largura vira 300px', d.getElementById('pixStWidthVal').textContent === '300px');
+      const heightSlider = d.getElementById('pixStHeight');
+      heightSlider.value = '0';
+      heightSlider.dispatchEvent(new w.Event('input', { bubbles: true }));
+      check('admin: altura → pix.style.height = 0', w.__axEditor.cfg().profile.pix.style.height === 0);
+      check('admin: output da altura vira Auto', d.getElementById('pixStHeightVal').textContent === 'Auto');
       const fontSel = d.getElementById('pixStFont');
       fontSel.value = 'Inter';
       fontSel.dispatchEvent(new w.Event('change', { bubbles: true }));
@@ -326,23 +344,26 @@ export async function run() {
       check('admin: output do peso vira 300', d.getElementById('pixStFontWeightVal').textContent === '300');
     }
 
-    /* ---- PÚBLICO: header com fonte/tamanho/peso ---- */
+    /* ---- PÚBLICO: header com tamanho + fonte/tamanho/peso ---- */
     {
       const { window: w } = await boot(INDEX_PATH, { supabase: supabaseStub(null), url: 'https://axiumlink.test/?s=teste' });
       const d = w.document;
       w.__alaPublica.aplicar(SIZED());
       const btn = d.querySelector('.pg-pix__btn');
+      check('público: header largura 560px', btn.style.maxWidth === '560px', btn.style.maxWidth);
+      check('público: header altura 72px', btn.style.minHeight === '72px', btn.style.minHeight);
       check('público: header font-size 22px', btn.style.fontSize === '22px', btn.style.fontSize);
       check('público: header font-weight 800', btn.style.fontWeight === '800', btn.style.fontWeight);
       check('público: header fonte Poppins', (btn.style.fontFamily || '').indexOf('Poppins') >= 0, btn.style.fontFamily);
-      check('público: header maxWidth padrão 420px', btn.style.maxWidth === '420px', btn.style.maxWidth);
       const ico = btn.querySelector('.pg-pix__ico');
       check('público: header ícone 18px', ico.style.width === '18px' && ico.style.height === '18px');
     }
 
-    /* ---- PÚBLICO: sem tipografia → padrão (15px / 600) ---- */
+    /* ---- PÚBLICO: sem tamanho/tipografia → padrão (560px / 72px / 15px / 600) ---- */
     {
       const c = PIX_STYLE_CFG();
+      delete c.profile.pix.style.width;
+      delete c.profile.pix.style.height;
       delete c.profile.pix.style.font;
       delete c.profile.pix.style.fontSize;
       delete c.profile.pix.style.fontWeight;
@@ -351,11 +372,18 @@ export async function run() {
       w.__alaPublica.aplicar(c);
       const btn = d.querySelector('.pg-pix__btn');
       check('público: default preserva padding', btn.style.padding === '0.8rem 1.25rem', btn.style.padding);
+      check('público: default largura 560px', btn.style.maxWidth === '560px', btn.style.maxWidth);
+      check('público: default altura 72px', btn.style.minHeight === '72px', btn.style.minHeight);
       check('público: default fonte 15px', btn.style.fontSize === '15px', btn.style.fontSize);
       check('público: default peso 600', btn.style.fontWeight === '600', btn.style.fontWeight);
+
+      c.profile.pix.style.height = 0;
+      w.__alaPublica.aplicar(c);
+      const btnAuto = d.querySelector('.pg-pix__btn');
+      check('público: altura 0 = automática (sem min-height)', btnAuto.style.minHeight === '', btnAuto.style.minHeight);
     }
 
-    /* ---- PÚBLICO: card intercalado recebe a tipografia ---- */
+    /* ---- PÚBLICO: card intercalado recebe tamanho + tipografia ---- */
     {
       const c = SIZED();
       c.profile.pix.order = 1;
@@ -364,9 +392,10 @@ export async function run() {
       const d = w.document;
       w.__alaPublica.aplicar(c);
       const card = d.querySelector('[data-pix]');
+      check('público: card intercalado largura 560px', card.style.maxWidth === '560px', card.style.maxWidth);
+      check('público: card intercalado altura 72px', card.style.minHeight === '72px', card.style.minHeight);
       check('público: card intercalado font-size 22px', card.style.fontSize === '22px', card.style.fontSize);
       check('público: card intercalado font-weight 800', card.style.fontWeight === '800', card.style.fontWeight);
-      check('público: card intercalado maxWidth padrão 420px', card.style.maxWidth === '420px', card.style.maxWidth);
     }
   }
 

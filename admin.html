@@ -846,7 +846,7 @@
   }
   .pv-pix {
     display:flex; align-items:center; justify-content:center; gap:8px;
-    margin:10px auto 0; width:100%; max-width:420px; padding:0.8rem 1.25rem; border:none;
+    margin:10px auto 0; width:100%; max-width:560px; min-height:72px; padding:0.8rem 1.25rem; border:none;
     border-radius:14px; font-size:0.9375rem; font-weight:700; cursor:pointer;
     color:#fff; background:linear-gradient(135deg,#22c55e,#15803d);
     box-shadow:0 4px 14px rgba(22,163,74,.35); box-sizing:border-box;
@@ -1704,6 +1704,23 @@
                   <option value="shine">Brilho Passante (Shine)</option>
                   <option value="float">Flutuação Suave</option>
                 </select>
+              </div>
+              <div class="field" style="margin:10px 0 0; padding-top:12px; border-top:1px solid var(--bg);">
+                <label style="font-size:13px; font-weight:700; color:var(--ink);">Tamanho do botão</label>
+                <div class="ds-control" style="margin-top:6px;">
+                  <label for="pixStWidth">Largura (máxima)</label>
+                  <div class="ds-control-row">
+                    <input type="range" id="pixStWidth" min="160" max="640" step="10">
+                    <output class="ds-value" id="pixStWidthVal">560px</output>
+                  </div>
+                </div>
+                <div class="ds-control">
+                  <label for="pixStHeight">Altura (0 = automática)</label>
+                  <div class="ds-control-row">
+                    <input type="range" id="pixStHeight" min="0" max="120" step="2">
+                    <output class="ds-value" id="pixStHeightVal">72px</output>
+                  </div>
+                </div>
               </div>
               <div class="field" id="pixStTypoPanel" style="margin:10px 0 0; padding-top:12px; border-top:1px solid var(--bg);">
                 <label style="font-size:13px; font-weight:700; color:var(--ink);">Tipografia do texto do botão PIX</label>
@@ -3694,12 +3711,18 @@
     glass: { enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: 25 },
     colors: { background: '', text: '' },
     displayStyle: 'box',
-    /* Tipografia do texto do botão — mesmo painel dos outros botões
-       (linkFont/linkFontSize/linkFontWeight): font = '' herda a página;
+    /* Tipografia do texto do botão — MESMO PAINEL dos links e dos
+       elementos (nome/bio/endereço): font = '' herda a página;
        fontSize 12–34px; fontWeight 300–900. */
     font: '',
     fontSize: 15,
-    fontWeight: 600
+    fontWeight: 600,
+    /* Tamanho físico do botão PIX — mesmas medidas dos outros botões:
+       width = largura máxima em px (padrão 560, igual aos cards de link);
+       height = altura mínima em px (padrão 72 como os outros botões;
+       0 = automática). */
+    width: 560,
+    height: 72
   });
 
   /* Estilo padrão do botão PIX — espelha DEFAULT_LINK_STYLE, mas as cores
@@ -3760,6 +3783,12 @@
     const fwN = (Number(ls.fontWeight) >= 300 && Number(ls.fontWeight) <= 900) ? Number(ls.fontWeight) : 600;
     if ($('pixStFontWeight')) $('pixStFontWeight').value = fwN;
     if ($('pixStFontWeightVal')) $('pixStFontWeightVal').textContent = String(fwN);
+    const wN = (Number(ls.width) >= 160 && Number(ls.width) <= 640) ? Number(ls.width) : 420;
+    if ($('pixStWidth')) $('pixStWidth').value = wN;
+    if ($('pixStWidthVal')) $('pixStWidthVal').textContent = wN + 'px';
+    const hN = (Number(ls.height) >= 0 && Number(ls.height) <= 120) ? Number(ls.height) : 0;
+    if ($('pixStHeight')) $('pixStHeight').value = hN;
+    if ($('pixStHeightVal')) $('pixStHeightVal').textContent = hN > 0 ? hN + 'px' : 'Auto';
     const sh = ls.shadow || {};
     setSel('pixStShadowStyle', sh.type || 'soft');
     const shI = sh.intensity != null ? sh.intensity : 30;
@@ -3860,6 +3889,8 @@
       btnFont: s.font || '',
       btnFontSize: (Number(s.fontSize) >= 12 && Number(s.fontSize) <= 34) ? Number(s.fontSize) : 15,
       btnFontWeight: (Number(s.fontWeight) >= 300 && Number(s.fontWeight) <= 900) ? Number(s.fontWeight) : 600,
+      btnWidth: (Number(s.width) >= 160 && Number(s.width) <= 640) ? Number(s.width) : 420,
+      btnHeight: (Number(s.height) >= 0 && Number(s.height) <= 120) ? Number(s.height) : 0,
       displayStyle: s.displayStyle || 'box',
       buttonGlass: { enabled: gl.enabled, blur: gl.blur, saturate: gl.saturate, opacity: gl.opacity, color: gl.color, borderGlow: gl.borderGlow, shadowDepth: gl.shadowDepth, highlight: gl.highlight, noise: gl.noise, borderOpacity: gl.borderOpacity }
     };
@@ -4378,15 +4409,19 @@
     return parts.join('\n');
   }
 
-  /* Tipografia + geometria base do botão PIX (header + card intercalado).
-     Espelho EXATO do público (index.html axApplyPixSize). Padding, largura
-     e ícone ficam no visual atual padrão; fonte/tamanho/peso vêm do mesmo
-     painel de tipografia dos outros botões (btnFont/btnFontSize/
-     btnFontWeight), com padrão = tipografia global (15px / 600). */
+  /* Tamanho (largura/altura) + tipografia do botão PIX (header + card
+     intercalado). Espelho EXATO do público (index.html axApplyPixSize):
+     btnWidth = largura máxima em px (padrão 560 = mesmo dos outros
+     botões); btnHeight = altura mínima em px (padrão 72 = mesmo dos
+     outros botões; 0 = automática); fonte/tamanho/peso do mesmo painel
+     dos links/nome/bio/endereço (padrão 15px / 600). Ícone 18px. */
   function applyPixSizing(el, flat) {
     if (!el) return;
     el.style.padding = '0.8rem 1.25rem';
-    el.style.maxWidth = '420px';
+    const bw = (flat && Number(flat.btnWidth) >= 160) ? Number(flat.btnWidth) : 560;
+    el.style.maxWidth = bw + 'px';
+    const bh = (flat && Number(flat.btnHeight) >= 0) ? Number(flat.btnHeight) : 72;
+    el.style.minHeight = bh > 0 ? bh + 'px' : '';
     const fs = (flat && Number(flat.btnFontSize) >= 12) ? Number(flat.btnFontSize) : 15;
     el.style.fontSize = fs + 'px';
     const fw = (flat && Number(flat.btnFontWeight) >= 300) ? Number(flat.btnFontWeight) : 600;
@@ -8494,6 +8529,22 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
       pixStyleEditable().fontWeight = (v >= 300) ? v : 600;
       const out = $('pixStFontWeightVal');
       if (out) out.textContent = e.target.value;
+      renderPreview();
+      markDirty();
+    });
+    safeOn('pixStWidth', 'input', (e) => {
+      const v = Number(e.target.value) || 420;
+      pixStyleEditable().width = (v >= 160 && v <= 640) ? v : 420;
+      const out = $('pixStWidthVal');
+      if (out) out.textContent = v + 'px';
+      renderPreview();
+      markDirty();
+    });
+    safeOn('pixStHeight', 'input', (e) => {
+      const v = Number(e.target.value) || 0;
+      pixStyleEditable().height = (v >= 0 && v <= 120) ? v : 0;
+      const out = $('pixStHeightVal');
+      if (out) out.textContent = v > 0 ? v + 'px' : 'Auto';
       renderPreview();
       markDirty();
     });
