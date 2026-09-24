@@ -1018,8 +1018,8 @@
   }
   .gx-noise::after {
     content:''; position:absolute; inset:0; z-index:1; border-radius:inherit;
-    pointer-events:none; opacity:0.05;
-    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/><feColorMatrix type='saturate' values='0'/></filter><rect width='120' height='120' filter='url(%23n)'/></svg>");
+    pointer-events:none; opacity:0.15;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120' color-interpolation-filters='sRGB'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/><feComponentTransfer><feFuncR type='table' tableValues='0 0.15 0.85 1'/><feFuncG type='table' tableValues='0 0.15 0.85 1'/><feFuncB type='table' tableValues='0 0.15 0.85 1'/></feComponentTransfer></filter><rect width='120' height='120' filter='url(%23n)'/></svg>");
   }
 
   .pv-footer {
@@ -5213,11 +5213,20 @@
   };
 
   /* Gera CSS do background baseado na variante */
-  /* Verifica se algum grupo de vidro está habilitado (name/bio/address/banner/button) */
+  /* Verifica se algum grupo de vidro está habilitado (name/bio/address/banner/button).
+     Inclui o vidro do PIX (profile.pix.style.glass / variante 'glass'): o botão
+     PIX usa o MESMO backdrop-filter dos grupos globais (wantPixGlass no público)
+     — sem ele aqui, o mesh do fundo chapado não é injetado e o blur do PIX fica
+     invisível sobre cor uniforme. */
   function anyGlassEnabled(st) {
     const g = st && st.style ? st.style : st || {};
+    const pix = cfg && cfg.profile && cfg.profile.pix;
     return ['nameGlass', 'bioGlass', 'addressGlass', 'buttonGlass']
-      .some((key) => g[key] && g[key].enabled);
+      .some((key) => g[key] && g[key].enabled)
+      || !!(pix && pix.enabled !== false && pix.style && (
+            (pix.style.glass && pix.style.glass.enabled) ||
+            pix.style.variant === 'glass'
+          ));
   }
 
   /* Mesh sutil (blobs) colocado ATRÁS dos elementos de vidro: dá ao

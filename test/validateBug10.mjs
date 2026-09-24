@@ -10,6 +10,7 @@
 
    Também garante (não-regressão) que name/bio/address/button seguem
    conectados (audit table) e que o borderGlow continua elevando a borda (BUG 8).
+   Inclui o vidro do PIX na regra do mesh de fundo chapado (vide pixMesh).
 */
 
 import { boot, supabaseStub, ADMIN_PATH, INDEX_PATH } from './harness.mjs';
@@ -190,10 +191,95 @@ export async function run() {
     check('admin gradiente+vidro: demo ausente (blur já visível)', demoGrad() === false);
   }
 
+  /* ================================================================
+     6) Mesh do fundo chapado também para o vidro do PIX — em cor
+        sólida, o backdrop-filter (blur) é invisível sem textura atrás
+        (nada para desfocar). O mesh é injetado quando QUALQUER vidro
+        está ligado; antes o vidro do PIX (pix.style.glass / variante
+        'glass') ficava de fora → o blur do botão PIX nunca tinha o que
+        desfocar, enquanto o preenchimento/borda/sombra do vidro
+        apareciam. Este teste garante o mesh com SÓ o vidro PIX ligado.
+     ================================================================ */
+  async function pixMesh() {
+    console.log('\n━━━ BUG 10 — mesh do fundo chapado com vidro do PIX ━━━');
+    const cfgFor = (glassEnabled) => {
+      const c = JSON.parse(JSON.stringify(NEW_CONFIG));
+      c.profile.pix = {
+        enabled: true,
+        key: 'jose@ventura.com',
+        qr: 'https://cdn.axium.test/pix-qr.png',
+        style: {
+          variant: 'solid', format: 'rounded',
+          glass: { enabled: glassEnabled, blur: 24, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: true, borderOpacity: 25 },
+          colors: { background: '#16a34a', text: '#ffffff' }
+        }
+      };
+      return c;
+    };
+    const hasMesh = (bg) => !!bg && /radial-gradient\(at 15% 15%/.test(bg);
+
+    const pubOn = (() => {
+      const { window: w } = boot(INDEX_PATH, { supabase: supabaseStub(null), url: 'https://axiumlink.test/?s=teste' });
+      w.__alaPublica.aplicar(cfgFor(true));
+      return w.document.body.style.backgroundImage || '';
+    })();
+    check('público: SÓ vidro PIX → mesh presente no fundo chapado', hasMesh(pubOn), pubOn.slice(0, 70));
+
+    const pubOff = (() => {
+      const { window: w } = boot(INDEX_PATH, { supabase: supabaseStub(null), url: 'https://axiumlink.test/?s=teste' });
+      w.__alaPublica.aplicar(cfgFor(false));
+      return w.document.body.style.backgroundImage || '';
+    })();
+    check('público: vidro PIX desligado → sem mesh no fundo', !hasMesh(pubOff), pubOff.slice(0, 70));
+
+    const admOn = (() => {
+      const { window: w } = boot(ADMIN_PATH, { supabase: supabaseStub(null), url: 'https://axiumlink.test/admin.html' });
+      w.__axEditor.init(cfgFor(true));
+      return w.document.getElementById('pvPage').style.backgroundImage || '';
+    })();
+    check('admin: SÓ vidro PIX → mesh no preview (pvPage)', hasMesh(admOn), admOn.slice(0, 70));
+
+    const admOff = (() => {
+      const { window: w } = boot(ADMIN_PATH, { supabase: supabaseStub(null), url: 'https://axiumlink.test/admin.html' });
+      w.__axEditor.init(cfgFor(false));
+      return w.document.getElementById('pvPage').style.backgroundImage || '';
+    })();
+    check('admin: vidro PIX desligado → sem mesh no preview', !hasMesh(admOff), admOff.slice(0, 70));
+  }
+
+  /* ================================================================
+     7) Ruído do vidro PERCEPTÍVEL (.gx-noise::after): a classe é
+        aplicada (validateBug8/validatePix), mas a textura original
+        (opacity 0.05 + ruído cinza médio sem contraste) era invisível
+        olho nu em TODAS as abas/preview. Agora usa a mesma receita de
+        alto contraste do NOISE_URI (feComponentTransfer claro/escuro)
+        com opacidade visível — igual no administrador e no público.
+     ================================================================ */
+  async function noise() {
+    console.log('\n━━━ BUG 10 — ruído do vidro perceptível (.gx-noise::after) ━━━');
+    const ruleText = (filePath) => {
+      const { window: w } = boot(filePath, { supabase: supabaseStub(null), url: 'https://axiumlink.test/admin.html' });
+      let hit = '';
+      for (const st of w.document.querySelectorAll('style')) {
+        const t = st.textContent || '';
+        const i = t.indexOf('.gx-noise::after');
+        if (i !== -1) { hit = t.slice(i, i + 700); break; }
+      }
+      return hit;
+    };
+    const pub = ruleText(INDEX_PATH);
+    const adm = ruleText(ADMIN_PATH);
+    const okNoise = (t) => t.includes('opacity:0.15') && t.includes('feComponentTransfer') && t.includes('stitchTiles');
+    check('público: ruído com receita de alto contraste visível', okNoise(pub), pub.slice(0, 90));
+    check('admin: ruído com receita de alto contraste visível', okNoise(adm), adm.slice(0, 90));
+  }
+
   await borderOpacity();
   await avatarGlass();
   await regressao();
   await glassDemo();
+  await pixMesh();
+  await noise();
 
   console.log(`\n  ✅ BUG 10 Passed: ${pass}  |  ❌ Failed: ${fail}`);
   return fail;
