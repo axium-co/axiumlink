@@ -4433,11 +4433,29 @@
     el.style.maxWidth = bw + 'px';
     const bh = (flat && Number(flat.btnHeight) >= 0) ? Number(flat.btnHeight) : 72;
     el.style.minHeight = bh > 0 ? bh + 'px' : '';
+    /* Largura menor que 100% deve encolher dos DOIS lados (como nome/bio/endereço):
+       margin auto centraliza em contexto block; alignSelf center no flex column.
+       Sem isto o card do PIX (width:100% + maxWidth) ficava ancorado à esquerda e
+       só o lado direito diminuía. Inócuo no header (.pv-pix já tem margin auto). */
+    el.style.marginLeft = 'auto';
+    el.style.marginRight = 'auto';
+    el.style.alignSelf = 'center';
     const fs = (flat && Number(flat.btnFontSize) >= 12) ? Number(flat.btnFontSize) : 15;
     el.style.fontSize = fs + 'px';
     const fw = (flat && Number(flat.btnFontWeight) >= 300) ? Number(flat.btnFontWeight) : 600;
     el.style.fontWeight = String(fw);
     if (flat && flat.btnFont) el.style.fontFamily = '"' + flat.btnFont + '", system-ui, sans-serif';
+    /* A regra .link-block-title tem tamanho/peso FIXOS na stylesheet; o
+       inline no .link-block ancestral não vence o valor direto no filho.
+       Aplica a tipografia também no elemento de TEXTO do card para o
+       tamanho/peso/fonte do PIX chegarem no texto visível (e no span do
+       header, que herda mas é blindado pela mesma regra). */
+    const pixTxts = el.querySelectorAll('.link-block-title, .pv-pix > span:last-child');
+    pixTxts.forEach((t) => {
+      t.style.fontSize = fs + 'px';
+      t.style.fontWeight = String(fw);
+      if (flat && flat.btnFont) t.style.fontFamily = '"' + flat.btnFont + '", system-ui, sans-serif';
+    });
     const icoV = (flat && typeof flat.btnIcon === 'string') ? flat.btnIcon : '💳';
     el.querySelectorAll('.pv-pix__ico, .pg-pix__ico').forEach((ico) => {
       ico.style.width = '18px';

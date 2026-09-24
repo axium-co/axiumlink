@@ -4454,11 +4454,33 @@
           el.style.maxWidth = bw + 'px';
           const bh = (flat && Number(flat.btnHeight) >= 0) ? Number(flat.btnHeight) : 72;
           el.style.minHeight = bh > 0 ? bh + 'px' : '';
+          /* Largura menor que 100% deve encolher dos DOIS lados (mesmo
+             comportamento de nome/bio/endereço e dos botões half/compact):
+             margin auto centraliza em contexto block; alignSelf center no
+             flex column da lista. Sem isto, o card do PIX (width:100% +
+             maxWidth) ficava ancorado à esquerda e só o lado direito
+             diminuía. Afeta o card na lista e é inócuo no header (o
+             justify-content center do .pg-pix já centraliza). */
+          el.style.marginLeft = 'auto';
+          el.style.marginRight = 'auto';
+          el.style.alignSelf = 'center';
           const fs = (flat && Number(flat.btnFontSize) >= 12) ? Number(flat.btnFontSize) : 15;
           el.style.fontSize = fs + 'px';
           const fw = (flat && Number(flat.btnFontWeight) >= 300) ? Number(flat.btnFontWeight) : 600;
           el.style.fontWeight = String(fw);
           if (flat && flat.btnFont) el.style.fontFamily = '"' + flat.btnFont + '", system-ui, sans-serif';
+          /* As regras .featured__body strong (card) e o span do header têm
+             tamanho/peso FIXOS na stylesheet; o inline no .featured__card/
+             .pg-pix__btn ancestrais não vence o valor direto no filho. Aplica
+             a tipografia também no elemento de TEXTO (só do PIX) para o
+             tamanho/peso/fonte chegarem no texto visível — espelho do que o
+             perfil do admin (applyPixSizing) faz com .link-block-title. */
+          const pixTxts = el.querySelectorAll('.featured__body strong, .pg-pix__btn > span:last-child');
+          pixTxts.forEach((t) => {
+            t.style.fontSize = fs + 'px';
+            t.style.fontWeight = String(fw);
+            if (flat && flat.btnFont) t.style.fontFamily = '"' + flat.btnFont + '", system-ui, sans-serif';
+          });
           const icoV = (flat && typeof flat.btnIcon === 'string') ? flat.btnIcon : '💳';
           el.querySelectorAll('.pg-pix__ico, .pv-pix__ico').forEach((ico) => {
             ico.style.width = '18px';

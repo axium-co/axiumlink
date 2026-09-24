@@ -274,12 +274,96 @@ export async function run() {
     check('admin: ruído com receita de alto contraste visível', okNoise(adm), adm.slice(0, 90));
   }
 
+  /* ================================================================
+     8) TAMANHO/PESO DA FONTE DO PIX no TEXTO VISÍVEL: o inline ia no
+        .link-block/.featured__card (ancestral), mas as regras de classe
+        .link-block-title (admin) e .featured__body strong (público) têm
+        font-size/font-weight FIXOS na stylesheet — valor direto no filho
+        vence a herança do ancestral. Resultado: o card do PIX mostrava
+        sempre 15px/600, ignorando o painel. Corrigido aplicando a tipografia
+        também no elemento de TEXTO. Este teste afirma o INLINE no título.
+     ================================================================ */
+  async function pixTypoVisible() {
+    console.log('\n━━━ BUG 10 — tamanho/peso da fonte do PIX no texto visível ━━━');
+    const style26 = {
+      variant: 'solid', format: 'rounded',
+      colors: { background: '#16a34a', text: '#ffffff' },
+      fontSize: 26, fontWeight: 800, font: '', width: 420, height: 72
+    };
+    const cfgFor = () => {
+      const c = JSON.parse(JSON.stringify(NEW_CONFIG));
+      c.links = [{ id: 'l1', title: 'Link 1', url: 'https://a.test', icon: 'web', style: {} }];
+      c.profile.pix = { enabled: true, key: 'jose@ventura.com', qr: '', order: 0, style: JSON.parse(JSON.stringify(style26)) };
+      return c;
+    };
+
+    const pub = (() => {
+      const { window: w } = boot(INDEX_PATH, { supabase: supabaseStub(null), url: 'https://axiumlink.test/?s=teste' });
+      w.__alaPublica.aplicar(cfgFor());
+      const card = w.document.querySelector('.featured__card[data-pix="1"]');
+      const t = card && card.querySelector('.featured__body strong');
+      return t ? t.style.fontSize + '/' + t.style.fontWeight : 'MISSING';
+    })();
+    check('público: texto do card PIX com tamanho/peso do painel (26px/800)', pub === '26px/800', pub);
+
+    const adm = (() => {
+      const { window: w } = boot(ADMIN_PATH, { supabase: supabaseStub(null), url: 'https://axiumlink.test/admin.html' });
+      w.__axEditor.init(cfgFor());
+      const card = w.document.querySelector('#previewLinksList .link-block[data-pix="1"]');
+      const t = card && card.querySelector('.link-block-title');
+      return t ? t.style.fontSize + '/' + t.style.fontWeight : 'MISSING';
+    })();
+    check('admin: texto do card PIX com tamanho/peso do painel (26px/800)', adm === '26px/800', adm);
+  }
+
+  /* ================================================================
+     9) LARGURA do card do PIX centralizada: tamanho menor que 100% deve
+        encolher dos dois lados (o compare de nome/bio/endereço usa
+        margin auto + alignSelf center). Antes só maxWidth era setado e o
+        card (width:100%) ficava ancorado à esquerda, diminuindo só o lado
+        direito.
+     ================================================================ */
+  async function pixWidthCenter() {
+    console.log('\n━━━ BUG 10 — largura do PIX centralizada (não só no lado direito) ━━━');
+    const style420 = {
+      variant: 'solid', format: 'rounded',
+      colors: { background: '#16a34a', text: '#ffffff' },
+      fontSize: 15, fontWeight: 600, font: '', width: 420, height: 72
+    };
+    const cfgFor = () => {
+      const c = JSON.parse(JSON.stringify(NEW_CONFIG));
+      c.links = [{ id: 'l1', title: 'Link 1', url: 'https://a.test', icon: 'web', style: {} }];
+      c.profile.pix = { enabled: true, key: 'jose@ventura.com', qr: '', order: 0, style: JSON.parse(JSON.stringify(style420)) };
+      return c;
+    };
+
+    const pub = (() => {
+      const { window: w } = boot(INDEX_PATH, { supabase: supabaseStub(null), url: 'https://axiumlink.test/?s=teste' });
+      w.__alaPublica.aplicar(cfgFor());
+      const card = w.document.querySelector('.featured__card[data-pix="1"]');
+      if (!card) return 'NO CARD';
+      return card.style.marginLeft + '/' + card.style.marginRight + '/' + card.style.alignSelf;
+    })();
+    check('público: card do PIX centralizado (margin auto + alignSelf center)', /^auto\/auto\/center$/.test(pub), pub);
+
+    const adm = (() => {
+      const { window: w } = boot(ADMIN_PATH, { supabase: supabaseStub(null), url: 'https://axiumlink.test/admin.html' });
+      w.__axEditor.init(cfgFor());
+      const card = w.document.querySelector('#previewLinksList .link-block[data-pix="1"]');
+      if (!card) return 'NO CARD';
+      return card.style.marginLeft + '/' + card.style.marginRight + '/' + card.style.alignSelf;
+    })();
+    check('admin: card do PIX centralizado (margin auto + alignSelf center)', /^auto\/auto\/center$/.test(adm), adm);
+  }
+
   await borderOpacity();
   await avatarGlass();
   await regressao();
   await glassDemo();
   await pixMesh();
   await noise();
+  await pixTypoVisible();
+  await pixWidthCenter();
 
   console.log(`\n  ✅ BUG 10 Passed: ${pass}  |  ❌ Failed: ${fail}`);
   return fail;
