@@ -317,6 +317,21 @@ export async function run() {
       check('admin: header aplica fonte Poppins', (node.style.fontFamily || '').indexOf('Poppins') >= 0, node.style.fontFamily);
       check('admin: header mantém padding padrão', node.style.padding === '0.8rem 1.25rem', node.style.padding);
       check('admin: header mantém ícone 18px', node.querySelector('.pv-pix__ico').style.width === '18px');
+      check('admin: #pixStIcon reflete pix.style.icon (padrão 💳)', d.getElementById('pixStIcon').value === '💳');
+      check('admin: preview mostra ícone padrão 💳', node.querySelector('.pv-pix__ico').textContent === '💳');
+
+      const iconInput = d.getElementById('pixStIcon');
+      iconInput.value = '💰';
+      iconInput.dispatchEvent(new w.Event('input', { bubbles: true }));
+      check('admin: emoji → pix.style.icon = 💰', w.__axEditor.cfg().profile.pix.style.icon === '💰');
+      check('admin: preview troca ícone para 💰', node.querySelector('.pv-pix__ico').textContent === '💰');
+      check('admin: ícone visível após troca', node.querySelector('.pv-pix__ico').style.display !== 'none');
+
+      iconInput.value = '';
+      iconInput.dispatchEvent(new w.Event('input', { bubbles: true }));
+      check('admin: vazio → pix.style.icon = "" (remove)', w.__axEditor.cfg().profile.pix.style.icon === '');
+      check('admin: preview remove o ícone (display none)', node.querySelector('.pv-pix__ico').style.display === 'none');
+      check('admin: ícone removido fica sem conteúdo', node.querySelector('.pv-pix__ico').textContent === '');
 
       const widthSlider = d.getElementById('pixStWidth');
       widthSlider.value = '300';
@@ -357,6 +372,22 @@ export async function run() {
       check('público: header fonte Poppins', (btn.style.fontFamily || '').indexOf('Poppins') >= 0, btn.style.fontFamily);
       const ico = btn.querySelector('.pg-pix__ico');
       check('público: header ícone 18px', ico.style.width === '18px' && ico.style.height === '18px');
+      check('público: header ícone padrão 💳', ico.textContent === '💳' && ico.style.display === '');
+    }
+
+    /* ---- PÚBLICO: ícone customizado e remoção ---- */
+    {
+      const c = SIZED();
+      c.profile.pix.style.icon = '⚡';
+      const { window: w } = await boot(INDEX_PATH, { supabase: supabaseStub(null), url: 'https://axiumlink.test/?s=teste' });
+      const d = w.document;
+      w.__alaPublica.aplicar(c);
+      const ico = d.querySelector('.pg-pix__btn .pg-pix__ico');
+      check('público: ícone customizado ⚡', ico.textContent === '⚡' && ico.style.display === '');
+      c.profile.pix.style.icon = '';
+      w.__alaPublica.aplicar(c);
+      const icoNone = d.querySelector('.pg-pix__btn .pg-pix__ico');
+      check('público: ícone vazio remove (display none)', icoNone.style.display === 'none' && icoNone.textContent === '');
     }
 
     /* ---- PÚBLICO: sem tamanho/tipografia → padrão (560px / 72px / 15px / 600) ---- */

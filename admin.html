@@ -1706,6 +1706,14 @@
                 </select>
               </div>
               <div class="field" style="margin:10px 0 0; padding-top:12px; border-top:1px solid var(--bg);">
+                <label style="font-size:13px; font-weight:700; color:var(--ink);">Ícone do botão PIX</label>
+                <div class="field">
+                  <label for="pixStIcon">Emoji do ícone</label>
+                  <input type="text" id="pixStIcon" placeholder="💳" maxlength="10" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+                  <p class="hint">Digite qualquer emoji (ex.: 💳 💰 ⚡ ✨). Deixe vazio para remover o ícone — o botão fica só com o texto.</p>
+                </div>
+              </div>
+              <div class="field" style="margin:10px 0 0; padding-top:12px; border-top:1px solid var(--bg);">
                 <label style="font-size:13px; font-weight:700; color:var(--ink);">Tamanho do botão</label>
                 <div class="ds-control" style="margin-top:6px;">
                   <label for="pixStWidth">Largura (máxima)</label>
@@ -3729,6 +3737,7 @@
      padrão são as do PIX (verde) para preservar o visual atual quando o
      usuário não personaliza. */
   const DEFAULT_PIX_STYLE = () => Object.assign({}, DEFAULT_LINK_STYLE(), {
+    icon: '💳',
     colors: { background: '#16A34A', text: '#ffffff' },
     gradient: { start: '#16a34a', end: '#15803d', angle: 135 }
   });
@@ -3776,6 +3785,7 @@
     setSel('pixStVariant', ls.variant);
     setSel('pixBtnShape', ls.format);
     setSel('pixStAnimation', ls.animation);
+    if ($('pixStIcon')) $('pixStIcon').value = (typeof ls.icon === 'string') ? ls.icon : '💳';
     setSel('pixStFont', ls.font || '');
     const fsN = (Number(ls.fontSize) >= 12 && Number(ls.fontSize) <= 34) ? Number(ls.fontSize) : 15;
     if ($('pixStFontSize')) $('pixStFontSize').value = fsN;
@@ -3891,6 +3901,7 @@
       btnFontWeight: (Number(s.fontWeight) >= 300 && Number(s.fontWeight) <= 900) ? Number(s.fontWeight) : 600,
       btnWidth: (Number(s.width) >= 160 && Number(s.width) <= 640) ? Number(s.width) : 420,
       btnHeight: (Number(s.height) >= 0 && Number(s.height) <= 120) ? Number(s.height) : 0,
+      btnIcon: (typeof s.icon === 'string') ? s.icon : '💳',
       displayStyle: s.displayStyle || 'box',
       buttonGlass: { enabled: gl.enabled, blur: gl.blur, saturate: gl.saturate, opacity: gl.opacity, color: gl.color, borderGlow: gl.borderGlow, shadowDepth: gl.shadowDepth, highlight: gl.highlight, noise: gl.noise, borderOpacity: gl.borderOpacity }
     };
@@ -4427,9 +4438,12 @@
     const fw = (flat && Number(flat.btnFontWeight) >= 300) ? Number(flat.btnFontWeight) : 600;
     el.style.fontWeight = String(fw);
     if (flat && flat.btnFont) el.style.fontFamily = '"' + flat.btnFont + '", system-ui, sans-serif';
+    const icoV = (flat && typeof flat.btnIcon === 'string') ? flat.btnIcon : '💳';
     el.querySelectorAll('.pv-pix__ico, .pg-pix__ico').forEach((ico) => {
       ico.style.width = '18px';
       ico.style.height = '18px';
+      if (icoV) { ico.textContent = icoV; ico.style.display = ''; }
+      else { ico.textContent = ''; ico.style.display = 'none'; }
     });
   }
 
@@ -8508,6 +8522,11 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
     });
     safeOn('pixStAnimation', 'change', (e) => {
       pixStyleEditable().animation = e.target.value;
+      renderPreview();
+      markDirty();
+    });
+    safeOn('pixStIcon', 'input', (e) => {
+      pixStyleEditable().icon = e.target.value;
       renderPreview();
       markDirty();
     });

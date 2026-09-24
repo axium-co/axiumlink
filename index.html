@@ -2407,6 +2407,7 @@
           btnFontWeight: (Number(s.fontWeight) >= 300 && Number(s.fontWeight) <= 900) ? Number(s.fontWeight) : 600,
           btnWidth: (Number(s.width) >= 160 && Number(s.width) <= 640) ? Number(s.width) : 420,
           btnHeight: (Number(s.height) >= 0 && Number(s.height) <= 120) ? Number(s.height) : 0,
+          btnIcon: (typeof s.icon === 'string') ? s.icon : '💳',
           buttonGlass: { enabled: gl.enabled, blur: gl.blur, saturate: gl.saturate, opacity: gl.opacity, color: gl.color, borderGlow: gl.borderGlow, shadowDepth: gl.shadowDepth, highlight: gl.highlight, noise: gl.noise, borderOpacity: gl.borderOpacity },
           displayStyle: s.displayStyle || 'box'
         };
@@ -2420,7 +2421,8 @@
         const p = (pixC && typeof pixC === 'object') ? pixC : {};
         const style = (p.style && typeof p.style === 'object') ? p.style : null;
         if (style) return axLinkStyleToFlat(Object.assign({}, axDefaultLinkStyle(), {
-          colors: { background: '#16a34a', text: '#ffffff' }
+          colors: { background: '#16a34a', text: '#ffffff' },
+          icon: '💳'
         }, style), globalSt);
         return axLinkStyleToFlat({
           format: p.btnShape || 'rounded',
@@ -4444,9 +4446,12 @@
           const fw = (flat && Number(flat.btnFontWeight) >= 300) ? Number(flat.btnFontWeight) : 600;
           el.style.fontWeight = String(fw);
           if (flat && flat.btnFont) el.style.fontFamily = '"' + flat.btnFont + '", system-ui, sans-serif';
+          const icoV = (flat && typeof flat.btnIcon === 'string') ? flat.btnIcon : '💳';
           el.querySelectorAll('.pg-pix__ico, .pv-pix__ico').forEach((ico) => {
             ico.style.width = '18px';
             ico.style.height = '18px';
+            if (icoV) { ico.textContent = icoV; ico.style.display = ''; }
+            else { ico.textContent = ''; ico.style.display = 'none'; }
           });
         }
         /* Tipografia global dos botões (st.typoBtn) — espelha o painel.
