@@ -356,6 +356,44 @@ export async function run() {
     check('admin: card do PIX centralizado (margin auto + alignSelf center)', /^auto\/auto\/center$/.test(adm), adm);
   }
 
+  /* ================================================================
+     10) ALINHAMENTO da BIO quando elem.bio.align está AUSENTE: o admin
+         mostrava "centro" (fallback || 'center' no preview e no select),
+         mas o público aplicava '' (index) → o navegador resolvia para
+         LEFT (bio 100% à esquerda). O fallback do público agora é
+         'center', igual ao admin.
+     ================================================================ */
+  async function bioAlignMissing() {
+    console.log('\n━━━ BUG 10 — bio align ausente: público centraliza igual ao admin ━━━');
+    const cfgFor = () => {
+      const c = JSON.parse(JSON.stringify(NEW_CONFIG));
+      delete c.design.profile.elem.bio.align;
+      c.design.profile.elem.bio.bg = '';
+      c.style.bioGlass = undefined;
+      c.profile.pix = undefined;
+      return c;
+    };
+
+    const pub = (() => {
+      const { window: w } = boot(INDEX_PATH, { supabase: supabaseStub(null), url: 'https://axiumlink.test/?s=teste' });
+      w.__alaPublica.aplicar(cfgFor());
+      const el = w.document.getElementById('pgSubtitle');
+      return el ? el.style.textAlign || '(vazio)' : 'NO EL';
+    })();
+    check('público: bio sem align → centro (fallback igual ao admin)', pub === 'center', pub);
+
+    const adm = (() => {
+      const { window: w } = boot(ADMIN_PATH, { supabase: supabaseStub(null), url: 'https://axiumlink.test/admin.html' });
+      w.__axEditor.init(cfgFor());
+      const el = w.document.getElementById('pvBio');
+      const sel = w.document.getElementById('bioAlign');
+      const pv = el ? el.style.textAlign || '(vazio)' : 'NO EL';
+      const selV = sel ? sel.value : 'NO SELECT';
+      return pv + ' | select=' + selV;
+    })();
+    check('admin: preview center e select center', adm === 'center | select=center', adm);
+  }
+
   await borderOpacity();
   await avatarGlass();
   await regressao();
@@ -364,6 +402,7 @@ export async function run() {
   await noise();
   await pixTypoVisible();
   await pixWidthCenter();
+  await bioAlignMissing();
 
   console.log(`\n  ✅ BUG 10 Passed: ${pass}  |  ❌ Failed: ${fail}`);
   return fail;

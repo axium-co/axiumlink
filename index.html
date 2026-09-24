@@ -4282,7 +4282,7 @@
           else bioEl.style.removeProperty('font-family');
           if (pElemBio.color) bioEl.style.color = pElemBio.color;
           else bioEl.style.removeProperty('color');
-          bioEl.style.textAlign = pElemBio.align || '';
+          bioEl.style.textAlign = pElemBio.align || 'center';
         }
         const addrElTypo = addrEl;
         if (addrElTypo && hasAddr && typeof pElemAddress !== 'undefined' && pElemAddress) {
