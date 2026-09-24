@@ -656,7 +656,7 @@
     .pg-pix__btn:hover { filter: brightness(1.06); transform: translateY(-1px); }
     .pg-pix__btn:active { transform: scale(0.98); }
 
-    .pg-pix__ico { width: 18px; height: 18px; flex-shrink: 0; }
+    .pg-pix__ico { width: 18px; height: 18px; font-size: 16px; line-height: 1; flex-shrink: 0; }
 
     .social-icon {
       display: inline-flex;
@@ -1951,9 +1951,7 @@
              ================================================================ -->
         <div id="pgPixWrap" class="pg-pix" hidden>
           <button class="pg-pix__btn" type="button" data-dialog-open aria-haspopup="dialog">
-            <svg class="pg-pix__ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z" />
-            </svg>
+            <span class="pg-pix__ico" aria-hidden="true">💳</span>
             <span>Pagar com PIX</span>
           </button>
         </div>
