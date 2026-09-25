@@ -662,6 +662,35 @@ function fundoChecks(wA, wP, cfg) {
       opts.push(['textura: camada pública com z-index >= 0 (não some atrás do body)', zP2 !== '-1', 'público=' + zP2]);
     }
   }
+
+  /* Catálogo de texturas: as opções do <select> do admin e o catálogo do
+     público (AX_TEXTURES) são cópias — se um padrão entrar só de um lado ele
+     simplesmente não aparece na página pública. Aqui percorremos TODAS as
+     opções do select e exigimos a mesma camada nos dois. */
+  const selTex = wA.document.getElementById('bgTexture');
+  if (selTex) {
+    const chaves = Array.from(selTex.options).map((o) => o.value).filter((v) => v && v !== 'none');
+    opts.push(['texturas: select do admin populado pelo catálogo (>= 10 padrões)', chaves.length >= 10, 'n=' + chaves.length]);
+    const semLabel = Array.from(selTex.options).filter((o) => !String(o.textContent || '').trim()).map((o) => o.value);
+    opts.push(['texturas: toda opção tem rótulo', semLabel.length === 0, semLabel.join(',') || 'ok']);
+    const divergentes = [];
+    const semCamada = [];
+    for (const k of chaves) {
+      const c2 = JSON.parse(JSON.stringify(cfg));
+      c2.style.bgTexture = k;
+      wA.__axEditor.init(c2);
+      const camadaA = wA.document.querySelector('.pv-texture');
+      wP.__alaPublica.aplicar(JSON.parse(JSON.stringify(c2)));
+      const camadaP = wP.document.querySelector('.ax-texture');
+      if (!camadaA || !camadaP) { semCamada.push(k + (camadaA ? '' : '|admin') + (camadaP ? '' : '|pub')); continue; }
+      if (String(camadaA.style.backgroundImage || '') !== String(camadaP.style.backgroundImage || '')) divergentes.push(k);
+    }
+    opts.push(['texturas: todos os padrões existem nos DOIS catálogos', semCamada.length === 0, semCamada.join(',') || chaves.length + '/' + chaves.length]);
+    opts.push(['texturas: mesmo backgroundImage admin==público em todos', divergentes.length === 0, divergentes.join(',') || 'ok']);
+    /* devolve o cenário ao estado original (o laço sujou admin + público) */
+    wA.__axEditor.init(JSON.parse(JSON.stringify(cfg)));
+    wP.__alaPublica.aplicar(JSON.parse(JSON.stringify(cfg)));
+  }
   return opts;
 }
 

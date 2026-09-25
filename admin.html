@@ -2621,14 +2621,10 @@
 
         <!-- Texturas (sólido/gradiente/mesh/animado) -->
         <div class="field" id="bgTextureRow" style="display:none;">
-          <label for="bgTexture">Textura Sobreposta</label>
-          <select id="bgTexture" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
-            <option value="none">Nenhuma</option>
-            <option value="diagonal">Linhas Diagonais</option>
-            <option value="dots">Pontos</option>
-            <option value="grid">Quadriculado</option>
-            <option value="noise">Ruído (Noise)</option>
-          </select>
+            <label for="bgTexture">Textura Sobreposta</label>
+            <select id="bgTexture" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+              <option value="none">Nenhuma</option>
+            </select>
           <div class="ds-control" style="margin-top:10px;">
             <label>Opacidade do Padrão</label>
             <div class="ds-control-row">
@@ -5214,22 +5210,36 @@
   /* Texturas geométricas sobrepostas (padrões em cinza neutro +
      mix-blend-mode soft-light → adaptam-se a fundos claros e escuros) */
   const NOISE_URI = 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'120\' height=\'120\'><filter id=\'n\'><feTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'2\'/><feColorMatrix type=\'saturate\' values=\'0\'/><feComponentTransfer><feFuncR type=\'table\' tableValues=\'0 0.18 0.82 1\'/><feFuncG type=\'table\' tableValues=\'0 0.18 0.82 1\'/><feFuncB type=\'table\' tableValues=\'0 0.18 0.82 1\'/></feComponentTransfer></filter><rect width=\'120\' height=\'120\' filter=\'url(%23n)\'/></svg>")';
+  const GRAIN_URI = 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'160\' height=\'160\'><filter id=\'g\'><feTurbulence type=\'fractalNoise\' baseFrequency=\'0.7\' numOctaves=\'4\' stitchTiles=\'stitch\'/><feColorMatrix type=\'saturate\' values=\'0\'/><feComponentTransfer><feFuncR type=\'table\' tableValues=\'0 0.35 0.65 1\'/><feFuncG type=\'table\' tableValues=\'0 0.35 0.65 1\'/><feFuncB type=\'table\' tableValues=\'0 0.35 0.65 1\'/></feComponentTransfer></filter><rect width=\'160\' height=\'160\' filter=\'url(%23g)\'/></svg>")';
+  const WAVE_URI = 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'160\' height=\'80\'><g fill=\'none\' stroke-width=\'2\'><path d=\'M0 20 Q20 4 40 20 T80 20 T120 20 T160 20\' stroke=\'%23ffffff\' stroke-opacity=\'.5\'/><path d=\'M0 58 Q20 42 40 58 T80 58 T120 58 T160 58\' stroke=\'%23000000\' stroke-opacity=\'.22\'/></g></svg>")';
+  const CIRCUIT_URI = 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'120\' height=\'120\'><g fill=\'none\' stroke-width=\'2\'><path d=\'M0 30 H40 V62 H96\' stroke=\'%23ffffff\' stroke-opacity=\'.45\'/><path d=\'M24 120 V80 H74 V16\' stroke=\'%23000000\' stroke-opacity=\'.2\'/></g><circle cx=\'40\' cy=\'62\' r=\'3\' fill=\'%23ffffff\' fill-opacity=\'.5\'/><circle cx=\'74\' cy=\'80\' r=\'3\' fill=\'%23000000\' fill-opacity=\'.25\'/></svg>")';
   /* Importante: #808080 (cinza médio) + soft-light é identidade (invisível).
      Cada padrão traz um par claro+escuro deslocado: no fundo claro fica
-     visível o traço escuro e no escuro o traço claro — funciona nos dois. */
+     visível o traço escuro e no escuro o traço claro — funciona nos dois.
+     `label` alimenta o <select> (renderBgTextureOptions) — nada de option
+     hardcoded no HTML, para o catálogo e a lista não divergirem. */
   const BG_TEXTURES = {
-    diagonal: { backgroundImage: 'repeating-linear-gradient(45deg, rgba(255,255,255,0.5) 0 2px, transparent 2px 16px), repeating-linear-gradient(45deg, transparent 0 6px, rgba(0,0,0,0.2) 6px 8px, transparent 8px 16px)' },
-    dots:     {
-      backgroundImage: 'radial-gradient(rgba(255,255,255,0.55) 1.5px, transparent 1.6px), radial-gradient(rgba(0,0,0,0.22) 1.5px, transparent 1.6px)',
-      backgroundSize: '18px 18px, 18px 18px',
-      backgroundPosition: '0 0, 9px 9px'
-    },
-    grid:     {
-      backgroundImage: 'linear-gradient(rgba(255,255,255,0.45) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.45) 1px, transparent 1px), linear-gradient(rgba(0,0,0,0.18) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.18) 1px, transparent 1px)',
-      backgroundSize: '24px 24px, 24px 24px, 24px 24px, 24px 24px',
-      backgroundPosition: '0 0, 0 0, 12px 12px, 12px 12px'
-    },
-    noise:    { backgroundImage: NOISE_URI }
+    diagonal:   { label: 'Linhas Diagonais', backgroundImage: 'repeating-linear-gradient(45deg, rgba(255,255,255,0.5) 0 2px, transparent 2px 16px), repeating-linear-gradient(45deg, transparent 0 6px, rgba(0,0,0,0.2) 6px 8px, transparent 8px 16px)' },
+    cross:      { label: 'Cruz (X)', backgroundImage: 'repeating-linear-gradient(45deg, rgba(255,255,255,0.5) 0 2px, transparent 2px 16px), repeating-linear-gradient(45deg, transparent 0 6px, rgba(0,0,0,0.2) 6px 8px, transparent 8px 16px), repeating-linear-gradient(-45deg, rgba(255,255,255,0.5) 0 2px, transparent 2px 16px), repeating-linear-gradient(-45deg, transparent 0 6px, rgba(0,0,0,0.2) 6px 8px, transparent 8px 16px)' },
+    vertical:   { label: 'Linhas Verticais', backgroundImage: 'linear-gradient(90deg, rgba(255,255,255,0.42) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.16) 1px, transparent 1px)', backgroundSize: '16px 16px, 16px 16px', backgroundPosition: '0 0, 8px 8px' },
+    horizontal: { label: 'Linhas Horizontais', backgroundImage: 'linear-gradient(rgba(255,255,255,0.42) 1px, transparent 1px), linear-gradient(rgba(0,0,0,0.16) 1px, transparent 1px)', backgroundSize: '16px 16px, 16px 16px', backgroundPosition: '0 0, 8px 8px' },
+    stripes:    { label: 'Listras Largas', backgroundImage: 'repeating-linear-gradient(90deg, rgba(255,255,255,0.5) 0 14px, transparent 14px 32px), repeating-linear-gradient(90deg, transparent 0 23px, rgba(0,0,0,0.2) 23px 28px, transparent 28px 32px)' },
+    chevron:    { label: 'Chevron (Espinha)', backgroundImage: 'repeating-linear-gradient(135deg, rgba(255,255,255,0.42) 0 4px, transparent 4px 22px), repeating-linear-gradient(45deg, rgba(255,255,255,0.42) 0 4px, transparent 4px 22px), repeating-linear-gradient(135deg, transparent 0 11px, rgba(0,0,0,0.18) 11px 15px, transparent 15px 22px), repeating-linear-gradient(45deg, transparent 0 11px, rgba(0,0,0,0.18) 11px 15px, transparent 15px 22px)' },
+    grid:       { label: 'Quadriculado', backgroundImage: 'linear-gradient(rgba(255,255,255,0.45) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.45) 1px, transparent 1px), linear-gradient(rgba(0,0,0,0.18) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.18) 1px, transparent 1px)', backgroundSize: '24px 24px, 24px 24px, 24px 24px, 24px 24px', backgroundPosition: '0 0, 0 0, 12px 12px, 12px 12px' },
+    bricks:     { label: 'Tijolos', backgroundImage: 'linear-gradient(rgba(255,255,255,0.48) 2px, transparent 2px), linear-gradient(90deg, rgba(255,255,255,0.48) 2px, transparent 2px), linear-gradient(rgba(0,0,0,0.2) 2px, transparent 2px), linear-gradient(90deg, rgba(0,0,0,0.2) 2px, transparent 2px)', backgroundSize: '30px 15px, 30px 15px, 30px 15px, 30px 15px', backgroundPosition: '0 0, 0 7px, 0 0, 15px 7px' },
+    checker:    { label: 'Xadrez', backgroundImage: 'conic-gradient(rgba(255,255,255,0.34) 0 25%, rgba(0,0,0,0.16) 0 50%, rgba(255,255,255,0.34) 0 75%, rgba(0,0,0,0.16) 0)', backgroundSize: '36px 36px' },
+    diamonds:   { label: 'Losangos (Argyle)', backgroundImage: 'linear-gradient(45deg, rgba(255,255,255,0.4) 25%, transparent 25%, transparent 75%, rgba(255,255,255,0.4) 75%), linear-gradient(45deg, rgba(255,255,255,0.4) 25%, transparent 25%, transparent 75%, rgba(255,255,255,0.4) 75%), linear-gradient(45deg, rgba(0,0,0,0.16) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.16) 75%), linear-gradient(45deg, rgba(0,0,0,0.16) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.16) 75%)', backgroundSize: '20px 20px, 20px 20px, 20px 20px, 20px 20px', backgroundPosition: '0 0, 10px 10px, 0 0, 10px 10px' },
+    triangles:  { label: 'Triângulos', backgroundImage: 'repeating-conic-gradient(from 0deg at 50% 50%, rgba(255,255,255,0.32) 0% 25%, rgba(0,0,0,0.15) 0% 50%)', backgroundSize: '30px 30px' },
+    hexagons:   { label: 'Hexágonos', backgroundImage: 'repeating-linear-gradient(30deg, rgba(255,255,255,0.4) 0 1px, transparent 1px 12px), repeating-linear-gradient(-30deg, rgba(0,0,0,0.16) 0 1px, transparent 1px 12px), repeating-linear-gradient(90deg, rgba(255,255,255,0.28) 1px, transparent 1px 24px)', backgroundSize: '24px 42px, 24px 42px, 24px 42px', backgroundPosition: '0 0, 0 0, 12px 0' },
+    scales:     { label: 'Escamas', backgroundImage: 'radial-gradient(circle at 50% 100%, transparent 55%, rgba(255,255,255,0.45) 56%, transparent 59%), radial-gradient(circle at 50% 100%, transparent 55%, rgba(0,0,0,0.18) 56%, transparent 59%)', backgroundSize: '24px 24px, 24px 24px', backgroundPosition: '0 0, 12px 12px' },
+    rings:      { label: 'Curvas de Nível', backgroundImage: 'repeating-radial-gradient(circle at 30% 35%, rgba(255,255,255,0.42) 0 1px, transparent 1px 28px), repeating-radial-gradient(circle at 30% 35%, rgba(0,0,0,0.16) 0 1px, transparent 1px 28px)', backgroundSize: '140px 140px, 140px 140px', backgroundPosition: '0 0, 70px 70px' },
+    dots:       { label: 'Pontos', backgroundImage: 'radial-gradient(rgba(255,255,255,0.55) 1.5px, transparent 1.6px), radial-gradient(rgba(0,0,0,0.22) 1.5px, transparent 1.6px)', backgroundSize: '18px 18px, 18px 18px', backgroundPosition: '0 0, 9px 9px' },
+    hexdots:    { label: 'Pontos Densos', backgroundImage: 'radial-gradient(rgba(255,255,255,0.5) 1px, transparent 1.2px), radial-gradient(rgba(0,0,0,0.2) 1px, transparent 1.2px)', backgroundSize: '10px 10px, 10px 10px', backgroundPosition: '0 0, 5px 5px' },
+    stars:      { label: 'Estrelas', backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.6) 1px, transparent 1.5px), radial-gradient(circle, rgba(255,255,255,0.4) 1px, transparent 1.5px), radial-gradient(circle, rgba(0,0,0,0.24) 1px, transparent 1.5px), radial-gradient(circle, rgba(0,0,0,0.16) 1px, transparent 1.5px)', backgroundSize: '60px 60px, 60px 60px, 30px 30px, 30px 30px', backgroundPosition: '0 0, 20px 30px, 10px 12px, 25px 6px' },
+    waves:      { label: 'Ondas', backgroundImage: WAVE_URI, backgroundSize: '160px 80px' },
+    circuit:    { label: 'Circuitos', backgroundImage: CIRCUIT_URI, backgroundSize: '120px 120px' },
+    noise:      { label: 'Ruído', backgroundImage: NOISE_URI },
+    grain:      { label: 'Grão de Papel', backgroundImage: GRAIN_URI }
   };
 
   /* Catálogo tipográfico (famílias já importadas no <head>) */
@@ -5407,6 +5417,23 @@
         page.prepend(p);
       }
     } else if (p) p.remove();
+  }
+
+  /* Preenche o <select> de texturas a partir de BG_TEXTURES — o HTML traz
+     só a opção "Nenhuma". Gerar aqui impede a lista de.options de divergir
+     do catálogo (nada de option hardcoded). Idempotente. */
+  let _bgTextureOptionsReady = false;
+  function renderBgTextureOptions() {
+    if (_bgTextureOptionsReady) return;
+    const sel = $('bgTexture');
+    if (!sel) return;
+    Object.keys(BG_TEXTURES).forEach((k) => {
+      const o = document.createElement('option');
+      o.value = k;
+      o.textContent = BG_TEXTURES[k].label || k;
+      sel.appendChild(o);
+    });
+    _bgTextureOptionsReady = true;
   }
 
   /* Injeta/remove/atualiza a camada de textura sobre o fundo */
@@ -7944,6 +7971,7 @@
   /* Reflete os valores salvos do perfil atual nos controles (sem recriar listeners) */
   function reflectStyleValues() {
     const st = cfg.style || {};
+    renderBgTextureOptions();
     $('bgVariant').value = st.bgVariant || 'solid';
     const eBtnVariant = $('btnVariant');
     if (eBtnVariant) eBtnVariant.value = st.btnVariant || 'solid';
