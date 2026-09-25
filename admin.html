@@ -6765,6 +6765,21 @@
     Object.keys(COLOR_FILL).forEach((k) => {
       if (!(k in preset.config)) cfg.style[k] = COLOR_FILL[k];
     });
+
+    /* O botão PIX (tanto no painel quanto na página pública) NÃO é alimentado
+       pelas chaves planas de cfg.style — quem o pinta é cfg.profile.pix.
+       Sem este espelho, a paleta do botão PIX continuava travada (#16a34a/
+       #ffffff) depois de aplicar um tema pronto. Mesma regra do COLOR_FILL:
+       só preenche o que o preset não define explicitamente. */
+    if (typeof cfg.profile !== 'object' || !cfg.profile) cfg.profile = {};
+    if (typeof cfg.profile.pix !== 'object' || !cfg.profile.pix) cfg.profile.pix = {};
+    const PIX_MIRROR = { btnBgColor: preset.preview.btn, btnTextColor: preset.preview.btnText };
+    Object.keys(PIX_MIRROR).forEach((k) => {
+      if (!(k in preset.config)) cfg.profile.pix[k] = PIX_MIRROR[k];
+    });
+    /* Repinta os triggers/campos do botão PIX no painel (aba Perfil) */
+    syncSectionInputs('profile');
+    renderColorTriggers();
     cfg.style.activePreset = key;
 
     /* Re-render todos os controles afetados */
