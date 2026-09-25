@@ -2494,11 +2494,17 @@
         const resolvedBtnBg = st.btnBgColor || th.btnbg;
         const resolvedBtnInk = st.btnTextColor || th.btnink;
 
-        /* Fundo → string única (visual.pageBg) */
+        /* Fundo → string única (visual.pageBg).
+           bgLayer: a cor que vai no background-color. Para gradiente/mesh/
+           animado/cyberpunk a string pageBg não cabe em background-color,
+           então a cor escolhida em "Fundo" (pageBgColor) vira o tapete sob
+           as camadas — mesma regra de buildBackgroundCSS() no admin. */
         let pageBg = resolvedBg;
+        let bgLayer = resolvedBg;
         switch (st.bgVariant) {
           case 'gradient':
             pageBg = _gradCSS();
+            bgLayer = resolvedBg;
             break;
           case 'mesh': {
             const c = Array.isArray(st.meshColors) && st.meshColors.length >= 2 ? st.meshColors : ['#6366f1','#ec4899','#06b6d4','#f59e0b'];
@@ -2508,11 +2514,13 @@
               'radial-gradient(at 10% 85%, ' + hexAlphaPub(c[2]||c[0], 'bb') + ' 0px, transparent 55%)',
               'radial-gradient(at 90% 90%, ' + hexAlphaPub(c[3]||c[c.length-1], 'aa') + ' 0px, transparent 55%)'
             ].join(', ');
+            bgLayer = st.pageBgColor || c[c.length - 1];
             break;
           }
           case 'animated': {
             const c = Array.isArray(st.animatedColors) && st.animatedColors.length >= 2 ? st.animatedColors : ['#6366f1','#ec4899','#06b6d4'];
             pageBg = 'linear-gradient(' + (st.gradientAngle || 135) + 'deg, ' + c.join(', ') + ')';
+            bgLayer = resolvedBg;
             break;
           }
           case 'cyberpunk': {
@@ -2525,11 +2533,13 @@
               'linear-gradient(rgba(255,255,255,' + gi.toFixed(3) + ') 1px, transparent 1px)',
               'linear-gradient(90deg, rgba(255,255,255,' + gi.toFixed(3) + ') 1px, transparent 1px)'
             ].join(', ');
+            bgLayer = st.pageBgColor || '#0a0a0f';
             break;
           }
           case 'glass':
             /* Base colorida que o veil de vidro fosco (#axGlassVeil) borrará */
             pageBg = _gradCSS();
+            bgLayer = resolvedBg;
             break;
           case 'particles':
             pageBg = resolvedBg;
@@ -2554,6 +2564,10 @@
           },
           visual: {
             pageBg,
+            /* Cor-base separada: quando pageBg vira gradiente/mesh ela deixa de
+               poder ir para background-color. Ela é o "tapete" sob as camadas
+               e é o que faz o picker "Fundo" do admin ter efeito visível. */
+            pageBgBase: bgLayer,
             bgImage: (st.bgVariant === 'image' && validImg(st.bgImageUrl)) ? st.bgImageUrl : '',
             textColor: st.btnVariant === 'neon' ? (st.btnGlowColor || '#22d3ee') : resolvedBtnInk,
             ink: resolvedInk,
@@ -2823,8 +2837,16 @@
 
       /* `background-color` não aceita gradiente: se pageBg for um
          gradiente CSS, ele precisa ir para background-image, não para
-         background-color (senão o navegador ignora o valor em silêncio). */
-      document.body.style.backgroundColor = isGradient ? '' : (pageBg || '');
+         background-color (senão o navegador ignora o valor em silêncio).
+         Nesse caso a cor escolhida em "Fundo" (visual.pageBgBase) entra
+         como tapete por baixo das camadas. O mesmo vale para o pageBgBase:
+         os THEMES legados (sunset/ocean/forest/rose) têm gradiente em `bg`,
+         então só usamos como cor o que for de fato uma cor. */
+      const pageBgBase = String(v.pageBgBase || '').trim();
+      const pageBgBaseIsColor = !!pageBgBase && !/[()]|,/.test(pageBgBase);
+      document.body.style.backgroundColor = isGradient
+        ? (pageBgBaseIsColor ? pageBgBase : '')
+        : (pageBg || '');
 
       const pageBgGradient = isGradient ? pageBg : '';
       const bgLayers = [pageGrad, pageBgGradient, bgImageUrl].filter(Boolean);

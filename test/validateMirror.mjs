@@ -615,11 +615,17 @@ function fundoChecks(wA, wP, cfg) {
   };
 
   if (variant === 'gradient') {
-    const aBg = normAlpha(aP.style.background || aP.style.backgroundImage || '');
+    /* As camadas do gradiente estão em background-image; a cor de "Fundo"
+       (pageBgColor) é o tapete em background-color. O atalho `background`
+       do admin carrega as duas — comparar o atalho punia a cor-base. */
+    const aImg = normAlpha(aP.style.backgroundImage || '');
     const bVar = normAlpha(root.getPropertyValue('--page-bg') || '');
     const tokens = (s) => (s.match(/#[0-9a-f]{6}|#[0-9a-f]{3}|rgba?\([^)]*\)/g) || []).sort().join('|');
-    const same = tokens(aBg) === tokens(bVar) && !!aBg && !!bVar;
-    opts.push(['fundo: gradient admin==público (mesmas cores)', same, aBg + ' vs ' + bVar]);
+    const same = tokens(aImg) === tokens(bVar) && !!aImg && !!bVar;
+    opts.push(['fundo: gradient admin==público (mesmas cores)', same, aImg + ' vs ' + bVar]);
+    const aBase = toHex(aP.style.backgroundColor || '');
+    const pBase = toHex(wP.document.body.style.backgroundColor || '');
+    opts.push(['fundo: cor de "Fundo" (tapete) admin==público', aBase === pBase && !!aBase, aBase + ' vs ' + pBase]);
   } else if (variant === 'solid') {
     const aBg = toHex(aP.style.backgroundColor || aP.style.background || '');
     const bVar = toHex(root.getPropertyValue('--page-bg') || '');

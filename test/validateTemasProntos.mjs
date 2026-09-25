@@ -126,8 +126,18 @@ export async function run() {
       const ok = ai.includes(norm(st.cyberPrimary)) && ai.includes(norm(st.cyberSecondary));
       check(bx + 'paridade cyberpunk: preview admin com as mesmas cores neon', ok);
     } else if (st.bgVariant === 'gradient') {
-      check(bx + 'paridade gradiente: preview admin == público', norm(pvPage.style.background || pvPage.style.backgroundImage || '') === norm(pageBg),
-        'admin=' + (pvPage.style.background || pvPage.style.backgroundImage || '').slice(0, 50) + ' público=' + pageBg.slice(0, 50));
+      /* As camadas do gradiente ficam em background-image; a cor escolhida em
+         "Fundo" (pageBgColor) é o tapete em background-color nos DOIS lados.
+         O atalho `background` do admin carrega as duas coisas, então
+         comparamos a imagem, não o atalho. */
+      const aImg = norm(pvPage.style.backgroundImage || '');
+      const pImg = norm(/gradient/i.test(pageBg) ? pageBg : (dP.body.style.backgroundImage || ''));
+      check(bx + 'paridade gradiente: preview admin == público', aImg === pImg && !!aImg,
+        'admin=' + (pvPage.style.backgroundImage || '').slice(0, 50) + ' público=' + pageBg.slice(0, 50));
+      const aBase = N(pvPage.style.backgroundColor || '');
+      const pBase = N(dP.body.style.backgroundColor || '');
+      check(bx + 'cor de "Fundo" vale no gradiente (admin == público)', aBase === pBase && aBase === N(st.pageBgColor || preset.preview.bg),
+        'admin=' + aBase + ' público=' + pBase);
     } else {
       check(bx + 'paridade cor sólida: preview admin == público', N(pvPage.style.background || '') === N(pageBg),
       'admin=' + (pvPage.style.background || '') + ' público=' + pageBg);

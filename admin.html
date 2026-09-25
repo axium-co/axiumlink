@@ -2516,6 +2516,7 @@
         <!-- Cores da página -->
         <div class="field" id="themeRow">
           <label>Cores do Tema</label>
+          <p class="hint" style="margin:0 0 10px; font-size:12px; color:var(--muted);">Edite qualquer cor — o tema pronto aplicado vira apenas uma sugestão.</p>
           <div class="color-grid-2" style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
             <div class="field" style="margin:0;">
               <label style="font-size:11px;">Fundo</label>
@@ -2528,6 +2529,20 @@
               <label style="font-size:11px;">Texto</label>
               <div class="color-trigger" id="pageTextColor" role="button" tabindex="0">
                 <div class="color-trigger-swatch" style="background:#111827;"></div>
+                <span class="color-trigger-hex">AUTO</span>
+              </div>
+            </div>
+            <div class="field" style="margin:0;">
+              <label style="font-size:11px;">Botão</label>
+              <div class="color-trigger" id="btnBgColor" role="button" tabindex="0">
+                <div class="color-trigger-swatch" style="background:#111827;"></div>
+                <span class="color-trigger-hex">AUTO</span>
+              </div>
+            </div>
+            <div class="field" style="margin:0;">
+              <label style="font-size:11px;">Texto do Botão</label>
+              <div class="color-trigger" id="btnTextColor" role="button" tabindex="0">
+                <div class="color-trigger-swatch" style="background:#ffffff;"></div>
                 <span class="color-trigger-hex">AUTO</span>
               </div>
             </div>
@@ -5274,6 +5289,10 @@
   }
 
   function buildBackgroundCSS(st, t) {
+    /* `pageBgColor` é a cor-base (o "tapete") em TODOS os tipos de fundo: nos
+       que pintam por completo (gradiente/mesh/animado/cyberpunk) ela aparece
+       por baixo das camadas, então o trigger "Fundo" nunca fica inerte. */
+    const base = st.pageBgColor || '';
     switch (st.bgVariant) {
       case 'gradient': {
         const stops = Array.isArray(st.gradientStops) && st.gradientStops.length >= 2
@@ -5290,13 +5309,14 @@
                 return 'rgba(' + r + ',' + g + ',' + b + ',' + (alpha/100).toFixed(2) + ') ' + (s.pos ?? 0) + '%';
               }
               return hex + ' ' + (s.pos ?? 0) + '%';
-            }).join(', ') + ')'
+            }).join(', ') + ')',
+          backgroundColor: t.bg
         };
       }
       case 'mesh': {
         const colors = st.meshColors && st.meshColors.length >= 2 ? st.meshColors : ['#6366f1', '#ec4899', '#06b6d4', '#f59e0b'];
         return {
-          backgroundColor: colors[colors.length - 1],
+          backgroundColor: base || colors[colors.length - 1],
           backgroundImage: [
             'radial-gradient(at 15% 15%, ' + hexAlpha(colors[0], 'dd') + ' 0px, transparent 55%)',
             'radial-gradient(at 85% 10%, ' + hexAlpha(colors[1] || colors[0], 'cc') + ' 0px, transparent 55%)',
@@ -5310,6 +5330,7 @@
         const grad = colors.map((c) => c).join(', ');
         return {
           background: 'linear-gradient(' + (st.gradientAngle || 135) + 'deg, ' + grad + ')',
+          backgroundColor: t.bg,
           backgroundSize: '400% 400%',
           animation: 'animatedBG ' + (st.animSpeed || 20) + 's ease infinite'
         };
@@ -5319,7 +5340,7 @@
         const secondary = st.cyberSecondary || '#ff00ff';
         const intensity = Math.max(0.01, (st.cyberGridIntensity || 30) / 100 * 0.08);
         return {
-          backgroundColor: '#0a0a0f',
+          backgroundColor: base || '#0a0a0f',
           color: '#e5e7eb',
           backgroundImage: [
             'radial-gradient(ellipse at 15% 10%, ' + hexAlpha(primary, '26') + ' 0%, transparent 55%)',
@@ -5345,12 +5366,14 @@
                 return 'rgba(' + r + ',' + g + ',' + b + ',' + (alpha/100).toFixed(2) + ') ' + (s.pos ?? 0) + '%';
               }
               return hex + ' ' + (s.pos ?? 0) + '%';
-            }).join(', ') + ')'
+            }).join(', ') + ')',
+          backgroundColor: t.bg
         };
       }
       case 'image':
-        /* A <img> é gerenciada por syncBgImage(); aqui só o fallback */
-        return { backgroundColor: '#111827' };
+        /* A <img> é gerenciada por syncBgImage(); aqui só a cor-base (visível
+           nas bordas da imagem e sob áreas sem cobertura). */
+        return { backgroundColor: base || '#111827' };
       case 'particles':
         /* Partículas usam a cor sólida do tema como base */
         return { background: t.bg };
