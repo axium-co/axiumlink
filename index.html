@@ -640,6 +640,7 @@
       gap: 0.5rem;
       width: 100%;
       max-width: 560px;
+      min-width: 0;
       min-height: 72px;
       padding: 0.8rem 1.25rem;
       border: none;
@@ -652,11 +653,28 @@
       cursor: pointer;
       transition: filter 0.15s ease, transform 0.15s ease;
       box-shadow: 0 4px 14px rgba(22, 163, 74, 0.35);
+      /* Mesma política dos demais botões: quem delimita o corte é a
+         tipografia (reticências), não o container. Sem isto, reduzir a
+         largura/altura do botão PIX cortava o texto a seco. */
+      overflow: hidden;
     }
     .pg-pix__btn:hover { filter: brightness(1.06); transform: translateY(-1px); }
     .pg-pix__btn:active { transform: scale(0.98); }
 
     .pg-pix__ico { width: 18px; height: 18px; font-size: 16px; line-height: 1; flex-shrink: 0; }
+
+    /* Texto do botão PIX: espelha o .featured__body strong dos cards
+       (white-space/overflow/text-overflow) + min-width 0 para o flex
+       encolher e a reticência aparecer. */
+    .pg-pix__btn > span:last-child {
+      min-width: 0;
+      flex: 0 1 auto;
+      max-width: 100%;
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
 
     .social-icon {
       display: inline-flex;
