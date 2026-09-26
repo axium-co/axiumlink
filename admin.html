@@ -1729,6 +1729,7 @@
                     <input type="range" id="pixStWidth" min="160" max="640" step="10">
                     <output class="ds-value" id="pixStWidthVal">560px</output>
                   </div>
+                  <p class="hint" style="margin:6px 0 0;">É o limite máximo: o botão nunca fica mais estreito que o nome — o texto sempre define o tamanho dele.</p>
                 </div>
                 <div class="ds-control">
                   <label for="pixStHeight">Altura (0 = automática)</label>
@@ -4449,7 +4450,11 @@
     if (!el) return;
     el.style.padding = '0.8rem 1.25rem';
     const bw = (flat && Number(flat.btnWidth) >= 160) ? Number(flat.btnWidth) : 560;
-    el.style.maxWidth = bw + 'px';
+    /* A largura do painel é um TETO, nunca um corte: max() com min-content
+       impede que o max-width corte o nome — quem delimita o botão é o TEXTO,
+       como nos demais botões (o slider só limita quando sobra espaço).
+       Espelho EXATO do público (index.html axApplyPixSize). */
+    el.style.maxWidth = 'max(' + bw + 'px, min-content)';
     const bh = (flat && Number(flat.btnHeight) >= 0) ? Number(flat.btnHeight) : 72;
     el.style.minHeight = bh > 0 ? bh + 'px' : '';
     /* Largura menor que 100% deve encolher dos DOIS lados (como nome/bio/endereço):

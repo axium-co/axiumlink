@@ -1230,6 +1230,26 @@
       margin-left: 0;
     }
 
+    /* PIX intercalado: aqui a largura é delimitada pelo TEXTO (ver
+       axApplyPixSize: max-width: max(<slider>, min-content)), então a reserva
+       do ícone (esq.) e da seta (dir.) precisa ser PADDING. Com a reserva em
+       % do max-width, encolher o botão zerava a reserva junto e o nome era
+       cortado (e o ícone absoluto invadia o texto). Mesmas medidas do
+       .link-block__head do preview admin (62px = 14 + 48 do ícone;
+       34px = 14 + 18 da seta), para mockup e público ficarem idênticos. */
+    .pg-links--list .featured__card--pix:not(.featured__card--banner) {
+      padding-left: 62px;
+      padding-right: 34px;
+    }
+    .pg-links--list .featured__card--pix:not(.featured__card--banner) .featured__body {
+      max-width: 100%;
+    }
+    /* >=980px o ícone da lista cresce para 52px (regra do bloco de breakpoints):
+       a reserva do padding acompanha para o texto não encostar no ícone. */
+    @media (min-width: 980px) {
+      .pg-links--list .featured__card--pix:not(.featured__card--banner) { padding-left: 66px; }
+    }
+
     /* ---- Primeiro card (CTA principal) — leve destaque ---- */
     .featured__card--primary {
       border-color: var(--primary-border);
@@ -2769,7 +2789,11 @@
         };
         
         const btn = wrap.querySelector('.pg-pix__btn');
-        const btnTextSpan = btn ? btn.querySelector('span') : null;
+        /* span:last-child (NÃO 'span'): o primeiro span do botão é o
+           .pg-pix__ico, que o axApplyPixSize trava em 18x18px — escrever o
+           texto ali escondia o label e o cortava dentro da caixa do ícone.
+           Espelho do admin (applyPix -> span:last-child). */
+        const btnTextSpan = btn ? btn.querySelector('span:last-child') : null;
         if (btn) {
           btn.style.background = btnBgColor;
           btn.style.color = btnTextColor;
@@ -4505,7 +4529,14 @@
           if (!el) return;
           el.style.padding = '0.8rem 1.25rem';
           const bw = (flat && Number(flat.btnWidth) >= 160) ? Number(flat.btnWidth) : 560;
-          el.style.maxWidth = bw + 'px';
+          /* A largura do painel é um TETO, nunca um corte: max() com
+             min-content impede que o max-width corte o nome — quem delimita
+             o botão é o TEXTO, como nos demais botões (o nome define o
+             tamanho; o slider só limita quando sobra espaço). Reduzir a
+             largura abaixo do texto não deforma/corta nada: o botão para no
+             nome. Se o texto for maior que a TELA, ai sim a reticência
+             entra (max-width = min(<bw>, 100% do container)). */
+          el.style.maxWidth = 'max(' + bw + 'px, min-content)';
           const bh = (flat && Number(flat.btnHeight) >= 0) ? Number(flat.btnHeight) : 72;
           el.style.minHeight = bh > 0 ? bh + 'px' : '';
           /* Largura menor que 100% deve encolher dos DOIS lados (mesmo

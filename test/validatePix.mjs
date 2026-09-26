@@ -310,7 +310,7 @@ export async function run() {
       check('admin: #pixStFontWeight reflete pix.style.fontWeight', d.getElementById('pixStFontWeight').value === '800');
 
       const node = d.getElementById('pvPix');
-      check('admin: header aplica largura 560px', node.style.maxWidth === '560px', node.style.maxWidth);
+      check('admin: header aplica largura 560px (teto, sem cortar o nome)', node.style.maxWidth === 'max(560px, min-content)', node.style.maxWidth);
       check('admin: header aplica altura 72px', node.style.minHeight === '72px', node.style.minHeight);
       check('admin: header aplica font-size 22px', node.style.fontSize === '22px', node.style.fontSize);
       check('admin: header aplica font-weight 800', node.style.fontWeight === '800', node.style.fontWeight);
@@ -365,7 +365,7 @@ export async function run() {
       const d = w.document;
       w.__alaPublica.aplicar(SIZED());
       const btn = d.querySelector('.pg-pix__btn');
-      check('público: header largura 560px', btn.style.maxWidth === '560px', btn.style.maxWidth);
+      check('público: header largura 560px (teto, sem cortar o nome)', btn.style.maxWidth === 'max(560px, min-content)', btn.style.maxWidth);
       check('público: header altura 72px', btn.style.minHeight === '72px', btn.style.minHeight);
       check('público: header font-size 22px', btn.style.fontSize === '22px', btn.style.fontSize);
       check('público: header font-weight 800', btn.style.fontWeight === '800', btn.style.fontWeight);
@@ -403,7 +403,7 @@ export async function run() {
       w.__alaPublica.aplicar(c);
       const btn = d.querySelector('.pg-pix__btn');
       check('público: default preserva padding', btn.style.padding === '0.8rem 1.25rem', btn.style.padding);
-      check('público: default largura 560px', btn.style.maxWidth === '560px', btn.style.maxWidth);
+      check('público: default largura 560px (teto, sem cortar o nome)', btn.style.maxWidth === 'max(560px, min-content)', btn.style.maxWidth);
       check('público: default altura 72px', btn.style.minHeight === '72px', btn.style.minHeight);
       check('público: default fonte 15px', btn.style.fontSize === '15px', btn.style.fontSize);
       check('público: default peso 600', btn.style.fontWeight === '600', btn.style.fontWeight);
@@ -423,10 +423,56 @@ export async function run() {
       const d = w.document;
       w.__alaPublica.aplicar(c);
       const card = d.querySelector('[data-pix]');
-      check('público: card intercalado largura 560px', card.style.maxWidth === '560px', card.style.maxWidth);
+      check('público: card intercalado largura 560px (teto, sem cortar o nome)', card.style.maxWidth === 'max(560px, min-content)', card.style.maxWidth);
       check('público: card intercalado altura 72px', card.style.minHeight === '72px', card.style.minHeight);
       check('público: card intercalado font-size 22px', card.style.fontSize === '22px', card.style.fontSize);
       check('público: card intercalado font-weight 800', card.style.fontWeight === '800', card.style.fontWeight);
+    }
+
+    /* ---- LARGURA ABAIXO DO TEXTO: o nome delimita, nunca é cortado ----
+       A largura do painel é um TETO. Reduzir abaixo do nome não pode
+       gerar max-width < texto (era o corte a seco); o contrato é
+       max(<slider>px, min-content) — o menor valor que o texto impõe.
+       Vale para o botão do header e para o card intercalado, nos dois
+       painéis (espelho). */
+    {
+      const NARROW = () => {
+        const c = SIZED();
+        c.profile.pix.style.width = 160;
+        return c;
+      };
+      const admHdrBoot = await boot(ADMIN_PATH, { supabase: supabaseStub(null), url: 'https://axiumlink.test/admin.html' });
+      const w2 = (await boot(ADMIN_PATH, { supabase: supabaseStub(null), url: 'https://axiumlink.test/admin.html' })).window;
+      const wPub = (await boot(INDEX_PATH, { supabase: supabaseStub(null), url: 'https://axiumlink.test/?s=teste' })).window;
+
+      const admHdrW = (() => {
+        const { window: w } = admHdrBoot;
+        w.__axEditor.init(NARROW());
+        const hdr = w.document.getElementById('pvPix');
+        return hdr && hdr.style.maxWidth;
+      })();
+      check('admin: header largura 160 = teto com piso no texto', admHdrW === 'max(160px, min-content)', admHdrW);
+
+      const admCardW = (() => {
+        const c = NARROW();
+        c.profile.pix.order = 1;
+        c.links = [{ id: 'l1', title: 'WhatsApp', url: 'https://wa.me/1', icon: 'whatsapp' }];
+        w2.__axEditor.init(c);
+        const card = w2.document.querySelector('#previewLinksList .link-block[data-pix="1"]');
+        return card && card.style.maxWidth;
+      })();
+      check('admin: card intercalado largura 160 = teto com piso no texto', admCardW === 'max(160px, min-content)', admCardW);
+
+      wPub.__alaPublica.aplicar(NARROW());
+      const pubHdrW = wPub.document.querySelector('.pg-pix__btn');
+      check('público: header largura 160 = teto com piso no texto', pubHdrW.style.maxWidth === 'max(160px, min-content)', pubHdrW.style.maxWidth);
+
+      const cInList = NARROW();
+      cInList.profile.pix.order = 1;
+      cInList.links = [{ id: 'l1', title: 'WhatsApp', url: 'https://wa.me/1', icon: 'whatsapp' }];
+      wPub.__alaPublica.aplicar(cInList);
+      const pubCard = wPub.document.querySelector('#pgLinks .pg-links-list [data-pix]');
+      check('público: card intercalado largura 160 = teto com piso no texto', pubCard && pubCard.style.maxWidth === 'max(160px, min-content)', pubCard && pubCard.style.maxWidth);
     }
   }
 
