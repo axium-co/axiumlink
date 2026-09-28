@@ -158,7 +158,9 @@ export async function run() {
     const aC = grabAdmin(cC);
     check('admin: 1º item com spacing=40 não ganha margin-top', aC[0].mt === '0px', aC[0].mt);
 
-    /* (d) Tabs de categoria: margin-bottom = global; itens seguem. */
+    /* (d) As abas de categoria foram removidas: nenhum wrapper .pg-tabs é
+       criado, nem com category no link, nem com showCategoryTabs ligado
+       (config legado). O espaçamento dos botões continua igual. */
     const cD = baseCfg((c) => {
       c.style.blockGap = 10;
       c.style.showCategoryTabs = true;
@@ -169,18 +171,18 @@ export async function run() {
       ];
     });
     const aD = grabAdmin(cD);
-    check('admin tabs: tabs presente', aD.length === 4, 'children=' + aD.length);
-    check('admin tabs: tab margin-bottom=10 (global)', aD[0].mb === '10px', aD[0].mb);
-    check('admin tabs: 1º link margin-top=0 (após tabs)', aD[1].mt === '0px', aD[1].mt);
-    check('admin tabs: 2º link usa global 10', aD[2].mt === '10px', aD[2].mt);
-    check('admin tabs: link individual 33 vence global', aD[3].mt === '33px', aD[3].mt);
+    check('sem abas: nenhum wrapper de tabs no admin', aD.length === 3, 'children=' + aD.length);
+    check('sem abas: 1º link margin-top=0', aD[0].mt === '0px', aD[0].mt);
+    check('sem abas: 2º link usa global 10', aD[1].mt === '10px', aD[1].mt);
+    check('sem abas: link individual 33 vence global', aD[2].mt === '33px', aD[2].mt);
     const pD = grabPublic(cD);
     const pDm = pD.map(x => x.mt);
-    check('público com tabs: margens dos botões iguais (0,10,33)', pDm.join(',') === '0px,10px,33px', pDm.join(','));
+    check('sem abas: margens dos botões iguais (0,10,33)', pDm.join(',') === '0px,10px,33px', pDm.join(','));
     const tabsP = boot(INDEX_PATH, { supabase: supabaseStub({ config: cD, slug: 'teste' }), url: 'https://axiumlink.test/?s=teste' }).window;
     tabsP.__alaPublica.aplicar(cD);
-    const tabsWrap = tabsP.document.querySelector('.pg-tabs');
-    check('público: tabs margin-bottom=10 (global)', tabsWrap && tabsWrap.style.marginBottom === '10px', tabsWrap && tabsWrap.style.marginBottom);
+    check('sem abas: nenhum .pg-tabs no público mesmo com config legado', !tabsP.document.querySelector('.pg-tabs'));
+    check('sem abas: toggle showCategoryTabs saiu do painel',
+      !boot(ADMIN_PATH, { supabase: supabaseStub(null), url: 'https://axiumlink.test/admin.html' }).window.document.getElementById('showCategoryTabs'));
   }
 
   await elementos();

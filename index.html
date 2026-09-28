@@ -939,9 +939,6 @@
     .profile__name  { animation: fadeSlideUp .5s ease both; animation-delay: .08s; }
     .profile__bio   { animation: fadeSlideUp .5s ease both; animation-delay: .14s; }
 
-    /* Tabs entrance */
-    .pg-tabs { animation: fadeSlideUp .4s ease both; animation-delay: .02s; }
-
     /* ---- Pós-primeira renderização (ax-stabilized) ----
        A classe é adicionada ao <html> pelo JS assim que a primeira
        renderização termina. A partir daí, qual quer bloco recriado
@@ -952,7 +949,6 @@
        premium) continuam rodando normalmente. */
     html.ax-stabilized .featured__card:not(.anim-pulse):not(.anim-shake):not(.anim-shine):not(.ax-anim-pulse):not(.ax-anim-float):not(.ax-anim-shine),
     html.ax-stabilized .social-icon:not(.anim-pulse):not(.anim-shake):not(.anim-shine):not(.ax-anim-pulse):not(.ax-anim-float):not(.ax-anim-shine),
-    html.ax-stabilized .pg-tabs,
     html.ax-stabilized .profile__avatar {
       animation: none;
     }
@@ -1181,42 +1177,6 @@
     .featured__card--testimonial .featured__icon { display: none; }
     .featured__card--testimonial .featured__arrow { display: none; }
 
-    /* ---- Categorias / Tabs ---- */
-    .pg-tabs {
-      display: flex;
-      gap: 6px;
-      overflow-x: auto;
-      padding-bottom: 10px;
-      margin-bottom: 6px;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-    }
-    .pg-tabs::-webkit-scrollbar { display: none; }
-    .pg-tab {
-      flex-shrink: 0;
-      padding: 9px 16px;
-      border-radius: 20px;
-      border: 1.5px solid color-mix(in srgb, var(--text-title, #000) 15%, transparent);
-      background: transparent;
-      color: color-mix(in srgb, var(--text-title, #000) 60%, transparent);
-      font-size: 14px;
-      font-weight: 600;
-      min-height: 44px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      white-space: nowrap;
-    }
-    .pg-tab:hover {
-      background: color-mix(in srgb, var(--text-title, #000) 8%, transparent);
-    }
-    .pg-tab--active {
-      background: var(--p-btnbg, #111827);
-      color: var(--p-btnink, #fff);
-      border-color: var(--p-btnbg, #111827);
-    }
 
     /* ================================================================
        BOTÕES DE AÇÃO EM MODO LISTA — arquitetura flexbox premium:
@@ -3888,69 +3848,23 @@
            está apertando. Se a forma bate, reaproveitamos; senão, reconstruímos. */
         const shapeSig = linksShapeSig(linkList, isLinksList);
         const reuseWrap = (pubLinksSig === shapeSig) ? linksContainer.querySelector('.pg-links-list') : null;
-        if (reuseWrap) {
-          /* As abas de categoria são refeitas de propósito: os listeners delas
-             fecham sobre linkList/activeCat DESTA execução, e precisam enxergar
-             os dados frescos. São poucos botões de texto — o custo é invisível,
-             ao contrário de recriar os cards. */
-          const oldTabs = linksContainer.querySelector('.pg-tabs');
-          if (oldTabs) oldTabs.remove();
-        } else {
+        if (!reuseWrap) {
           pubLinksSig = '';
           linksContainer.replaceChildren();
         }
         linksContainer.classList.remove('pg-links--grid');
 
-        /* ---- Categorias / Tabs ---- */
-        const categories = [...new Set(linkList.map(l => l.category).filter(Boolean))];
-        let activeCat = null;
-        if (cfg.style?.showCategoryTabs && categories.length > 0) {
-          const tabsWrap = document.createElement('div');
-          tabsWrap.className = 'pg-tabs';
-          const allTab = document.createElement('button');
-          allTab.className = 'pg-tab pg-tab--active';
-          allTab.textContent = 'Todos';
-          allTab.addEventListener('click', () => {
-            activeCat = null;
-            tabsWrap.querySelectorAll('.pg-tab').forEach(t => t.classList.remove('pg-tab--active'));
-            allTab.classList.add('pg-tab--active');
-            pubLinksSig = '';
-            renderLinksNow(true);
-          });
-          tabsWrap.appendChild(allTab);
-
-          categories.forEach(cat => {
-            const btn = document.createElement('button');
-            btn.className = 'pg-tab';
-            btn.textContent = cat;
-            btn.addEventListener('click', () => {
-              activeCat = cat;
-              tabsWrap.querySelectorAll('.pg-tab').forEach(t => t.classList.remove('pg-tab--active'));
-              btn.classList.add('pg-tab--active');
-              pubLinksSig = '';
-              renderLinksNow(true);
-            });
-            tabsWrap.appendChild(btn);
-          });
-          tabsWrap.style.marginBottom = (Number(cfg.style?.blockGap) >= 0 ? Number(cfg.style?.blockGap) : 10) + 'px';
-          linksContainer.appendChild(tabsWrap);
-        }
-
-        function filteredLinks() {
-          return activeCat ? linkList.filter(l => l.category === activeCat) : linkList;
-        }
-
-        /* Ponto único de render da lista. `force` é usado pelos cliques de aba:
-           filtrar a lista muda QUANTOS filhos o wrap tem, então aí não dá para
-           reaproveitar o DOM — tem que refazer do zero. */
+        /* Ponto único de render da lista. Sem abas de categoria, a lista
+           inteira é sempre a fonte — não existe recorte por filtro, então dá
+           para reaproveitar o DOM sempre que a FORMA bate. */
         let linksRendered = false;
-        function renderLinksNow(force) {
+        function renderLinksNow() {
           linksRendered = true;
-          if (!force && reuseWrap) {
-            applyLinksInPlace(reuseWrap, filteredLinks());
+          if (reuseWrap) {
+            applyLinksInPlace(reuseWrap, linkList);
             return;
           }
-          renderLinksList(filteredLinks());
+          renderLinksList(linkList);
         }
 
         renderLinksNow();

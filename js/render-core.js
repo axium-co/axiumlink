@@ -485,9 +485,6 @@ const RenderCore = (function () {
     const cardsMode = cfg.layout?.cardsMode || 'list';
     const isList = cardsMode === 'list';
 
-    /* Estado da categoria ativa persiste no container (sobrevive a re-renders) */
-    const activeCat = linksContainer.dataset.activeCategory || null;
-
     /* Limpa container */
     linksContainer.replaceChildren();
     if (isList) {
@@ -497,41 +494,6 @@ const RenderCore = (function () {
       linksContainer.classList.remove('pg-links--list');
       linksContainer.classList.add('pg-links--grid');
     }
-
-    /* ---- Categorias / Tabs ---- */
-    const categories = [...new Set((links || []).map(l => l.category).filter(Boolean))];
-    let tabsWrap = null;
-
-    if (cfg.style?.showCategoryTabs && categories.length > 0) {
-      tabsWrap = document.createElement('div');
-      tabsWrap.className = 'pg-tabs';
-      const allTab = document.createElement('button');
-      allTab.className = 'pg-tab' + (activeCat === null ? ' pg-tab--active' : '');
-      allTab.textContent = 'Todos';
-      allTab.addEventListener('click', () => {
-        linksContainer.dataset.activeCategory = '';
-        renderLinksList(linksContainer, links, cfg, isAdmin);
-      });
-      tabsWrap.appendChild(allTab);
-
-      categories.forEach(cat => {
-        const btn = document.createElement('button');
-        btn.className = 'pg-tab' + (activeCat === cat ? ' pg-tab--active' : '');
-        btn.textContent = cat;
-        btn.addEventListener('click', () => {
-          linksContainer.dataset.activeCategory = cat;
-          renderLinksList(linksContainer, links, cfg, isAdmin);
-        });
-        tabsWrap.appendChild(btn);
-      });
-
-      const globalGap = Number(cfg.style?.blockGap) >= 0 ? Number(cfg.style?.blockGap) : 10;
-      tabsWrap.style.marginBottom = globalGap + 'px';
-      linksContainer.appendChild(tabsWrap);
-    }
-
-    const activeCatForFilter = linksContainer.dataset.activeCategory || null;
-    const filtered = activeCatForFilter ? links.filter(l => l.category === activeCatForFilter) : links;
 
     /* ---- Cards de links ---- */
     const wrap = document.createElement('div');
@@ -544,7 +506,7 @@ const RenderCore = (function () {
       wrap.style.justifyContent = 'center';
     }
 
-    filtered.forEach((link, li) => {
+    links.forEach((link, li) => {
       const linkType = link.type || link.icon || '';
       const displayTitle = link.title || (linkType ? (linkType.charAt(0).toUpperCase() + linkType.slice(1)) : 'Link');
       const linkHref = link.url || '#';
@@ -678,10 +640,8 @@ const RenderCore = (function () {
 
     /* Espaçamento vertical (apenas modo lista) */
     if (isList) {
-      applyLinkSpacing(wrap, filtered, cfg);
+      applyLinkSpacing(wrap, links, cfg);
     }
-
-    return tabsWrap;
   }
 
   function applyButtonWidth(btn, width) {
@@ -709,11 +669,6 @@ const RenderCore = (function () {
   function applyLinkSpacing(wrap, list, cfg) {
     const globalGap = Number(cfg.style?.blockGap) >= 0 ? Number(cfg.style?.blockGap) : 10;
     Array.from(wrap.children).forEach((child, i) => {
-      if (child.classList && child.classList.contains('pg-tabs')) {
-        child.style.marginTop = '0px';
-        child.style.marginBottom = globalGap + 'px';
-        return;
-      }
       const link = list && list[i];
       const slot = (link && Number(link.spacing) > 0) ? Number(link.spacing) : globalGap;
       child.style.marginTop = (i === 0 ? 0 : slot) + 'px';

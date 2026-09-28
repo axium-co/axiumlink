@@ -234,8 +234,8 @@ export async function run(log = console.log) {
       ok(formaOk, 'mudança estrutural reconstrói: ' + nome);
     }
 
-    /* --- 8: aba de categoria --- */
-    log('\n━━━ AO VIVO · PÚBLICO: aba de categoria + edição depois do clique ━━━');
+    /* --- 8: config legado de categoria não ressuscita as abas --- */
+    log('\n━━━ AO VIVO · PÚBLICO: config legado de categoria não cria abas ━━━');
     const cCat = clone(c1);
     cCat.style.showCategoryTabs = true;
     cCat.links = [
@@ -248,20 +248,16 @@ export async function run(log = console.log) {
     });
     const d2 = w2.document;
     w2.__alaPublica.aplicar(cCat);
-    const tabs = d2.querySelectorAll('.pg-tabs .pg-tab');
-    ok(tabs.length === 3, 'abas de categoria renderizadas (Todos + 2) — ' + tabs.length);
-
-    tabs[2].dispatchEvent(new w2.window.MouseEvent('click', { bubbles: true }));
-    const filtrados = d2.querySelectorAll('.pg-links-list > *').length;
-    ok(filtrados === 1, 'clicar na aba filtra a lista — ' + filtrados + ' card(s)');
+    ok(d2.querySelectorAll('.pg-tabs .pg-tab').length === 0, 'nenhuma aba renderizada mesmo com showCategoryTabs ligado');
+    ok(d2.querySelectorAll('.pg-links-list > *').length === 2, 'os 2 links renderizam (a lista nunca é recortada) — ' + d2.querySelectorAll('.pg-links-list > *').length);
 
     const cCat2 = clone(cCat);
     cCat2.links[1].title = 'GitHub Editado';
     w2.__alaPublica.aplicar(cCat2);
     const todos = d2.querySelectorAll('.pg-links-list > *').length;
-    ok(todos === 2, 'edição depois do clique da aba volta para a lista completa (sem card órfão) — ' + todos);
+    ok(todos === 2, 'editar não deixa card órfão — ' + todos);
     const textos = [...d2.querySelectorAll('.pg-links-list strong')].map((s) => s.textContent);
-    ok(textos.indexOf('GitHub Editado') >= 0, 'card da aba mostra o texto NOVO (listener não ficou preso ao dado antigo) — ' + JSON.stringify(textos));
+    ok(textos.indexOf('GitHub Editado') >= 0, 'card mostra o texto NOVO (editado no lugar, sem recriar) — ' + JSON.stringify(textos));
   }
 
   /* ================================================================

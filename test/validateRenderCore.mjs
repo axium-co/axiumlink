@@ -141,16 +141,13 @@ function runTests() {
   assert(order2[3] === 'pgAvatarCard', '4º = avatar (order 4)');
   assert(pixOrder2 === 'pgPixWrap', 'PIX presente no container externo');
 
-  /* ---- Teste 4: renderLinksList cria tabs + cards ---- */
-  console.log('\nTeste 4: renderLinksList cria tabs + cards em modo lista');
+  /* ---- Teste 4: renderLinksList cria os cards ---- */
+  console.log('\nTeste 4: renderLinksList cria os cards em modo lista');
   const linksContainer = document.createElement('div');
   linksContainer.id = 'pgLinks';
   RenderCore.renderLinksList(linksContainer, TEST_CFG.links, TEST_CFG, false);
 
-  const tabs = linksContainer.querySelector('.pg-tabs');
-  assert(tabs, 'Tabs wrapper criado');
-  assert(tabs.querySelectorAll('.pg-tab').length === 3, '3 tabs (Todos + 2 categorias)');
-  assert(tabs.querySelector('.pg-tab--active')?.textContent === 'Todos', 'Tab "Todos" ativa por padrão');
+  assert(!linksContainer.querySelector('.pg-tabs'), 'Nenhum wrapper de abas (feature removida)');
 
   const listWrap = linksContainer.querySelector('.pg-links-list');
   assert(listWrap, 'Wrapper da lista criado');
@@ -167,18 +164,20 @@ function runTests() {
   assert(card1.querySelector('.featured__arrow'), 'Card tem seta');
   assert(card1.dataset.linkIdx === '0', 'Card tem data-link-idx');
 
-  /* ---- Teste 5: Filtro por categoria ---- */
-  console.log('\nTeste 5: Filtro por categoria (clique na tab)');
-  const tabContato = tabs.querySelectorAll('.pg-tab')[1]; // CONTATO
-  assert(tabContato.textContent === 'CONTATO', 'Tab 2 = CONTATO');
-  tabContato.click();
-
-  // Re-query after re-render (click handler replaces the entire container content)
-  const newListWrap = linksContainer.querySelector('.pg-links-list');
-  const cardsAfterFilter = newListWrap.querySelectorAll('.featured__card');
-  assert(cardsAfterFilter.length === 2, '2 cards após filtrar CONTATO');
-  assert(cardsAfterFilter[0].querySelector('.featured__body strong')?.textContent === 'WhatsApp', '1º = WhatsApp');
-  assert(cardsAfterFilter[1].querySelector('.featured__body strong')?.textContent === 'Site', '2º = Site');
+  /* ---- Teste 5: data-link-idx acompanha o índice real do link ----
+     Sem abas não existe mais recorte por categoria, então o índice gravado
+     no card é o do próprio link em links[] — que é o que o público usa para
+     casar card ↔ link ao reaplicar estilo. */
+  console.log('\nTeste 5: data-link-idx bate com a posição em links[]');
+  const idxs = [...cards].map((c) => c.dataset.linkIdx);
+  assert(idxs.join(',') === '0,1,2', 'índices 0,1,2 na ordem — ' + idxs.join(','));
+  const catMix = JSON.parse(JSON.stringify(TEST_CFG));
+  catMix.style.showCategoryTabs = true;
+  const catContainer = document.createElement('div');
+  RenderCore.renderLinksList(catContainer, catMix.links, catMix, false);
+  const catCards = catContainer.querySelectorAll('.featured__card');
+  assert(catCards.length === 3, 'category/showCategoryTabs legados não recortam nem somem card — ' + catCards.length);
+  assert([...catCards].map((c) => c.dataset.linkIdx).join(',') === '0,1,2', 'índices continuam 0,1,2 com config legado');
 
   /* ---- Teste 6: Modo grid ---- */
   console.log('\nTeste 6: Modo grid (cardsMode=grid)');

@@ -1013,18 +1013,6 @@
   .link-block.featured__card--testimonial .link-block-icon { display:none; }
   .link-block.featured__card--testimonial .link-block__head { padding-left:0.5rem; padding-right:0; }
 
-  .pg-tabs { display:flex; gap:6px; overflow-x:auto; padding-bottom:10px; margin-bottom:6px; scrollbar-width:none; }
-  .pg-tabs::-webkit-scrollbar { display:none; }
-  .pg-tab {
-    flex-shrink:0; padding:9px 16px; border-radius:20px;
-    border:1.5px solid rgba(0,0,0,.15); background:transparent; color:rgba(0,0,0,.6);
-    font-size:14px; font-weight:600; min-height:44px; display:inline-flex;
-    align-items:center; justify-content:center;
-    cursor:pointer; transition:all .2s ease; white-space:nowrap;
-  }
-  .pg-tab:hover { background:rgba(0,0,0,.06); }
-  .pg-tab--active { background:var(--p-btnbg, #111827); color:var(--p-btnink, #fff); border-color:var(--p-btnbg, #111827); }
-
   /* Vidro fosco do FUNDO da página: camada z-index:-1 dentro de #pvPage
      (stacking context) — borracha o bg de baixo sem afetar o conteúdo */
   .pv-glass-veil {
@@ -2835,15 +2823,6 @@
           </div>
         </div>
 
-        <div class="toggle-row" style="margin-bottom:12px;">
-          <span class="toggle-label">Mostrar abas de filtro por categoria</span>
-          <label class="switch">
-            <input type="checkbox" id="showCategoryTabs">
-            <span class="slider"></span>
-          </label>
-        </div>
-        <p class="hint" style="margin:-6px 0 12px;">Exibe uma barra "Todos / Categoria" acima dos links, agrupando por categoria. Desligado, a barra nunca aparece, mesmo que links tenham categoria preenchida.</p>
-
         <div class="ds-control">
           <label>Tamanho dos ícones sociais</label>
           <p class="hint" style="margin:-2px 0 8px;">Tamanho dos ícones circulares (modo grade/carrossel). Aplica no mockup e no link público.</p>
@@ -3068,21 +3047,12 @@
         <input type="url" id="blockUrl" placeholder="https://...">
       </div>
       <div class="field">
-        <label for="blockSub">Descrição (opcional)</label>
-        <input type="text" id="blockSub" placeholder="Aparece abaixo do título" maxlength="80">
-      </div>
-      <div class="field">
         <label for="blockCardStyle">Estilo do Bloco</label>
         <select id="blockCardStyle" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
           <option value="">Normal (Link)</option>
           <option value="highlight">Destaque (CTA grande)</option>
           <option value="testimonial">Depoimento (Citação)</option>
         </select>
-      </div>
-      <div class="field">
-        <label for="blockCategory">Categoria (opcional)</label>
-        <input type="text" id="blockCategory" placeholder="Ex.: Redes Sociais, Projetos…" maxlength="30" list="categoryDatalist">
-        <datalist id="categoryDatalist"></datalist>
       </div>
     <div class="row-2">
       <div class="field">
@@ -4120,9 +4090,6 @@
       layoutSpacing: 'comfy',
       letterSpacing: 0,
       lineHeight: 1.4,
-      /* Abas de filtro por categoria: só renderizam quando o usuário liga
-         explicitamente — evita barra "Todos/X" vinda de dados órfãos. */
-      showCategoryTabs: false,
       /* Tipografia por elemento (sub-blocos independentes).
          font='' significa "Mesma da página" (usa st.font como fallback). */
       typoName: { font: '', size: 20, weight: 700, ls: 0, lh: 1.4 },
@@ -4580,13 +4547,12 @@
   let _previewLinksSig = null;
   function previewLinksSig(cfg) {
     const links = cfg.links || [];
-    const cats = [...new Set(links.map(l => l.category).filter(Boolean))];
-    const parts = [JSON.stringify(cats), JSON.stringify(!!cfg.style?.showCategoryTabs)];
+    const parts = [];
     links.forEach((l, i) => {
       parts.push([
         i, l.title || '', l.url || '', l.type || '', l.icon || '', l.iconImg || '',
         l.iconAlign || '', l.width || '', l.cardStyle || '', l.customButtonImage || '',
-        l.customButtonHeight || '', l.sub || '', l.id || '', l.category || ''
+        l.customButtonHeight || '', l.sub || '', l.id || ''
       ].join('|'));
     });
     /* PIX entra na estrutura da lista: estado (on) + posição (order). */
@@ -5039,24 +5005,6 @@
       pa.addEventListener('click', (ev) => ev.preventDefault());
       target.appendChild(pa);
     };
-
-    /* Categorias / Tabs no preview */
-    const cats = [...new Set(listLinks.map(l => l.category).filter(Boolean))];
-    if (cfg.style?.showCategoryTabs && cats.length > 0) {
-      const tabsWrap = document.createElement('div');
-      tabsWrap.className = 'pg-tabs';
-      const allTab = document.createElement('button');
-      allTab.className = 'pg-tab pg-tab--active';
-      allTab.textContent = 'Todos';
-      tabsWrap.appendChild(allTab);
-      cats.forEach(c => {
-        const btn = document.createElement('button');
-        btn.className = 'pg-tab';
-        btn.textContent = c;
-        tabsWrap.appendChild(btn);
-      });
-      list.appendChild(tabsWrap);
-    }
 
     for (let idx = 0; idx < listLinks.length; idx++) {
       const l = listLinks[idx];
@@ -6522,11 +6470,6 @@
     let idx = 0;
     let first = true;
     for (const child of listEl.children) {
-      if (child.classList && child.classList.contains('pg-tabs')) {
-        child.style.marginTop = '0px';
-        child.style.marginBottom = globalGap + 'px';
-        continue;
-      }
       const isPix = (child.getAttribute && child.getAttribute('data-pix') === '1');
       const link = isPix ? null : (links && links[idx]);
       const slot = (link && Number(link.spacing) > 0) ? Number(link.spacing) : globalGap;
@@ -7832,13 +7775,6 @@
       renderPreview();
       markDirty();
     });
-    safeOn('showCategoryTabs', 'change', (e) => {
-      if (!cfg.style) cfg.style = {};
-      cfg.style.showCategoryTabs = e.target.checked;
-      renderPreview();
-      renderLinksList();
-      markDirty();
-    });
     const BLOCK_CFG = [
       { key: 'typoBtn',  prefix: 'typoBtn'  }
     ];
@@ -8245,7 +8181,6 @@
     $('fontFamily').value = st.font || 'Inter';
     $('layoutSpacing').value = st.layoutSpacing || 'comfy';
     setTriggerColor('btnGlowColor', st.btnGlowColor || '#22d3ee');
-    if ($('showCategoryTabs')) $('showCategoryTabs').checked = !!st.showCategoryTabs;
     const eBtnShape = $('btnShape');
     if (eBtnShape) eBtnShape.value = st.btnShape || 'rounded';
     const eBtnShadowStyle = $('btnShadowStyle');
@@ -8592,10 +8527,8 @@
     const l = isNew ? {} : (cfg.links[index] || {});
     $('blockTitle').value = l.title || '';
     $('blockUrl').value = l.url || '';
-    $('blockSub').value = l.sub || '';
     $('blockType').value = l.type || '';
     $('blockCardStyle').value = l.cardStyle || '';
-    $('blockCategory').value = l.category || '';
     $('blockIconAlign').value = l.iconAlign || 'left';
     _pendingBlockIcon = l.iconImg || null;
     _pendingBlockImage = l.customButtonImage || '';
@@ -8630,17 +8563,6 @@
       ? JSON.parse(JSON.stringify(Object.assign({}, DEFAULT_LINK_STYLE(), l.style || {})))
       : JSON.parse(JSON.stringify(_defLs));
     populatePerStyleControls(_pendingBlockStyle);
-
-    /* Popula datalist de categorias existentes */
-    const catList = $('categoryDatalist');
-    if (catList) {
-      const cats = [...new Set((cfg.links || []).map(x => x.category).filter(Boolean))];
-      catList.replaceChildren(...cats.map(c => {
-        const opt = document.createElement('option');
-        opt.value = c;
-        return opt;
-      }));
-    }
 
     $('blockModal').classList.add('open');
   }
@@ -9237,7 +9159,8 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
 
       _pendingBlockHeight = Number($('blockCustomHeight').value) || 84;
       const isNew = editingBlockIndex == null;
-      const existingId = isNew ? null : (cfg.links[editingBlockIndex] || {}).id;
+      const existing = isNew ? null : (cfg.links[editingBlockIndex] || null);
+      const existingId = existing ? existing.id : null;
       const perStyle = readPerStyleControls();
 
       const entry = {
@@ -9245,9 +9168,13 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
         title,
         type: $('blockType').value || '',
         url,
-        sub: $('blockSub').value.trim(),
+        /* Descrição e categoria saíram do modal, mas o que já estava gravado
+           continua no config: os campos sumiram, os dados não. Reescrever
+           isto com '' apagaria a descrição de todo link salvo que o usuário
+           editasse por qualquer outro motivo. */
+        sub: (existing && existing.sub) || '',
         cardStyle: $('blockCardStyle').value || '',
-        category: $('blockCategory').value.trim() || '',
+        category: (existing && existing.category) || '',
         icon: _pendingBlockIcon ? '' : ($('blockType').value || ''),
         iconImg: _pendingBlockIcon || '',
         iconAlign: $('blockIconAlign').value || 'left',
