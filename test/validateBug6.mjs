@@ -14,8 +14,15 @@ export async function run() {
   let pass = 0, fail = 0;
   const check = (label, ok, detail = '') => {
     if (ok) pass++; else fail++;
-    const icon = ok ? '✅' : '❌';
-    console.log(`  ${icon} ${label}${detail ? ' — ' + detail : ''}`);
+    const icon = ok ? '?' : '?';
+    console.log(`  ${icon} ${label}${detail ? ' - ' + detail : ''}`);
+  };
+  /* Tamanho do primeiro card na página pública, para comparar mockup x site. */
+  const pubSize = (cfg) => {
+    const { window: pw } = boot(INDEX_PATH, { supabase: supabaseStub(null), url: 'https://axiumlink.test/?s=teste' });
+    pw.__alaPublica.aplicar(JSON.parse(JSON.stringify(cfg)));
+    const card = pw.document.querySelector('#pgLinks a.featured__card');
+    return card ? card.style.fontSize : '(sem card)';
   };
 
   console.log('\n━━━ BUG 6A: modal — desabilitar tipografia quando imagem ━━━');
@@ -96,6 +103,80 @@ export async function run() {
       check('public: fontWeight= 700', card.style.fontWeight === '700', card.style.fontWeight);
       check('public: color= #00ff00', (card.style.color === '#00ff00' || card.style.color === 'rgb(0, 255, 0)' || card.style.color === 'rgb(0,255,0)'), card.style.color);
     }
+  }
+
+  /* ================================================================
+     BUG 6D: herança da tipografia do painel. O "Tamanho da fonte" global
+     morria para qualquer link já salvo: submitBlock gravava linkFontSize à
+     força, então o botão nascia travado no 15px e o slider global virava
+     no-op. Agora o modal tem "Usar a tipografia do painel".
+     ================================================================ */
+  console.log('\n=== BUG 6D: heranca da tipografia do painel ===');
+  {
+    const mkCfg = () => {
+      const c = JSON.parse(JSON.stringify(NEW_CONFIG));
+      c.profile = c.profile || {};
+      c.profile.pix = { enabled: false };
+      c.style = c.style || {};
+      c.style.showCategoryTabs = false;
+      c.style.typoBtn = { font: '', size: 15, weight: 600, ls: 0, lh: 1.4 };
+      c.links = [{ id: 'l1', title: 'Site', url: 'https://a.com', type: 'site' }];
+      return c;
+    };
+    /* Salvar o bloco mexendo SÓ no título não pode cravar o tamanho. */
+    const { window: w } = boot(ADMIN_PATH, { supabase: supabaseStub(mkCfg()), url: 'https://axiumlink.test/admin.html' });
+    const d = w.document;
+    w.__axEditor.init(mkCfg());
+    d.querySelector('#linksList .icon-btn').click();
+    const box = d.getElementById('blockTypoGlobal');
+    check('heranca: link novo abre herdando do painel', !!box && box.checked === true);
+    d.getElementById('blockTitle').value = 'Meu Site';
+    d.getElementById('blockTitle').dispatchEvent(new w.Event('input', { bubbles: true }));
+    d.getElementById('btnBlockSave').click();
+    check('heranca: salvar mexendo so no titulo nao grava linkFontSize', w.__axEditor.cfg().links[0].linkFontSize == null, JSON.stringify(w.__axEditor.cfg().links[0].linkFontSize));
+
+    /* E o slider global volta a mandar nesse link. */
+    const g = d.getElementById('typoBtnSize');
+    g.value = '27';
+    g.dispatchEvent(new w.Event('input', { bubbles: true }));
+    const pv = d.querySelector('#previewLinksList .link-block');
+    check('heranca: slider global volta a valer depois de salvar o bloco', !!pv && pv.style.fontSize === '27px', pv ? pv.style.fontSize : '?');
+    check('heranca: publico tambem obedece o global', pubSize(w.__axEditor.cfg()) === '27px', pubSize(w.__axEditor.cfg()));
+
+    /* Override explícito: arrastar o slider desmarca a herança. */
+    d.querySelector('#linksList .icon-btn').click();
+    const sz = d.getElementById('blockTypoSize');
+    sz.value = '28';
+    sz.dispatchEvent(new w.Event('input', { bubbles: true }));
+    check('override: arrastar o slider desmarca "usar a do painel"', box.checked === false);
+    d.getElementById('btnBlockSave').click();
+    check('override: gravou linkFontSize=28', w.__axEditor.cfg().links[0].linkFontSize === 28, String(w.__axEditor.cfg().links[0].linkFontSize));
+    check('override: publico renderiza 28px', pubSize(w.__axEditor.cfg()) === '28px', pubSize(w.__axEditor.cfg()));
+
+    /* Reabrir mostra o override; remarcar a herança volta ao global. */
+    d.querySelector('#linksList .icon-btn').click();
+    check('override: reabrir com o box desmarcado', box.checked === false);
+    box.checked = true;
+    box.dispatchEvent(new w.Event('change', { bubbles: true }));
+    check('heranca: remarcar traz o valor global de volta no slider', d.getElementById('blockTypoSize').value === g.value, d.getElementById('blockTypoSize').value + ' (global ' + g.value + ')');
+    d.getElementById('btnBlockSave').click();
+    check('heranca: volta a gravar null (liberta o link do global)', w.__axEditor.cfg().links[0].linkFontSize == null, JSON.stringify(w.__axEditor.cfg().links[0].linkFontSize));
+  }
+
+  /* Piso de 13px: o mockup não pode mostrar 12px de um config legado se o
+     público sobe para 13px. */
+  console.log('\n=== BUG 6E: piso de 13px coerente entre mockup e publico ===');
+  {
+    const c = JSON.parse(JSON.stringify(NEW_CONFIG));
+    c.profile = c.profile || {};
+    c.profile.pix = { enabled: false };
+    c.links = [{ id: 'l1', title: 'Site', url: 'https://a.com', type: 'site', linkFontSize: 12 }];
+    const { window: w } = boot(ADMIN_PATH, { supabase: supabaseStub(JSON.parse(JSON.stringify(c))), url: 'https://axiumlink.test/admin.html' });
+    w.__axEditor.init(JSON.parse(JSON.stringify(c)));
+    const pv = w.document.querySelector('#previewLinksList .link-block');
+    const ps = pubSize(c);
+    check('piso: slider nao oferece menos de 13px', w.document.getElementById('blockTypoSize').min === '13', w.document.getElementById('blockTypoSize').min);
+    check('piso: mockup e publico batem em config legado de 12px', (pv ? pv.style.fontSize : '') === ps, (pv ? pv.style.fontSize : '?') + ' vs ' + ps);
   }
 
   console.log(`  ✅ BUG 6 Passed: ${pass}  |  ❌ Failed: ${fail}`);

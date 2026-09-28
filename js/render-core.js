@@ -17,7 +17,7 @@ const RenderCore = (function () {
   const ICONS = {
     pin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg>',
     verified: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>',
-    pix: '<span class="pg-pix__ico" aria-hidden="true">💳</span>',
+    pix: '<span class="pg-pix__ico" aria-hidden="true"><i class="fas fa-qrcode"></i></span>',
     arrow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>'
   };
 
@@ -751,11 +751,20 @@ const RenderCore = (function () {
     'signal': 'fab fa-signal-messenger',
     'localizacao': 'fas fa-map-marker-alt',
     'site': 'fas fa-globe',
-    'link': 'fas fa-link'
+    'link': 'fas fa-link',
+    'pix': 'fas fa-qrcode',
+    'telefone': 'fas fa-phone',
+    'tel': 'fas fa-phone',
+    'fone': 'fas fa-phone',
+    'podcast': 'fas fa-podcast',
+    'music': 'fas fa-music'
   };
 
+  /* Espelho do resolveIcon das páginas: devolve null (e não '') para valor
+     desconhecido, para que preview e público decidam o ícone escondido do
+     mesmo jeito. */
   function resolveIconClass(type) {
-    return ICON_MAP[type] || '';
+    return ICON_MAP[type] || null;
   }
 
   /* API pública */

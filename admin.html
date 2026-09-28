@@ -329,6 +329,20 @@
     min-width:44px; text-align:right; font-size:12px; font-weight:700; color:var(--ink);
     background:var(--bg); padding:4px 7px; border-radius:7px;
   }
+  /* "Usar a tipografia do painel": opt-in de herança do bloco. Marcado = o
+     botão herda tamanho/peso globais (o slider mostra o valor herdado, só
+     leitura). Desmarcado = o botão tem tipografia própria. */
+  .typo-inherit-row {
+    display:flex !important; align-items:flex-start; gap:9px; cursor:pointer;
+    background:var(--bg); border:1.5px solid var(--border); border-radius:10px;
+    padding:10px 11px; font-size:12px !important; font-weight:600 !important;
+    color:var(--ink) !important; margin-bottom:0 !important;
+  }
+  .typo-inherit-row input[type="checkbox"] { margin:1px 0 0; accent-color:var(--brand); flex:0 0 auto; }
+  .typo-inherit-row small {
+    display:block; font-weight:400; font-size:11px; color:var(--muted);
+    margin-top:2px; line-height:1.45;
+  }
   /* Sub-blocos independentes de tipografia */
   .typo-block {
     border:1.5px solid var(--border); border-radius:12px;
@@ -844,6 +858,23 @@
     transform: none;
     box-shadow: none;
   }
+  .pv-pix.ax-text-only {
+    background: none;
+    border: none;
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    padding: 0;
+    border-radius: 0;
+    min-height: 0;
+    margin: 10px auto 0;
+  }
+  .pv-pix.ax-text-only:hover,
+  .pv-pix.ax-text-only:active {
+    transform: none;
+    box-shadow: none;
+    filter: none;
+  }
   .pv-pix {
     display:flex; align-items:center; justify-content:center; gap:8px;
     margin:10px auto 0; width:100%; max-width:560px; min-width:0; min-height:72px; padding:0.8rem 1.25rem; border:none;
@@ -853,7 +884,14 @@
     /* Espelho do público: a tipografia delimita o corte (reticências). */
     overflow:hidden;
   }
-  .pv-pix__ico { width:18px; height:18px; font-size:16px; line-height:1; flex-shrink:0; }
+  /* Ícone do botão PIX: mesmo sistema dos outros botões (uma <i> do Font
+     Awesome dentro da caixa de 18x18). inline-flex para centralizar o
+     glifo na caixa — emoji e FA precisam do mesmo encaixe. */
+  .pv-pix__ico {
+    width: 18px; height: 18px; font-size: 16px; line-height: 1; flex-shrink: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .pv-pix__ico > i { font-size: 16px; line-height: 1; }
   .pv-pix__ico svg { width:100%; height:100%; }
   /* Texto: mesmo contrato do .link-block-title (nowrap + ellipsis) e do
      público (.pg-pix__btn > span:last-child). */
@@ -1660,6 +1698,54 @@
           <details class="elem-block" style="margin:10px 0 0;" id="pixStyleSection">
             <summary style="cursor:pointer;font-size:13px;font-weight:700;color:var(--ink);">🎨 Estilo do botão PIX</summary>
             <div style="margin-top:10px;">
+              <details style="margin-bottom:8px;">
+                <summary style="cursor:pointer;font-size:13px;font-weight:700;color:var(--ink);">Estilo de exibição</summary>
+                <p class="hint" style="margin:6px 0 8px;">Define como este botão aparece na página.</p>
+                <div class="field" style="margin:10px 0 0;">
+                  <label for="pixStDisplayStyle">Estilo</label>
+                  <select id="pixStDisplayStyle" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+                    <option value="box">Com caixa (botão com fundo/borda/vidro)</option>
+                    <option value="text-only">Somente texto (link puro, sem container)</option>
+                  </select>
+                </div>
+              </details>
+
+              <div class="field" style="margin:10px 0 0; padding-top:12px; border-top:1px solid var(--bg);">
+                <label style="font-size:13px; font-weight:700; color:var(--ink);">Ícone do botão PIX</label>
+                <div class="field">
+                  <label for="pixStIcon">Plataforma / Ícone</label>
+                  <select id="pixStIcon" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+                    <option value="">Nenhum</option>
+                    <option value="whatsapp">WhatsApp</option>
+                    <option value="instagram">Instagram</option>
+                    <option value="tiktok">TikTok</option>
+                    <option value="youtube">YouTube</option>
+                    <option value="twitter">Twitter / X</option>
+                    <option value="linkedin">LinkedIn</option>
+                    <option value="facebook">Facebook</option>
+                    <option value="telegram">Telegram</option>
+                    <option value="spotify">Spotify</option>
+                    <option value="discord">Discord</option>
+                    <option value="twitch">Twitch</option>
+                    <option value="github">GitHub</option>
+                    <option value="pinterest">Pinterest</option>
+                    <option value="snapchat">Snapchat</option>
+                    <option value="reddit">Reddit</option>
+                    <option value="threads">Threads</option>
+                    <option value="behance">Behance</option>
+                    <option value="dribbble">Dribbble</option>
+                    <option value="medium">Medium</option>
+                    <option value="email">Email</option>
+                    <option value="telefone">Telefone</option>
+                    <option value="localizacao">Localização</option>
+                    <option value="site">Site / Web</option>
+                    <option value="pix">Pix</option>
+                  </select>
+                  <p class="hint">Mesmas opções de ícone dos outros botões. Deixe em "Nenhum" para o botão ficar só com o texto.</p>
+                </div>
+              </div>
+
+              <div id="pixStBoxControls">
               <div class="field">
                 <label>Variante</label>
                 <select id="pixStVariant" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
@@ -1712,14 +1798,6 @@
                   <option value="shine">Brilho Passante (Shine)</option>
                   <option value="float">Flutuação Suave</option>
                 </select>
-              </div>
-              <div class="field" style="margin:10px 0 0; padding-top:12px; border-top:1px solid var(--bg);">
-                <label style="font-size:13px; font-weight:700; color:var(--ink);">Ícone do botão PIX</label>
-                <div class="field">
-                  <label for="pixStIcon">Emoji do ícone</label>
-                  <input type="text" id="pixStIcon" placeholder="💳" maxlength="10" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
-                  <p class="hint">Digite qualquer emoji (ex.: 💳 💰 ⚡ ✨). Deixe vazio para remover o ícone — o botão fica só com o texto.</p>
-                </div>
               </div>
               <div class="field" style="margin:10px 0 0; padding-top:12px; border-top:1px solid var(--bg);">
                 <label style="font-size:13px; font-weight:700; color:var(--ink);">Tamanho do botão</label>
@@ -1848,10 +1926,12 @@
                 <div class="toggle-row" style="padding:2px 0 6px;">
                   <span class="toggle-label">Textura sutil (ruído)</span>
                   <label class="switch">
-                    <input type="checkbox" id="pixStGlassNoise">
-                    <span class="slider"></span>
-                  </label>
+                      <input type="checkbox" id="pixStGlassNoise">
+                      <span class="slider"></span>
+                    </label>
+                  </div>
                 </div>
+              </div>
               </div>
             </div>
           </details>
@@ -2899,7 +2979,7 @@
                   </div>
 
                   <button class="pv-pix" id="pvPix" type="button" data-dialog-open hidden>
-            <span class="pv-pix__ico" aria-hidden="true">💳</span>
+            <span class="pv-pix__ico" aria-hidden="true"><i class="fas fa-qrcode"></i></span>
             <span>Pagar com PIX</span>
           </button>
 
@@ -3091,9 +3171,15 @@
           </select>
         </div>
         <div class="ds-control">
-          <label>Tamanho da fonte</label>
+          <label class="typo-inherit-row" for="blockTypoGlobal">
+            <input type="checkbox" id="blockTypoGlobal" checked>
+            <span>Usar a tipografia do painel<small>Tamanho e peso vêm de “Tipografia dos Botões de Link”. Desmarque para personalizar só este botão.</small></span>
+          </label>
+        </div>
+        <div class="ds-control">
+          <label for="blockTypoSize">Tamanho da fonte</label>
           <div class="ds-control-row">
-            <input type="range" id="blockTypoSize" min="12" max="34" step="1">
+            <input type="range" id="blockTypoSize" min="13" max="34" step="1">
             <output class="ds-value" id="blockTypoSizeVal">15px</output>
           </div>
         </div>
@@ -3757,10 +3843,22 @@
      padrão são as do PIX (verde) para preservar o visual atual quando o
      usuário não personaliza. */
   const DEFAULT_PIX_STYLE = () => Object.assign({}, DEFAULT_LINK_STYLE(), {
-    icon: '💳',
+    icon: 'pix',
     colors: { background: '#16A34A', text: '#ffffff' },
     gradient: { start: '#16a34a', end: '#15803d', angle: 135 }
   });
+
+  /* Normaliza pix.style.icon para o mesmo formato usado em link.type: a CHAVE
+     da plataforma, resolvida pelo mesmo resolveIcon dos outros botões.
+     - undefined/ausente  -> 'pix' (padrão)
+     - ''                 -> '' (usuário escolheu "Nenhum": botão só com texto)
+     - valor desconhecido -> 'pix' (configs LEGADOS guardavam EMOJI, ex.: '💳',
+       '💰', '⚡'; eles caem no ícone padrão em vez de virar botão sem ícone) */
+  function normalizePixIcon(v) {
+    if (typeof v !== 'string') return 'pix';
+    if (v === '') return '';
+    return resolveIcon(v) ? v : 'pix';
+  }
 
   /* Resolve o flat do botão PIX a partir de profile.pix.
      - pix.style (schema do link) é a fonte de verdade quando existe;
@@ -3769,15 +3867,23 @@
   function pixStyleFlat(pixC, globalSt) {
     const p = (pixC && typeof pixC === 'object') ? pixC : {};
     const style = (p.style && typeof p.style === 'object') ? p.style : null;
-    if (style) return linkStyleToFlat(Object.assign({}, DEFAULT_PIX_STYLE(), style), globalSt);
+    if (style) {
+      const merged = Object.assign({}, DEFAULT_PIX_STYLE(), style);
+      merged.icon = normalizePixIcon(merged.icon);
+      const flat = linkStyleToFlat(merged, globalSt);
+      flat.btnIcon = merged.icon;
+      return flat;
+    }
     const dflt = DEFAULT_PIX_STYLE();
-    return linkStyleToFlat({
+    const flat = linkStyleToFlat({
       format: p.btnShape || dflt.format,
       colors: {
         background: p.btnBgColor || dflt.colors.background,
         text: p.btnTextColor || dflt.colors.text
       }
     }, globalSt);
+    flat.btnIcon = dflt.icon;
+    return flat;
   }
 
   /* Objeto style do PIX vivendo em cfg.profile.pix.style. Cria a partir dos
@@ -3805,7 +3911,7 @@
     setSel('pixStVariant', ls.variant);
     setSel('pixBtnShape', ls.format);
     setSel('pixStAnimation', ls.animation);
-    if ($('pixStIcon')) $('pixStIcon').value = (typeof ls.icon === 'string') ? ls.icon : '💳';
+    if ($('pixStIcon')) $('pixStIcon').value = normalizePixIcon(ls.icon);
     setSel('pixStFont', ls.font || '');
     const fsN = (Number(ls.fontSize) >= 12 && Number(ls.fontSize) <= 34) ? Number(ls.fontSize) : 15;
     if ($('pixStFontSize')) $('pixStFontSize').value = fsN;
@@ -3851,7 +3957,20 @@
     if ($('pixStGlassBorderOpacityVal')) $('pixStGlassBorderOpacityVal').textContent = gbo + '%';
     if ($('pixStGlassHighlight')) $('pixStGlassHighlight').checked = gl.highlight != null ? !!gl.highlight : true;
     if ($('pixStGlassNoise')) $('pixStGlassNoise').checked = !!gl.noise;
+    if ($('pixStDisplayStyle')) $('pixStDisplayStyle').value = ls.displayStyle || 'box';
+    updatePixBoxVisibility(ls);
     updatePixStyleVisibility(ls);
+  }
+
+  /* "Somente texto" esconde as opções que só fazem sentido com a caixa
+     (variante, formato, animação, tamanho, sombra, gradiente, vidro,
+     tipografia) — mesmo comportamento de updatePerBtnBoxVisibility no link.
+     O seletor de ícone FICA visível: em text-only o ícone continua
+     aparecendo, então o usuário ainda precisa poder trocá-lo. */
+  function updatePixBoxVisibility(ls) {
+    const isTextOnly = ((ls && ls.displayStyle) || 'box') === 'text-only';
+    const boxControls = $('pixStBoxControls');
+    if (boxControls) boxControls.style.display = isTextOnly ? 'none' : 'block';
   }
 
   function updatePixStyleVisibility(ls) {
@@ -3921,7 +4040,10 @@
       btnFontWeight: (Number(s.fontWeight) >= 300 && Number(s.fontWeight) <= 900) ? Number(s.fontWeight) : 600,
       btnWidth: (Number(s.width) >= 160 && Number(s.width) <= 640) ? Number(s.width) : 420,
       btnHeight: (Number(s.height) >= 0 && Number(s.height) <= 120) ? Number(s.height) : 0,
-      btnIcon: (typeof s.icon === 'string') ? s.icon : '💳',
+      /* btnIcon é a PLATAFORMA do botão (chave que o resolveIcon entende),
+         nunca um emoji — link e PIX compartilham o mesmo campo. Só o PIX lê
+         este campo, e sempre via pixStyleFlat(), que o sobrescreve. */
+      btnIcon: (typeof s.icon === 'string') ? s.icon : '',
       displayStyle: s.displayStyle || 'box',
       buttonGlass: { enabled: gl.enabled, blur: gl.blur, saturate: gl.saturate, opacity: gl.opacity, color: gl.color, borderGlow: gl.borderGlow, shadowDepth: gl.shadowDepth, highlight: gl.highlight, noise: gl.noise, borderOpacity: gl.borderOpacity }
     };
@@ -4147,12 +4269,16 @@
       _isDirty = true;
       saveLocalDraft();
       schedulePreview();
+      /* Mockup e aba pública andam juntos, por frame: nenhum dos dois espera
+         o outro nem a nuvem. */
+      scheduleLiveBroadcast();
       scheduleCloudSave();
       syncLayoutOrder();
     } catch (err) {
       console.error('[Axiumlink] markDirty falhou:', err);
-      // Garante que preview e cloud save ainda sejam agendados mesmo se syncLayoutOrder falhar
+      // Garante que preview, sync e cloud save ainda sejam agendados mesmo se syncLayoutOrder falhar
       try { schedulePreview(); } catch (_) {}
+      try { scheduleLiveBroadcast(); } catch (_) {}
       try { scheduleCloudSave(); } catch (_) {}
     }
   }
@@ -4191,12 +4317,43 @@
     }
   }
 
-  /* Render do mockup com debounce LEVE (150ms): reflete a edição ao vivo
-     sem travar a digitação em campos de texto. */
+  /* Render do mockup por FRAME (requestAnimationFrame): a edição aparece no
+     mesmo quadro do input — atraso zero, sem travar a digitação. O
+     coalescing é o próprio navegador (vários eventos no mesmo frame viram UM
+     render) e o renderPreview já é idempotente, com fingerprint
+     anti-flicker (previewLinksSig) que impede reconstruir cards à toa. */
+  let _previewRaf = 0;
   let _previewTimer = null;
   function schedulePreview() {
-    clearTimeout(_previewTimer);
-    _previewTimer = setTimeout(renderPreview, 150);
+    /* jsdom e navegadores sem rAF (ou com a aba oculta) caem no setTimeout. */
+    if (typeof requestAnimationFrame !== 'function') {
+      clearTimeout(_previewTimer);
+      _previewTimer = setTimeout(renderPreview, 0);
+      return;
+    }
+    if (_previewRaf) return;
+    _previewRaf = requestAnimationFrame(function () {
+      _previewRaf = 0;
+      renderPreview();
+    });
+  }
+
+  /* Propagação instantânea para a aba pública ABERTA no mesmo navegador, por
+     frame. Não espera o autosave na nuvem (2s): quem está olhando o link
+     vê a edição no mesmo quadro em que ela acontece. A nuvem continua a
+     fonte de verdade para quem NÃO tem a aba aberta (polling do index.html)
+     e o autosave segue gravando o que foi salvo com sucesso. */
+  let _liveRaf = 0;
+  function scheduleLiveBroadcast() {
+    if (typeof requestAnimationFrame !== 'function') {
+      notifyViewerTab(buildPayload());
+      return;
+    }
+    if (_liveRaf) return;
+    _liveRaf = requestAnimationFrame(function () {
+      _liveRaf = 0;
+      try { notifyViewerTab(buildPayload()); } catch (_) {}
+    });
   }
 
   function scheduleCloudSave() {
@@ -4480,13 +4637,27 @@
       t.style.fontWeight = String(fw);
       if (flat && flat.btnFont) t.style.fontFamily = '"' + flat.btnFont + '", system-ui, sans-serif';
     });
-    const icoV = (flat && typeof flat.btnIcon === 'string') ? flat.btnIcon : '💳';
+    const icoKey = (flat && typeof flat.btnIcon === 'string') ? flat.btnIcon : 'pix';
     el.querySelectorAll('.pv-pix__ico, .pg-pix__ico').forEach((ico) => {
       ico.style.width = '18px';
       ico.style.height = '18px';
-      if (icoV) { ico.textContent = icoV; ico.style.display = ''; }
-      else { ico.textContent = ''; ico.style.display = 'none'; }
+      setPixIconNode(ico, resolveIcon(icoKey));
     });
+  }
+
+  /* Escreve o ícone do botão PIX dentro do host (.pv-pix__ico / .pg-pix__ico)
+     usando o MESMO pipeline dos outros botões: chave de plataforma ->
+     resolveIcon -> <i class="fa...">. Sem classe (usuário escolheu "Nenhum")
+     o host fica vazio e oculto — o botão fica só com o texto. Espelho
+     exato do axSetPixIconNode no público. */
+  function setPixIconNode(host, faClass) {
+    if (!host) return;
+    while (host.firstChild) host.removeChild(host.firstChild);
+    if (!faClass) { host.style.display = 'none'; return; }
+    const i = document.createElement('i');
+    i.className = faClass;
+    host.appendChild(i);
+    host.style.display = '';
   }
 
   /* Aplica o estilo completo do botão PIX (variante, formato, animação,
@@ -4498,6 +4669,35 @@
   function applyPixStyleToEl(el, pixC, st, t) {
     if (!el) return;
     const flat = pixStyleFlat(pixC, st);
+    const ANIMS = ['pv-anim-pulse', 'pv-anim-float', 'pv-anim-shine'];
+    /* Tamanho, ícone e tipografia PRIMEIRO: valem nos dois modos e vivem nos
+       FILHOS (o <i> do ícone e o <span> do texto), que o override de
+       "somente texto" abaixo não toca. */
+    applyPixSizing(el, flat);
+    /* "Somente texto" tem prioridade sobre a caixa: sem container visual,
+       mantendo o botão clicável e a tipografia. Mesmo bloco do loop de
+       .link-block (mockup) e do público. */
+    if ((flat.displayStyle || 'box') === 'text-only') {
+      el.classList.remove('ghost', 'neumorphic', ...ANIMS, 'gx-panel', 'gx-highlight', 'gx-noise');
+      el.classList.add('ax-text-only');
+      Object.assign(el.style, {
+        background: 'transparent',
+        border: 'none',
+        boxShadow: 'none',
+        padding: '0',
+        borderRadius: '0',
+        backdropFilter: 'none',
+        WebkitBackdropFilter: 'none',
+        textShadow: 'none',
+        display: 'inline',
+        width: 'auto',
+        maxWidth: 'none',
+        flex: 'none',
+        textDecoration: 'underline',
+        cursor: 'pointer'
+      });
+      return;
+    }
     /* buildButtonCSS do admin usa t.btnbg no sólido — as cores individuais
        do PIX (btnBgColor/btnTextColor) precisam chegar no sólido igual ao
        público (axBtnStyle default). Passa um tPix que resolve a cor do PIX
@@ -4510,9 +4710,7 @@
     const bCSS = buildButtonCSS(flat, tPix);
     const bVariant = flat.btnVariant || 'solid';
     const bAnim = flat.btnAnimation || 'none';
-    const ANIMS = ['pv-anim-pulse', 'pv-anim-float', 'pv-anim-shine'];
     Object.assign(el.style, bCSS);
-    applyPixSizing(el, flat);
     el.classList.remove('ghost', 'neumorphic', ...ANIMS, 'ax-text-only');
     if (bVariant === 'ghost' || bVariant === 'neumorphic') el.classList.add(bVariant);
     if (bAnim === 'pulse') el.classList.add('pv-anim-pulse');
@@ -4636,6 +4834,42 @@
     }
   }
 
+  /* Ícone do card PIX na lista, escrito/removido NO LUGAR. Espelho exato do
+     setPixCardIcon público: o ícone é CONTEÚDO, não estrutura, então trocar a
+     plataforma reescreve o <i> dentro do mesmo card — o mockup não pisca
+     (rebuild só quando a SIGNATURE da lista muda). Sem ícone a span some
+     inteira, igual a um link sem plataforma. */
+  function applyPixListCardIcon() {
+    const wrap = $('previewLinksList');
+    if (!wrap) return;
+    const pa = wrap.querySelector('[data-pix]');
+    if (!pa) return;
+    const pixC = (cfg.profile && cfg.profile.pix) || {};
+    const fa = resolveIcon(pixStyleFlat(pixC, cfg.style || {}).btnIcon);
+    const cur = pa.querySelector('.link-block-icon');
+    if (!fa) {
+      /* Espelho do build (appendPixCard): mantém a span e a oculta, com o
+         recuo do head compensando a caixa que sumiu. */
+      if (cur) {
+        while (cur.firstChild) cur.removeChild(cur.firstChild);
+        cur.style.display = 'none';
+      }
+      const head = pa.querySelector('.link-block__head');
+      if (head) head.style.paddingLeft = '15px';
+      return;
+    }
+    const icon = cur || document.createElement('span');
+    while (icon.firstChild) icon.removeChild(icon.firstChild);
+    if (!cur) {
+      icon.className = 'link-block-icon';
+      pa.insertBefore(icon, pa.firstChild);
+    }
+    icon.style.display = '';
+    const i = document.createElement('i');
+    i.className = fa;
+    icon.appendChild(i);
+  }
+
   function renderPreview() {
     $('pvName').textContent = cfg.profile?.displayName || 'Seu nome';
     $('pvBio').textContent = cfg.profile?.bio || '';
@@ -4727,8 +4961,7 @@
        tecla/slider/autosave destruía todos os botões e o mockup inteiro
        piscava continuamente (regressão reportada pelo usuário). */
     const list = $('previewLinksList');
-    const listSig = previewLinksSig(cfg);
-    if (listSig === _previewLinksSig) {
+    const listSig = previewLinksSig(cfg);    if (listSig === _previewLinksSig) {
       /* Estrutura dos links não mudou → NÃO reconstrói a lista (evita o
          flicker de destruir/recriar os botões a cada tecla/slider/autosave).
          Mas o caminho até aqui já rodou applyThemeVars()+applyTypographyBlocks,
@@ -4736,6 +4969,7 @@
          os estilos por cima do MESMO DOM (applyThemeVars → reapplyLinkTypo) e
          reafirma o alinhamento Nome+selo, fechando o ciclo IGUAL ao caminho
          de rebuild (a única diferença é não recriar os nós). */
+      applyPixListCardIcon();
       applyThemeVars();
       alignNameRow();
       return;
@@ -4780,9 +5014,18 @@
       head.className = 'link-block__head';
       const iconWrap = document.createElement('span');
       iconWrap.className = 'link-block-icon';
-      const i = document.createElement('i');
-      i.className = 'fas fa-qrcode';
-      iconWrap.appendChild(i);
+      /* Mesmo pipeline dos outros cards: o ícone do PIX vem do style dele
+         (pix.style.icon, chave de plataforma) e passa pelo resolveIcon —
+         antes era 'fas fa-qrcode' fixo e ignorava a personalização. */
+      const pixCardIcon = resolveIcon(pixStyleFlat(pixCfg, cfg.style || {}).btnIcon);
+      if (pixCardIcon) {
+        const i = document.createElement('i');
+        i.className = pixCardIcon;
+        iconWrap.appendChild(i);
+      } else {
+        iconWrap.style.display = 'none';
+        head.style.paddingLeft = '15px';
+      }
       head.appendChild(iconWrap);
       const txt = document.createElement('span');
       txt.className = 'link-block-txt';
@@ -4944,7 +5187,10 @@
     if (a.classList.contains('link-block-customimg')) return;
     if (l.id) a.dataset.linkId = l.id;
     if (l.linkFont) a.style.fontFamily = `"${l.linkFont}", system-ui, sans-serif`;
-    if (l.linkFontSize) a.style.fontSize = l.linkFontSize + 'px';
+    /* Piso de 13px IGUAL ao público (index.html, bloco do card): sem isso o
+       mockup Mostrava 12px de um config legado e o site saía 13px — o
+       preview não pode mentir sobre o tamanho que o visitante vai ver. */
+    if (l.linkFontSize) a.style.fontSize = Math.max(13, parseFloat(l.linkFontSize) || 13) + 'px';
     if (l.linkFontWeight) a.style.fontWeight = String(l.linkFontWeight);
     if (l.linkTextColor) a.style.color = l.linkTextColor;
   }
@@ -8357,11 +8603,15 @@
     _pendingBlockHeight = (Number(l.customButtonHeight) > 40) ? Number(l.customButtonHeight) : 84;
     $('blockCustomHeight').value = _pendingBlockHeight;
     $('blockCustomHeightVal').textContent = _pendingBlockHeight + 'px';
-    /* Tipografia por-link (override opcional do texto do botão) */
+    /* Tipografia por-link (override opcional do texto do botão).
+       Herdar é o PADRÃO: sem linkFontSize/linkFontWeight o botão segue o
+       painel. Sem isso, salvar o bloco gravava 15/600 à força e travava o
+       botão no global — o slider do painel virava no-op (bug corrigido). */
     $('blockTypoFont').value = l.linkFont || '';
-    $('blockTypoSize').value = (Number(l.linkFontSize) >= 12 && Number(l.linkFontSize) <= 34) ? Number(l.linkFontSize) : 15;
+    $('blockTypoGlobal').checked = !(Number(l.linkFontSize) >= 13 || Number(l.linkFontWeight) >= 300);
+    $('blockTypoSize').value = (Number(l.linkFontSize) >= 13 && Number(l.linkFontSize) <= 34) ? Number(l.linkFontSize) : axGlobalBtnTypo().size;
     $('blockTypoSizeVal').textContent = $('blockTypoSize').value + 'px';
-    $('blockTypoWeight').value = (Number(l.linkFontWeight) >= 300 && Number(l.linkFontWeight) <= 900) ? Number(l.linkFontWeight) : 600;
+    $('blockTypoWeight').value = (Number(l.linkFontWeight) >= 300 && Number(l.linkFontWeight) <= 900) ? Number(l.linkFontWeight) : axGlobalBtnTypo().weight;
     $('blockTypoWeightVal').textContent = $('blockTypoWeight').value;
     const ltColor = l.linkTextColor || '';
     _pendingBlockTextColor = ltColor;
@@ -8372,6 +8622,7 @@
     $('blockSpacing').value = (Number(l.spacing) > 0) ? Number(l.spacing) : 0;
     $('blockSpacingVal').textContent = $('blockSpacing').value + 'px';
     updateBlockImageUI();
+    updateBlockTypoInheritUI();
 
     /* Estilo individual do botão (per-link) */
     const _defLs = flatToLinkStyle(cfg.style || {});
@@ -8504,6 +8755,39 @@
     });
     const notApp = $('blockTypoNotApp');
     if (notApp) notApp.style.display = isImg ? 'block' : 'none';
+    /* A herança do painel manda no estado final dos sliders (marcar o botão
+       como imagem não pode religar um override que está herdando). */
+    updateBlockTypoInheritUI();
+  }
+
+  /* Tipografia global dos botões de link (st.typoBtn) normalizada para o
+     modal do bloco. Espelha os defaults do painel (DEFAULT_CFG.style.typoBtn):
+     o slider do bloco mostra o valor herdado, não um número solto. */
+  function axGlobalBtnTypo() {
+    const t = (cfg.style && cfg.style.typoBtn) || {};
+    return {
+      size: (Number(t.size) >= 13 && Number(t.size) <= 34) ? Number(t.size) : 15,
+      weight: (Number(t.weight) >= 300 && Number(t.weight) <= 900) ? Number(t.weight) : 600
+    };
+  }
+
+  /* "Usar a tipografia do painel" (blockTypoGlobal):
+       marcado  → o botão herda tamanho/peso do painel; os sliders passam a
+                  mostrar o valor herdado e o SALVAR grava
+                  linkFontSize/linkFontWeight = null (volta a obedecer o global).
+       desmarcado → o botão tem tipografia própria.
+     Os sliders NUNCA ficam travados por herança (só por botão-imagem, como
+     antes): mexer num deles já desmarca a caixa, porque arrastar o slider é
+     justamente o gesto de "quero um tamanho só meu". Sem isso o botão nascia
+     travado no 15px/600 depois do primeiro "Salvar bloco" e o "Tamanho da
+     fonte" global do painel deixava de ter efeito algum. */
+  function updateBlockTypoInheritUI() {
+    if (!($('blockTypoGlobal') && $('blockTypoGlobal').checked)) return;
+    const g = axGlobalBtnTypo();
+    const sEl = $('blockTypoSize');
+    const wEl = $('blockTypoWeight');
+    if (sEl) { sEl.value = g.size; const o = $('blockTypoSizeVal'); if (o) o.textContent = g.size + 'px'; }
+    if (wEl) { wEl.value = g.weight; const o = $('blockTypoWeightVal'); if (o) o.textContent = String(g.weight); }
   }
 
   function bindEditorEvents() {
@@ -8631,8 +8915,15 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
       renderPreview();
       markDirty();
     });
-    safeOn('pixStIcon', 'input', (e) => {
+    /* 'change' porque agora é <select> (era <input> livre de emoji) */
+    safeOn('pixStIcon', 'change', (e) => {
       pixStyleEditable().icon = e.target.value;
+      renderPreview();
+      markDirty();
+    });
+    safeOn('pixStDisplayStyle', 'change', (e) => {
+      pixStyleEditable().displayStyle = e.target.value || 'box';
+      updatePixBoxVisibility({ displayStyle: e.target.value });
       renderPreview();
       markDirty();
     });
@@ -8844,8 +9135,20 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
     /* Imagem customizada do botão (Design do botão) */
     safeOn('blockBtnDesign', 'change', () => updateBlockImageUI());
     safeOn('blockCustomHeight', 'input', () => updateBlockImageUI());
-    safeOn('blockTypoSize', 'input', (e) => { const o = $('blockTypoSizeVal'); if (o) o.textContent = e.target.value + 'px'; });
-    safeOn('blockTypoWeight', 'input', (e) => { const o = $('blockTypoWeightVal'); if (o) o.textContent = e.target.value; });
+    safeOn('blockTypoSize', 'input', (e) => {
+      const o = $('blockTypoSizeVal');
+      if (o) o.textContent = e.target.value + 'px';
+      /* Arrastar o slider é o gesto de "quero um tamanho só meu": desmarca a
+         herança para o SALVAR gravar o override. */
+      if ($('blockTypoGlobal') && $('blockTypoGlobal').checked) $('blockTypoGlobal').checked = false;
+    });
+    safeOn('blockTypoWeight', 'input', (e) => {
+      const o = $('blockTypoWeightVal');
+      if (o) o.textContent = e.target.value;
+      if ($('blockTypoGlobal') && $('blockTypoGlobal').checked) $('blockTypoGlobal').checked = false;
+    });
+    /* Herdar tipografia do painel: volta tamanho/peso para o valor global. */
+    safeOn('blockTypoGlobal', 'change', () => updateBlockTypoInheritUI());
     safeOn('blockSpacing', 'input', (e) => { const o = $('blockSpacingVal'); if (o) o.textContent = e.target.value + 'px'; });
     safeOn('blockTextColor', 'click', () => {
       const cur = _pendingBlockTextColor || '#ffffff';
@@ -8951,8 +9254,11 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
         customButtonImage: ($('blockBtnDesign').value === 'imagem') ? (_pendingBlockImage || '') : '',
         customButtonHeight: ($('blockBtnDesign').value === 'imagem') ? _pendingBlockHeight : null,
         linkFont: $('blockTypoFont').value || '',
-        linkFontSize: (Number($('blockTypoSize').value) >= 12) ? Number($('blockTypoSize').value) : null,
-        linkFontWeight: (Number($('blockTypoWeight').value) >= 300) ? Number($('blockTypoWeight').value) : null,
+        /* Herdar a tipografia do painel = null (ausente) em vez de gravar um
+           número: era exatamente o que travava o botão no valor do slider e
+           fazia o "Tamanho da fonte" global deixar de funcionar. */
+        linkFontSize: (!$('blockTypoGlobal')?.checked && Number($('blockTypoSize').value) >= 13) ? Number($('blockTypoSize').value) : null,
+        linkFontWeight: (!$('blockTypoGlobal')?.checked && Number($('blockTypoWeight').value) >= 300) ? Number($('blockTypoWeight').value) : null,
         linkTextColor: _pendingBlockTextColor || '',
         spacing: (Number($('blockSpacing').value) > 0) ? Number($('blockSpacing').value) : undefined,
         style: perStyle
@@ -9697,6 +10003,9 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
       _cloudConfigToLoad = fixture ? __clone(fixture) : null;
       initEditor();
     },
+    /* Abre o canal de sync da aba pública sem passar pelo dashboard, para os
+       testes observarem o que é propagado em tempo real. */
+    openSync() { _openSyncChannel(); return !!_syncChannel; },
     cfg() { return cfg; },
     applyPreset(key) { applyPreset(key); },
     presets() { return __clone(PRESETS); },

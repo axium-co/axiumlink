@@ -317,21 +317,35 @@ export async function run() {
       check('admin: header aplica fonte Poppins', (node.style.fontFamily || '').indexOf('Poppins') >= 0, node.style.fontFamily);
       check('admin: header mantém padding padrão', node.style.padding === '0.8rem 1.25rem', node.style.padding);
       check('admin: header mantém ícone 18px', node.querySelector('.pv-pix__ico').style.width === '18px');
-      check('admin: #pixStIcon reflete pix.style.icon (padrão 💳)', d.getElementById('pixStIcon').value === '💳');
-      check('admin: preview mostra ícone padrão 💳', node.querySelector('.pv-pix__ico').textContent === '💳');
+      check('admin: #pixStIcon reflete pix.style.icon (padrão = chave "pix")', d.getElementById('pixStIcon').value === 'pix');
+      check('admin: preview mostra ícone padrão fa-qrcode', !!node.querySelector('.pv-pix__ico > i.fas.fa-qrcode'));
+      check('admin: #pixStIcon é <select> com as mesmas opções dos outros botões', d.getElementById('pixStIcon').tagName === 'SELECT' && d.getElementById('pixStIcon').options.length === d.getElementById('blockType').options.length);
 
+      /* Trocar a plataforma usa o MESMO pipeline dos outros botões:
+         chave -> resolveIcon -> <i class="fa...">. Nada de emoji. */
       const iconInput = d.getElementById('pixStIcon');
-      iconInput.value = '💰';
-      iconInput.dispatchEvent(new w.Event('input', { bubbles: true }));
-      check('admin: emoji → pix.style.icon = 💰', w.__axEditor.cfg().profile.pix.style.icon === '💰');
-      check('admin: preview troca ícone para 💰', node.querySelector('.pv-pix__ico').textContent === '💰');
+      iconInput.value = 'whatsapp';
+      iconInput.dispatchEvent(new w.Event('change', { bubbles: true }));
+      check('admin: plataforma → pix.style.icon = whatsapp', w.__axEditor.cfg().profile.pix.style.icon === 'whatsapp');
+      check('admin: preview troca ícone para fa-whatsapp', !!node.querySelector('.pv-pix__ico > i.fab.fa-whatsapp'));
       check('admin: ícone visível após troca', node.querySelector('.pv-pix__ico').style.display !== 'none');
 
       iconInput.value = '';
-      iconInput.dispatchEvent(new w.Event('input', { bubbles: true }));
+      iconInput.dispatchEvent(new w.Event('change', { bubbles: true }));
       check('admin: vazio → pix.style.icon = "" (remove)', w.__axEditor.cfg().profile.pix.style.icon === '');
       check('admin: preview remove o ícone (display none)', node.querySelector('.pv-pix__ico').style.display === 'none');
       check('admin: ícone removido fica sem conteúdo', node.querySelector('.pv-pix__ico').textContent === '');
+
+      /* Configs LEGADOS guardavam EMOJI em pix.style.icon. Não podem virar
+         botão sem ícone: caem no fa-qrcode. */
+      {
+        const legacy = SIZED();
+        legacy.profile.pix.style.icon = '💰';
+        w.__axEditor.init(legacy);
+        check('admin: emoji legado cai no ícone padrão fa-qrcode', !!d.getElementById('pvPix').querySelector('.pv-pix__ico > i.fas.fa-qrcode'));
+        check('admin: select reflete a migração do emoji legado', d.getElementById('pixStIcon').value === 'pix');
+        w.__axEditor.init(SIZED());
+      }
 
       const widthSlider = d.getElementById('pixStWidth');
       widthSlider.value = '300';
@@ -372,22 +386,30 @@ export async function run() {
       check('público: header fonte Poppins', (btn.style.fontFamily || '').indexOf('Poppins') >= 0, btn.style.fontFamily);
       const ico = btn.querySelector('.pg-pix__ico');
       check('público: header ícone 18px', ico.style.width === '18px' && ico.style.height === '18px');
-      check('público: header ícone padrão 💳', ico.textContent === '💳' && ico.style.display === '');
+      check('público: header ícone padrão fa-qrcode', !!ico.querySelector('i.fas.fa-qrcode') && ico.style.display === '');
     }
 
-    /* ---- PÚBLICO: ícone customizado e remoção ---- */
+    /* ---- PÚBLICO: plataforma customizada, "Nenhum" e emoji legado ---- */
     {
       const c = SIZED();
-      c.profile.pix.style.icon = '⚡';
+      c.profile.pix.style.icon = 'instagram';
       const { window: w } = await boot(INDEX_PATH, { supabase: supabaseStub(null), url: 'https://axiumlink.test/?s=teste' });
       const d = w.document;
       w.__alaPublica.aplicar(c);
       const ico = d.querySelector('.pg-pix__btn .pg-pix__ico');
-      check('público: ícone customizado ⚡', ico.textContent === '⚡' && ico.style.display === '');
+      check('público: plataforma → ícone fa-instagram', !!ico.querySelector('i.fab.fa-instagram') && ico.style.display === '');
+      check('público: nada de emoji no ícone', !/\p{Extended_Pictographic}/u.test(ico.textContent), ico.textContent);
+
       c.profile.pix.style.icon = '';
       w.__alaPublica.aplicar(c);
       const icoNone = d.querySelector('.pg-pix__btn .pg-pix__ico');
-      check('público: ícone vazio remove (display none)', icoNone.style.display === 'none' && icoNone.textContent === '');
+      check('público: "Nenhum" remove o ícone (display none)', icoNone.style.display === 'none' && icoNone.textContent === '');
+
+      /* Emoji legado não pode virar botão sem ícone — cai no fa-qrcode. */
+      c.profile.pix.style.icon = '⚡';
+      w.__alaPublica.aplicar(c);
+      const icoLegacy = d.querySelector('.pg-pix__btn .pg-pix__ico');
+      check('público: emoji legado cai no ícone padrão fa-qrcode', !!icoLegacy.querySelector('i.fas.fa-qrcode') && icoLegacy.style.display === '');
     }
 
     /* ---- PÚBLICO: sem tamanho/tipografia → padrão (560px / 72px / 15px / 600) ---- */
@@ -527,6 +549,132 @@ export async function run() {
         linksList && Array.from(linksList.children).indexOf(pixPub) === 1 &&
         linksList.children.length === 3,
         `(${linksList ? linksList.children.length : '?'} children)`);
+    }
+  }
+
+  /* ================= ÍCONO DO PIX = ÍCONO DOS OUTROS BOTÕES ================= */
+  console.log('\n━━━ PIX: ícone igual ao dos outros botões (Font Awesome, sem emoji) ━━━');
+  {
+    const cfg = (icon) => {
+      const c = PIX_STYLE_CFG();
+      c.profile.pix.style.icon = icon;
+      c.profile.pix.order = 1;
+      c.links = [
+        { id: 'l1', title: 'WhatsApp', url: 'https://wa.me/1', type: 'whatsapp' },
+        { id: 'l2', title: 'Site', url: 'https://site.com', type: 'site' }
+      ];
+      return c;
+    };
+
+    /* ---- ADMIN: card intercalado usa a plataforma escolhida ---- */
+    {
+      const { window: w } = await boot(ADMIN_PATH, { supabase: supabaseStub(null), url: 'https://axiumlink.test/admin.html' });
+      const d = w.document;
+      w.__axEditor.init(cfg('pix'));
+
+      /* Passa pelo controle de verdade (o caminho que o usuário usa), para o
+         mockup ser reconstruído como em produção. */
+      const sel = d.getElementById('pixStIcon');
+      const cardIcon = () => {
+        const card = d.getElementById('previewLinksList').querySelector('[data-pix]');
+        return card ? card.querySelector('.link-block-icon') : null;
+      };
+
+      sel.value = 'github';
+      sel.dispatchEvent(new w.Event('change', { bubbles: true }));
+      check('admin: card PIX intercalado segue a plataforma escolhida (fa-github)',
+        !!cardIcon().querySelector('i.fab.fa-github'));
+      check('admin: card PIX não repete o fa-qrcode fixo', !cardIcon().querySelector('.fa-qrcode'));
+
+      /* "Nenhum" esconde o ícone, igual a um link sem plataforma. */
+      sel.value = '';
+      sel.dispatchEvent(new w.Event('change', { bubbles: true }));
+      check('admin: "Nenhum" oculta o ícone do card PIX', cardIcon().style.display === 'none');
+    }
+
+    /* ---- PÚBLICO: card intercalado atualiza NO LUGAR (sem recriar o card) ---- */
+    {
+      const { window: w } = await boot(INDEX_PATH, { supabase: supabaseStub(null), url: 'https://axiumlink.test/?s=teste' });
+      const d = w.document;
+      const live = cfg('tiktok');
+      w.__alaPublica.aplicar(live);
+
+      const card = d.querySelector('#pgLinks [data-pix]');
+      check('público: card PIX intercalado segue a plataforma escolhida (fa-tiktok)',
+        !!card.querySelector('.featured__icon > i.fab.fa-tiktok'));
+      check('público: card PIX não repete o fa-qrcode fixo', !card.querySelector('.fa-qrcode'));
+
+      /* Trocar a plataforma ao vivo NÃO pode recriar o card (a lista não
+         pisca): é o mesmo nó, reescrito. */
+      live.profile.pix.style.icon = 'github';
+      w.__alaPublica.aplicar(live);
+      const card2 = d.querySelector('#pgLinks [data-pix]');
+      check('público: trocar a plataforma mantém o MESMO card (sem piscar)', card2 === card);
+      check('público: ícone do card PIX atualizado ao vivo (fa-github)',
+        !!card2.querySelector('.featured__icon > i.fab.fa-github'));
+
+      live.profile.pix.style.icon = '';
+      w.__alaPublica.aplicar(live);
+      const card3 = d.querySelector('#pgLinks [data-pix]');
+      check('público: "Nenhum" remove a caixa de ícone do card PIX ao vivo', !card3.querySelector('.featured__icon'));
+      check('público: card PIX continua sendo o mesmo nó', card3 === card);
+    }
+  }
+
+  /* ============ SOMENTE TEXTO no PIX (mesma opção dos outros botões) ============ */
+  console.log('\n━━━ PIX estilo: "Somente texto" (displayStyle) ━━━');
+  {
+    const txtCfg = (inList) => {
+      const c = PIX_STYLE_CFG();
+      c.profile.pix.style.displayStyle = 'text-only';
+      c.links = [{ id: 'l1', title: 'WhatsApp', url: 'https://wa.me/1', type: 'whatsapp' }];
+      if (inList) c.profile.pix.order = 1;
+      return c;
+    };
+
+    /* ---- ADMIN: controle reflete, esconde a caixa, e o preview aplica ---- */
+    {
+      const { window: w } = await boot(ADMIN_PATH, { supabase: supabaseStub(null), url: 'https://axiumlink.test/admin.html' });
+      const d = w.document;
+      w.__axEditor.init(txtCfg(false));
+
+      check('admin: #pixStDisplayStyle reflete text-only', d.getElementById('pixStDisplayStyle').value === 'text-only');
+      check('admin: "Somente texto" esconde os controles de caixa do PIX', d.getElementById('pixStBoxControls').style.display === 'none');
+      check('admin: o seletor de ícone continua editável em text-only', d.getElementById('pixStIcon').closest('#pixStBoxControls') === null);
+
+      const node = d.getElementById('pvPix');
+      const cs = w.getComputedStyle(node);
+      check('admin: header PIX text-only → sem caixa', cs.backgroundColor === 'rgba(0, 0, 0, 0)' && cs.boxShadow === 'none');
+      check('admin: header PIX text-only → classe ax-text-only', node.classList.contains('ax-text-only'));
+      check('admin: header PIX text-only → sem padding', node.style.padding === '0px');
+
+      /* Voltar para "Com caixa" restaura tudo. */
+      const sel = d.getElementById('pixStDisplayStyle');
+      sel.value = 'box';
+      sel.dispatchEvent(new w.Event('change', { bubbles: true }));
+      check('admin: voltar para "Com caixa" grava box', w.__axEditor.cfg().profile.pix.style.displayStyle === 'box');
+      check('admin: voltar para "Com caixa" mostra os controles', d.getElementById('pixStBoxControls').style.display !== 'none');
+      check('admin: header PIX volta a ter caixa', !node.classList.contains('ax-text-only') && node.style.padding !== '0px');
+    }
+
+    /* ---- PÚBLICO: header e card intercalado ---- */
+    {
+      const { window: w } = await boot(INDEX_PATH, { supabase: supabaseStub(null), url: 'https://axiumlink.test/?s=teste' });
+      const d = w.document;
+
+      w.__alaPublica.aplicar(txtCfg(false));
+      const btn = d.querySelector('.pg-pix__btn');
+      const cs = w.getComputedStyle(btn);
+      check('público: header PIX text-only → sem caixa', cs.backgroundColor === 'rgba(0, 0, 0, 0)' && cs.boxShadow === 'none');
+      check('público: header PIX text-only → classe ax-text-only', btn.classList.contains('ax-text-only'));
+      check('público: header PIX text-only → segue clicável', btn.hasAttribute('data-dialog-open'));
+
+      w.__alaPublica.aplicar(txtCfg(true));
+      const card = d.querySelector('#pgLinks [data-pix]');
+      const csCard = w.getComputedStyle(card);
+      check('público: card PIX intercalado text-only → sem caixa', csCard.backgroundColor === 'rgba(0, 0, 0, 0)');
+      check('público: card PIX intercalado text-only → classe ax-text-only', card.classList.contains('ax-text-only'));
+      check('público: card PIX text-only mantém o ícone escolhido', !!card.querySelector('.featured__icon > i.fas.fa-qrcode'));
     }
   }
 

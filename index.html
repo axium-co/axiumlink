@@ -661,7 +661,33 @@
     .pg-pix__btn:hover { filter: brightness(1.06); transform: translateY(-1px); }
     .pg-pix__btn:active { transform: scale(0.98); }
 
-    .pg-pix__ico { width: 18px; height: 18px; font-size: 16px; line-height: 1; flex-shrink: 0; }
+    /* Ícone do botão PIX: mesmo sistema dos outros botões (uma <i> do Font
+       Awesome dentro da caixa de 18x18). inline-flex para centralizar o
+       glifo na caixa — espelho do .pv-pix__ico do preview. */
+    .pg-pix__ico {
+      width: 18px; height: 18px; font-size: 16px; line-height: 1; flex-shrink: 0;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .pg-pix__ico > i { font-size: 16px; line-height: 1; }
+
+    /* Modo "Somente texto" (displayStyle:'text-only') - anula a caixa do botão
+       PIX. Espelho do .pv-pix.ax-text-only do preview. */
+    .pg-pix__btn.ax-text-only {
+      background: none;
+      border: none;
+      box-shadow: none;
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+      padding: 0;
+      border-radius: 0;
+      min-height: 0;
+    }
+    .pg-pix__btn.ax-text-only:hover,
+    .pg-pix__btn.ax-text-only:active {
+      transform: none;
+      box-shadow: none;
+      filter: none;
+    }
 
     /* Texto do botão PIX: espelha o .featured__body strong dos cards
        (white-space/overflow/text-overflow) + min-width 0 para o flex
@@ -1989,7 +2015,7 @@
              ================================================================ -->
         <div id="pgPixWrap" class="pg-pix" hidden>
           <button class="pg-pix__btn" type="button" data-dialog-open aria-haspopup="dialog">
-            <span class="pg-pix__ico" aria-hidden="true">💳</span>
+            <span class="pg-pix__ico" aria-hidden="true"><i class="fas fa-qrcode"></i></span>
             <span>Pagar com PIX</span>
           </button>
         </div>
@@ -2272,6 +2298,18 @@
          devem ser suaves — o CSS html.ax-stabilized corta o replay. */
       var __firstRender = true;
       var __lastConfigJson = '';
+      /* Fingerprint da FORMA (não do conteúdo) da lista já renderizada.
+         O admin agora propaga cada alteração por frame via BroadcastChannel,
+         então applyConfig pode rodar dezenas de vezes por segundo enquanto o
+         dono digita. Guardamos a assinatura para saber se dá para reaproveitar
+         o DOM existente em vez de destruí-lo — sem isso o botão que o visitante
+         está apertando sumiria a cada tecla. Vazio = reconstrua do zero. */
+      var pubLinksSig = '';
+      /* Lista de links vigente: o listener de analytics de cliques é anexado
+         uma única vez e precisa ler os dados mais recentes, não os da
+         execução de applyConfig em que foi criado. */
+      var pubLinkList = [];
+      var pubClicksBound = false;
       /* Estado da busca pública — sem fallback, sem dados hardcoded. */
       const STATUS = {
         NOSLUG: 'noslug',
@@ -2445,7 +2483,11 @@
           btnFontWeight: (Number(s.fontWeight) >= 300 && Number(s.fontWeight) <= 900) ? Number(s.fontWeight) : 600,
           btnWidth: (Number(s.width) >= 160 && Number(s.width) <= 640) ? Number(s.width) : 420,
           btnHeight: (Number(s.height) >= 0 && Number(s.height) <= 120) ? Number(s.height) : 0,
-          btnIcon: (typeof s.icon === 'string') ? s.icon : '💳',
+          /* btnIcon é a PLATAFORMA do botão (chave que o resolveIcon
+             entende), nunca um emoji — link e PIX compartilham o mesmo
+             campo. Só o PIX lê este campo, e sempre via axPixStyleFlat(), que
+             o sobrescreve. */
+          btnIcon: (typeof s.icon === 'string') ? s.icon : '',
           buttonGlass: { enabled: gl.enabled, blur: gl.blur, saturate: gl.saturate, opacity: gl.opacity, color: gl.color, borderGlow: gl.borderGlow, shadowDepth: gl.shadowDepth, highlight: gl.highlight, noise: gl.noise, borderOpacity: gl.borderOpacity },
           displayStyle: s.displayStyle || 'box'
         };
@@ -2458,17 +2500,71 @@
       function axPixStyleFlat(pixC, globalSt) {
         const p = (pixC && typeof pixC === 'object') ? pixC : {};
         const style = (p.style && typeof p.style === 'object') ? p.style : null;
-        if (style) return axLinkStyleToFlat(Object.assign({}, axDefaultLinkStyle(), {
-          colors: { background: '#16a34a', text: '#ffffff' },
-          icon: '💳'
-        }, style), globalSt);
-        return axLinkStyleToFlat({
+        if (style) {
+          const merged = Object.assign({}, axDefaultLinkStyle(), {
+            colors: { background: '#16a34a', text: '#ffffff' },
+            icon: 'pix'
+          }, style);
+          merged.icon = axNormalizePixIcon(merged.icon);
+          const flat = axLinkStyleToFlat(merged, globalSt);
+          flat.btnIcon = merged.icon;
+          return flat;
+        }
+        const flat = axLinkStyleToFlat({
           format: p.btnShape || 'rounded',
           colors: {
             background: p.btnBgColor || '#16a34a',
             text: p.btnTextColor || '#ffffff'
           }
         }, globalSt);
+        flat.btnIcon = 'pix';
+        return flat;
+      }
+
+      /* ---- Lista de links dinâmicos (cfg.links ou migra cards antigos) ---- */
+
+      /* resolveIcon fica no TOPO do IIFE (e não dentro de applyConfig) para
+         que os construtores de flat — que rodam fora dela, como
+         axNormalizePixIcon — compartilhem exatamente o mesmo mapa de ícones
+         dos cards. Espelho exato do resolveIcon do painel. */
+      function resolveIcon(raw) {
+        const v = String(raw || '').toLowerCase().trim().replace(/^@/, '').replace(/[^a-z0-9]/g, '');
+        const MAP = {
+          'whatsapp': 'fab fa-whatsapp', 'whats': 'fab fa-whatsapp',
+          'instagram': 'fab fa-instagram', 'insta': 'fab fa-instagram',
+          'tiktok': 'fab fa-tiktok', 'youtube': 'fab fa-youtube',
+          'twitter': 'fab fa-x-twitter', 'x': 'fab fa-x-twitter',
+          'linkedin': 'fab fa-linkedin-in', 'facebook': 'fab fa-facebook',
+          'telegram': 'fab fa-telegram', 'email': 'fas fa-envelope', 'mail': 'fas fa-envelope',
+          'telefone': 'fas fa-phone', 'tel': 'fas fa-phone', 'fone': 'fas fa-phone',
+          'localizacao': 'fas fa-map-marker-alt', 'local': 'fas fa-map-marker-alt',
+          'location': 'fas fa-map-marker-alt', 'maps': 'fas fa-map-marker-alt',
+          'site': 'fas fa-globe', 'web': 'fas fa-globe', 'pix': 'fas fa-qrcode',
+          'spotify': 'fab fa-spotify', 'discord': 'fab fa-discord',
+          'twitch': 'fab fa-twitch', 'github': 'fab fa-github',
+          'pinterest': 'fab fa-pinterest', 'snapchat': 'fab fa-snapchat',
+          'reddit': 'fab fa-reddit', 'threads': 'fab fa-threads',
+          'behance': 'fab fa-behance', 'dribbble': 'fab fa-dribbble',
+          'medium': 'fab fa-medium', 'substack': 'fas fa-newspaper',
+          'podcast': 'fas fa-podcast', 'music': 'fas fa-music',
+          'steam': 'fab fa-steam', 'paypal': 'fab fa-paypal',
+          'signal': 'fab fa-signal-messenger'
+        };
+        return MAP[v] || null;
+      }
+
+      /* Normaliza pix.style.icon para o mesmo formato usado em link.type: a
+         CHAVE da plataforma, resolvida pelo mesmo resolveIcon dos outros
+         botões.
+         - undefined/ausente  -> 'pix' (padrão)
+         - ''                 -> '' (usuário escolheu "Nenhum": botão só com texto)
+         - valor desconhecido -> 'pix' (configs LEGADOS guardavam EMOJI, ex.: '💳',
+           '💰', '⚡'; eles caem no ícone padrão em vez de virar botão sem ícone)
+         Espelho exato do normalizePixIcon do painel. */
+      function axNormalizePixIcon(v) {
+        if (typeof v !== 'string') return 'pix';
+        if (v === '') return '';
+        return resolveIcon(v) ? v : 'pix';
       }
 
       /* ================================================================
@@ -3743,33 +3839,6 @@
 
       const LINK_TYPE_KEYS = ['whatsapp', 'instagram', 'localizacao', 'telefone', 'site', 'outro'];
 
-      /* ---- Lista de links dinâmicos (cfg.links ou migra cards antigos) ---- */
-      function resolveIcon(raw) {
-        const v = String(raw || '').toLowerCase().trim().replace(/^@/, '').replace(/[^a-z0-9]/g, '');
-        const MAP = {
-          'whatsapp': 'fab fa-whatsapp', 'whats': 'fab fa-whatsapp',
-          'instagram': 'fab fa-instagram', 'insta': 'fab fa-instagram',
-          'tiktok': 'fab fa-tiktok', 'youtube': 'fab fa-youtube',
-          'twitter': 'fab fa-x-twitter', 'x': 'fab fa-x-twitter',
-          'linkedin': 'fab fa-linkedin-in', 'facebook': 'fab fa-facebook',
-          'telegram': 'fab fa-telegram', 'email': 'fas fa-envelope', 'mail': 'fas fa-envelope',
-          'telefone': 'fas fa-phone', 'tel': 'fas fa-phone', 'fone': 'fas fa-phone',
-          'localizacao': 'fas fa-map-marker-alt', 'local': 'fas fa-map-marker-alt',
-          'location': 'fas fa-map-marker-alt', 'maps': 'fas fa-map-marker-alt',
-          'site': 'fas fa-globe', 'web': 'fas fa-globe', 'pix': 'fas fa-qrcode',
-          'spotify': 'fab fa-spotify', 'discord': 'fab fa-discord',
-          'twitch': 'fab fa-twitch', 'github': 'fab fa-github',
-          'pinterest': 'fab fa-pinterest', 'snapchat': 'fab fa-snapchat',
-          'reddit': 'fab fa-reddit', 'threads': 'fab fa-threads',
-          'behance': 'fab fa-behance', 'dribbble': 'fab fa-dribbble',
-          'medium': 'fab fa-medium', 'substack': 'fas fa-newspaper',
-          'podcast': 'fas fa-podcast', 'music': 'fas fa-music',
-          'steam': 'fab fa-steam', 'paypal': 'fab fa-paypal',
-          'signal': 'fab fa-signal-messenger'
-        };
-        return MAP[v] || null;
-      }
-
       function linkHref(url, icon) {
         const value = String(url || '').trim();
         if (!value) return '#';
@@ -3809,7 +3878,27 @@
       const linkList = Array.isArray(cfg.links) ? cfg.links : linksFromCards(cfg.cards);
       const isLinksList = cardsMode === 'list';
       if (linksContainer && linkList.length) {
-        linksContainer.replaceChildren();
+        /* ---- Reuso de DOM (edição ao vivo sem piscar) ----
+           A assinatura abaixo só enxerga o que muda o SHAPE do DOM: modo
+           lista/social, quantidade de links, presença de ícone e de subtítulo,
+           estilo do card, imagem custom e o PIX (ligado + posição). Texto, URL,
+           largura, cor, raio e tipografia ficam DE FORA de propósito: são
+           reescritos em cima dos nós existentes por applyLinksInPlace, para
+           uma tecla digitada no painel não destruir o botão que o visitante
+           está apertando. Se a forma bate, reaproveitamos; senão, reconstruímos. */
+        const shapeSig = linksShapeSig(linkList, isLinksList);
+        const reuseWrap = (pubLinksSig === shapeSig) ? linksContainer.querySelector('.pg-links-list') : null;
+        if (reuseWrap) {
+          /* As abas de categoria são refeitas de propósito: os listeners delas
+             fecham sobre linkList/activeCat DESTA execução, e precisam enxergar
+             os dados frescos. São poucos botões de texto — o custo é invisível,
+             ao contrário de recriar os cards. */
+          const oldTabs = linksContainer.querySelector('.pg-tabs');
+          if (oldTabs) oldTabs.remove();
+        } else {
+          pubLinksSig = '';
+          linksContainer.replaceChildren();
+        }
         linksContainer.classList.remove('pg-links--grid');
 
         /* ---- Categorias / Tabs ---- */
@@ -3825,7 +3914,8 @@
             activeCat = null;
             tabsWrap.querySelectorAll('.pg-tab').forEach(t => t.classList.remove('pg-tab--active'));
             allTab.classList.add('pg-tab--active');
-            renderLinksList(filteredLinks());
+            pubLinksSig = '';
+            renderLinksNow(true);
           });
           tabsWrap.appendChild(allTab);
 
@@ -3837,7 +3927,8 @@
               activeCat = cat;
               tabsWrap.querySelectorAll('.pg-tab').forEach(t => t.classList.remove('pg-tab--active'));
               btn.classList.add('pg-tab--active');
-              renderLinksList(filteredLinks());
+              pubLinksSig = '';
+              renderLinksNow(true);
             });
             tabsWrap.appendChild(btn);
           });
@@ -3849,7 +3940,20 @@
           return activeCat ? linkList.filter(l => l.category === activeCat) : linkList;
         }
 
-        renderLinksList(linkList);
+        /* Ponto único de render da lista. `force` é usado pelos cliques de aba:
+           filtrar a lista muda QUANTOS filhos o wrap tem, então aí não dá para
+           reaproveitar o DOM — tem que refazer do zero. */
+        let linksRendered = false;
+        function renderLinksNow(force) {
+          linksRendered = true;
+          if (!force && reuseWrap) {
+            applyLinksInPlace(reuseWrap, filteredLinks());
+            return;
+          }
+          renderLinksList(filteredLinks());
+        }
+
+        renderLinksNow();
 
         /* Espaçamento vertical dos botões (links): cada item tem margin-top
            próprio — o slot do item NÃO sobrepõe nem empilha, apenas define a
@@ -3870,6 +3974,146 @@
             if (!isPix) idx++;
             first = false;
           });
+        }
+
+        /* Assinatura da FORMA da lista. Entram só os campos que mudam quantos
+           nós o DOM tem e quais são eles: modo lista/social, quantidade de
+           links, tipo de ícone (imagem <img> × ícone <i> × nenhum), estilo do
+           card, imagem custom, presença de subtítulo e o PIX (ligado +
+           posição). Texto, URL, largura, cor, raio e tipografia NÃO entram de
+           propósito — são reescritos no lugar por applyLinksInPlace. */
+        /* Escreve/remove o ícone do card PIX da lista. Espelho do que
+           appendPixCard monta no build: <span class="featured__icon"><i
+           class="fa..."></i></span> como PRIMEIRO filho (antes do
+           .featured__body). Sem ícone a span some inteira — igual a um link
+           sem plataforma. Reaproveitada pelo applyLinksInPlace para trocar a
+           plataforma sem recriar o card (e sem piscar a lista). */
+        function axSetPixCardIcon(pa, faClass) {
+          if (!pa) return;
+          const cur = pa.querySelector('.featured__icon');
+          if (!faClass) { if (cur) cur.remove(); return; }
+          const icon = cur || document.createElement('span');
+          while (icon.firstChild) icon.removeChild(icon.firstChild);
+          if (!cur) {
+            icon.className = 'featured__icon';
+            icon.setAttribute('aria-hidden', 'true');
+            pa.insertBefore(icon, pa.firstChild);
+          }
+          const i = document.createElement('i');
+          i.className = faClass;
+          icon.appendChild(i);
+        }
+
+        function linksShapeSig(list, listMode) {
+          const parts = [listMode ? 'L' : 'S', 'n' + list.length];
+          const pixC = (p.pix && typeof p.pix === 'object') ? p.pix : {};
+          const pixOn = !!pixC.enabled && !!(pixC.key || pixC.qr || pixC.link);
+          const pixOrder = (typeof pixC.order === 'number' && pixC.order >= 0) ? String(pixC.order) : '-';
+          parts.push('pix|' + (pixOn ? '1' : '0') + '|' + pixOrder);
+          for (let i = 0; i < list.length; i++) {
+            const l = list[i] || {};
+            const tipo = l.type || l.icon || '';
+            const ico = l.image ? 'im' : (resolveIcon(tipo) ? 'ic' : 'no');
+            if (!listMode) { parts.push(i + '|so|' + ico); continue; }
+            const branch = l.customImage ? 'img' : (l.cardStyle || 'def');
+            parts.push(i + '|' + branch + '|' + ico + '|' + (l.sub ? '1' : '0'));
+          }
+          return parts.join('\n');
+        }
+
+        /* Reescreve os cards JÁ EXISTENTES com os dados atuais, sem trocá-los de
+           lugar. Espelha campo a campo o que renderLinksList monta, na mesma
+           ordem: nós limpos → classes/labels → largura → estilo individual →
+           tipografia → espaçamento. O NÓ é o mesmo, então hover, foco e a
+           animação de entrada do visitante não reiniciam. */
+        function applyLinksInPlace(wrap, list) {
+          const pixConf = (p.pix && typeof p.pix === 'object') ? p.pix : {};
+          const pixLabel = pixConf.buttonText || 'Pagar com PIX';
+          const ANIMS = ['anim-pulse', 'anim-float', 'anim-shine', 'anim-shake'];
+          const children = Array.from(wrap.children);
+          let idx = 0;
+          for (let c = 0; c < children.length; c++) {
+            const a = children[c];
+
+            /* Zera TUDO que os passes anteriores deixaram inline. Numa
+               reconstrução o nó nasce sem style; reaproveitando o DOM
+               precisamos recomeçar do mesmo ponto, senão apagar um campo no
+               painel deixaria a cor/raio/sombra do valor anterior grudada. */
+            a.removeAttribute('style');
+
+            if (a.getAttribute && a.getAttribute('data-pix') === '1') {
+              const pt = a.querySelector('.featured__body strong');
+              if (pt) pt.textContent = pixLabel;
+              a.setAttribute('aria-label', pixLabel);
+              /* Ícone reescrito NO LUGAR, como o dos links: trocar a
+                 plataforma (ou escolher "Nenhum") não recria o card, então a
+                 lista não pisca. */
+              axSetPixCardIcon(a, resolveIcon(axPixStyleFlat(pixConf, cfg.style || {}).btnIcon));
+              continue;
+            }
+            const link = list[idx++];
+            if (!link) continue;
+            const linkType = link.type || link.icon || '';
+            const displayTitle = link.title || (linkType ? (linkType.charAt(0).toUpperCase() + linkType.slice(1)) : 'Link');
+            const isSocial = a.classList.contains('social-icon');
+
+            a.classList.remove.apply(a.classList, ANIMS);
+            if (link.animation && link.animation !== 'none') a.classList.add('anim-' + link.animation);
+            a.href = linkHref(link.url, linkType);
+
+            /* Botão-imagem: a imagem É o design inteiro (não há texto nem estilo
+               individual). Espelho do branch customimg de renderLinksList. */
+            if (a.classList.contains('featured__card--customimg')) {
+              a.setAttribute('aria-label', displayTitle);
+              a.title = link.url || displayTitle;
+              applyButtonWidth(a, link.width);
+              const cimg = a.querySelector('img.featured__customimg');
+              if (cimg) {
+                cimg.src = link.customImage || '';
+                cimg.alt = displayTitle;
+                const h = Number(link.customHeight);
+                a.style.setProperty('--customimg-h', (h > 40 ? h : 84) + 'px');
+              }
+              continue;
+            }
+
+            if (isSocial) {
+              a.setAttribute('aria-label', link.title || 'Link externo');
+              a.title = link.url || link.title || '';
+            } else {
+              a.setAttribute('aria-label', displayTitle);
+              a.title = link.url || displayTitle;
+              a.classList.remove('ia-center', 'ia-right');
+              if (link.iconAlign === 'center') a.classList.add('ia-center');
+              else if (link.iconAlign === 'right') a.classList.add('ia-right');
+              applyButtonWidth(a, link.width);
+              const strong = a.querySelector('.featured__body strong');
+              if (strong) strong.textContent = displayTitle;
+              const subEl = a.querySelector('.featured__sub');
+              if (subEl) {
+                subEl.textContent = a.classList.contains('featured__card--testimonial')
+                  ? ('— ' + (link.sub || ''))
+                  : (link.sub || '');
+              }
+            }
+
+            /* O nó do ícone já existe com a tag certa (garantido pela
+               assinatura): só o conteúdo precisa trocar. */
+            const icoEl = a.querySelector('.featured__icon, .social-icon__inner');
+            if (icoEl) {
+              if (link.image) {
+                const img = icoEl.querySelector('img');
+                if (img) img.src = link.image;
+              } else {
+                const ic = icoEl.querySelector('i');
+                if (ic) ic.className = isSocial ? (resolveIcon(linkType) || 'fas fa-link') : (resolveIcon(linkType) || '');
+              }
+            }
+
+            aplicarEstiloIndividual(a, link);
+            if (!isSocial) applyLinkTextTypoPublic(a, link);
+          }
+          applyLinkSpacing(wrap, list);
         }
 
         function renderLinksList(list) {
@@ -3895,13 +4139,10 @@
             pa.setAttribute('role', 'button');
             pa.setAttribute('data-pix', '1');
             pa.setAttribute('aria-label', pixConf.buttonText || 'Pagar com PIX');
-            const icon = document.createElement('span');
-            icon.className = 'featured__icon';
-            icon.setAttribute('aria-hidden', 'true');
-            const i = document.createElement('i');
-            i.className = 'fas fa-qrcode';
-            icon.appendChild(i);
-            pa.appendChild(icon);
+            /* Mesmo pipeline dos outros cards: o ícone do PIX vem do style dele
+               (pix.style.icon, chave de plataforma) e passa pelo resolveIcon —
+               antes era 'fas fa-qrcode' fixo e ignorava a personalização. */
+            axSetPixCardIcon(pa, resolveIcon(axPixStyleFlat(pixConf, cfg.style || {}).btnIcon));
             const body = document.createElement('span');
             body.className = 'featured__body';
             const strong = document.createElement('strong');
@@ -4082,9 +4323,18 @@
           applyLinkSpacing(wrap, list);
           linksContainer.appendChild(wrap);
         }
-        renderLinksList(linkList);
+        if (!linksRendered) renderLinksNow();
+        /* A forma agora está no DOM: registra a assinatura para o próximo
+           applyConfig reaproveitar estes cards em vez de destruí-los. */
+        pubLinksSig = linksContainer.querySelector('.pg-links-list') ? shapeSig : '';
+        pubLinkList = linkList;
 
-        /* ---- Click analytics: incrementa contagem ao clicar em qualquer link ---- */
+        /* ---- Click analytics: incrementa contagem ao clicar em qualquer link ----
+           O listener é anexado UMA vez só.applyConfig roda a cada quadro
+           durante a edição ao vivo; registrar aqui a cada passada amontoaria
+           dezenas de listeners idênticos no mesmo elemento, e cada clique
+           contaria várias vezes. Por isso ele lê a lista ATUAL de
+           pubLinkList em vez de fechar sobre o linkList desta execução. */
         const slug = (location.pathname.replace(/^\//, '') || 'default').replace(/\/$/, '');
         function trackClick(linkId) {
           try {
@@ -4094,14 +4344,23 @@
             localStorage.setItem(key, JSON.stringify(data));
           } catch(_) {}
         }
-        linksContainer.addEventListener('click', (e) => {
-          const a = e.target.closest('a.featured__card, a.social-icon');
-          if (!a) return;
-          const idx = [...linksContainer.querySelectorAll('a.featured__card, a.social-icon')].indexOf(a);
-          if (idx >= 0 && linkList[idx] && linkList[idx].id) {
-            trackClick(linkList[idx].id);
-          }
-        });
+        if (!pubClicksBound) {
+          pubClicksBound = true;
+          linksContainer.addEventListener('click', (e) => {
+            const a = e.target.closest('a.featured__card, a.social-icon');
+            if (!a) return;
+            const idx = [...linksContainer.querySelectorAll('a.featured__card, a.social-icon')].indexOf(a);
+            if (idx >= 0 && pubLinkList[idx] && pubLinkList[idx].id) {
+              trackClick(pubLinkList[idx].id);
+            }
+          });
+        }
+      } else {
+        /* Sem links (ou sem container) nada foi renderizado: a assinatura
+           anterior não pode mais ser usada para reuso, senão o próximo
+           applyConfig tentaria reaproveitar um wrap obsoleto. */
+        pubLinksSig = '';
+        pubLinkList = [];
       }
 
 /* ================================================================
@@ -4566,13 +4825,27 @@
             t.style.fontWeight = String(fw);
             if (flat && flat.btnFont) t.style.fontFamily = '"' + flat.btnFont + '", system-ui, sans-serif';
           });
-          const icoV = (flat && typeof flat.btnIcon === 'string') ? flat.btnIcon : '💳';
+          const icoKey = (flat && typeof flat.btnIcon === 'string') ? flat.btnIcon : 'pix';
           el.querySelectorAll('.pg-pix__ico, .pv-pix__ico').forEach((ico) => {
             ico.style.width = '18px';
             ico.style.height = '18px';
-            if (icoV) { ico.textContent = icoV; ico.style.display = ''; }
-            else { ico.textContent = ''; ico.style.display = 'none'; }
+            axSetPixIconNode(ico, resolveIcon(icoKey));
           });
+        }
+
+        /* Escreve o ícone do botão PIX dentro do host (.pg-pix__ico /
+           .pv-pix__ico) usando o MESMO pipeline dos outros botões: chave de
+           plataforma -> resolveIcon -> <i class="fa...">. Sem classe (usuário
+           escolheu "Nenhum") o host fica vazio e oculto — o botão fica só com o
+           texto. Espelho exato do setPixIconNode do preview. */
+        function axSetPixIconNode(host, faClass) {
+          if (!host) return;
+          while (host.firstChild) host.removeChild(host.firstChild);
+          if (!faClass) { host.style.display = 'none'; return; }
+          const i = document.createElement('i');
+          i.className = faClass;
+          host.appendChild(i);
+          host.style.display = '';
         }
         /* Tipografia global dos botões (st.typoBtn) — espelha o painel.
            A tipografia por-link volta por cima em reapplyLinkTypoPublic. */
@@ -4621,8 +4894,13 @@
             : ((linkData && linkData.style) ? flatPub : Object.assign({}, st, flatPub));
           
           /* Modo "Somente texto": remove todo container visual do botão/link
-             mas mantém o elemento clicável (href funciona). */
-          if (linkData && linkData.style && linkData.style.displayStyle === 'text-only') {
+             mas mantém o elemento clicável (href funciona). O card do PIX tem
+             seu próprio displayStyle (mesma opção dos outros botões) e NÃO
+             tem linkData — entra pelo flatPub já resolvido acima. */
+          const isTextOnlyPub = isPixCardPub
+            ? (flatPub.displayStyle || 'box') === 'text-only'
+            : !!(linkData && linkData.style && linkData.style.displayStyle === 'text-only');
+          if (isTextOnlyPub) {
             const M = el.style;
             M.removeProperty('color');
             /* Remove os VARS de container que a base CSS lê (--ui-*) — o box
@@ -4737,33 +5015,69 @@
         const pixHdrBtn = pixHdrWrap && pixHdrWrap.querySelector('.pg-pix__btn');
         if (pixHdrBtn && pixHdrOn && !pixHdrInList) {
           const pixHdrFlat = axPixStyleFlat(pixHdrC, st);
-          const pixHdrBg = pixHdrFlat.btnBgColor || thBtnbg;
-          const pixHdrInk = pixHdrFlat.btnTextColor || thBtnink;
-          const pixHdrVariant = pixHdrFlat.btnVariant || 'solid';
-          const pixHdrGlassPer = pixHdrFlat.buttonGlass || {};
-          const wantPixGlass = (pixHdrVariant === 'glass') || !!((st.buttonGlass || {}).enabled) || !!pixHdrGlassPer.enabled;
-          const pixHdrShape = axShapeFor(pixHdrFlat);
-          const pixHdrCSS = axBtnStyle(pixHdrFlat, pixHdrBg, pixHdrInk, thInk, pixHdrShape);
-          Object.assign(pixHdrBtn.style, pixHdrCSS, pixHdrShape);
+          /* Tamanho/ícone/tipografia PRIMEIRO: valem nos dois modos e vivem nos
+             FILHOS (o <i> do ícone e o <span> do texto), que o override de
+             "somente texto" abaixo não toca. */
           axApplyPixSize(pixHdrBtn, pixHdrFlat);
-          pixHdrBtn.style.setProperty('--ui-bg', pixHdrCSS.background);
-          /* Vidro: mesma ordem do applyPixStyleToEl do admin — o receituário
-             completo (fundo translúcido + blur + borda + sombra + ruído) é
-             aplicado DEPOIS do axBtnStyle, para o backdropFilter e o ruído
-             chegarem mesmo quando a variante não é 'glass'. */
-          if (wantPixGlass) {
-            const gEffH = (pixHdrGlassPer && pixHdrGlassPer.enabled)
-              ? Object.assign({}, st.buttonGlass || {}, pixHdrGlassPer, { enabled: true })
-              : Object.assign({}, st.buttonGlass || {}, { enabled: true });
-            applyGlass(pixHdrBtn, gEffH);
-          } else {
+          if ((pixHdrFlat.displayStyle || 'box') === 'text-only') {
+            /* "Somente texto" tem prioridade sobre a caixa — espelho do
+               applyPixStyleToEl do preview. */
+            const MH = pixHdrBtn.style;
+            MH.removeProperty('color');
+            /* Remove os VARS de container que a base CSS lê (--ui-*) — o box
+               voltaria via var mesmo sem propriedade inline de fundo. */
+            MH.removeProperty('--ui-bg');
+            MH.removeProperty('--ui-border');
+            MH.removeProperty('--ui-shadow');
+            MH.removeProperty('--ui-blur');
+            Object.assign(MH, {
+              background: 'transparent',
+              border: 'none',
+              boxShadow: 'none',
+              padding: '0',
+              borderRadius: '0',
+              backdropFilter: 'none',
+              WebkitBackdropFilter: 'none',
+              textShadow: 'none',
+              display: 'inline',
+              width: 'auto',
+              maxWidth: 'none',
+              flex: 'none',
+              textDecoration: 'underline',
+              cursor: 'pointer'
+            });
+            pixHdrBtn.classList.add('ax-text-only');
+            pixHdrBtn.classList.remove('gx-panel', 'gx-highlight', 'gx-noise', ...ANIMS);
             applyGlass(pixHdrBtn, { enabled: false });
+          } else {
+            pixHdrBtn.classList.remove('ax-text-only');
+            const pixHdrBg = pixHdrFlat.btnBgColor || thBtnbg;
+            const pixHdrInk = pixHdrFlat.btnTextColor || thBtnink;
+            const pixHdrVariant = pixHdrFlat.btnVariant || 'solid';
+            const pixHdrGlassPer = pixHdrFlat.buttonGlass || {};
+            const wantPixGlass = (pixHdrVariant === 'glass') || !!((st.buttonGlass || {}).enabled) || !!pixHdrGlassPer.enabled;
+            const pixHdrShape = axShapeFor(pixHdrFlat);
+            const pixHdrCSS = axBtnStyle(pixHdrFlat, pixHdrBg, pixHdrInk, thInk, pixHdrShape);
+            Object.assign(pixHdrBtn.style, pixHdrCSS, pixHdrShape);
+            pixHdrBtn.style.setProperty('--ui-bg', pixHdrCSS.background);
+            /* Vidro: mesma ordem do applyPixStyleToEl do admin — o receituário
+               completo (fundo translúcido + blur + borda + sombra + ruído) é
+               aplicado DEPOIS do axBtnStyle, para o backdropFilter e o ruído
+               chegarem mesmo quando a variante não é 'glass'. */
+            if (wantPixGlass) {
+              const gEffH = (pixHdrGlassPer && pixHdrGlassPer.enabled)
+                ? Object.assign({}, st.buttonGlass || {}, pixHdrGlassPer, { enabled: true })
+                : Object.assign({}, st.buttonGlass || {}, { enabled: true });
+              applyGlass(pixHdrBtn, gEffH);
+            } else {
+              applyGlass(pixHdrBtn, { enabled: false });
+            }
+            pixHdrBtn.classList.remove(...ANIMS);
+            const pixHdrAnim = pixHdrFlat.btnAnimation || 'none';
+            if (pixHdrAnim === 'pulse') pixHdrBtn.classList.add('ax-anim-pulse');
+            else if (pixHdrAnim === 'float') pixHdrBtn.classList.add('ax-anim-float');
+            else if (pixHdrAnim === 'shine') pixHdrBtn.classList.add('ax-anim-shine');
           }
-          pixHdrBtn.classList.remove(...ANIMS);
-          const pixHdrAnim = pixHdrFlat.btnAnimation || 'none';
-          if (pixHdrAnim === 'pulse') pixHdrBtn.classList.add('ax-anim-pulse');
-          else if (pixHdrAnim === 'float') pixHdrBtn.classList.add('ax-anim-float');
-          else if (pixHdrAnim === 'shine') pixHdrBtn.classList.add('ax-anim-shine');
         }
 
         /* Espaçamento entre blocos */

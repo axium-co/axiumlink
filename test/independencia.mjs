@@ -27,6 +27,7 @@ import { run as runPix } from './validatePix.mjs';
 import { run as runAddressVisibility } from './validateAddressVisibility.mjs';
 import { run as runTextOnly } from './validateTextOnly.mjs';
 import { run as runFonteGeral } from './validateFonteGeral.mjs';
+import { run as runLive } from './validateLive.mjs';
 
 let failures = 0;
 const only = process.argv[2] || '';
@@ -340,6 +341,7 @@ async function main() {
     failures += await runAddressVisibility();
     failures += await runTextOnly();
     failures += await runFonteGeral();
+    failures += await runLive(log);
   }
 
   log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
