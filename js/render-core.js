@@ -230,9 +230,18 @@ const RenderCore = (function () {
    * Converte estilo individual (schema premium do admin) para formato flat
    * compatível com buildButtonCSS
    */
-  function linkStyleToFlat(linkStyle, globalStyle) {
-    if (!linkStyle) return {};
-    const base = {
+  /* ================================================================
+     MODELO CANÔNICO DO ESTILO DE UM BOTÃO
+     --------------------------------------------------------
+     O MESMO objeto serve ao botão de LINK e ao botão PIX: a lista de
+     opções é idêntica. null/0 = herda o global (mesmo contrato do
+     checkbox "Usar a tipografia do painel" do admin). Espelha
+     DEFAULT_LINK_STYLE/styleModel do admin.html e axDefaultLinkStyle
+     do index.html.
+     ================================================================ */
+  function defaultLinkStyle() {
+    return {
+      /* ---- caixa ---- */
       variant: 'solid',
       format: 'rounded',
       animation: 'none',
@@ -242,14 +251,43 @@ const RenderCore = (function () {
       gradient: { start: '#6366f1', end: '#ec4899', angle: 135 },
       glass: { enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: 25 },
       colors: { background: '', text: '' },
-      displayStyle: 'box'
+      displayStyle: 'box',
+      /* ---- tipografia do texto (null = herda style.typoBtn) ---- */
+      font: '',
+      fontSize: null,
+      fontWeight: null,
+      letterSpacing: null,
+      lineHeight: null,
+      textColor: '',
+      /* ---- tamanho físico (px): width = teto (0 = sem teto),
+             height = altura mínima (0 = automática) ---- */
+      width: 0,
+      height: 0,
+      /* ---- ícone ---- */
+      icon: '',
+      iconImg: '',
+      iconAlign: 'left',
+      /* ---- card ---- */
+      cardStyle: '',
+      /* ---- botão-imagem (a imagem vira o botão inteiro) ---- */
+      btnDesign: 'padrao',
+      customButtonImage: '',
+      customButtonHeight: 84,
+      /* ---- espaçamento próprio (0 = herda style.blockGap) ---- */
+      spacing: 0
     };
-    const s = Object.assign({}, base, linkStyle);
-    const sh = Object.assign({ type: 'soft', intensity: 30 }, base.shadow, linkStyle.shadow || {});
-    const gr = Object.assign({ start: '#6366f1', end: '#ec4899', angle: 135 }, base.gradient, linkStyle.gradient || {});
-    const gl = Object.assign({}, base.glass, linkStyle.glass || {});
-    const co = Object.assign({ background: '', text: '' }, base.colors, linkStyle.colors || {});
-    const pick = (v, fb) => (v === '' || v == null) ? fb : v;
+  }
+
+  function linkStyleToFlat(linkStyle, globalStyle) {
+    if (linkStyle == null) return {}; /* sem style → herda o global (legado/migração) */
+    const base = defaultLinkStyle();
+    const ls = linkStyle || {};
+    const s = Object.assign({}, base, ls);
+    const sh = Object.assign({ type: 'soft', intensity: 30 }, base.shadow, ls.shadow);
+    const gr = Object.assign({ start: '#6366f1', end: '#ec4899', angle: 135 }, base.gradient, ls.gradient);
+    const gl = Object.assign({}, base.glass, ls.glass);
+    const co = Object.assign({ background: '', text: '' }, base.colors, ls.colors);
+    const resolved = (v, fb) => (v === '' || v == null) ? fb : v;
     return {
       btnVariant: s.variant,
       btnShape: s.format,
@@ -264,8 +302,8 @@ const RenderCore = (function () {
       btnGlassOpacity: gl.opacity,
       btnGlassBlur: gl.blur,
       btnGlassBorderOpacity: gl.borderOpacity,
-      btnBgColor: pick(co.background, ''),
-      btnTextColor: pick(co.text, ''),
+      btnBgColor: resolved(co.background, ''),
+      btnTextColor: resolved(co.text, ''),
       btnGlassEnabled: gl.enabled,
       btnGlassSaturate: gl.saturate,
       btnGlassColor: gl.color,
@@ -273,8 +311,150 @@ const RenderCore = (function () {
       btnGlassShadowDepth: gl.shadowDepth,
       btnGlassHighlight: gl.highlight,
       btnGlassNoise: gl.noise,
+      /* Tipografia e tamanho: 0 (ou '') = HERDA o global (typoBtn). O valor
+         final é resolvido no render por resolveBtnTypo — o MESMO caminho do
+         link e do PIX. */
+      btnFont: s.font || '',
+      btnFontSize: (Number(s.fontSize) >= 12 && Number(s.fontSize) <= 34) ? Number(s.fontSize) : 0,
+      btnFontWeight: (Number(s.fontWeight) >= 300 && Number(s.fontWeight) <= 900) ? Number(s.fontWeight) : 0,
+      btnLetterSpacing: (Number(s.letterSpacing) >= -1 && Number(s.letterSpacing) <= 5) ? Number(s.letterSpacing) : 0,
+      btnLineHeight: (Number(s.lineHeight) >= 1 && Number(s.lineHeight) <= 2) ? Number(s.lineHeight) : 0,
+      btnTextInk: s.textColor || '',
+      /* Tamanho físico: 0 = sem teto de largura / altura automática. */
+      btnWidth: (Number(s.width) >= 160 && Number(s.width) <= 640) ? Number(s.width) : 0,
+      btnHeight: (Number(s.height) >= 0 && Number(s.height) <= 120) ? Number(s.height) : 0,
+      /* Ícone, card e botão-imagem — mesmos campos para link e PIX. */
+      btnIconImg: s.iconImg || '',
+      btnIconAlign: s.iconAlign || 'left',
+      btnCardStyle: s.cardStyle || '',
+      btnDesign: s.btnDesign || (s.customButtonImage ? 'imagem' : 'padrao'),
+      btnCustomImage: s.customButtonImage || '',
+      btnCustomHeight: Number(s.customButtonHeight) > 0 ? Number(s.customButtonHeight) : 84,
+      btnSpacing: Number(s.spacing) > 0 ? Number(s.spacing) : 0,
+      /* btnIcon é a PLATAFORMA do botão (chave que o resolveIcon entende),
+         nunca um emoji. */
+      btnIcon: (typeof s.icon === 'string') ? s.icon : '',
       displayStyle: s.displayStyle || 'box'
     };
+  }
+
+  /* Flat do botão PIX: mesmo modelo, com o estilo salvo em cfg.pix.style e os
+     espelhos legados (format/colors) ainda valendo quando existem. Espelha
+     pixStyleFlat do admin e axPixStyleFlat do público. */
+  /* Onde o PIX mora na config. A forma canônica é profile.pix (é onde o
+     admin grava e o que o público consome); cfg.pix continua aceito para os
+     chamadores antigos. */
+  function pixConfigOf(cfg) {
+    const c = cfg || {};
+    if (c.profile && typeof c.profile.pix === 'object' && c.profile.pix) return c.profile.pix;
+    return (c.pix && typeof c.pix === 'object') ? c.pix : {};
+  }
+
+  function pixStyleToFlat(pixConf, globalStyle) {
+    const pix = pixConf || {};
+    const ls = pix.style || null;
+    const flat = linkStyleToFlat(ls, globalStyle);
+    if (pix.format) flat.btnShape = pix.format;
+    if (pix.colors && pix.colors.background) flat.btnBgColor = pix.colors.background;
+    if (pix.colors && pix.colors.text) flat.btnTextColor = pix.colors.text;
+    /* Defaults do painel PIX quando não há style salvo. Ausente ≠ 0: um 0
+       explícito (altura automática / largura sem teto) precisa sobreviver. */
+    if (flat.btnIcon === undefined) flat.btnIcon = 'pix';
+    if (ls) {
+      flat.btnWidth = (ls.width != null) ? ls.width : 560;
+      flat.btnHeight = (ls.height != null) ? ls.height : 72;
+    } else {
+      if (!flat.btnWidth) flat.btnWidth = 560;
+      if (!flat.btnHeight) flat.btnHeight = 72;
+    }
+    return flat;
+  }
+
+  /* ================================================================
+     TAMANHO + TIPOGRAFIA DO BOTÃO — UM SÓ CÓDIGO PARA LINK E PIX
+     --------------------------------------------------------
+     resolveBtnTypo: valor próprio do botão (flat) > tipografia do painel
+     (globalStyle.typoBtn) > padrão. Piso de 13px igual para os dois.
+     applyBtnTypo: escreve no elemento E nos filhos de texto (a stylesheet
+     fixa o tamanho/peso do texto do card, então inline no ancestral sozinho
+     não chega). Espelho EXATO de admin.html/index.html.
+     ================================================================ */
+  function resolveBtnTypo(flat, globalStyle) {
+    const f = flat || {};
+    const b = ((globalStyle || {}).typoBtn) || {};
+    const g = {
+      size: (Number(b.size) >= 12 && Number(b.size) <= 34) ? Number(b.size) : 15,
+      weight: (Number(b.weight) >= 300 && Number(b.weight) <= 900) ? Number(b.weight) : 600,
+      ls: (Number(b.ls) >= -1 && Number(b.ls) <= 5) ? Number(b.ls) : 0,
+      lh: (Number(b.lh) >= 1 && Number(b.lh) <= 2) ? Number(b.lh) : 1.4,
+      font: b.font || ''
+    };
+    const size = (Number(f.btnFontSize) >= 12) ? Number(f.btnFontSize) : g.size;
+    const weight = (Number(f.btnFontWeight) >= 300) ? Number(f.btnFontWeight) : g.weight;
+    const ls = (Number(f.btnLetterSpacing) >= -1 && Number(f.btnLetterSpacing) <= 5) ? Number(f.btnLetterSpacing) : g.ls;
+    const lh = (Number(f.btnLineHeight) >= 1 && Number(f.btnLineHeight) <= 2) ? Number(f.btnLineHeight) : g.lh;
+    return { size: Math.max(13, size), weight: weight, ls: ls, lh: lh, font: f.btnFont || g.font };
+  }
+
+  function applyBtnTypo(el, flat, globalStyle, textSel) {
+    if (!el) return null;
+    const t = resolveBtnTypo(flat, globalStyle);
+    el.style.fontSize = t.size + 'px';
+    el.style.fontWeight = String(t.weight);
+    el.style.letterSpacing = t.ls + 'px';
+    el.style.lineHeight = String(t.lh);
+    if (t.font) el.style.fontFamily = '"' + t.font + '", system-ui, sans-serif';
+    const ink = (flat && flat.btnTextInk) ? flat.btnTextInk : '';
+    if (ink) el.style.color = ink;
+    const txts = textSel ? el.querySelectorAll(textSel) : [];
+    txts.forEach((t2) => {
+      t2.style.fontSize = t.size + 'px';
+      t2.style.fontWeight = String(t.weight);
+      t2.style.letterSpacing = t.ls + 'px';
+      t2.style.lineHeight = String(t.lh);
+      if (t.font) t2.style.fontFamily = '"' + t.font + '", system-ui, sans-serif';
+      if (ink) t2.style.color = ink;
+    });
+    return t;
+  }
+
+  /* Tipografia + tamanho próprios de um link (campos legados têm
+     precedência sobre o style). Espelho de applyLinkTextTypo. */
+  function applyLinkTextTypo(btn, link, globalStyle) {
+    if (!btn || !link) return;
+    if (btn.classList.contains('featured__card--customimg')) return;
+    if (link.id) btn.dataset.linkId = link.id;
+    const st = globalStyle || {};
+    const flat = Object.assign({}, linkStyleToFlat(link.style, st), {
+      btnFont: link.linkFont || (link.style && link.style.font) || '',
+      btnFontSize: Number(link.linkFontSize) >= 13 ? Number(link.linkFontSize) : 0,
+      btnFontWeight: Number(link.linkFontWeight) >= 300 ? Number(link.linkFontWeight) : 0,
+      btnTextInk: link.linkTextColor || (link.style && link.style.textColor) || ''
+    });
+    applyBtnTypo(btn, flat, st, '.featured__body strong, .featured__sub');
+    const bw = Number(flat.btnWidth) >= 160 ? Number(flat.btnWidth) : 0;
+    if (bw) {
+      btn.style.maxWidth = 'max(' + bw + 'px, min-content)';
+      btn.style.alignSelf = 'center';
+    }
+    const bh = Number(flat.btnHeight) > 0 ? Number(flat.btnHeight) : 0;
+    if (bh) btn.style.minHeight = bh + 'px';
+  }
+
+  /* Tamanho (largura/altura) + tipografia do botão PIX. Espelho de
+     applyPixSizing: btnWidth = largura máxima em px (padrão 560);
+     btnHeight = altura mínima em px (padrão 72; 0 = automática). */
+  function applyPixSizing(el, flat, globalStyle) {
+    if (!el) return;
+    el.style.padding = '0.8rem 1.25rem';
+    const bw = (flat && Number(flat.btnWidth) >= 160) ? Number(flat.btnWidth) : 560;
+    el.style.maxWidth = 'max(' + bw + 'px, min-content)';
+    const bh = (flat && Number(flat.btnHeight) >= 0) ? Number(flat.btnHeight) : 72;
+    el.style.minHeight = bh > 0 ? bh + 'px' : '';
+    el.style.marginLeft = 'auto';
+    el.style.marginRight = 'auto';
+    el.style.alignSelf = 'center';
+    applyBtnTypo(el, flat, globalStyle, '.featured__body strong, .pg-pix__btn > span:last-child');
   }
 
   /**
@@ -447,8 +627,13 @@ const RenderCore = (function () {
 
     Object.assign(btn.style, bCSS);
     btn.classList.remove('ax-text-only');
-    btn.classList.remove('ghost', 'neumorphic');
+    btn.classList.remove('ghost', 'neumorphic', 'gx-panel', 'gx-highlight', 'gx-noise');
     if (bVariant === 'ghost' || bVariant === 'neumorphic') btn.classList.add(bVariant);
+    if (bVariant === 'glass') {
+      btn.classList.add('gx-panel');
+      if (merged.btnGlassHighlight !== false) btn.classList.add('gx-highlight');
+      if (merged.btnGlassNoise) btn.classList.add('gx-noise');
+    }
     if (bAnim === 'pulse') btn.classList.add('anim-pulse');
     else if (bAnim === 'float') btn.classList.add('anim-float');
     else if (bAnim === 'shine') btn.classList.add('anim-shine');
@@ -632,9 +817,22 @@ const RenderCore = (function () {
       /* Aplica estilo de botão (merge global + individual do link.style) */
       const themeColors = extractThemeColors(cfg);
       applyButtonStyles(a, link.style, cfg.style, themeColors);
+      /* Tipografia e tamanho próprios (campos legados > style) — mesmo
+         caminho do botão PIX. */
+      applyLinkTextTypo(a, link, cfg.style);
 
       wrap.appendChild(a);
     });
+
+    /* ---- Botão PIX intercalado na lista (pix.order) ---- */
+    const pixConf = pixConfigOf(cfg);
+    const pixOn = !!pixConf.enabled && !!(pixConf.key || pixConf.qr || pixConf.link);
+    const pixOrder = (typeof pixConf.order === 'number' && pixConf.order >= 0) ? pixConf.order : null;
+    if (isList && pixOn && pixOrder != null) {
+      const pixFlat = pixStyleToFlat(pixConf, cfg.style);
+      const before = Array.from(wrap.children)[pixOrder] || null;
+      wrap.insertBefore(buildPixCard(pixConf, pixFlat, cfg), before);
+    }
 
     linksContainer.appendChild(wrap);
 
@@ -642,6 +840,87 @@ const RenderCore = (function () {
     if (isList) {
       applyLinkSpacing(wrap, links, cfg);
     }
+  }
+
+  /* Card do botão PIX dentro da lista de links: mesmas classes/opções do card
+     de link (alinhamento do ícone, imagem própria, botão-imagem, destaque/
+     depoimento). Espelho de appendPixCard no admin e no público. */
+  function buildPixCard(pixConf, flat, cfg) {
+    const pa = document.createElement('a');
+    pa.className = 'featured__card featured__card--pix';
+    if (flat.btnIconAlign === 'center') pa.classList.add('ia-center');
+    else if (flat.btnIconAlign === 'right') pa.classList.add('ia-right');
+    pa.href = '#';
+    pa.setAttribute('data-dialog-open', '');
+    pa.setAttribute('role', 'button');
+    pa.setAttribute('data-pix', '1');
+    const label = pixConf.buttonText || 'Pagar com PIX';
+    pa.setAttribute('aria-label', label);
+
+    /* Botão-imagem: a imagem vira o botão inteiro (mesmo desvio dos links). */
+    if (flat.btnDesign === 'imagem' && flat.btnCustomImage) {
+      pa.classList.remove('featured__card--pix');
+      pa.classList.add('featured__card--customimg');
+      pa.removeAttribute('data-dialog-open');
+      applyButtonWidth(pa, flat.btnWidth);
+      pa.style.setProperty('--customimg-h', (Number(flat.btnCustomHeight) > 40 ? Number(flat.btnCustomHeight) : 84) + 'px');
+      const cimg = document.createElement('img');
+      cimg.className = 'featured__customimg';
+      cimg.src = flat.btnCustomImage;
+      cimg.alt = label;
+      pa.appendChild(cimg);
+      return pa;
+    }
+
+    /* Card destaque/depoimento: mesmo par de classes dos links. */
+    if (flat.btnCardStyle === 'highlight' || flat.btnCardStyle === 'testimonial') {
+      const testimonial = flat.btnCardStyle === 'testimonial';
+      pa.classList.remove('featured__card--pix');
+      pa.classList.add(testimonial ? 'featured__card--testimonial' : 'featured__card--highlight');
+      pa.removeAttribute('data-dialog-open');
+      if (testimonial) pa.style.fontStyle = 'italic';
+      const body = document.createElement('span');
+      body.className = 'featured__body';
+      const strong = document.createElement('strong');
+      strong.textContent = label;
+      body.appendChild(strong);
+      pa.appendChild(body);
+      return pa;
+    }
+
+    /* Ícone: imagem própria tem precedência sobre a chave de plataforma. */
+    if (flat.btnIconImg || flat.btnIcon) {
+      const icon = document.createElement('span');
+      icon.className = 'featured__icon';
+      icon.setAttribute('aria-hidden', 'true');
+      if (flat.btnIconImg) {
+        const im = document.createElement('img');
+        im.src = flat.btnIconImg;
+        im.alt = '';
+        icon.appendChild(im);
+      } else {
+        const i = document.createElement('i');
+        i.className = resolveIconClass(flat.btnIcon);
+        icon.appendChild(i);
+      }
+      pa.appendChild(icon);
+    }
+
+    const body = document.createElement('span');
+    body.className = 'featured__body';
+    const strong = document.createElement('strong');
+    strong.textContent = label;
+    body.appendChild(strong);
+    pa.appendChild(body);
+
+    const arrow = document.createElement('div');
+    arrow.className = 'featured__arrow';
+    arrow.innerHTML = ICONS.arrow;
+    pa.appendChild(arrow);
+
+    applyButtonStyles(pa, pixConf.style, cfg.style, extractThemeColors(cfg));
+    applyPixSizing(pa, flat, cfg.style);
+    return pa;
   }
 
   function applyButtonWidth(btn, width) {
@@ -668,11 +947,19 @@ const RenderCore = (function () {
 
   function applyLinkSpacing(wrap, list, cfg) {
     const globalGap = Number(cfg.style?.blockGap) >= 0 ? Number(cfg.style?.blockGap) : 10;
-    Array.from(wrap.children).forEach((child, i) => {
-      const link = list && list[i];
-      const slot = (link && Number(link.spacing) > 0) ? Number(link.spacing) : globalGap;
-      child.style.marginTop = (i === 0 ? 0 : slot) + 'px';
+    const pixFlat = pixStyleToFlat(pixConfigOf(cfg), cfg.style);
+    let idx = 0;
+    let first = true;
+    Array.from(wrap.children).forEach((child) => {
+      const isPix = (child.getAttribute && child.getAttribute('data-pix') === '1');
+      const link = isPix ? null : (list && list[idx]);
+      /* Espaçamento próprio: link usa o legado, PIX usa o mesmo flat do card. */
+      const own = isPix ? Number(pixFlat.btnSpacing) : Number(link && link.spacing);
+      const slot = own > 0 ? own : globalGap;
+      child.style.marginTop = (first ? 0 : slot) + 'px';
       child.style.marginBottom = '0px';
+      if (!isPix) idx++;
+      first = false;
     });
   }
 
@@ -730,6 +1017,14 @@ const RenderCore = (function () {
     applyButtonWidth,
     applyLinkSpacing,
     resolveIconClass,
+    defaultLinkStyle,
+    linkStyleToFlat,
+    pixStyleToFlat,
+    resolveBtnTypo,
+    applyBtnTypo,
+    applyLinkTextTypo,
+    applyPixSizing,
+    buildPixCard,
     ICON_MAP,
     ICONS
   };

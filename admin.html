@@ -1667,22 +1667,6 @@
             <input type="text" id="pixButtonText" placeholder="Pagar com PIX" maxlength="30">
             <p class="hint">Deixe vazio para usar o padrão "Pagar com PIX"</p>
           </div>
-          <div class="row-2" style="margin-top:10px;">
-            <div class="field">
-              <label>Cor de fundo do botão</label>
-              <div class="color-trigger" id="pixBtnBgColor" role="button" tabindex="0">
-                <div class="color-trigger-swatch" style="background:#16a34a;"></div>
-                <span class="color-trigger-hex">AUTO</span>
-              </div>
-            </div>
-            <div class="field">
-              <label>Cor do texto/ícone</label>
-              <div class="color-trigger" id="pixBtnTextColor" role="button" tabindex="0">
-                <div class="color-trigger-swatch" style="background:#ffffff;"></div>
-                <span class="color-trigger-hex">AUTO</span>
-              </div>
-            </div>
-          </div>
           <details class="elem-block" style="margin:10px 0 0;" id="pixStyleSection">
             <summary style="cursor:pointer;font-size:13px;font-weight:700;color:var(--ink);">🎨 Estilo do botão PIX</summary>
             <div style="margin-top:10px;">
@@ -1731,80 +1715,56 @@
                   </select>
                   <p class="hint">Mesmas opções de ícone dos outros botões. Deixe em "Nenhum" para o botão ficar só com o texto.</p>
                 </div>
+                <div class="row-2">
+                  <div class="field">
+                    <label>Imagem do ícone</label>
+                    <button class="btn-mini" id="pixStIconPick" style="width:100%;">Escolher…</button>
+                    <input type="file" id="pixStIconInput" accept="image/*" hidden>
+                  </div>
+                  <div class="field">
+                    <label for="pixStIconAlign">Alinhamento do Ícone</label>
+                    <select id="pixStIconAlign" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+                      <option value="left">À Esquerda (Fixo)</option>
+                      <option value="center">Junto ao Texto (Centralizado)</option>
+                      <option value="right">À Direita</option>
+                    </select>
+                  </div>
+                </div>
               </div>
 
-              <div id="pixStBoxControls">
-              <div class="field">
-                <label>Variante</label>
-                <select id="pixStVariant" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
-                  <option value="solid">Sólido (Tema)</option>
-                  <option value="glass">Vidro (Glassmorphism)</option>
-                  <option value="neumorphic">Neumórfico (Soft UI)</option>
-                  <option value="ghost">Minimalista Vazado (Ghost)</option>
-                  <option value="gradient-soft">Gradiente Suave (automático)</option>
-                  <option value="gradient">Gradiente Personalizado</option>
-                  <option value="neon">Glow Neon</option>
-                </select>
-              </div>
-              <div class="field" id="pixStGlowColorRow" style="display:none;">
-                <label>Cor do Glow Neon</label>
-                <div class="color-trigger" id="pixStGlowColor" role="button" tabindex="0"><div class="color-trigger-swatch"></div><span class="color-trigger-hex">#22D3EE</span></div>
-              </div>
               <div class="field" style="margin:10px 0 0;">
-                <label for="pixBtnShape">Formato do botão</label>
-                <select id="pixBtnShape" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
-                  <optgroup label="Geometricos">
-                    <option value="square">Quadrado Rigido</option>
-                    <option value="soft">Cantos Suaves</option>
-                    <option value="rounded">Arredondado Medio</option>
-                    <option value="pill">Totalmente Arredondado (Pilula)</option>
-                  </optgroup>
-                  <optgroup label="Organicos">
-                    <option value="organic">Cantos Assimetricos 1 (Folha)</option>
-                    <option value="bubble">Cantos Assimetricos 2 (Bolha)</option>
-                    <option value="diagonal">Estilo Diagonal</option>
-                  </optgroup>
-                  <optgroup label="Especiais">
-                    <option value="double">Borda Dupla</option>
-                    <option value="brutalist">Estilo Brutalista</option>
-                    <option value="custom">Formato Customizado (Slider)</option>
-                  </optgroup>
+                <label for="pixStCardStyle">Estilo do Bloco</label>
+                <select id="pixStCardStyle" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+                  <option value="">Normal (Link)</option>
+                  <option value="highlight">Destaque (CTA grande)</option>
+                  <option value="testimonial">Depoimento (Citação)</option>
                 </select>
               </div>
-              <div class="ds-control" id="pixStRadiusRow" style="display:none;">
-                <label>Arredondamento</label>
-                <div class="ds-control-row">
-                  <input type="range" id="pixStRadius" min="0" max="50" step="1">
-                  <output class="ds-value" id="pixStRadiusVal">14px</output>
-                </div>
-              </div>
+
               <div class="field" style="margin:10px 0 0;">
-                <label>Animação</label>
-                <select id="pixStAnimation" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
-                  <option value="none">Nenhuma</option>
-                  <option value="pulse">Pulsação Contínua</option>
-                  <option value="shine">Brilho Passante (Shine)</option>
-                  <option value="float">Flutuação Suave</option>
+                <label for="pixStBtnDesign">Design do botão</label>
+                <select id="pixStBtnDesign" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+                  <option value="padrao">Padrão (gerado pela plataforma)</option>
+                  <option value="imagem">Imagem customizada (a imagem vira o botão)</option>
                 </select>
               </div>
-              <div class="field" style="margin:10px 0 0; padding-top:12px; border-top:1px solid var(--bg);">
-                <label style="font-size:13px; font-weight:700; color:var(--ink);">Tamanho do botão</label>
-                <div class="ds-control" style="margin-top:6px;">
-                  <label for="pixStWidth">Largura (máxima)</label>
-                  <div class="ds-control-row">
-                    <input type="range" id="pixStWidth" min="160" max="640" step="10">
-                    <output class="ds-value" id="pixStWidthVal">560px</output>
-                  </div>
-                  <p class="hint" style="margin:6px 0 0;">É o limite máximo: o botão nunca fica mais estreito que o nome — o texto sempre define o tamanho dele.</p>
+
+              <div class="field" id="pixStImagePanel" style="display:none;">
+                <label>Imagem do botão (substitui ícone, cor de fundo e texto)</label>
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+                  <div class="upload-thumb" id="pixStImageThumb">🖼️</div>
+                  <button class="btn-mini" id="pixStImagePick" style="flex:1; width:100%;">Escolher imagem…</button>
+                  <input type="file" id="pixStImageInput" accept="image/*" hidden>
                 </div>
-                <div class="ds-control">
-                  <label for="pixStHeight">Altura (0 = automática)</label>
-                  <div class="ds-control-row">
-                    <input type="range" id="pixStHeight" min="0" max="120" step="2">
-                    <output class="ds-value" id="pixStHeightVal">72px</output>
-                  </div>
+                <small>Enviada para a nuvem e exibida como o botão COMPLETO (sem ícone/texto gerados).</small>
+                <div style="display:flex; align-items:center; gap:12px; margin-top:12px;">
+                  <label for="pixStCustomHeight" style="flex:1; margin:0;">Altura do botão</label>
+                  <input type="range" id="pixStCustomHeight" min="64" max="200" step="2" value="84" style="flex:2;">
+                  <span id="pixStCustomHeightVal" style="min-width:48px; font-weight:700;">84px</span>
                 </div>
+                <small>A imagem preenche a largura do botão com a altura escolhida, cortando o excedente sem distorcer.</small>
               </div>
+
               <div class="field" id="pixStTypoPanel" style="margin:10px 0 0; padding-top:12px; border-top:1px solid var(--bg);">
                 <label style="font-size:13px; font-weight:700; color:var(--ink);">Tipografia do texto do botão PIX</label>
                 <p class="hint" style="margin-bottom:10px;">Mesmo painel dos outros botões: estiliza o texto do botão PIX.</p>
@@ -1824,6 +1784,12 @@
                   </select>
                 </div>
                 <div class="ds-control">
+                  <label class="typo-inherit-row" for="pixStTypoGlobal">
+                    <input type="checkbox" id="pixStTypoGlobal" checked>
+                    <span>Usar a tipografia do painel<small>Tamanho, peso, espaçamento e entrelinha vêm de “Tipografia dos Botões de Link”. Desmarque para personalizar só este botão.</small></span>
+                  </label>
+                </div>
+                <div class="ds-control">
                   <label for="pixStFontSize">Tamanho da fonte</label>
                   <div class="ds-control-row">
                     <input type="range" id="pixStFontSize" min="12" max="34" step="1">
@@ -1831,96 +1797,253 @@
                   </div>
                 </div>
                 <div class="ds-control">
-                  <label for="pixStFontWeight">Peso da fonte (negrito)</label>
+                  <label>Peso da fonte (negrito)</label>
                   <div class="ds-control-row">
                     <input type="range" id="pixStFontWeight" min="300" max="900" step="100">
                     <output class="ds-value" id="pixStFontWeightVal">600</output>
                   </div>
                 </div>
+                <div class="ds-control">
+                  <label for="pixStLetterSpacing">Espaçamento entre letras</label>
+                  <div class="ds-control-row">
+                    <input type="range" id="pixStLetterSpacing" min="-1" max="5" step="0.5">
+                    <output class="ds-value" id="pixStLetterSpacingVal">0px</output>
+                  </div>
+                </div>
+                <div class="ds-control">
+                  <label for="pixStLineHeight">Entrelinha</label>
+                  <div class="ds-control-row">
+                    <input type="range" id="pixStLineHeight" min="1" max="2" step="0.05">
+                    <output class="ds-value" id="pixStLineHeightVal">1.4</output>
+                  </div>
+                </div>
+                <div class="field">
+                  <label style="font-size:11px;">Cor do texto</label>
+                  <div class="color-trigger" id="pixStTextColor" role="button" tabindex="0">
+                    <div class="color-trigger-swatch" style="background:#ffffff;"></div>
+                    <span class="color-trigger-hex">AUTO</span>
+                  </div>
+                </div>
+                <small id="pixStTypoNotApp" style="display:none; color:#94a3b8; background:var(--bg); padding:8px 10px; border-radius:8px; font-size:12px; line-height:1.5;">
+                  Não aplicável a botões com imagem customizada — este botão usa a própria imagem, sem texto da plataforma. Controle a altura abaixo em &quot;Altura do botão&quot;.
+                </small>
               </div>
-              <div class="field" id="pixStGradientRow" style="margin:10px 0 0;display:none;">
-                <label>Gradiente do Botão (2 cores)</label>
+
+              <div class="field" style="margin:10px 0 0; padding-top:12px; border-top:1px solid var(--bg);">
+                <label for="pixStSpacing" style="font-size:13px; font-weight:700; color:var(--ink);">Espaçamento acima deste botão</label>
+                <p class="hint" style="margin-bottom:8px;">0 = usar o espaçamento global (definido em &quot;Espaçamento entre botões&quot;). Ajuste para destacar este botão com mais respiro — só ele muda.</p>
+                <div style="display:flex; align-items:center; gap:12px;">
+                  <input type="range" id="pixStSpacing" min="0" max="48" step="1" value="0" style="flex:2;">
+                  <span id="pixStSpacingVal" style="min-width:48px; font-weight:700;">0px</span>
+                </div>
+              </div>
+
+              <div id="pixStBoxControls">
+                <div class="field">
+                  <label>Variante</label>
+                  <select id="pixStVariant" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+                    <option value="solid">Sólido (Tema)</option>
+                    <option value="glass">Vidro (Glassmorphism)</option>
+                    <option value="neumorphic">Neumórfico (Soft UI)</option>
+                    <option value="ghost">Minimalista Vazado (Ghost)</option>
+                    <option value="gradient-soft">Gradiente Suave (automático)</option>
+                    <option value="gradient">Gradiente Personalizado</option>
+                    <option value="neon">Glow Neon</option>
+                  </select>
+                </div>
+                <div class="field" id="pixStGlowColorRow" style="display:none;">
+                  <label>Cor do Glow Neon</label>
+                  <div class="color-trigger" id="pixStGlowColor" role="button" tabindex="0"><div class="color-trigger-swatch"></div><span class="color-trigger-hex">#22D3EE</span></div>
+                </div>
                 <div class="row-2">
                   <div class="field">
-                    <label>Cor Inicial</label>
-                    <div class="color-trigger" id="pixStGradientStart" role="button" tabindex="0"><div class="color-trigger-swatch"></div><span class="color-trigger-hex">#16A34A</span></div>
+                    <label for="pixStShape">Formato do botão</label>
+                    <select id="pixStShape" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+                      <optgroup label="Geometricos">
+                        <option value="square">Quadrado Rigido</option>
+                        <option value="soft">Cantos Suaves</option>
+                        <option value="rounded">Arredondado Medio</option>
+                        <option value="pill">Totalmente Arredondado (Pilula)</option>
+                      </optgroup>
+                      <optgroup label="Organicos">
+                        <option value="organic">Cantos Assimetricos 1 (Folha)</option>
+                        <option value="bubble">Cantos Assimetricos 2 (Bolha)</option>
+                        <option value="diagonal">Estilo Diagonal</option>
+                      </optgroup>
+                      <optgroup label="Especiais">
+                        <option value="double">Borda Dupla</option>
+                        <option value="brutalist">Estilo Brutalista</option>
+                        <option value="custom">Formato Customizado (Slider)</option>
+                      </optgroup>
+                    </select>
                   </div>
                   <div class="field">
-                    <label>Cor Final</label>
-                    <div class="color-trigger" id="pixStGradientEnd" role="button" tabindex="0"><div class="color-trigger-swatch"></div><span class="color-trigger-hex">#15803D</span></div>
+                    <label for="pixStAnimation">Animação</label>
+                    <select id="pixStAnimation" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+                      <option value="none">Nenhuma</option>
+                      <option value="pulse">Pulsação Contínua</option>
+                      <option value="shine">Brilho Passante (Shine)</option>
+                      <option value="float">Flutuação Suave</option>
+                    </select>
                   </div>
                 </div>
-                <div class="ds-control">
-                  <label>Ângulo do Gradiente</label>
+                <div class="field" style="margin:10px 0 0; padding-top:12px; border-top:1px solid var(--bg);">
+                  <label style="font-size:13px; font-weight:700; color:var(--ink);">Tamanho do botão</label>
+                  <div class="ds-control" style="margin-top:6px;">
+                    <label for="pixStWidth">Largura (máxima)</label>
+                    <div class="ds-control-row">
+                      <input type="range" id="pixStWidth" min="160" max="640" step="10">
+                      <output class="ds-value" id="pixStWidthVal">560px</output>
+                    </div>
+                    <p class="hint" style="margin:6px 0 0;">É o limite máximo: o botão nunca fica mais estreito que o nome — o texto sempre define o tamanho dele.</p>
+                  </div>
+                  <div class="ds-control">
+                    <label for="pixStHeight">Altura (0 = automática)</label>
+                    <div class="ds-control-row">
+                      <input type="range" id="pixStHeight" min="0" max="120" step="2">
+                      <output class="ds-value" id="pixStHeightVal">72px</output>
+                    </div>
+                  </div>
+                </div>
+                <div class="field" id="pixStGradientRow" style="margin:10px 0 0;display:none;">
+                  <label>Gradiente do Botão (2 cores)</label>
+                  <div class="row-2">
+                    <div class="field">
+                      <label>Cor Inicial</label>
+                      <div class="color-trigger" id="pixStGradientStart" role="button" tabindex="0"><div class="color-trigger-swatch"></div><span class="color-trigger-hex">#16A34A</span></div>
+                    </div>
+                    <div class="field">
+                      <label>Cor Final</label>
+                      <div class="color-trigger" id="pixStGradientEnd" role="button" tabindex="0"><div class="color-trigger-swatch"></div><span class="color-trigger-hex">#15803D</span></div>
+                    </div>
+                  </div>
+                  <div class="ds-control">
+                    <label>Ângulo do Gradiente</label>
+                    <div class="ds-control-row">
+                      <input type="range" id="pixStGradientAngle" min="0" max="360" step="1">
+                      <output class="ds-value" id="pixStGradientAngleVal">135deg</output>
+                    </div>
+                  </div>
+                </div>
+                <div class="ds-control" id="pixStRadiusRow" style="display:none;">
+                  <label>Arredondamento</label>
                   <div class="ds-control-row">
-                    <input type="range" id="pixStGradientAngle" min="0" max="360" step="1">
-                    <output class="ds-value" id="pixStGradientAngleVal">135deg</output>
+                    <input type="range" id="pixStRadius" min="0" max="50" step="1">
+                    <output class="ds-value" id="pixStRadiusVal">14px</output>
                   </div>
                 </div>
-              </div>
-              <div class="field" style="margin:10px 0 0;">
-                <label>Estilo de Sombra</label>
-                <select id="pixStShadowStyle" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
-                  <option value="soft">Sombra Suave Projetada</option>
-                  <option value="none">Nenhuma Sombra</option>
-                  <option value="neumorph">Efeito Soft UI / Neumorphism</option>
-                  <option value="glow">Brilho Neon (Glow)</option>
-                </select>
-              </div>
-              <div class="ds-control" id="pixStShadowRow">
-                <label>Intensidade da Sombra</label>
-                <div class="ds-control-row">
-                  <input type="range" id="pixStShadow" min="0" max="100" step="5">
-                  <output class="ds-value" id="pixStShadowVal">30%</output>
+                <div class="field" style="margin:10px 0 0;">
+                  <label>Estilo de Sombra</label>
+                  <select id="pixStShadowStyle" style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--ink);">
+                    <option value="soft">Sombra Suave Projetada</option>
+                    <option value="none">Nenhuma Sombra</option>
+                    <option value="neumorph">Efeito Soft UI / Neumorphism</option>
+                    <option value="glow">Brilho Neon (Glow)</option>
+                  </select>
                 </div>
-              </div>
-              <div class="glass-block" style="margin-top:10px;">
-                <div class="glass-block-head">💠 Efeito Vidro neste botão</div>
-                <div class="toggle-row" style="padding:2px 0 6px;">
-                  <span class="toggle-label">Ativar efeito vidro</span>
-                  <label class="switch">
-                    <input type="checkbox" id="pixStGlassToggle">
-                    <span class="slider"></span>
-                  </label>
-                </div>
-                <div class="ds-control">
-                  <label>Desfoque (Blur)</label>
+                <div class="ds-control" id="pixStShadowRow">
+                  <label>Intensidade da Sombra</label>
                   <div class="ds-control-row">
-                    <input type="range" id="pixStGlassBlur" min="0" max="40" step="1">
-                    <output class="ds-value" id="pixStGlassBlurVal">20px</output>
+                    <input type="range" id="pixStShadow" min="0" max="100" step="5">
+                    <output class="ds-value" id="pixStShadowVal">30%</output>
                   </div>
                 </div>
-                <div class="ds-control">
-                  <label>Opacidade do vidro</label>
-                  <div class="ds-control-row">
-                    <input type="range" id="pixStGlassOpacity" min="0" max="100" step="1">
-                    <output class="ds-value" id="pixStGlassOpacityVal">16%</output>
+                <div class="glass-block" style="margin-top:10px;">
+                  <div class="glass-block-head">💠 Efeito Vidro neste botão</div>
+                  <div class="toggle-row" style="padding:2px 0 6px;">
+                    <span class="toggle-label">Ativar efeito vidro</span>
+                    <label class="switch">
+                      <input type="checkbox" id="pixStGlassToggle">
+                      <span class="slider"></span>
+                    </label>
                   </div>
-                </div>
-                <div class="ds-control">
-                  <label>Opacidade da borda</label>
-                  <div class="ds-control-row">
-                    <input type="range" id="pixStGlassBorderOpacity" min="0" max="100" step="1">
-                    <output class="ds-value" id="pixStGlassBorderOpacityVal">25%</output>
+                  <div id="pixStGlassOpts">
+                  <div class="ds-control">
+                    <label>Desfoque (Blur)</label>
+                    <div class="ds-control-row">
+                      <input type="range" id="pixStGlassBlur" min="0" max="40" step="1">
+                      <output class="ds-value" id="pixStGlassBlurVal">20px</output>
+                    </div>
                   </div>
-                </div>
-                <div class="toggle-row" style="padding:2px 0 6px;">
-                  <span class="toggle-label">Reflexo de luz no topo</span>
-                  <label class="switch">
-                    <input type="checkbox" id="pixStGlassHighlight">
-                    <span class="slider"></span>
-                  </label>
-                </div>
-                <div class="toggle-row" style="padding:2px 0 6px;">
-                  <span class="toggle-label">Textura sutil (ruído)</span>
-                  <label class="switch">
+                  <div class="ds-control">
+                    <label>Saturação</label>
+                    <div class="ds-control-row">
+                      <input type="range" id="pixStGlassSaturate" min="100" max="220" step="10">
+                      <output class="ds-value" id="pixStGlassSaturateVal">180%</output>
+                    </div>
+                  </div>
+                  <div class="ds-control">
+                    <label>Opacidade do vidro</label>
+                    <div class="ds-control-row">
+                      <input type="range" id="pixStGlassOpacity" min="0" max="100" step="1">
+                      <output class="ds-value" id="pixStGlassOpacityVal">16%</output>
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label style="font-size:11px;">Cor do vidro</label>
+                    <div class="color-trigger" id="pixStGlassColor" role="button" tabindex="0">
+                      <div class="color-trigger-swatch" style="background:#ffffff;"></div>
+                      <span class="color-trigger-hex">#FFFFFF</span>
+                    </div>
+                  </div>
+                  <div class="ds-control">
+                    <label>Brilho da borda</label>
+                    <div class="ds-control-row">
+                      <input type="range" id="pixStGlassBorderGlow" min="0" max="100" step="5">
+                      <output class="ds-value" id="pixStGlassBorderGlowVal">40%</output>
+                    </div>
+                  </div>
+                  <div class="ds-control">
+                    <label>Profundidade da sombra</label>
+                    <div class="ds-control-row">
+                      <input type="range" id="pixStGlassShadowDepth" min="0" max="100" step="5">
+                      <output class="ds-value" id="pixStGlassShadowDepthVal">18%</output>
+                    </div>
+                  </div>
+                  <div class="ds-control">
+                    <label>Opacidade da borda</label>
+                    <div class="ds-control-row">
+                      <input type="range" id="pixStGlassBorderOpacity" min="0" max="100" step="1">
+                      <output class="ds-value" id="pixStGlassBorderOpacityVal">25%</output>
+                    </div>
+                  </div>
+                  <div class="toggle-row" style="padding:2px 0 6px;">
+                    <span class="toggle-label">Reflexo de luz no topo</span>
+                    <label class="switch">
+                      <input type="checkbox" id="pixStGlassHighlight">
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+                  <div class="toggle-row" style="padding:2px 0 6px;">
+                    <span class="toggle-label">Textura sutil (ruído)</span>
+                    <label class="switch">
                       <input type="checkbox" id="pixStGlassNoise">
                       <span class="slider"></span>
                     </label>
                   </div>
+                  </div>
+                </div>
+                <div class="field">
+                  <label>Cores do Botão</label>
+                  <div class="color-grid-2" style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                    <div class="field" style="margin:0;">
+                      <label style="font-size:11px;">Fundo</label>
+                      <div class="color-trigger" id="pixStBgColor" role="button" tabindex="0">
+                        <div class="color-trigger-swatch" style="background:#16a34a;"></div>
+                        <span class="color-trigger-hex">AUTO</span>
+                      </div>
+                    </div>
+                    <div class="field" style="margin:0;">
+                      <label style="font-size:11px;">Texto</label>
+                      <div class="color-trigger" id="pixStTextColor" role="button" tabindex="0">
+                        <div class="color-trigger-swatch" style="background:#ffffff;"></div>
+                        <span class="color-trigger-hex">AUTO</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-              </div>
+            </div>
           </details>
         </div>
           <div class="upload-row" style="margin-top:10px;">
@@ -3161,6 +3284,20 @@
             <output class="ds-value" id="blockTypoWeightVal">600</output>
           </div>
         </div>
+        <div class="ds-control">
+          <label for="blockTypoLs">Espaçamento entre letras</label>
+          <div class="ds-control-row">
+            <input type="range" id="blockTypoLs" min="-1" max="5" step="0.5">
+            <output class="ds-value" id="blockTypoLsVal">0px</output>
+          </div>
+        </div>
+        <div class="ds-control">
+          <label for="blockTypoLh">Entrelinha</label>
+          <div class="ds-control-row">
+            <input type="range" id="blockTypoLh" min="1" max="2" step="0.05">
+            <output class="ds-value" id="blockTypoLhVal">1.4</output>
+          </div>
+        </div>
         <div class="field">
           <label style="font-size:11px;">Cor do texto</label>
           <div class="color-trigger" id="blockTextColor" role="button" tabindex="0">
@@ -3247,6 +3384,22 @@
               </select>
             </div>
           </div>
+          <div class="row-2">
+            <div class="ds-control">
+              <label>Largura máxima</label>
+              <div class="ds-control-row">
+                <input type="range" id="perBtnWidth" min="160" max="640" step="10">
+                <output class="ds-value" id="perBtnWidthVal">640px</output>
+              </div>
+            </div>
+            <div class="ds-control">
+              <label>Altura mínima</label>
+              <div class="ds-control-row">
+                <input type="range" id="perBtnHeight" min="0" max="120" step="4">
+                <output class="ds-value" id="perBtnHeightVal">Auto</output>
+              </div>
+            </div>
+          </div>
           <div class="field" id="perBtnGradientRow" style="display:none;">
             <label>Gradiente do Botão (2 cores)</label>
             <div class="row-2">
@@ -3299,11 +3452,19 @@
                 <span class="slider"></span>
               </label>
             </div>
+            <div id="perButtonGlassOpts">
             <div class="ds-control">
               <label>Desfoque (Blur)</label>
               <div class="ds-control-row">
                 <input type="range" id="perButtonGlassBlur" min="0" max="40" step="1">
                 <output class="ds-value" id="perButtonGlassBlurVal">20px</output>
+              </div>
+            </div>
+            <div class="ds-control">
+              <label>Saturação</label>
+              <div class="ds-control-row">
+                <input type="range" id="perButtonGlassSaturate" min="100" max="220" step="10">
+                <output class="ds-value" id="perButtonGlassSaturateVal">180%</output>
               </div>
             </div>
             <div class="ds-control">
@@ -3314,19 +3475,54 @@
               </div>
             </div>
             <div class="ds-control">
+              <label>Cor do vidro</label>
+              <div class="color-trigger" id="perButtonGlassColor" role="button" tabindex="0">
+                <div class="color-trigger-swatch" style="background:#ffffff;"></div>
+                <span class="color-trigger-hex">#FFFFFF</span>
+              </div>
+            </div>
+            <div class="ds-control">
+              <label>Brilho da borda</label>
+              <div class="ds-control-row">
+                <input type="range" id="perButtonGlassBorderGlow" min="0" max="100" step="5">
+                <output class="ds-value" id="perButtonGlassBorderGlowVal">40%</output>
+              </div>
+            </div>
+            <div class="ds-control">
+              <label>Profundidade da sombra</label>
+              <div class="ds-control-row">
+                <input type="range" id="perButtonGlassShadowDepth" min="0" max="100" step="5">
+                <output class="ds-value" id="perButtonGlassShadowDepthVal">18%</output>
+              </div>
+            </div>
+            <div class="ds-control">
               <label>Opacidade da borda</label>
               <div class="ds-control-row">
                 <input type="range" id="perButtonGlassBorderOpacity" min="0" max="100" step="1">
                 <output class="ds-value" id="perButtonGlassBorderOpacityVal">25%</output>
-</div>
-        </div>
-        <div id="perBtnBoxControls" style="display:block;">
-
+              </div>
+            </div>
+            <div class="toggle-row" style="padding:2px 0 6px;">
+              <span class="toggle-label">Reflexo de luz no topo</span>
+              <label class="switch">
+                <input type="checkbox" id="perButtonGlassHighlight" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="toggle-row" style="padding:2px 0 6px;">
+              <span class="toggle-label">Textura sutil (ruído)</span>
+              <label class="switch">
+                <input type="checkbox" id="perButtonGlassNoise">
+                <span class="slider"></span>
+              </label>
+            </div>
+            </div>
+          </div>
           <div class="field">
             <label>Cores do Botão</label>
-<div class="color-grid-2" style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-            <div class="field" style="margin:0;">
-              <label style="font-size:11px;">Fundo</label>
+            <div class="color-grid-2" style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+              <div class="field" style="margin:0;">
+                <label style="font-size:11px;">Fundo</label>
                 <div class="color-trigger" id="perBtnBgColor" role="button" tabindex="0">
                   <div class="color-trigger-swatch" style="background:#111827;"></div>
                   <span class="color-trigger-hex">AUTO</span>
@@ -3341,12 +3537,9 @@
               </div>
             </div>
           </div>
-
-          </div>
-          </div>
-          </div>
         </div>
-      </details>
+      </div>
+    </details>
 
       <div style="display:flex; gap:10px; margin-top:18px;">
         <button class="btn-mini" id="btnBlockCancel" style="flex:1; padding:12px;">Cancelar</button>
@@ -3788,7 +3981,26 @@
     return null;
   }
 
+  /* ================================================================
+     MODELO CANÔNICO DO ESTILO DE UM BOTÃO
+     --------------------------------------------------------
+     O MESMO objeto serve ao botão de LINK e ao botão PIX: a lista de
+     opções disponível é idêntica (variante, formato, animação, raio,
+     tamanho, gradiente, sombra, vidro, cores, exibição, tipografia,
+     ícone, card, botão-imagem e espaçamento). Só muda ONDE cada grupo é
+     gravado (ver styleModelOf/styleSave) — a LÓGICA de função é diferente,
+     as OPÇÕES não.
+
+     Convenções:
+       - fontSize/fontWeight/letterSpacing/lineHeight = null  → herdam a
+         tipografia do painel (st.typoBtn). É o mesmo contrato do checkbox
+         "Usar a tipografia do painel" do modal de link.
+       - width  = TETO de largura em px (0 = sem teto, o botão ocupa o
+         contêiner). height = altura mínima em px (0 = automática).
+       - textColor = cor do TEXTO (a cor da CAIXA é colors.text).
+     ================================================================ */
   const DEFAULT_LINK_STYLE = () => ({
+    /* ---- caixa ---- */
     variant: 'solid',
     format: 'rounded',
     animation: 'none',
@@ -3799,28 +4011,77 @@
     glass: { enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: 25 },
     colors: { background: '', text: '' },
     displayStyle: 'box',
-    /* Tipografia do texto do botão — MESMO PAINEL dos links e dos
-       elementos (nome/bio/endereço): font = '' herda a página;
-       fontSize 12–34px; fontWeight 300–900. */
+    /* ---- tamanho físico (px) ---- */
+    width: 0,
+    height: 0,
+    /* ---- ícone ---- */
+    icon: '',
+    iconImg: '',
+    iconAlign: 'left',
+    /* ---- card ---- */
+    cardStyle: '',
+    /* ---- botão-imagem (a imagem vira o botão inteiro) ---- */
+    btnDesign: 'padrao',
+    customButtonImage: '',
+    customButtonHeight: 84,
+    /* ---- tipografia do texto ---- */
     font: '',
-    fontSize: 15,
-    fontWeight: 600,
-    /* Tamanho físico do botão PIX — mesmas medidas dos outros botões:
-       width = largura máxima em px (padrão 560, igual aos cards de link);
-       height = altura mínima em px (padrão 72 como os outros botões;
-       0 = automática). */
-    width: 560,
-    height: 72
+    fontSize: null,
+    fontWeight: null,
+    letterSpacing: null,
+    lineHeight: null,
+    textColor: '',
+    /* ---- espaçamento acima do botão (0 = blockGap global) ---- */
+    spacing: 0
   });
 
-  /* Estilo padrão do botão PIX — espelha DEFAULT_LINK_STYLE, mas as cores
-     padrão são as do PIX (verde) para preservar o visual atual quando o
-     usuário não personaliza. */
+  /* Estilo padrão do botão PIX — MESMO modelo do link (acima), com os
+     valores padrão do PIX (verde, ícone de QR, 560x72) para preservar o
+     visual atual quando o usuário não personaliza. */
   const DEFAULT_PIX_STYLE = () => Object.assign({}, DEFAULT_LINK_STYLE(), {
     icon: 'pix',
+    width: 560,
+    height: 72,
     colors: { background: '#16A34A', text: '#ffffff' },
     gradient: { start: '#16a34a', end: '#15803d', angle: 135 }
   });
+
+  const DEFAULT_BUTTON_GLASS = () => Object.assign({}, DEFAULT_LINK_STYLE().glass);
+
+  /* Normaliza um style para o modelo canônico, preenchendo o que faltar.
+     Aceita tanto o objeto de um link quanto o do PIX (mesmo schema). */
+  function styleModel(style) {
+    const d = DEFAULT_LINK_STYLE();
+    const s = (style && typeof style === 'object') ? style : {};
+    return {
+      variant: s.variant || d.variant,
+      format: s.format || d.format,
+      animation: s.animation || d.animation,
+      shadow: Object.assign({ type: d.shadow.type, intensity: d.shadow.intensity }, s.shadow),
+      radius: (s.radius != null) ? s.radius : d.radius,
+      glow: s.glow || d.glow,
+      gradient: Object.assign({}, d.gradient, s.gradient),
+      glass: Object.assign({}, d.glass, s.glass),
+      colors: Object.assign({}, d.colors, s.colors),
+      displayStyle: s.displayStyle || d.displayStyle,
+      width: (s.width != null) ? s.width : 0,
+      height: (s.height != null) ? s.height : 0,
+      icon: (typeof s.icon === 'string') ? s.icon : '',
+      iconImg: s.iconImg || '',
+      iconAlign: s.iconAlign || 'left',
+      cardStyle: s.cardStyle || '',
+      btnDesign: s.btnDesign || (s.customButtonImage ? 'imagem' : 'padrao'),
+      customButtonImage: s.customButtonImage || '',
+      customButtonHeight: Number(s.customButtonHeight) > 0 ? Number(s.customButtonHeight) : 84,
+      font: s.font || '',
+      fontSize: (s.fontSize != null && s.fontSize !== '') ? Number(s.fontSize) : null,
+      fontWeight: (s.fontWeight != null && s.fontWeight !== '') ? Number(s.fontWeight) : null,
+      letterSpacing: (s.letterSpacing != null && s.letterSpacing !== '') ? Number(s.letterSpacing) : null,
+      lineHeight: (s.lineHeight != null && s.lineHeight !== '') ? Number(s.lineHeight) : null,
+      textColor: s.textColor || '',
+      spacing: Number(s.spacing) > 0 ? Number(s.spacing) : 0
+    };
+  }
 
   /* Normaliza pix.style.icon para o mesmo formato usado em link.type: a CHAVE
      da plataforma, resolvida pelo mesmo resolveIcon dos outros botões.
@@ -3876,64 +4137,331 @@
     return p.style;
   }
 
+  /* ================================================================
+     MOTOR ÚNICO DO PAINEL DE ESTILO (LINK E PIX)
+     --------------------------------------------------------
+     Lista de opções idêntica para os dois botões. Tudo abaixo lê/escreve
+     no MODELO CANÔNICO (styleModel) e resolve o id do DOM por
+     STYLE_IDS[panel]. Os painéis legacy (modal do link / painel do PIX)
+     ficam como cascas finas em cima deste motor — é isso que impede a
+     lista de opções de divergir de novo entre link e PIX.
+     ================================================================ */
+
+  /* Ids do DOM de cada controle, por painel. `…Val` = saída numérica do
+     range, `…Row` = linha condicionável. */
+  const STYLE_IDS = {
+    link: {
+      box: 'perBtnBoxControls',
+      rows: { gradient: 'perBtnGradientRow', glow: 'perGlowColorRow', radius: 'perBtnRadiusRow', shadow: 'perBtnShadowRow', glass: 'perButtonGlassOpts' },
+      variant: 'perBtnVariant', glow: 'perBtnGlowColor', format: 'perBtnShape', radius: 'perBtnRadius',
+      animation: 'perBtnAnimation', width: 'perBtnWidth', height: 'perBtnHeight',
+      gradientStart: 'perBtnGradientStart', gradientEnd: 'perBtnGradientEnd', gradientAngle: 'perBtnGradientAngle',
+      shadowType: 'perBtnShadowStyle', shadowIntensity: 'perBtnShadow',
+      glassEnabled: 'perButtonGlassToggle', glassBlur: 'perButtonGlassBlur', glassSaturate: 'perButtonGlassSaturate',
+      glassOpacity: 'perButtonGlassOpacity', glassColor: 'perButtonGlassColor',
+      glassBorderGlow: 'perButtonGlassBorderGlow', glassShadowDepth: 'perButtonGlassShadowDepth',
+      glassHighlight: 'perButtonGlassHighlight', glassNoise: 'perButtonGlassNoise',
+      glassBorderOpacity: 'perButtonGlassBorderOpacity',
+      bgColor: 'perBtnBgColor', boxTextColor: 'perBtnTextColor',
+      displayStyle: 'perBtnDisplayStyle', cardStyle: 'blockCardStyle',
+      font: 'blockTypoFont', typoGlobal: 'blockTypoGlobal', fontSize: 'blockTypoSize', fontWeight: 'blockTypoWeight',
+      letterSpacing: 'blockTypoLs', lineHeight: 'blockTypoLh', textInk: 'blockTextColor', notApp: 'blockTypoNotApp',
+      icon: 'blockType', iconAlign: 'blockIconAlign', iconImg: { pick: 'btnBlockIconPick', input: 'blockIconInput' },
+      btnDesign: 'blockBtnDesign', customHeight: 'blockCustomHeight', spacing: 'blockSpacing',
+      customImage: { pick: 'btnBlockImagePick', input: 'blockImageInput' },
+      imagePanel: 'blockImagePanel', imageThumb: 'blockImageThumb'
+    },
+    pix: {
+      box: 'pixStBoxControls',
+      rows: { gradient: 'pixStGradientRow', glow: 'pixStGlowColorRow', radius: 'pixStRadiusRow', shadow: 'pixStShadowRow', glass: 'pixStGlassOpts' },
+      variant: 'pixStVariant', glow: 'pixStGlowColor', format: 'pixStShape', radius: 'pixStRadius',
+      animation: 'pixStAnimation', width: 'pixStWidth', height: 'pixStHeight',
+      gradientStart: 'pixStGradientStart', gradientEnd: 'pixStGradientEnd', gradientAngle: 'pixStGradientAngle',
+      shadowType: 'pixStShadowStyle', shadowIntensity: 'pixStShadow',
+      glassEnabled: 'pixStGlassToggle', glassBlur: 'pixStGlassBlur', glassSaturate: 'pixStGlassSaturate',
+      glassOpacity: 'pixStGlassOpacity', glassColor: 'pixStGlassColor',
+      glassBorderGlow: 'pixStGlassBorderGlow', glassShadowDepth: 'pixStGlassShadowDepth',
+      glassHighlight: 'pixStGlassHighlight', glassNoise: 'pixStGlassNoise',
+      glassBorderOpacity: 'pixStGlassBorderOpacity',
+      bgColor: 'pixStBgColor', boxTextColor: 'pixStTextColor',
+      displayStyle: 'pixStDisplayStyle', cardStyle: 'pixStCardStyle',
+      font: 'pixStFont', typoGlobal: 'pixStTypoGlobal', fontSize: 'pixStFontSize', fontWeight: 'pixStFontWeight',
+      letterSpacing: 'pixStLetterSpacing', lineHeight: 'pixStLineHeight', textInk: 'pixStTextColor', notApp: 'pixStTypoNotApp',
+      icon: 'pixStIcon', iconAlign: 'pixStIconAlign', iconImg: { pick: 'pixStIconPick', input: 'pixStIconInput' },
+      btnDesign: 'pixStBtnDesign', customHeight: 'pixStCustomHeight', spacing: 'pixStSpacing',
+      customImage: { pick: 'pixStImagePick', input: 'pixStImageInput' },
+      imagePanel: 'pixStImagePanel', imageThumb: 'pixStImageThumb'
+    }
+  };
+
+  /* Mesmos controles, mesma ordem, para os dois painéis. `box: true` = o
+     controle mora dentro do grupo da caixa (some em "somente texto").
+     `inheritable` = herda o global quando o valor é null. */
+  const STYLE_CONTROLS = [
+    { key: 'displayStyle', kind: 'select' },
+    { key: 'cardStyle', kind: 'select' },
+    { key: 'icon', kind: 'select' },
+    { key: 'iconImg', kind: 'upload' },
+    { key: 'iconAlign', kind: 'select' },
+    { key: 'btnDesign', kind: 'select' },
+    { key: 'customHeight', kind: 'range', unit: 'px' },
+    { key: 'font', kind: 'select' },
+    { key: 'typoGlobal', kind: 'switch', derived: true },
+    { key: 'fontSize', kind: 'range', unit: 'px', inheritable: true },
+    { key: 'fontWeight', kind: 'range', inheritable: true },
+    { key: 'letterSpacing', kind: 'range', unit: 'px', inheritable: true },
+    { key: 'lineHeight', kind: 'range', inheritable: true },
+    { key: 'textInk', kind: 'color' },
+    { key: 'spacing', kind: 'range', unit: 'px' },
+    { key: 'variant', kind: 'select', box: true },
+    { key: 'glow', kind: 'color', box: true },
+    { key: 'format', kind: 'select', box: true },
+    { key: 'radius', kind: 'range', unit: 'px', box: true },
+    { key: 'animation', kind: 'select', box: true },
+    { key: 'width', kind: 'range', unit: 'px', box: true, autoLabel: '640px' },
+    { key: 'height', kind: 'range', unit: 'px', box: true, autoLabel: 'Auto' },
+    { key: 'gradientStart', kind: 'color', box: true },
+    { key: 'gradientEnd', kind: 'color', box: true },
+    { key: 'gradientAngle', kind: 'range', unit: 'deg', box: true },
+    { key: 'shadowType', kind: 'select', box: true },
+    { key: 'shadowIntensity', kind: 'range', unit: '%', box: true },
+    { key: 'glassEnabled', kind: 'switch', box: true },
+    { key: 'glassBlur', kind: 'range', unit: 'px', box: true },
+    { key: 'glassSaturate', kind: 'range', unit: '%', box: true },
+    { key: 'glassOpacity', kind: 'range', unit: '%', box: true },
+    { key: 'glassColor', kind: 'color', box: true },
+    { key: 'glassBorderGlow', kind: 'range', unit: '%', box: true },
+    { key: 'glassShadowDepth', kind: 'range', unit: '%', box: true },
+    { key: 'glassHighlight', kind: 'switch', box: true },
+    { key: 'glassNoise', kind: 'switch', box: true },
+    { key: 'glassBorderOpacity', kind: 'range', unit: '%', box: true },
+    { key: 'bgColor', kind: 'color', box: true },
+    { key: 'boxTextColor', kind: 'color', box: true }
+  ];
+
+  /* Valor exibido no <output> do range. */
+  function styleCtrlText(ctrl, v) {
+    if (ctrl.autoLabel && Number(v) === 0) return ctrl.autoLabel;
+    return (ctrl.unit ? v + ctrl.unit : String(v));
+  }
+
+  /* Chaves de tipografia que o switch "herda o painel" controla. */
+  const STYLE_TYPO_KEYS = ['fontSize', 'fontWeight', 'letterSpacing', 'lineHeight'];
+  /* axGlobalBtnTypo() devolve o NOME do painel (size/weight/ls/lh); os
+     controles do botão usam o nome canônico. Esta ponte é o que faz o
+     slider com herdar marcada mostrar o valor herdado (e não o mínimo). */
+  const STYLE_TYPO_GLOBAL_KEY = { fontSize: 'size', fontWeight: 'weight', letterSpacing: 'ls', lineHeight: 'lh' };
+
+  function styleGet(m, key) {
+    switch (key) {
+      case 'bgColor': return m.colors.background;
+      case 'boxTextColor': return m.colors.text;
+      case 'textInk': return m.textColor;
+      case 'gradientStart': return m.gradient.start;
+      case 'gradientEnd': return m.gradient.end;
+      case 'gradientAngle': return m.gradient.angle;
+      case 'shadowType': return m.shadow.type;
+      case 'shadowIntensity': return m.shadow.intensity;
+      case 'glassEnabled': return m.glass.enabled;
+      case 'glassBlur': return m.glass.blur;
+      case 'glassSaturate': return m.glass.saturate;
+      case 'glassOpacity': return m.glass.opacity;
+      case 'glassColor': return m.glass.color;
+      case 'glassBorderGlow': return m.glass.borderGlow;
+      case 'glassShadowDepth': return m.glass.shadowDepth;
+      case 'glassHighlight': return m.glass.highlight;
+      case 'glassNoise': return m.glass.noise;
+      case 'glassBorderOpacity': return m.glass.borderOpacity;
+      case 'glow': return m.glow;
+      case 'radius': return m.radius;
+      case 'width': return m.width;
+      case 'height': return m.height;
+      case 'typoGlobal': return (m.fontSize == null && m.fontWeight == null);
+      default: return m[key];
+    }
+  }
+
+  function styleSet(m, key, v) {
+    switch (key) {
+      case 'bgColor': m.colors.background = v; break;
+      case 'boxTextColor': m.colors.text = v; break;
+      case 'textInk': m.textColor = v; break;
+      case 'gradientStart': m.gradient.start = v; break;
+      case 'gradientEnd': m.gradient.end = v; break;
+      case 'gradientAngle': m.gradient.angle = v; break;
+      case 'shadowType': m.shadow.type = v; break;
+      case 'shadowIntensity': m.shadow.intensity = v; break;
+      case 'glassEnabled': m.glass.enabled = !!v; break;
+      case 'glassBlur': m.glass.blur = v; break;
+      case 'glassSaturate': m.glass.saturate = v; break;
+      case 'glassOpacity': m.glass.opacity = v; break;
+      case 'glassColor': m.glass.color = v; break;
+      case 'glassBorderGlow': m.glass.borderGlow = v; break;
+      case 'glassShadowDepth': m.glass.shadowDepth = v; break;
+      case 'glassHighlight': m.glass.highlight = !!v; break;
+      case 'glassNoise': m.glass.noise = !!v; break;
+      case 'glassBorderOpacity': m.glass.borderOpacity = v; break;
+      case 'typoGlobal':
+        /* marcado = herda o painel (null); desmarcado = valor próprio */
+        if (v) { m.fontSize = null; m.fontWeight = null; m.letterSpacing = null; m.lineHeight = null; }
+        break;
+      default: m[key] = v; break;
+    }
+  }
+
+  /* Escreve o modelo nos controles de um painel (painel ← modelo). */
+  function reflectStyleControls(panel, m) {
+    const ids = STYLE_IDS[panel];
+    if (!ids) return;
+    const g = axGlobalBtnTypo();
+    STYLE_CONTROLS.forEach(ctrl => {
+      const el = $(ids[ctrl.key]);
+      if (!el) return;
+      const v = styleGet(m, ctrl.key);
+      if (ctrl.kind === 'select') el.value = v;
+      else if (ctrl.kind === 'switch') el.checked = !!v;
+      else if (ctrl.kind === 'range') {
+        /* null = herdado: mostra o global. 0 no width = "sem teto" = 640. */
+        let n = Number(v);
+        const gKey = STYLE_TYPO_GLOBAL_KEY[ctrl.key];
+        if (v == null || Number.isNaN(n)) {
+          n = (ctrl.key === 'width') ? 640 : (gKey && g[gKey] != null ? g[gKey] : NaN);
+        }
+        if (ctrl.key === 'width' && !n) n = 640;
+        if (!Number.isNaN(n)) {
+          el.value = n;
+          const out = $(ids[ctrl.key] + 'Val');
+          if (out) out.textContent = styleCtrlText(ctrl, v == null ? n : v);
+        }
+      } else if (ctrl.kind === 'color') {
+        setTriggerColor(ids[ctrl.key], v || '');
+        const lb = el.querySelector('.color-trigger-hex');
+        if (lb) lb.textContent = triggerLabel(v || '');
+      } else if (ctrl.kind === 'upload') {
+        const pic = $(ids[ctrl.key].pick);
+        if (pic && v) {
+          const img = pic.querySelector('.img-preview, .color-trigger-swatch');
+          if (img) { img.style.backgroundImage = 'url("' + v + '")'; img.style.backgroundSize = 'cover'; img.textContent = ''; }
+        }
+      }
+    });
+    /* Linha de aviso "o botão é uma imagem" */
+    const na = ids.notApp ? $(ids.notApp) : null;
+    if (na) na.style.display = (m.btnDesign === 'imagem') ? 'block' : 'none';
+  }
+
+  /* Lê os controles de um painel para o modelo (modelo ← painel). */
+  function readStyleControls(panel, m) {
+    const ids = STYLE_IDS[panel];
+    if (!ids) return m;
+    STYLE_CONTROLS.forEach(ctrl => {
+      if (ctrl.derived) return;
+      const el = $(ids[ctrl.key]);
+      if (!el) return;
+      const ctrlDef = ctrl;
+      if (ctrl.kind === 'select') styleSet(m, ctrl.key, el.value);
+      else if (ctrl.kind === 'switch') styleSet(m, ctrl.key, el.checked);
+      else if (ctrl.kind === 'range') {
+        let n = Number(el.value);
+        if (Number.isNaN(n)) return;
+        if (ctrl.key === 'width' && n >= 640) styleSet(m, 'width', 0);
+        else if (ctrl.key === 'height' && n <= 0) styleSet(m, 'height', 0);
+        else styleSet(m, ctrl.key, n);
+        const out = $(ids[ctrl.key] + 'Val');
+        if (out) out.textContent = styleCtrlText(ctrlDef, n);
+      } else if (ctrl.kind === 'color') {
+        const lab = el.querySelector('.color-trigger-hex');
+        const raw = lab ? String(lab.textContent || '').trim() : '';
+        styleSet(m, ctrl.key, (!raw || raw === 'AUTO' || raw === 'INVISÍVEL') ? '' : raw);
+      }
+    });
+    return m;
+  }
+
+  /* Esconde as linhas condicionais e o grupo da caixa — igual para os dois. */
+  function updateStyleVisibility(panel, m) {
+    const ids = STYLE_IDS[panel];
+    if (!ids) return;
+    const r = ids.rows || {};
+    const isTextOnly = (m.displayStyle || 'box') === 'text-only';
+    const box = $(ids.box);
+    if (box) box.style.display = isTextOnly ? 'none' : 'block';
+    if (r.gradient) { const e = $(r.gradient); if (e) e.style.display = (m.variant === 'gradient') ? 'block' : 'none'; }
+    if (r.glow) { const e = $(r.glow); if (e) e.style.display = (m.variant === 'neon') ? 'block' : 'none'; }
+    if (r.radius) { const e = $(r.radius); if (e) e.style.display = (m.format === 'custom') ? 'block' : 'none'; }
+    if (r.shadow) { const e = $(r.shadow); if (e) e.style.display = (m.shadow.type === 'soft') ? 'block' : 'none'; }
+    /* As opções de vidro (blur, saturação, ...) só existem com vidro ligado:
+       o bloco inteiro é escondido, o toggle fica visível. */
+    if (r.glass) { const e = $(r.glass); if (e) e.style.display = m.glass.enabled ? 'block' : 'none'; }
+  }
+
+  /* Liga um painel INTEIRO ao modelo com um único código — é isto que
+     impede as opções de link e PIX de divergirem de novo.
+     api = { get(): model, put(model), skip?: [keys], after?(key, model) }
+     Não re-renderiza: quem instala decide (o modal do link só grava no
+     rascunho; o painel do PIX já vive no cfg e re-renderiza). */
+  function installStyleBindings(panel, api) {
+    const ids = STYLE_IDS[panel];
+    if (!ids) return;
+    const skip = api.skip || [];
+    const fresh = () => styleModel(api.get());
+    /* Cor de fundo/caixa tem rótulo AUTO e pode virar '' — por isso os
+       triggers são lidos de volta pelo MESMO readStyleControls. */
+    STYLE_CONTROLS.forEach(ctrl => {
+      if (ctrl.kind === 'color' || skip.indexOf(ctrl.key) !== -1) return;
+      const el = $(ids[ctrl.key]);
+      if (!el) return;
+      const ev = (ctrl.kind === 'select' || ctrl.kind === 'switch') ? 'change' : 'input';
+      safeOn(ids[ctrl.key], ev, () => {
+        /* Mexer num slider de tipografia DESMARCA o "herda o painel" — senão o
+           readStyleControls logo abaixo gravaria null de novo e o arrasto
+           não teria efeito. Mesma regra do handler explícito do link. */
+        if (ctrl.inheritable && STYLE_TYPO_KEYS.indexOf(ctrl.key) !== -1) {
+          const sw = $(ids.typoGlobal);
+          if (sw && sw.checked) { sw.checked = false; styleSet(fresh(), 'typoGlobal', false); }
+        }
+        const m = fresh();
+        readStyleControls(panel, m);
+        api.put(m);
+        if (ctrl.box || ctrl.key === 'displayStyle' || ctrl.key === 'typoGlobal') {
+          updateStyleVisibility(panel, m);
+        }
+        if (api.after) api.after(ctrl.key, m);
+      });
+    });
+    STYLE_CONTROLS.forEach(ctrl => {
+      if (ctrl.kind !== 'color' || skip.indexOf(ctrl.key) !== -1) return;
+      const el = $(ids[ctrl.key]);
+      if (!el) return;
+      safeOn(ids[ctrl.key], 'click', () => {
+        const m = fresh();
+        openColorPicker(el, styleGet(m, ctrl.key) || '', (hex) => {
+          styleSet(m, ctrl.key, hex);
+          api.put(m);
+          setTriggerColor(ids[ctrl.key], hex);
+          const label = el.querySelector('.color-trigger-hex');
+          if (label) label.textContent = triggerLabel(hex);
+          if (api.after) api.after(ctrl.key, m);
+        });
+      });
+    });
+  }
+
   function reflectPixStyleControls() {
     const p = (cfg.profile && cfg.profile.pix) || {};
-    const ls = p.style && typeof p.style === 'object'
-      ? Object.assign({}, DEFAULT_PIX_STYLE(), p.style)
-      : DEFAULT_PIX_STYLE();
-    const setSel = (id, val) => { const el = $(id); if (el) el.value = val; };
-    setSel('pixStVariant', ls.variant);
-    setSel('pixBtnShape', ls.format);
-    setSel('pixStAnimation', ls.animation);
-    if ($('pixStIcon')) $('pixStIcon').value = normalizePixIcon(ls.icon);
-    setSel('pixStFont', ls.font || '');
-    const fsN = (Number(ls.fontSize) >= 12 && Number(ls.fontSize) <= 34) ? Number(ls.fontSize) : 15;
-    if ($('pixStFontSize')) $('pixStFontSize').value = fsN;
-    if ($('pixStFontSizeVal')) $('pixStFontSizeVal').textContent = fsN + 'px';
-    const fwN = (Number(ls.fontWeight) >= 300 && Number(ls.fontWeight) <= 900) ? Number(ls.fontWeight) : 600;
-    if ($('pixStFontWeight')) $('pixStFontWeight').value = fwN;
-    if ($('pixStFontWeightVal')) $('pixStFontWeightVal').textContent = String(fwN);
-    const wN = (Number(ls.width) >= 160 && Number(ls.width) <= 640) ? Number(ls.width) : 420;
-    if ($('pixStWidth')) $('pixStWidth').value = wN;
-    if ($('pixStWidthVal')) $('pixStWidthVal').textContent = wN + 'px';
-    const hN = (Number(ls.height) >= 0 && Number(ls.height) <= 120) ? Number(ls.height) : 0;
-    if ($('pixStHeight')) $('pixStHeight').value = hN;
-    if ($('pixStHeightVal')) $('pixStHeightVal').textContent = hN > 0 ? hN + 'px' : 'Auto';
-    const sh = ls.shadow || {};
-    setSel('pixStShadowStyle', sh.type || 'soft');
-    const shI = sh.intensity != null ? sh.intensity : 30;
-    if ($('pixStShadow')) $('pixStShadow').value = shI;
-    if ($('pixStShadowVal')) $('pixStShadowVal').textContent = shI + '%';
-    const r = ls.radius ?? 14;
-    if ($('pixStRadius')) $('pixStRadius').value = r;
-    if ($('pixStRadiusVal')) $('pixStRadiusVal').textContent = r + 'px';
-    const gr = ls.gradient || {};
-    setTriggerColor('pixStGradientStart', gr.start || '#16a34a');
-    const grL = $('pixStGradientStart')?.querySelector('.color-trigger-hex');
-    if (grL) grL.textContent = triggerLabel(gr.start || '#16a34a');
-    setTriggerColor('pixStGradientEnd', gr.end || '#15803d');
-    const grE = $('pixStGradientEnd')?.querySelector('.color-trigger-hex');
-    if (grE) grE.textContent = triggerLabel(gr.end || '#15803d');
-    const ga = gr.angle ?? 135;
-    if ($('pixStGradientAngle')) $('pixStGradientAngle').value = ga;
-    if ($('pixStGradientAngleVal')) $('pixStGradientAngleVal').textContent = ga + 'deg';
-    setTriggerColor('pixStGlowColor', ls.glow || '#22d3ee');
-    const gl = ls.glass || {};
-    if ($('pixStGlassToggle')) $('pixStGlassToggle').checked = !!gl.enabled;
-    const gb = gl.blur ?? 20;
-    if ($('pixStGlassBlur')) $('pixStGlassBlur').value = gb;
-    if ($('pixStGlassBlurVal')) $('pixStGlassBlurVal').textContent = gb + 'px';
-    const go = gl.opacity ?? 16;
-    if ($('pixStGlassOpacity')) $('pixStGlassOpacity').value = go;
-    if ($('pixStGlassOpacityVal')) $('pixStGlassOpacityVal').textContent = go + '%';
-    const gbo = gl.borderOpacity ?? 25;
-    if ($('pixStGlassBorderOpacity')) $('pixStGlassBorderOpacity').value = gbo;
-    if ($('pixStGlassBorderOpacityVal')) $('pixStGlassBorderOpacityVal').textContent = gbo + '%';
-    if ($('pixStGlassHighlight')) $('pixStGlassHighlight').checked = gl.highlight != null ? !!gl.highlight : true;
-    if ($('pixStGlassNoise')) $('pixStGlassNoise').checked = !!gl.noise;
-    if ($('pixStDisplayStyle')) $('pixStDisplayStyle').value = ls.displayStyle || 'box';
-    updatePixBoxVisibility(ls);
-    updatePixStyleVisibility(ls);
+    const m = p.style && typeof p.style === 'object'
+      ? styleModel(Object.assign({}, DEFAULT_PIX_STYLE(), p.style))
+      : styleModel(DEFAULT_PIX_STYLE());
+    reflectStyleControls('pix', m);
+    /* O ícone é normalizado (emoji legado -> 'pix') e o reflect genérico
+       escreveria o valor cru do modelo por cima. Por isso o select do
+       ícone é sincronizado DEPOIS do reflect compartilhado. */
+    if ($('pixStIcon')) $('pixStIcon').value = normalizePixIcon(m.icon);
+    updatePixBoxVisibility(m);
+    updatePixStyleVisibility(m);
+    /* Painel/thumb/estado do botão-imagem: o reflect sozinho não sabe do
+       upload (que mora fora do motor). */
+    if (typeof updatePixImageUI === 'function') updatePixImageUI();
   }
 
   /* "Somente texto" esconde as opções que só fazem sentido com a caixa
@@ -3948,12 +4476,7 @@
   }
 
   function updatePixStyleVisibility(ls) {
-    const l = ls || {};
-    const bv = l.variant || 'solid';
-    if ($('pixStGradientRow')) $('pixStGradientRow').style.display = bv === 'gradient' ? 'block' : 'none';
-    if ($('pixStGlowColorRow')) $('pixStGlowColorRow').style.display = bv === 'neon' ? 'block' : 'none';
-    if ($('pixStRadiusRow')) $('pixStRadiusRow').style.display = (l.format || 'rounded') === 'custom' ? 'block' : 'none';
-    if ($('pixStShadowRow')) $('pixStShadowRow').style.display = (l.shadow?.type || 'soft') === 'soft' ? 'block' : 'none';
+    updateStyleVisibility('pix', styleModel(ls || {}));
   }
 
   function flatToLinkStyle(globalSt) {
@@ -4009,11 +4532,26 @@
       btnGlassBorderOpacity: gl.borderOpacity,
       btnBgColor: resolved(co.background, ''),
       btnTextColor: resolved(co.text, ''),
+      /* Tipografia e tamanho: 0 (ou '') = HERDA o global (st.typoBtn).
+         O valor final é resolvido no render, pelo MESMO caminho do link e
+         do PIX — o botão só nasce "travado" no 15/600 se a UI gravar valor. */
       btnFont: s.font || '',
-      btnFontSize: (Number(s.fontSize) >= 12 && Number(s.fontSize) <= 34) ? Number(s.fontSize) : 15,
-      btnFontWeight: (Number(s.fontWeight) >= 300 && Number(s.fontWeight) <= 900) ? Number(s.fontWeight) : 600,
-      btnWidth: (Number(s.width) >= 160 && Number(s.width) <= 640) ? Number(s.width) : 420,
+      btnFontSize: (Number(s.fontSize) >= 12 && Number(s.fontSize) <= 34) ? Number(s.fontSize) : 0,
+      btnFontWeight: (Number(s.fontWeight) >= 300 && Number(s.fontWeight) <= 900) ? Number(s.fontWeight) : 0,
+      btnLetterSpacing: (Number(s.letterSpacing) >= -1 && Number(s.letterSpacing) <= 5) ? Number(s.letterSpacing) : 0,
+      btnLineHeight: (Number(s.lineHeight) >= 1 && Number(s.lineHeight) <= 2) ? Number(s.lineHeight) : 0,
+      btnTextInk: s.textColor || '',
+      /* Tamanho físico: 0 = sem teto de largura / altura automática. */
+      btnWidth: (Number(s.width) >= 160 && Number(s.width) <= 640) ? Number(s.width) : 0,
       btnHeight: (Number(s.height) >= 0 && Number(s.height) <= 120) ? Number(s.height) : 0,
+      /* Ícone, card e botão-imagem — mesmos campos para link e PIX. */
+      btnIconImg: s.iconImg || '',
+      btnIconAlign: s.iconAlign || 'left',
+      btnCardStyle: s.cardStyle || '',
+      btnDesign: s.btnDesign || (s.customButtonImage ? 'imagem' : 'padrao'),
+      btnCustomImage: s.customButtonImage || '',
+      btnCustomHeight: Number(s.customButtonHeight) > 0 ? Number(s.customButtonHeight) : 84,
+      btnSpacing: Number(s.spacing) > 0 ? Number(s.spacing) : 0,
       /* btnIcon é a PLATAFORMA do botão (chave que o resolveIcon entende),
          nunca um emoji — link e PIX compartilham o mesmo campo. Só o PIX lê
          este campo, e sempre via pixStyleFlat(), que o sobrescreve. */
@@ -4508,15 +5046,15 @@
       $('pixKey').value = pixS.key || '';
       $('pixLink').value = pixS.link || '';
       $('pixButtonText').value = pixS.buttonText || '';
-      $('pixBtnShape').value = pixS.btnShape || 'rounded';
-      if ($('pixBtnBgColor')) {
-        setTriggerColor('pixBtnBgColor', pixS.btnBgColor || '#16a34a');
-        const label = $('pixBtnBgColor').querySelector('.color-trigger-hex');
+      $('pixStShape').value = pixS.btnShape || 'rounded';
+      if ($('pixStBgColor')) {
+        setTriggerColor('pixStBgColor', pixS.btnBgColor || '#16a34a');
+        const label = $('pixStBgColor').querySelector('.color-trigger-hex');
         if (label) label.textContent = triggerLabel(pixS.btnBgColor || '#16a34a');
       }
-      if ($('pixBtnTextColor')) {
-        setTriggerColor('pixBtnTextColor', pixS.btnTextColor || '#ffffff');
-        const label = $('pixBtnTextColor').querySelector('.color-trigger-hex');
+      if ($('pixStTextColor')) {
+        setTriggerColor('pixStTextColor', pixS.btnTextColor || '#ffffff');
+        const label = $('pixStTextColor').querySelector('.color-trigger-hex');
         if (label) label.textContent = triggerLabel(pixS.btnTextColor || '#ffffff');
       }
       $('pixQrHint').style.display = pixS.qr ? 'block' : 'none';
@@ -4559,12 +5097,65 @@
         l.customButtonHeight || '', l.sub || '', l.id || ''
       ].join('|'));
     });
-    /* PIX entra na estrutura da lista: estado (on) + posição (order). */
+    /* PIX entra na estrutura da lista: estado (on) + posição (order) + o
+       RAMO do card (botão-imagem / destaque / depoimento), porque o card do
+       PIX tem as mesmas ramificações do card de link. */
     const pixC = (cfg.profile && cfg.profile.pix) || {};
     const pixOn = !!pixC.enabled && !!(pixC.key || pixC.qr || pixC.link);
     const pixOrder = (typeof pixC.order === 'number' && pixC.order >= 0) ? String(pixC.order) : '';
-    parts.push('pix|' + (pixOn ? '1' : '0') + '|' + pixOrder);
+    const pixFlatSig = pixOn ? pixStyleFlat(pixC, cfg.style || {}) : {};
+    const pixBranch = pixFlatSig.btnDesign === 'imagem' ? 'img' : (pixFlatSig.btnCardStyle || 'def');
+    parts.push('pix|' + (pixOn ? '1' : '0') + '|' + pixOrder + '|' + pixBranch);
     return parts.join('\n');
+  }
+
+  /* ================================================================
+     TAMANHO + TIPOGRAFIA DO BOTÃO — UM SÓ CÓDIGO PARA LINK E PIX
+     --------------------------------------------------------
+     resolveBtnTypo: valor próprio do botão (flat) > tipografia do painel
+     (st.typoBtn) > padrão. Piso de 13px igual para os dois, para o mockup
+     nunca mentir sobre o que o visitante vai ver.
+     applyBtnTypo: escreve fonte/tamanho/peso/entreletras/entrelinha/cor no
+     elemento E nos filhos de texto (a stylesheet fixa .link-block-title,
+     então inline no ancestral sozinho não chega).
+     ================================================================ */
+  function resolveBtnTypo(flat, st) {
+    const f = flat || {};
+    const b = ((st || {}).typoBtn) || {};
+    const g = {
+      size: (Number(b.size) >= 12 && Number(b.size) <= 34) ? Number(b.size) : 15,
+      weight: (Number(b.weight) >= 300 && Number(b.weight) <= 900) ? Number(b.weight) : 600,
+      ls: (Number(b.ls) >= -1 && Number(b.ls) <= 5) ? Number(b.ls) : 0,
+      lh: (Number(b.lh) >= 1 && Number(b.lh) <= 2) ? Number(b.lh) : 1.4,
+      font: b.font || ''
+    };
+    const size = (Number(f.btnFontSize) >= 12) ? Number(f.btnFontSize) : g.size;
+    const weight = (Number(f.btnFontWeight) >= 300) ? Number(f.btnFontWeight) : g.weight;
+    const ls = (Number(f.btnLetterSpacing) >= -1 && Number(f.btnLetterSpacing) <= 5) ? Number(f.btnLetterSpacing) : g.ls;
+    const lh = (Number(f.btnLineHeight) >= 1 && Number(f.btnLineHeight) <= 2) ? Number(f.btnLineHeight) : g.lh;
+    return { size: Math.max(13, size), weight: weight, ls: ls, lh: lh, font: f.btnFont || g.font };
+  }
+
+  function applyBtnTypo(el, flat, st, textSel) {
+    if (!el) return;
+    const t = resolveBtnTypo(flat, st);
+    el.style.fontSize = t.size + 'px';
+    el.style.fontWeight = String(t.weight);
+    el.style.letterSpacing = t.ls + 'px';
+    el.style.lineHeight = String(t.lh);
+    if (t.font) el.style.fontFamily = '"' + t.font + '", system-ui, sans-serif';
+    const ink = (flat && flat.btnTextInk) ? flat.btnTextInk : '';
+    if (ink) el.style.color = ink;
+    const txts = textSel ? el.querySelectorAll(textSel) : [];
+    txts.forEach((t2) => {
+      t2.style.fontSize = t.size + 'px';
+      t2.style.fontWeight = String(t.weight);
+      t2.style.letterSpacing = t.ls + 'px';
+      t2.style.lineHeight = String(t.lh);
+      if (t.font) t2.style.fontFamily = '"' + t.font + '", system-ui, sans-serif';
+      if (ink) t2.style.color = ink;
+    });
+    return t;
   }
 
   /* Tamanho (largura/altura) + tipografia do botão PIX (header + card
@@ -4572,8 +5163,10 @@
      btnWidth = largura máxima em px (padrão 560 = mesmo dos outros
      botões); btnHeight = altura mínima em px (padrão 72 = mesmo dos
      outros botões; 0 = automática); fonte/tamanho/peso do mesmo painel
-     dos links/nome/bio/endereço (padrão 15px / 600). Ícone 18px. */
-  function applyPixSizing(el, flat) {
+     dos links/nome/bio/endereço (padrão 15px / 600). Ícone 18px.
+     st = estilo global; a tipografia é resolvida por resolveBtnTypo, o
+     MESMO caminho do link. */
+  function applyPixSizing(el, flat, st) {
     if (!el) return;
     el.style.padding = '0.8rem 1.25rem';
     const bw = (flat && Number(flat.btnWidth) >= 160) ? Number(flat.btnWidth) : 560;
@@ -4591,22 +5184,11 @@
     el.style.marginLeft = 'auto';
     el.style.marginRight = 'auto';
     el.style.alignSelf = 'center';
-    const fs = (flat && Number(flat.btnFontSize) >= 12) ? Number(flat.btnFontSize) : 15;
-    el.style.fontSize = fs + 'px';
-    const fw = (flat && Number(flat.btnFontWeight) >= 300) ? Number(flat.btnFontWeight) : 600;
-    el.style.fontWeight = String(fw);
-    if (flat && flat.btnFont) el.style.fontFamily = '"' + flat.btnFont + '", system-ui, sans-serif';
     /* A regra .link-block-title tem tamanho/peso FIXOS na stylesheet; o
        inline no .link-block ancestral não vence o valor direto no filho.
-       Aplica a tipografia também no elemento de TEXTO do card para o
-       tamanho/peso/fonte do PIX chegarem no texto visível (e no span do
-       header, que herda mas é blindado pela mesma regra). */
-    const pixTxts = el.querySelectorAll('.link-block-title, .pv-pix > span:last-child');
-    pixTxts.forEach((t) => {
-      t.style.fontSize = fs + 'px';
-      t.style.fontWeight = String(fw);
-      if (flat && flat.btnFont) t.style.fontFamily = '"' + flat.btnFont + '", system-ui, sans-serif';
-    });
+       Por isso a tipografia também é aplicada no elemento de TEXTO (e no
+       span do header, que herda mas é blindado pela mesma regra). */
+    applyBtnTypo(el, flat, st, '.link-block-title, .pv-pix > span:last-child');
     const icoKey = (flat && typeof flat.btnIcon === 'string') ? flat.btnIcon : 'pix';
     el.querySelectorAll('.pv-pix__ico, .pg-pix__ico').forEach((ico) => {
       ico.style.width = '18px';
@@ -4643,7 +5225,7 @@
     /* Tamanho, ícone e tipografia PRIMEIRO: valem nos dois modos e vivem nos
        FILHOS (o <i> do ícone e o <span> do texto), que o override de
        "somente texto" abaixo não toca. */
-    applyPixSizing(el, flat);
+    applyPixSizing(el, flat, st);
     /* "Somente texto" tem prioridade sobre a caixa: sem container visual,
        mantendo o botão clicável e a tipografia. Mesmo bloco do loop de
        .link-block (mockup) e do público. */
@@ -4814,10 +5396,20 @@
     if (!wrap) return;
     const pa = wrap.querySelector('[data-pix]');
     if (!pa) return;
+    /* Card destaque/depoimento/botão-imagem não têm host de ícone por
+       construção (mesmo desvio dos links): nada a sincronizar aqui, senão
+       este pass injetaria um ícone que o público não cria. */
+    if (pa.classList.contains('link-block-customimg')
+      || pa.classList.contains('featured__card--highlight')
+      || pa.classList.contains('featured__card--testimonial')) return;
     const pixC = (cfg.profile && cfg.profile.pix) || {};
-    const fa = resolveIcon(pixStyleFlat(pixC, cfg.style || {}).btnIcon);
+    const flat = pixStyleFlat(pixC, cfg.style || {});
+    /* Imagem própria tem precedência sobre a chave de plataforma — paridade
+       com appendPixCard e com o público. */
+    const imgSrc = flat.btnIconImg || '';
+    const fa = imgSrc ? '' : resolveIcon(flat.btnIcon);
     const cur = pa.querySelector('.link-block-icon');
-    if (!fa) {
+    if (!fa && !imgSrc) {
       /* Espelho do build (appendPixCard): mantém a span e a oculta, com o
          recuo do head compensando a caixa que sumiu. */
       if (cur) {
@@ -4835,6 +5427,13 @@
       pa.insertBefore(icon, pa.firstChild);
     }
     icon.style.display = '';
+    if (imgSrc) {
+      const im = document.createElement('img');
+      im.src = imgSrc;
+      im.alt = '';
+      icon.appendChild(im);
+      return;
+    }
     const i = document.createElement('i');
     i.className = fa;
     icon.appendChild(i);
@@ -4974,23 +5573,63 @@
     }
     const appendPixCard = (target) => {
       if (!target) return;
+      const flat = pixStyleFlat(pixCfg, cfg.style || {});
       const pa = document.createElement('a');
       pa.className = 'link-block link-block--pix';
+      /* Alinhamento do ícone: as MESMAS classes dos links. */
+      if (flat.btnIconAlign === 'center') pa.classList.add('icon-center');
+      else if (flat.btnIconAlign === 'right') pa.classList.add('icon-right');
       pa.href = '#';
       pa.setAttribute('data-dialog-open', '');
       pa.setAttribute('role', 'button');
       pa.setAttribute('data-pix', '1');
+      /* Botão-imagem: a imagem vira o botão inteiro (mesmo desvio dos links). */
+      if (flat.btnDesign === 'imagem' && flat.btnCustomImage) {
+        pa.classList.remove('link-block--pix');
+        pa.classList.add('link-block-customimg');
+        pa.removeAttribute('data-dialog-open');
+        applyButtonWidth(pa, flat.btnWidth);
+        pa.style.setProperty('--customimg-h', (Number(flat.btnCustomHeight) > 40 ? Number(flat.btnCustomHeight) : 84) + 'px');
+        const cimg = document.createElement('img');
+        cimg.className = 'link-block-customimg-img';
+        cimg.src = flat.btnCustomImage;
+        cimg.alt = pixCfg.buttonText || 'PIX';
+        pa.appendChild(cimg);
+        pa.addEventListener('click', (ev) => ev.preventDefault());
+        target.appendChild(pa);
+        return;
+      }
+      /* Card destaque/depoimento: mesmo par de classes dos links. Assim como
+         no público, o card decorativo NÃO abre o modal do PIX. */
+      if (flat.btnCardStyle === 'highlight' || flat.btnCardStyle === 'testimonial') {
+        const testimonial = flat.btnCardStyle === 'testimonial';
+        pa.classList.add(testimonial ? 'featured__card--testimonial' : 'featured__card--highlight');
+        pa.removeAttribute('data-dialog-open');
+        if (testimonial) pa.style.fontStyle = 'italic';
+        const strong = document.createElement('strong');
+        strong.textContent = pixCfg.buttonText || (testimonial ? 'Depoimento' : 'Destaque');
+        pa.appendChild(strong);
+        pa.addEventListener('click', (ev) => ev.preventDefault());
+        target.appendChild(pa);
+        return;
+      }
       const head = document.createElement('div');
       head.className = 'link-block__head';
       const iconWrap = document.createElement('span');
       iconWrap.className = 'link-block-icon';
       /* Mesmo pipeline dos outros cards: o ícone do PIX vem do style dele
          (pix.style.icon, chave de plataforma) e passa pelo resolveIcon —
-         antes era 'fas fa-qrcode' fixo e ignorava a personalização. */
-      const pixCardIcon = resolveIcon(pixStyleFlat(pixCfg, cfg.style || {}).btnIcon);
-      if (pixCardIcon) {
+         antes era 'fas fa-qrcode' fixo e ignorava a personalização. Imagem
+         própria tem precedência sobre a chave de plataforma (paridade com
+         o card de link). */
+      if (flat.btnIconImg) {
+        const im = document.createElement('img');
+        im.src = flat.btnIconImg;
+        im.alt = '';
+        iconWrap.appendChild(im);
+      } else if (flat.btnIcon) {
         const i = document.createElement('i');
-        i.className = pixCardIcon;
+        i.className = flat.btnIcon;
         iconWrap.appendChild(i);
       } else {
         iconWrap.style.display = 'none';
@@ -5007,6 +5646,8 @@
       pa.appendChild(head);
       pa.appendChild(makePVArrow());
       pa.addEventListener('click', (ev) => ev.preventDefault());
+      /* largura/altura/tipografia vêm do applyThemeVars (isPixCard), rodado
+         logo após a reconstrução do DOM. */
       target.appendChild(pa);
     };
 
@@ -5138,13 +5779,27 @@
     if (!a || !l) return;
     if (a.classList.contains('link-block-customimg')) return;
     if (l.id) a.dataset.linkId = l.id;
-    if (l.linkFont) a.style.fontFamily = `"${l.linkFont}", system-ui, sans-serif`;
-    /* Piso de 13px IGUAL ao público (index.html, bloco do card): sem isso o
-       mockup Mostrava 12px de um config legado e o site saía 13px — o
-       preview não pode mentir sobre o tamanho que o visitante vai ver. */
-    if (l.linkFontSize) a.style.fontSize = Math.max(13, parseFloat(l.linkFontSize) || 13) + 'px';
-    if (l.linkFontWeight) a.style.fontWeight = String(l.linkFontWeight);
-    if (l.linkTextColor) a.style.color = l.linkTextColor;
+    /* Os campos legados (linkFont/linkFontSize/linkFontWeight/linkTextColor)
+       têm precedência; o style guarda o espelho e as opções novas
+       (entreletras, entrelinha, largura, altura). A resolução final é feita
+       por resolveBtnTypo — o MESMO que o botão PIX usa. */
+    const st = cfg.style || {};
+    const flat = Object.assign({}, linkStyleToFlat(l.style, st), {
+      btnFont: l.linkFont || (l.style && l.style.font) || '',
+      btnFontSize: Number(l.linkFontSize) >= 13 ? Number(l.linkFontSize) : 0,
+      btnFontWeight: Number(l.linkFontWeight) >= 300 ? Number(l.linkFontWeight) : 0,
+      btnTextInk: l.linkTextColor || (l.style && l.style.textColor) || ''
+    });
+    applyBtnTypo(a, flat, st, '.link-block-title, .link-block-txt');
+    /* Largura/altura próprias do botão (0 = sem teto / automática) — o mesmo
+       par de sliders que o PIX tem. */
+    const bw = Number(flat.btnWidth) >= 160 ? Number(flat.btnWidth) : 0;
+    if (bw) {
+      a.style.maxWidth = 'max(' + bw + 'px, min-content)';
+      a.style.alignSelf = 'center';
+    }
+    const bh = Number(flat.btnHeight) > 0 ? Number(flat.btnHeight) : 0;
+    if (bh) a.style.minHeight = bh + 'px';
   }
 
   /* Reaplica a tipografia por-link DEPOIS que applyThemeVars sobrepõe os estilos
@@ -6403,7 +7058,7 @@
         const bVariant = merged.btnVariant || 'solid';
         const bAnim = merged.btnAnimation || 'none';
         Object.assign(el.style, bCSS);
-        if (isPixCard) applyPixSizing(el, flat);
+        if (isPixCard) applyPixSizing(el, flat, st);
         el.classList.remove('ax-text-only');
         el.classList.remove('ghost', 'neumorphic');
         if (bVariant === 'ghost' || bVariant === 'neumorphic') el.classList.add(bVariant);
@@ -6471,12 +7126,15 @@
     if (!listEl) return;
     const st = cfg.style || {};
     const globalGap = Number(st.blockGap) >= 0 ? Number(st.blockGap) : 10;
+    const pixFlat = pixStyleFlat((cfg.profile && cfg.profile.pix) || {}, st);
     let idx = 0;
     let first = true;
     for (const child of listEl.children) {
       const isPix = (child.getAttribute && child.getAttribute('data-pix') === '1');
       const link = isPix ? null : (links && links[idx]);
-      const slot = (link && Number(link.spacing) > 0) ? Number(link.spacing) : globalGap;
+      /* Espaçamento próprio: link usa o legado, PIX usa o mesmo flat do card. */
+      const own = isPix ? Number(pixFlat.btnSpacing) : Number(link && link.spacing);
+      const slot = own > 0 ? own : globalGap;
       child.style.marginTop = (first ? 0 : slot) + 'px';
       child.style.marginBottom = '0px';
       if (!isPix) idx++;
@@ -8267,15 +8925,15 @@
     /* Reflete os controles de personalização do botão PIX */
     const pixC = cfg.profile?.pix || {};
     if ($('pixButtonText')) $('pixButtonText').value = pixC.buttonText || '';
-    if ($('pixBtnShape')) $('pixBtnShape').value = pixC.btnShape || 'rounded';
-    if ($('pixBtnBgColor')) {
-      setTriggerColor('pixBtnBgColor', pixC.btnBgColor || '#16a34a');
-      const label = $('pixBtnBgColor').querySelector('.color-trigger-hex');
+    if ($('pixStShape')) $('pixStShape').value = pixC.btnShape || 'rounded';
+    if ($('pixStBgColor')) {
+      setTriggerColor('pixStBgColor', pixC.btnBgColor || '#16a34a');
+      const label = $('pixStBgColor').querySelector('.color-trigger-hex');
       if (label) label.textContent = triggerLabel(pixC.btnBgColor || '#16a34a');
     }
-    if ($('pixBtnTextColor')) {
-      setTriggerColor('pixBtnTextColor', pixC.btnTextColor || '#ffffff');
-      const label = $('pixBtnTextColor').querySelector('.color-trigger-hex');
+    if ($('pixStTextColor')) {
+      setTriggerColor('pixStTextColor', pixC.btnTextColor || '#ffffff');
+      const label = $('pixStTextColor').querySelector('.color-trigger-hex');
       if (label) label.textContent = triggerLabel(pixC.btnTextColor || '#ffffff');
     }
     reflectPixStyleControls();
@@ -8518,6 +9176,9 @@
   let _pendingBlockImage = '';
   let _pendingBlockHeight = 84;
   let _pendingBlockTextColor = '';
+  let _pendingBlockFont = '';
+  let _pendingBlockSize = null;
+  let _pendingBlockWeight = null;
   let _pendingBlockStyle = null;
 
   function openBlockModal(index) {
@@ -8545,6 +9206,9 @@
        painel. Sem isso, salvar o bloco gravava 15/600 à força e travava o
        botão no global — o slider do painel virava no-op (bug corrigido). */
     $('blockTypoFont').value = l.linkFont || '';
+    _pendingBlockFont = l.linkFont || (l.style && l.style.font) || '';
+    _pendingBlockSize = (Number(l.linkFontSize) >= 13 && Number(l.linkFontSize) <= 34) ? Number(l.linkFontSize) : null;
+    _pendingBlockWeight = (Number(l.linkFontWeight) >= 300 && Number(l.linkFontWeight) <= 900) ? Number(l.linkFontWeight) : null;
     $('blockTypoGlobal').checked = !(Number(l.linkFontSize) >= 13 || Number(l.linkFontWeight) >= 300);
     $('blockTypoSize').value = (Number(l.linkFontSize) >= 13 && Number(l.linkFontSize) <= 34) ? Number(l.linkFontSize) : axGlobalBtnTypo().size;
     $('blockTypoSizeVal').textContent = $('blockTypoSize').value + 'px';
@@ -8576,40 +9240,36 @@
     editingBlockIndex = null;
   }
 
+  /* Espelho do motor: o painel do link usa exatamente os mesmos controles do
+     painel do PIX (STYLE_IDS.link). Os campos legados do link
+     (linkFont/linkFontSize/linkFontWeight/linkTextColor) continuam sendo
+     gravados por submitBlock — o style só recebe o espelho. */
   function populatePerStyleControls(ls) {
-    $('perBtnVariant').value = ls.variant || 'solid';
-    $('perBtnShape').value = ls.format || 'rounded';
-    $('perBtnAnimation').value = ls.animation || 'none';
-    const sh = ls.shadow || { type: 'soft', intensity: 30 };
-    $('perBtnShadowStyle').value = sh.type || 'soft';
-    $('perBtnShadow').value = sh.intensity ?? 30;
-    $('perBtnShadowVal').textContent = (sh.intensity ?? 30) + '%';
-    $('perBtnRadius').value = ls.radius ?? 14;
-    $('perBtnRadiusVal').textContent = (ls.radius ?? 14) + 'px';
-    const gr = ls.gradient || { start: '#6366f1', end: '#ec4899', angle: 135 };
-    setTriggerColor('perBtnGradientStart', gr.start || '#6366f1');
-    setTriggerColor('perBtnGradientEnd', gr.end || '#ec4899');
-    $('perBtnGradientAngle').value = gr.angle ?? 135;
-    $('perBtnGradientAngleVal').textContent = (gr.angle ?? 135) + 'deg';
-    setTriggerColor('perBtnGlowColor', ls.glow || '#22d3ee');
-    const gl = ls.glass || { enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: 25 };
-    $('perButtonGlassToggle').checked = !!gl.enabled;
-    $('perButtonGlassBlur').value = gl.blur ?? 20;
-    $('perButtonGlassBlurVal').textContent = (gl.blur ?? 20) + 'px';
-    $('perButtonGlassOpacity').value = gl.opacity ?? 16;
-    $('perButtonGlassOpacityVal').textContent = (gl.opacity ?? 16) + '%';
-    $('perButtonGlassBorderOpacity').value = gl.borderOpacity ?? 25;
-    $('perButtonGlassBorderOpacityVal').textContent = (gl.borderOpacity ?? 25) + '%';
-    const co = ls.colors || { background: '', text: '' };
-    setTriggerColor('perBtnBgColor', co.background || '');
-    const bgLabel = $('perBtnBgColor')?.querySelector('.color-trigger-hex');
-    if (bgLabel) bgLabel.textContent = triggerLabel(co.background);
-    setTriggerColor('perBtnTextColor', co.text || '');
-    const txLabel = $('perBtnTextColor')?.querySelector('.color-trigger-hex');
-    if (txLabel) txLabel.textContent = triggerLabel(co.text);
-    if ($('perBtnDisplayStyle')) $('perBtnDisplayStyle').value = ls.displayStyle || 'box';
-    updatePerBtnBoxVisibility(ls);
-    updatePerStyleVisibility(ls);
+    const m = styleModel(ls);
+    /* campos legados com precedência (o modal do link é quem os edita) */
+    m.font = _pendingBlockFont || m.font;
+    m.textColor = _pendingBlockTextColor || m.textColor;
+    m.fontSize = $('blockTypoGlobal').checked ? null : (Number(_pendingBlockSize) || null);
+    m.fontWeight = $('blockTypoGlobal').checked ? null : (Number(_pendingBlockWeight) || null);
+    m.letterSpacing = $('blockTypoGlobal').checked ? null : (ls.letterSpacing != null ? Number(ls.letterSpacing) : null);
+    m.lineHeight = $('blockTypoGlobal').checked ? null : (ls.lineHeight != null ? Number(ls.lineHeight) : null);
+    m.cardStyle = $('blockCardStyle').value || '';
+    m.icon = $('blockType').value || '';
+    m.iconImg = _pendingBlockIcon || '';
+    m.iconAlign = $('blockIconAlign').value || 'left';
+    m.btnDesign = $('blockBtnDesign').value || 'padrao';
+    m.customButtonImage = _pendingBlockImage || '';
+    m.customButtonHeight = _pendingBlockHeight || 84;
+    m.spacing = Number($('blockSpacing').value) || 0;
+    reflectStyleControls('link', m);
+    _pendingBlockStyle = Object.assign({}, ls, {
+      font: m.font, textColor: m.textColor, fontSize: m.fontSize, fontWeight: m.fontWeight,
+      letterSpacing: m.letterSpacing, lineHeight: m.lineHeight, cardStyle: m.cardStyle,
+      icon: m.icon, iconImg: m.iconImg, iconAlign: m.iconAlign, btnDesign: m.btnDesign,
+      customButtonImage: m.customButtonImage, customButtonHeight: m.customButtonHeight, spacing: m.spacing
+    });
+    updatePerBtnBoxVisibility(m);
+    updatePerStyleVisibility(m);
   }
 
   function updatePerBtnBoxVisibility(ls) {
@@ -8619,30 +9279,14 @@
   }
 
   function updatePerStyleVisibility(ls) {
-    const bv = ls.variant || 'solid';
-    $('perBtnGradientRow').style.display = bv === 'gradient' ? '' : 'none';
-    $('perGlowColorRow').style.display = bv === 'neon' ? '' : 'none';
-    $('perBtnRadiusRow').style.display = (ls.format || 'rounded') === 'custom' ? '' : 'none';
-    $('perBtnShadowRow').style.display = (ls.shadow?.type || 'soft') === 'soft' ? '' : 'none';
+    updateStyleVisibility('link', styleModel(ls));
   }
 
   function readPerStyleControls() {
-    const ls = Object.assign({}, _pendingBlockStyle || DEFAULT_LINK_STYLE());
-    ls.variant = $('perBtnVariant').value || 'solid';
-    ls.format = $('perBtnShape').value || 'rounded';
-    ls.animation = $('perBtnAnimation').value || 'none';
-    ls.shadow = { type: $('perBtnShadowStyle').value || 'soft', intensity: Number($('perBtnShadow').value) || 30 };
-    ls.radius = Number($('perBtnRadius').value) || 14;
-    ls.gradient = { start: ls.gradient?.start || '#6366f1', end: ls.gradient?.end || '#ec4899', angle: Number($('perBtnGradientAngle').value) || 135 };
-    const gl = Object.assign({}, ls.glass || {});
-    gl.enabled = !!$('perButtonGlassToggle').checked;
-    gl.blur = Number($('perButtonGlassBlur').value) || 20;
-    gl.opacity = Number($('perButtonGlassOpacity').value) || 16;
-    gl.borderOpacity = Number($('perButtonGlassBorderOpacity').value) || 25;
-    ls.glass = gl;
-    if ($('perBtnDisplayStyle')) ls.displayStyle = $('perBtnDisplayStyle').value || 'box';
-    _pendingBlockStyle = ls;
-    return ls;
+    const m = styleModel(_pendingBlockStyle || DEFAULT_LINK_STYLE());
+    readStyleControls('link', m);
+    _pendingBlockStyle = m;
+    return m;
   }
 
   /* Mostra/oculta o painel da imagem customizada e o thumbnail atual */
@@ -8686,6 +9330,42 @@
     updateBlockTypoInheritUI();
   }
 
+  /* Espelho de updateBlockImageUI para o painel do PIX: mesmo painel de
+     imagem, mesmo thumbnail, mesma desativação da tipografia quando o botão
+     é uma imagem (que não tem texto da plataforma para estilizar). */
+  function updatePixImageUI() {
+    const isImg = $('pixStBtnDesign') && $('pixStBtnDesign').value === 'imagem';
+    const panel = $('pixStImagePanel');
+    if (panel) panel.style.display = isImg ? 'block' : 'none';
+    const thumb = $('pixStImageThumb');
+    if (thumb) {
+      thumb.innerHTML = '';
+      const src = (cfg.profile?.pix?.style || {}).customButtonImage || '';
+      if (src) {
+        const im = document.createElement('img');
+        im.src = src;
+        im.alt = '';
+        thumb.appendChild(im);
+      } else {
+        thumb.textContent = '🖼️';
+      }
+    }
+    const hSlider = $('pixStCustomHeight');
+    const hVal = $('pixStCustomHeightVal');
+    if (hSlider && hVal) hVal.textContent = hSlider.value + 'px';
+    ['pixStFont', 'pixStFontSize', 'pixStFontWeight', 'pixStLetterSpacing', 'pixStLineHeight', 'pixStTextColor'].forEach((id) => {
+      const el = $(id);
+      if (el) {
+        const cs = el.classList;
+        el.disabled = !!isImg;
+        cs.toggle('disabled', !!isImg);
+        cs.toggle('is-disabled', !!isImg);
+      }
+    });
+    const notApp = $('pixStTypoNotApp');
+    if (notApp) notApp.style.display = isImg ? 'block' : 'none';
+  }
+
   /* Tipografia global dos botões de link (st.typoBtn) normalizada para o
      modal do bloco. Espelha os defaults do painel (DEFAULT_CFG.style.typoBtn):
      o slider do bloco mostra o valor herdado, não um número solto. */
@@ -8693,7 +9373,9 @@
     const t = (cfg.style && cfg.style.typoBtn) || {};
     return {
       size: (Number(t.size) >= 13 && Number(t.size) <= 34) ? Number(t.size) : 15,
-      weight: (Number(t.weight) >= 300 && Number(t.weight) <= 900) ? Number(t.weight) : 600
+      weight: (Number(t.weight) >= 300 && Number(t.weight) <= 900) ? Number(t.weight) : 600,
+      ls: (Number(t.ls) >= -1 && Number(t.ls) <= 5) ? Number(t.ls) : 0,
+      lh: (Number(t.lh) >= 1 && Number(t.lh) <= 2) ? Number(t.lh) : 1.4
     };
   }
 
@@ -8712,8 +9394,12 @@
     const g = axGlobalBtnTypo();
     const sEl = $('blockTypoSize');
     const wEl = $('blockTypoWeight');
+    const lsEl = $('blockTypoLs');
+    const lhEl = $('blockTypoLh');
     if (sEl) { sEl.value = g.size; const o = $('blockTypoSizeVal'); if (o) o.textContent = g.size + 'px'; }
     if (wEl) { wEl.value = g.weight; const o = $('blockTypoWeightVal'); if (o) o.textContent = String(g.weight); }
+    if (lsEl) { lsEl.value = g.ls; const o = $('blockTypoLsVal'); if (o) o.textContent = g.ls + 'px'; }
+    if (lhEl) { lhEl.value = g.lh; const o = $('blockTypoLhVal'); if (o) o.textContent = String(g.lh); }
   }
 
   function bindEditorEvents() {
@@ -8794,211 +9480,84 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
       cfg.profile.pix.link = e.target.value;
       markDirty();
     });
-    safeOn('pixBtnShape', 'change', (e) => {
-      cfg.profile = cfg.profile || {};
-      cfg.profile.pix = cfg.profile.pix || {};
-      cfg.profile.pix.btnShape = e.target.value;
-      pixStyleEditable().format = e.target.value;
-      updatePixStyleVisibility(pixStyleEditable());
-      renderPreview();
-      markDirty();
-    });
-    safeOn('pixBtnBgColor', 'click', () => {
-      const pix = cfg.profile?.pix || {};
-      const current = pix.btnBgColor || '#16a34a';
-      openColorPicker($('pixBtnBgColor'), current, (hex) => {
-        cfg.profile = cfg.profile || {};
-        cfg.profile.pix = cfg.profile.pix || {};
-        cfg.profile.pix.btnBgColor = hex;
-        pixStyleEditable().colors.background = hex;
-        setTriggerColor('pixBtnBgColor', hex);
+    /* ================================================================
+       Estilo do botão PIX — MESMO motor do link (STYLE_IDS.pix).
+       Grava em profile.pix.style e re-renderiza o mockup a cada mudança.
+       Os campos legados (btnShape/btnBgColor/btnTextColor) são espelhados
+       no put() para que configs antigos continuem legíveis.
+       ================================================================ */
+    installStyleBindings('pix', {
+      get: () => pixStyleEditable(),
+      put: (m) => {
+        cfg.profile.pix.style = m;
+        cfg.profile.pix.btnShape = m.format;
+        cfg.profile.pix.btnBgColor = m.colors.background;
+        cfg.profile.pix.btnTextColor = m.colors.text;
+      },
+      skip: ['typoGlobal', 'iconImg', 'customImage'],
+      after: (key, m) => {
+        if (key === 'btnDesign') updatePixImageUI();
         renderPreview();
         markDirty();
-      });
+      }
     });
-    safeOn('pixBtnTextColor', 'click', () => {
-      const pix = cfg.profile?.pix || {};
-      const current = pix.btnTextColor || '#ffffff';
-      openColorPicker($('pixBtnTextColor'), current, (hex) => {
-        cfg.profile = cfg.profile || {};
-        cfg.profile.pix = cfg.profile.pix || {};
-        cfg.profile.pix.btnTextColor = hex;
-        pixStyleEditable().colors.text = hex;
-        setTriggerColor('pixBtnTextColor', hex);
+    /* "Usar a tipografia do painel" do PIX: os quatro sliders (tamanho,
+       peso, entreletras e entrelinha) passam a mostrar o global. */
+    safeOn('pixStTypoGlobal', 'change', () => {
+      const m = styleModel(pixStyleEditable());
+      if ($('pixStTypoGlobal').checked) {
+        m.fontSize = null; m.fontWeight = null; m.letterSpacing = null; m.lineHeight = null;
+      } else {
+        const g = axGlobalBtnTypo();
+        m.fontSize = g.size; m.fontWeight = g.weight; m.letterSpacing = g.ls; m.lineHeight = g.lh;
+      }
+      cfg.profile.pix.style = m;
+      reflectStyleControls('pix', m);
+      renderPreview();
+      markDirty();
+    });
+    /* Imagem do ícone e imagem do botão (upload) */
+    safeOn('pixStIconPick', 'click', () => $('pixStIconInput').click());
+    safeOn('pixStIconInput', 'change', async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      showToast('Enviando ícone...');
+      try {
+        const publicUrl = await uploadFileToStorage(file, 'pixicon');
+        const m = styleModel(pixStyleEditable());
+        m.iconImg = publicUrl;
+        cfg.profile.pix.style = m;
+        reflectStyleControls('pix', m);
         renderPreview();
         markDirty();
-      });
+        showToast('Ícone atualizado!');
+      } catch (err) {
+        console.error('[Axiumlink] Upload do ícone do PIX falhou:', err.message);
+        showToast('Falha no upload: ' + err.message);
+      }
+      e.target.value = '';
     });
-    /* Estilo completo do botão PIX — grava em profile.pix.style */
-    safeOn('pixStVariant', 'change', (e) => {
-      pixStyleEditable().variant = e.target.value;
-      updatePixStyleVisibility(pixStyleEditable());
-      renderPreview();
-      markDirty();
-    });
-    safeOn('pixStAnimation', 'change', (e) => {
-      pixStyleEditable().animation = e.target.value;
-      renderPreview();
-      markDirty();
-    });
-    /* 'change' porque agora é <select> (era <input> livre de emoji) */
-    safeOn('pixStIcon', 'change', (e) => {
-      pixStyleEditable().icon = e.target.value;
-      renderPreview();
-      markDirty();
-    });
-    safeOn('pixStDisplayStyle', 'change', (e) => {
-      pixStyleEditable().displayStyle = e.target.value || 'box';
-      updatePixBoxVisibility({ displayStyle: e.target.value });
-      renderPreview();
-      markDirty();
-    });
-    safeOn('pixStFont', 'change', (e) => {
-      pixStyleEditable().font = e.target.value;
-      renderPreview();
-      markDirty();
-    });
-    safeOn('pixStFontSize', 'input', (e) => {
-      const v = Number(e.target.value);
-      pixStyleEditable().fontSize = (v >= 12) ? v : 15;
-      const out = $('pixStFontSizeVal');
-      if (out) out.textContent = v + 'px';
-      renderPreview();
-      markDirty();
-    });
-    safeOn('pixStFontWeight', 'input', (e) => {
-      const v = Number(e.target.value);
-      pixStyleEditable().fontWeight = (v >= 300) ? v : 600;
-      const out = $('pixStFontWeightVal');
-      if (out) out.textContent = e.target.value;
-      renderPreview();
-      markDirty();
-    });
-    safeOn('pixStWidth', 'input', (e) => {
-      const v = Number(e.target.value) || 420;
-      pixStyleEditable().width = (v >= 160 && v <= 640) ? v : 420;
-      const out = $('pixStWidthVal');
-      if (out) out.textContent = v + 'px';
-      renderPreview();
-      markDirty();
-    });
-    safeOn('pixStHeight', 'input', (e) => {
-      const v = Number(e.target.value) || 0;
-      pixStyleEditable().height = (v >= 0 && v <= 120) ? v : 0;
-      const out = $('pixStHeightVal');
-      if (out) out.textContent = v > 0 ? v + 'px' : 'Auto';
-      renderPreview();
-      markDirty();
-    });
-    safeOn('pixStShadowStyle', 'change', (e) => {
-      pixStyleEditable().shadow = pixStyleEditable().shadow || {};
-      pixStyleEditable().shadow.type = e.target.value;
-      updatePixStyleVisibility(pixStyleEditable());
-      renderPreview();
-      markDirty();
-    });
-    safeOn('pixStShadow', 'input', (e) => {
-      pixStyleEditable().shadow = pixStyleEditable().shadow || {};
-      pixStyleEditable().shadow.intensity = Number(e.target.value);
-      const out = $('pixStShadowVal');
-      if (out) out.textContent = e.target.value + '%';
-      renderPreview();
-      markDirty();
-    });
-    safeOn('pixStRadius', 'input', (e) => {
-      pixStyleEditable().radius = Number(e.target.value);
-      const out = $('pixStRadiusVal');
-      if (out) out.textContent = e.target.value + 'px';
-      renderPreview();
-      markDirty();
-    });
-    safeOn('pixStGradientStart', 'click', () => {
-      const ls = pixStyleEditable();
-      const current = (ls.gradient && ls.gradient.start) || '#16a34a';
-      openColorPicker($('pixStGradientStart'), current, (hex) => {
-        ls.gradient = ls.gradient || {};
-        ls.gradient.start = hex;
-        setTriggerColor('pixStGradientStart', hex);
-        const label = $('pixStGradientStart').querySelector('.color-trigger-hex');
-        if (label) label.textContent = triggerLabel(hex);
+    safeOn('pixStImagePick', 'click', () => $('pixStImageInput').click());
+    safeOn('pixStImageInput', 'change', async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      showToast('Enviando imagem do botão...');
+      try {
+        const publicUrl = await uploadFileToStorage(file, 'pixbtn');
+        const m = styleModel(pixStyleEditable());
+        m.btnDesign = 'imagem';
+        m.customButtonImage = publicUrl;
+        cfg.profile.pix.style = m;
+        reflectStyleControls('pix', m);
+        updatePixImageUI();
         renderPreview();
         markDirty();
-      });
-    });
-    safeOn('pixStGradientEnd', 'click', () => {
-      const ls = pixStyleEditable();
-      const current = (ls.gradient && ls.gradient.end) || '#15803d';
-      openColorPicker($('pixStGradientEnd'), current, (hex) => {
-        ls.gradient = ls.gradient || {};
-        ls.gradient.end = hex;
-        setTriggerColor('pixStGradientEnd', hex);
-        const label = $('pixStGradientEnd').querySelector('.color-trigger-hex');
-        if (label) label.textContent = triggerLabel(hex);
-        renderPreview();
-        markDirty();
-      });
-    });
-    safeOn('pixStGradientAngle', 'input', (e) => {
-      pixStyleEditable().gradient = pixStyleEditable().gradient || {};
-      pixStyleEditable().gradient.angle = Number(e.target.value);
-      const out = $('pixStGradientAngleVal');
-      if (out) out.textContent = e.target.value + 'deg';
-      renderPreview();
-      markDirty();
-    });
-    safeOn('pixStGlowColor', 'click', () => {
-      const ls = pixStyleEditable();
-      const current = ls.glow || '#22d3ee';
-      openColorPicker($('pixStGlowColor'), current, (hex) => {
-        ls.glow = hex;
-        setTriggerColor('pixStGlowColor', hex);
-        const label = $('pixStGlowColor').querySelector('.color-trigger-hex');
-        if (label) label.textContent = triggerLabel(hex);
-        renderPreview();
-        markDirty();
-      });
-    });
-    safeOn('pixStGlassToggle', 'change', (e) => {
-      pixStyleEditable().glass = pixStyleEditable().glass || {};
-      pixStyleEditable().glass.enabled = e.target.checked;
-      renderPreview();
-      markDirty();
-    });
-    safeOn('pixStGlassBlur', 'input', (e) => {
-      pixStyleEditable().glass = pixStyleEditable().glass || {};
-      pixStyleEditable().glass.blur = Number(e.target.value);
-      const out = $('pixStGlassBlurVal');
-      if (out) out.textContent = e.target.value + 'px';
-      renderPreview();
-      markDirty();
-    });
-    safeOn('pixStGlassOpacity', 'input', (e) => {
-      pixStyleEditable().glass = pixStyleEditable().glass || {};
-      pixStyleEditable().glass.opacity = Number(e.target.value);
-      const out = $('pixStGlassOpacityVal');
-      if (out) out.textContent = e.target.value + '%';
-      renderPreview();
-      markDirty();
-    });
-    safeOn('pixStGlassBorderOpacity', 'input', (e) => {
-      pixStyleEditable().glass = pixStyleEditable().glass || {};
-      pixStyleEditable().glass.borderOpacity = Number(e.target.value);
-      const out = $('pixStGlassBorderOpacityVal');
-      if (out) out.textContent = e.target.value + '%';
-      renderPreview();
-      markDirty();
-    });
-    safeOn('pixStGlassHighlight', 'change', (e) => {
-      pixStyleEditable().glass = pixStyleEditable().glass || {};
-      pixStyleEditable().glass.highlight = e.target.checked;
-      renderPreview();
-      markDirty();
-    });
-    safeOn('pixStGlassNoise', 'change', (e) => {
-      pixStyleEditable().glass = pixStyleEditable().glass || {};
-      pixStyleEditable().glass.noise = e.target.checked;
-      renderPreview();
-      markDirty();
+        showToast('Imagem pronta');
+      } catch (err) {
+        console.error('[Axiumlink] Upload da imagem do botão PIX falhou:', err.message);
+        showToast('Falha no upload: ' + err.message);
+      }
+      e.target.value = '';
     });
     safeOn('btnPixPick', 'click', () => $('pixQrInput').click());
     safeOn('pixQrInput', 'change', (e) => {
@@ -9073,6 +9632,18 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
       if (o) o.textContent = e.target.value;
       if ($('blockTypoGlobal') && $('blockTypoGlobal').checked) $('blockTypoGlobal').checked = false;
     });
+    /* Entreletras e entrelinha seguem a MESMA regra dos outros dois: herdam
+       do painel por padrão e desmarcam a herança quando o usuário arrasta. */
+    safeOn('blockTypoLs', 'input', (e) => {
+      const o = $('blockTypoLsVal');
+      if (o) o.textContent = e.target.value + 'px';
+      if ($('blockTypoGlobal') && $('blockTypoGlobal').checked) $('blockTypoGlobal').checked = false;
+    });
+    safeOn('blockTypoLh', 'input', (e) => {
+      const o = $('blockTypoLhVal');
+      if (o) o.textContent = e.target.value;
+      if ($('blockTypoGlobal') && $('blockTypoGlobal').checked) $('blockTypoGlobal').checked = false;
+    });
     /* Herdar tipografia do painel: volta tamanho/peso para o valor global. */
     safeOn('blockTypoGlobal', 'change', () => updateBlockTypoInheritUI());
     safeOn('blockSpacing', 'input', (e) => { const o = $('blockSpacingVal'); if (o) o.textContent = e.target.value + 'px'; });
@@ -9087,58 +9658,24 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
     });
     safeOn('btnBlockImagePick', 'click', () => $('blockImageInput').click());
 
-    /* ---- Estilo individual do botão (per-link) ---- */
-    const perStyle = () => (_pendingBlockStyle = readPerStyleControls());
-    safeOn('perBtnVariant', 'change', (e) => { perStyle().variant = e.target.value; updatePerStyleVisibility(_pendingBlockStyle); });
-    safeOn('perBtnShape', 'change', (e) => { perStyle().format = e.target.value; updatePerStyleVisibility(_pendingBlockStyle); });
-    safeOn('perBtnAnimation', 'change', (e) => { perStyle().animation = e.target.value; });
-    safeOn('perBtnShadowStyle', 'change', (e) => { perStyle().shadow.type = e.target.value; updatePerStyleVisibility(_pendingBlockStyle); });
-    safeOn('perBtnShadow', 'input', (e) => { const v = Number(e.target.value); const o = $('perBtnShadowVal'); if (o) o.textContent = v + '%'; perStyle().shadow.intensity = v; });
-    safeOn('perBtnRadius', 'input', (e) => { const v = Number(e.target.value); const o = $('perBtnRadiusVal'); if (o) o.textContent = v + 'px'; perStyle().radius = v; });
-    safeOn('perBtnGradientAngle', 'input', (e) => { const v = Number(e.target.value); const o = $('perBtnGradientAngleVal'); if (o) o.textContent = v + 'deg'; perStyle().gradient.angle = v; });
-    safeOn('perButtonGlassToggle', 'change', (e) => { perStyle().glass.enabled = e.target.checked; });
-    safeOn('perButtonGlassBlur', 'input', (e) => { const v = Number(e.target.value); const o = $('perButtonGlassBlurVal'); if (o) o.textContent = v + 'px'; perStyle().glass.blur = v; });
-    safeOn('perButtonGlassOpacity', 'input', (e) => { const v = Number(e.target.value); const o = $('perButtonGlassOpacityVal'); if (o) o.textContent = v + '%'; perStyle().glass.opacity = v; });
-    safeOn('perButtonGlassBorderOpacity', 'input', (e) => { const v = Number(e.target.value); const o = $('perButtonGlassBorderOpacityVal'); if (o) o.textContent = v + '%'; perStyle().glass.borderOpacity = v; });
-    safeOn('perBtnDisplayStyle', 'change', (e) => { perStyle().displayStyle = e.target.value; updatePerBtnBoxVisibility(_pendingBlockStyle); });
-    safeOn('perBtnGlowColor', 'click', () => {
-      const cur = _pendingBlockStyle?.glow || '#22d3ee';
-      openColorPicker($('perBtnGlowColor'), cur, (hex) => {
-        perStyle().glow = hex;
-        setTriggerColor('perBtnGlowColor', hex);
-      });
-    });
-    safeOn('perBtnGradientStart', 'click', () => {
-      const cur = _pendingBlockStyle?.gradient?.start || '#6366f1';
-      openColorPicker($('perBtnGradientStart'), cur, (hex) => {
-        perStyle().gradient.start = hex;
-        setTriggerColor('perBtnGradientStart', hex);
-      });
-    });
-    safeOn('perBtnGradientEnd', 'click', () => {
-      const cur = _pendingBlockStyle?.gradient?.end || '#ec4899';
-      openColorPicker($('perBtnGradientEnd'), cur, (hex) => {
-        perStyle().gradient.end = hex;
-        setTriggerColor('perBtnGradientEnd', hex);
-      });
-    });
-    safeOn('perBtnBgColor', 'click', () => {
-      const cur = _pendingBlockStyle?.colors?.background || '#111827';
-      openColorPicker($('perBtnBgColor'), cur, (hex) => {
-        perStyle().colors.background = hex;
-        setTriggerColor('perBtnBgColor', hex);
-        const label = $('perBtnBgColor')?.querySelector('.color-trigger-hex');
-        if (label) label.textContent = triggerLabel(hex);
-      });
-    });
-    safeOn('perBtnTextColor', 'click', () => {
-      const cur = _pendingBlockStyle?.colors?.text || '#ffffff';
-      openColorPicker($('perBtnTextColor'), cur, (hex) => {
-        perStyle().colors.text = hex;
-        setTriggerColor('perBtnTextColor', hex);
-        const label = $('perBtnTextColor')?.querySelector('.color-trigger-hex');
-        if (label) label.textContent = triggerLabel(hex);
-      });
+    /* ---- Estilo individual do botão (per-link) ----
+       Mesmo motor do painel do PIX. Os controles que o modal do link já
+       tratava de forma própria (fonte, tamanho, peso, cor do texto, ícone,
+       card, botão-imagem, espaçamento) ficam em skip e seguem nos handlers
+       dedicated acima — o readPerStyleControls() é quem leva tudo para o
+       rascunho no submit. */
+    installStyleBindings('link', {
+      get: () => _pendingBlockStyle,
+      put: (m) => { _pendingBlockStyle = m; },
+      skip: [
+        'typoGlobal', 'font', 'fontSize', 'fontWeight', 'letterSpacing', 'lineHeight',
+        'textInk', 'cardStyle', 'icon', 'iconAlign', 'btnDesign', 'customHeight',
+        'spacing', 'iconImg', 'customImage'
+      ],
+      after: (key) => {
+        if (key === 'btnDesign') updateBlockImageUI();
+        if (key === 'displayStyle') updatePerBtnBoxVisibility(_pendingBlockStyle);
+      }
     });
     safeOn('blockImageInput', 'change', async (e) => {
       const file = e.target.files?.[0];

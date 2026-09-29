@@ -24,6 +24,7 @@ import { run as runEspacamentoGlobal } from './validateEspacamentoGlobal.mjs';
 import { run as runTemasProntos } from './validateTemasProntos.mjs';
 import { run as runMirror } from './validateMirror.mjs';
 import { run as runPix } from './validatePix.mjs';
+import { run as runPixParity } from './validatePixParity.mjs';
 import { run as runAddressVisibility } from './validateAddressVisibility.mjs';
 import { run as runTextOnly } from './validateTextOnly.mjs';
 import { run as runFonteGeral } from './validateFonteGeral.mjs';
@@ -337,6 +338,7 @@ async function main() {
     failures += await runTemasProntos();
     failures += await runMirror();
     failures += await runPix();
+    failures += await runPixParity();
     failures += await runBugVerifiedBadge();
     failures += await runBugLinkCardStyles();
     failures += await runAddressVisibility();

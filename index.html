@@ -2359,8 +2359,17 @@
          Legado (sem `style`) cai no estilo global antigo (fallback) —
          render só precisa de campos vazios/ausentes para herdar o global.
          ================================================================ */
+      /* ================================================================
+         MODELO CANÔNICO DO ESTILO DE UM BOTÃO
+         --------------------------------------------------------
+         O MESMO objeto serve ao botão de LINK e ao botão PIX: a lista de
+         opções é idêntica. null/0 = herda o global (mesmo contrato do
+         checkbox "Usar a tipografia do painel" do admin). Espelha
+         DEFAULT_LINK_STYLE/styleModel do admin.html.
+         ================================================================ */
       function axDefaultLinkStyle() {
         return {
+          /* ---- caixa ---- */
           variant: 'solid',
           format: 'rounded',
           animation: 'none',
@@ -2371,18 +2380,63 @@
           glass: { enabled: false, blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: 25 },
           colors: { background: '', text: '' },
           displayStyle: 'box',
-          /* Tipografia do texto do botão — MESMO PAINEL dos links e dos
-             elementos (nome/bio/endereço): font = '' herda a página;
-             fontSize 12–34px; fontWeight 300–900. */
+          /* ---- tamanho físico (px): width = teto (0 = sem teto),
+                 height = altura mínima (0 = automática) ---- */
+          width: 0,
+          height: 0,
+          /* ---- ícone ---- */
+          icon: '',
+          iconImg: '',
+          iconAlign: 'left',
+          /* ---- card ---- */
+          cardStyle: '',
+          /* ---- botão-imagem (a imagem vira o botão inteiro) ---- */
+          btnDesign: 'padrao',
+          customButtonImage: '',
+          customButtonHeight: 84,
+          /* ---- tipografia do texto (null = herda style.typoBtn) ---- */
           font: '',
-          fontSize: 15,
-          fontWeight: 600,
-          /* Tamanho físico do botão PIX — mesmas medidas dos outros botões:
-             width = largura máxima em px (padrão 560, igual aos cards de
-             link); height = altura mínima em px (padrão 72 como os outros
-             botões; 0 = automática). */
-          width: 560,
-          height: 72
+          fontSize: null,
+          fontWeight: null,
+          letterSpacing: null,
+          lineHeight: null,
+          textColor: '',
+          /* ---- espaçamento acima do botão (0 = blockGap global) ---- */
+          spacing: 0
+        };
+      }
+
+      /* Normaliza um style para o modelo canônico, preenchendo o que faltar. */
+      function axStyleModel(style) {
+        const d = axDefaultLinkStyle();
+        const s = (style && typeof style === 'object') ? style : {};
+        return {
+          variant: s.variant || d.variant,
+          format: s.format || d.format,
+          animation: s.animation || d.animation,
+          shadow: Object.assign({ type: d.shadow.type, intensity: d.shadow.intensity }, s.shadow),
+          radius: (s.radius != null) ? s.radius : d.radius,
+          glow: s.glow || d.glow,
+          gradient: Object.assign({}, d.gradient, s.gradient),
+          glass: Object.assign({}, d.glass, s.glass),
+          colors: Object.assign({}, d.colors, s.colors),
+          displayStyle: s.displayStyle || d.displayStyle,
+          width: (s.width != null) ? s.width : 0,
+          height: (s.height != null) ? s.height : 0,
+          icon: (typeof s.icon === 'string') ? s.icon : '',
+          iconImg: s.iconImg || '',
+          iconAlign: s.iconAlign || 'left',
+          cardStyle: s.cardStyle || '',
+          btnDesign: s.btnDesign || (s.customButtonImage ? 'imagem' : 'padrao'),
+          customButtonImage: s.customButtonImage || '',
+          customButtonHeight: Number(s.customButtonHeight) > 0 ? Number(s.customButtonHeight) : 84,
+          font: s.font || '',
+          fontSize: (s.fontSize != null && s.fontSize !== '') ? Number(s.fontSize) : null,
+          fontWeight: (s.fontWeight != null && s.fontWeight !== '') ? Number(s.fontWeight) : null,
+          letterSpacing: (s.letterSpacing != null && s.letterSpacing !== '') ? Number(s.letterSpacing) : null,
+          lineHeight: (s.lineHeight != null && s.lineHeight !== '') ? Number(s.lineHeight) : null,
+          textColor: s.textColor || '',
+          spacing: Number(s.spacing) > 0 ? Number(s.spacing) : 0
         };
       }
 
@@ -2438,11 +2492,26 @@
           btnGlassBorderOpacity: gl.borderOpacity,
           btnBgColor: pick(co.background, ''),
           btnTextColor: pick(co.text, ''),
+          /* Tipografia e tamanho: 0 (ou '') = HERDA o global (style.typoBtn).
+             O valor final é resolvido no render, pelo MESMO caminho do link e
+             do PIX — o botão só nasce "travado" no 15/600 se a UI gravar valor. */
           btnFont: s.font || '',
-          btnFontSize: (Number(s.fontSize) >= 12 && Number(s.fontSize) <= 34) ? Number(s.fontSize) : 15,
-          btnFontWeight: (Number(s.fontWeight) >= 300 && Number(s.fontWeight) <= 900) ? Number(s.fontWeight) : 600,
-          btnWidth: (Number(s.width) >= 160 && Number(s.width) <= 640) ? Number(s.width) : 420,
+          btnFontSize: (Number(s.fontSize) >= 12 && Number(s.fontSize) <= 34) ? Number(s.fontSize) : 0,
+          btnFontWeight: (Number(s.fontWeight) >= 300 && Number(s.fontWeight) <= 900) ? Number(s.fontWeight) : 0,
+          btnLetterSpacing: (Number(s.letterSpacing) >= -1 && Number(s.letterSpacing) <= 5) ? Number(s.letterSpacing) : 0,
+          btnLineHeight: (Number(s.lineHeight) >= 1 && Number(s.lineHeight) <= 2) ? Number(s.lineHeight) : 0,
+          btnTextInk: s.textColor || '',
+          /* Tamanho físico: 0 = sem teto de largura / altura automática. */
+          btnWidth: (Number(s.width) >= 160 && Number(s.width) <= 640) ? Number(s.width) : 0,
           btnHeight: (Number(s.height) >= 0 && Number(s.height) <= 120) ? Number(s.height) : 0,
+          /* Ícone, card e botão-imagem — mesmos campos para link e PIX. */
+          btnIconImg: s.iconImg || '',
+          btnIconAlign: s.iconAlign || 'left',
+          btnCardStyle: s.cardStyle || '',
+          btnDesign: s.btnDesign || (s.customButtonImage ? 'imagem' : 'padrao'),
+          btnCustomImage: s.customButtonImage || '',
+          btnCustomHeight: Number(s.customButtonHeight) > 0 ? Number(s.customButtonHeight) : 84,
+          btnSpacing: Number(s.spacing) > 0 ? Number(s.spacing) : 0,
           /* btnIcon é a PLATAFORMA do botão (chave que o resolveIcon
              entende), nunca um emoji — link e PIX compartilham o mesmo
              campo. Só o PIX lê este campo, e sempre via axPixStyleFlat(), que
@@ -2466,6 +2535,11 @@
             icon: 'pix'
           }, style);
           merged.icon = axNormalizePixIcon(merged.icon);
+          /* Ausente ≠ 0: sem `height`/`width` o PIX usa o padrão do painel
+             (72px / 560px); o 0 explícito continua significando altura
+             automática / largura sem teto. */
+          if (style.height == null) merged.height = 72;
+          if (style.width == null) merged.width = 560;
           const flat = axLinkStyleToFlat(merged, globalSt);
           flat.btnIcon = merged.icon;
           return flat;
@@ -3770,20 +3844,81 @@
         }
       }
 
-      /* Overrides por-link de tipografia do texto do botão (BUG 6). Só se aplica
-         a botões padrão (não-imagem customizada): o botão com imagem não tem texto. */
+      /* ================================================================
+         TAMANHO + TIPOGRAFIA DO BOTÃO — UM SÓ CÓDIGO PARA LINK E PIX
+         --------------------------------------------------------
+         axResolveBtnTypo: valor próprio do botão (flat) > tipografia do
+         painel (st.typoBtn) > padrão. Piso de 13px igual para os dois.
+         axApplyBtnTypo: escreve no elemento E nos filhos de texto (a
+         stylesheet fixa o tamanho/peso do texto do card, então inline no
+         ancestral sozinho não chega). Espelho EXATO do admin.
+         ================================================================ */
+      function axResolveBtnTypo(flat, st) {
+        const f = flat || {};
+        const b = ((st || {}).typoBtn) || {};
+        const g = {
+          size: (Number(b.size) >= 12 && Number(b.size) <= 34) ? Number(b.size) : 15,
+          weight: (Number(b.weight) >= 300 && Number(b.weight) <= 900) ? Number(b.weight) : 600,
+          ls: (Number(b.ls) >= -1 && Number(b.ls) <= 5) ? Number(b.ls) : 0,
+          lh: (Number(b.lh) >= 1 && Number(b.lh) <= 2) ? Number(b.lh) : 1.4,
+          font: b.font || ''
+        };
+        const size = (Number(f.btnFontSize) >= 12) ? Number(f.btnFontSize) : g.size;
+        const weight = (Number(f.btnFontWeight) >= 300) ? Number(f.btnFontWeight) : g.weight;
+        const ls = (Number(f.btnLetterSpacing) >= -1 && Number(f.btnLetterSpacing) <= 5) ? Number(f.btnLetterSpacing) : g.ls;
+        const lh = (Number(f.btnLineHeight) >= 1 && Number(f.btnLineHeight) <= 2) ? Number(f.btnLineHeight) : g.lh;
+        return { size: Math.max(13, size), weight: weight, ls: ls, lh: lh, font: f.btnFont || g.font };
+      }
+
+      function axApplyBtnTypo(el, flat, st, textSel) {
+        if (!el) return null;
+        const t = axResolveBtnTypo(flat, st);
+        el.style.fontSize = t.size + 'px';
+        el.style.fontWeight = String(t.weight);
+        el.style.letterSpacing = t.ls + 'px';
+        el.style.lineHeight = String(t.lh);
+        if (t.font) el.style.fontFamily = '"' + t.font + '", system-ui, sans-serif';
+        const ink = (flat && flat.btnTextInk) ? flat.btnTextInk : '';
+        if (ink) el.style.color = ink;
+        const txts = textSel ? el.querySelectorAll(textSel) : [];
+        txts.forEach((t2) => {
+          t2.style.fontSize = t.size + 'px';
+          t2.style.fontWeight = String(t.weight);
+          t2.style.letterSpacing = t.ls + 'px';
+          t2.style.lineHeight = String(t.lh);
+          if (t.font) t2.style.fontFamily = '"' + t.font + '", system-ui, sans-serif';
+          if (ink) t2.style.color = ink;
+        });
+        return t;
+      }
+
+      /* Overrides por-link de tipografia do texto do botão (BUG 6) + as opções
+         novas de tamanho (largura/altura) e entreletras/entrelinha. Só se
+         aplica a botões padrão (não-imagem customizada): o botão com imagem
+         não tem texto. Espelho EXATO do admin (applyLinkTextTypo). */
       function applyLinkTextTypoPublic(btn, link) {
         if (!btn || !link) return;
         if (btn.classList.contains('featured__card--customimg')) return;
         if (link.id) btn.dataset.linkId = link.id;
-        if (link.linkFont) btn.style.fontFamily = '"' + link.linkFont + '", system-ui, sans-serif';
-        if (link.linkFontSize) {
-          // Piso de acessibilidade (13px): evita texto ilegível em telas
-          // pequenas. Valeu para valores configurados abaixo do mínimo.
-          btn.style.fontSize = Math.max(13, parseFloat(link.linkFontSize) || 13) + 'px';
+        /* Campos legados (linkFont/linkFontSize/linkFontWeight/linkTextColor)
+           têm precedência; o style guarda o espelho e as opções novas. */
+        const st = cfg.style || {};
+        const flat = Object.assign({}, axLinkStyleToFlat(link.style, st), {
+          btnFont: link.linkFont || (link.style && link.style.font) || '',
+          btnFontSize: Number(link.linkFontSize) >= 13 ? Number(link.linkFontSize) : 0,
+          btnFontWeight: Number(link.linkFontWeight) >= 300 ? Number(link.linkFontWeight) : 0,
+          btnTextInk: link.linkTextColor || (link.style && link.style.textColor) || ''
+        });
+        /* Piso de acessibilidade de 13px vem de axResolveBtnTypo — vale
+           também para configs legados gravados abaixo do mínimo. */
+        axApplyBtnTypo(btn, flat, st, '.featured__body strong, .featured__sub');
+        const bw = Number(flat.btnWidth) >= 160 ? Number(flat.btnWidth) : 0;
+        if (bw) {
+          btn.style.maxWidth = 'max(' + bw + 'px, min-content)';
+          btn.style.alignSelf = 'center';
         }
-        if (link.linkFontWeight) btn.style.fontWeight = String(link.linkFontWeight);
-        if (link.linkTextColor) btn.style.color = link.linkTextColor;
+        const bh = Number(flat.btnHeight) > 0 ? Number(flat.btnHeight) : 0;
+        if (bh) btn.style.minHeight = bh + 'px';
       }
 
       function reapplyLinkTypoPublic() {
@@ -3877,12 +4012,15 @@
            preview e público com o MESMO resultado. */
         function applyLinkSpacing(wrap, list) {
           const globalGap = Number(cfg.style?.blockGap) >= 0 ? Number(cfg.style?.blockGap) : 10;
+          const pixFlat = axPixStyleFlat((p.pix && typeof p.pix === 'object') ? p.pix : {}, cfg.style || {});
           let idx = 0;
           let first = true;
           Array.from(wrap.children).forEach((child) => {
             const isPix = (child.getAttribute && child.getAttribute('data-pix') === '1');
             const link = isPix ? null : (list && list[idx]);
-            const slot = (link && Number(link.spacing) > 0) ? Number(link.spacing) : globalGap;
+            /* Espaçamento próprio: link usa o legado, PIX usa o mesmo flat do card. */
+            const own = isPix ? Number(pixFlat.btnSpacing) : Number(link && link.spacing);
+            const slot = own > 0 ? own : globalGap;
             child.style.marginTop = (first ? 0 : slot) + 'px';
             child.style.marginBottom = '0px';
             if (!isPix) idx++;
@@ -3902,16 +4040,23 @@
            .featured__body). Sem ícone a span some inteira — igual a um link
            sem plataforma. Reaproveitada pelo applyLinksInPlace para trocar a
            plataforma sem recriar o card (e sem piscar a lista). */
-        function axSetPixCardIcon(pa, faClass) {
+        function axSetPixCardIcon(pa, faClass, imgSrc) {
           if (!pa) return;
           const cur = pa.querySelector('.featured__icon');
-          if (!faClass) { if (cur) cur.remove(); return; }
+          if (!faClass && !imgSrc) { if (cur) cur.remove(); return; }
           const icon = cur || document.createElement('span');
           while (icon.firstChild) icon.removeChild(icon.firstChild);
           if (!cur) {
             icon.className = 'featured__icon';
             icon.setAttribute('aria-hidden', 'true');
             pa.insertBefore(icon, pa.firstChild);
+          }
+          if (imgSrc) {
+            const im = document.createElement('img');
+            im.src = imgSrc;
+            im.alt = '';
+            icon.appendChild(im);
+            return;
           }
           const i = document.createElement('i');
           i.className = faClass;
@@ -3923,7 +4068,12 @@
           const pixC = (p.pix && typeof p.pix === 'object') ? p.pix : {};
           const pixOn = !!pixC.enabled && !!(pixC.key || pixC.qr || pixC.link);
           const pixOrder = (typeof pixC.order === 'number' && pixC.order >= 0) ? String(pixC.order) : '-';
-          parts.push('pix|' + (pixOn ? '1' : '0') + '|' + pixOrder);
+          /* O card do PIX tem as MESMAS ramificações do card de link
+             (botão-imagem, destaque, depoimento): a assinatura precisa
+             incluí-las, senão trocar de ramo não reconstruiria o DOM. */
+          const pixFlatSig = pixOn ? (axPixStyleFlat(pixC, cfg.style || {}) || {}) : {};
+          const pixBranch = pixFlatSig.btnDesign === 'imagem' ? 'img' : (pixFlatSig.btnCardStyle || 'def');
+          parts.push('pix|' + (pixOn ? '1' : '0') + '|' + pixOrder + '|' + pixBranch);
           for (let i = 0; i < list.length; i++) {
             const l = list[i] || {};
             const tipo = l.type || l.icon || '';
@@ -3962,7 +4112,8 @@
               /* Ícone reescrito NO LUGAR, como o dos links: trocar a
                  plataforma (ou escolher "Nenhum") não recria o card, então a
                  lista não pisca. */
-              axSetPixCardIcon(a, resolveIcon(axPixStyleFlat(pixConf, cfg.style || {}).btnIcon));
+              const pixFlatInPlace = axPixStyleFlat(pixConf, cfg.style || {}) || {};
+              axSetPixCardIcon(a, pixFlatInPlace.btnIconImg ? null : resolveIcon(pixFlatInPlace.btnIcon), pixFlatInPlace.btnIconImg);
               continue;
             }
             const link = list[idx++];
@@ -4046,17 +4197,53 @@
           const pixOrderPub = (typeof pixConf.order === 'number' && pixConf.order >= 0) ? pixConf.order : null;
           const appendPixCard = (target) => {
             if (!target) return;
+            const flat = axPixStyleFlat(pixConf, cfg.style || {});
             const pa = document.createElement('a');
             pa.className = 'featured__card featured__card--pix';
+            /* Alinhamento do ícone: as MESMAS classes dos links. */
+            if (flat.btnIconAlign === 'center') pa.classList.add('ia-center');
+            else if (flat.btnIconAlign === 'right') pa.classList.add('ia-right');
             pa.href = '#';
             pa.setAttribute('data-dialog-open', '');
             pa.setAttribute('role', 'button');
             pa.setAttribute('data-pix', '1');
             pa.setAttribute('aria-label', pixConf.buttonText || 'Pagar com PIX');
+            /* Botão-imagem: a imagem vira o botão inteiro (mesmo desvio dos links). */
+            if (flat.btnDesign === 'imagem' && flat.btnCustomImage) {
+              pa.classList.remove('featured__card--pix');
+              pa.classList.add('featured__card--customimg');
+              pa.removeAttribute('data-dialog-open');
+              applyButtonWidth(pa, flat.btnWidth);
+              pa.style.setProperty('--customimg-h', (Number(flat.btnCustomHeight) > 40 ? Number(flat.btnCustomHeight) : 84) + 'px');
+              const cimg = document.createElement('img');
+              cimg.className = 'featured__customimg';
+              cimg.src = flat.btnCustomImage;
+              cimg.alt = pixConf.buttonText || 'PIX';
+              pa.appendChild(cimg);
+              pa.addEventListener('click', (ev) => ev.preventDefault());
+              target.appendChild(pa);
+              return;
+            }
+            /* Card destaque/depoimento: mesmo par de classes dos links. */
+            if (flat.btnCardStyle === 'highlight' || flat.btnCardStyle === 'testimonial') {
+              const testimonial = flat.btnCardStyle === 'testimonial';
+              pa.classList.remove('featured__card--pix');
+              pa.classList.add(testimonial ? 'featured__card--testimonial' : 'featured__card--highlight');
+              pa.removeAttribute('data-dialog-open');
+              if (testimonial) pa.style.fontStyle = 'italic';
+              const strong = document.createElement('strong');
+              strong.textContent = pixConf.buttonText || (testimonial ? 'Depoimento' : 'Destaque');
+              pa.appendChild(strong);
+              pa.addEventListener('click', (ev) => ev.preventDefault());
+              target.appendChild(pa);
+              return;
+            }
             /* Mesmo pipeline dos outros cards: o ícone do PIX vem do style dele
                (pix.style.icon, chave de plataforma) e passa pelo resolveIcon —
-               antes era 'fas fa-qrcode' fixo e ignorava a personalização. */
-            axSetPixCardIcon(pa, resolveIcon(axPixStyleFlat(pixConf, cfg.style || {}).btnIcon));
+               antes era 'fas fa-qrcode' fixo e ignorava a personalização.
+               Imagem própria tem precedência sobre a chave (paridade com o
+               card de link). */
+            axSetPixCardIcon(pa, flat.btnIconImg ? null : resolveIcon(flat.btnIcon), flat.btnIconImg);
             const body = document.createElement('span');
             body.className = 'featured__body';
             const strong = document.createElement('strong');
@@ -4698,7 +4885,7 @@
            botões); btnHeight = altura mínima em px (padrão 72 = mesmo dos
            outros botões; 0 = automática); fonte/tamanho/peso do mesmo painel
            dos links/nome/bio/endereço (padrão 15px / 600). Ícone 18px. */
-        function axApplyPixSize(el, flat) {
+        function axApplyPixSize(el, flat, st) {
           if (!el) return;
           el.style.padding = '0.8rem 1.25rem';
           const bw = (flat && Number(flat.btnWidth) >= 160) ? Number(flat.btnWidth) : 560;
@@ -4722,23 +4909,13 @@
           el.style.marginLeft = 'auto';
           el.style.marginRight = 'auto';
           el.style.alignSelf = 'center';
-          const fs = (flat && Number(flat.btnFontSize) >= 12) ? Number(flat.btnFontSize) : 15;
-          el.style.fontSize = fs + 'px';
-          const fw = (flat && Number(flat.btnFontWeight) >= 300) ? Number(flat.btnFontWeight) : 600;
-          el.style.fontWeight = String(fw);
-          if (flat && flat.btnFont) el.style.fontFamily = '"' + flat.btnFont + '", system-ui, sans-serif';
           /* As regras .featured__body strong (card) e o span do header têm
              tamanho/peso FIXOS na stylesheet; o inline no .featured__card/
              .pg-pix__btn ancestrais não vence o valor direto no filho. Aplica
              a tipografia também no elemento de TEXTO (só do PIX) para o
              tamanho/peso/fonte chegarem no texto visível — espelho do que o
              perfil do admin (applyPixSizing) faz com .link-block-title. */
-          const pixTxts = el.querySelectorAll('.featured__body strong, .pg-pix__btn > span:last-child');
-          pixTxts.forEach((t) => {
-            t.style.fontSize = fs + 'px';
-            t.style.fontWeight = String(fw);
-            if (flat && flat.btnFont) t.style.fontFamily = '"' + flat.btnFont + '", system-ui, sans-serif';
-          });
+          axApplyBtnTypo(el, flat, st, '.featured__body strong, .pg-pix__btn > span:last-child');
           const icoKey = (flat && typeof flat.btnIcon === 'string') ? flat.btnIcon : 'pix';
           el.querySelectorAll('.pg-pix__ico, .pv-pix__ico').forEach((ico) => {
             ico.style.width = '18px';
@@ -4893,7 +5070,7 @@
           if (!el.classList.contains('social-icon')) Object.assign(el.style, tyBtnBase);
           /* Tamanho próprio do PIX (preset/fonte) volta por cima da tipografia
              global dos botões — o card PIX é um botão da lista. */
-          if (isPixCardPub) axApplyPixSize(el, flatPub);
+          if (isPixCardPub) axApplyPixSize(el, flatPub, st);
           if (el.classList.contains('social-icon')) {
             /* Ícones sociais preservam o círculo base (50%). O formato
                global só deve mudá-los quando for explicitamente angular
@@ -4932,7 +5109,7 @@
           /* Tamanho/ícone/tipografia PRIMEIRO: valem nos dois modos e vivem nos
              FILHOS (o <i> do ícone e o <span> do texto), que o override de
              "somente texto" abaixo não toca. */
-          axApplyPixSize(pixHdrBtn, pixHdrFlat);
+          axApplyPixSize(pixHdrBtn, pixHdrFlat, st);
           if ((pixHdrFlat.displayStyle || 'box') === 'text-only') {
             /* "Somente texto" tem prioridade sobre a caixa — espelho do
                applyPixStyleToEl do preview. */

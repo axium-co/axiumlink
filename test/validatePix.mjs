@@ -170,8 +170,8 @@ export async function run() {
 
     const sel = (id) => d.getElementById(id);
     check('admin: #pixStVariant reflete pix.style.variant', sel('pixStVariant').value === 'neon');
-    check('admin: #pixBtnShape reflete o format (10 opções)', sel('pixBtnShape').value === 'pill');
-    check('admin: #pixBtnShape oferece as 10 opções (3 optgroups)', sel('pixBtnShape').querySelectorAll('option').length === 10);
+    check('admin: #pixStShape reflete o format (10 opções)', sel('pixStShape').value === 'pill');
+    check('admin: #pixStShape oferece as 10 opções (3 optgroups)', sel('pixStShape').querySelectorAll('option').length === 10);
     check('admin: #pixStAnimation reflete animation', sel('pixStAnimation').value === 'float');
     check('admin: #pixStShadowStyle reflete shadow.type', sel('pixStShadowStyle').value === 'none');
     check('admin: #pixStGlassToggle reflete glass.enabled (off)', sel('pixStGlassToggle').checked === false);
@@ -185,7 +185,7 @@ export async function run() {
     check('admin: variante → pix.style.variant', w.__axEditor.cfg().profile.pix.style.variant === 'gradient');
 
     /* Binding: formato → grava em pix.style.format */
-    const fmtSel = sel('pixBtnShape');
+    const fmtSel = sel('pixStShape');
     fmtSel.value = 'organic';
     fmtSel.dispatchEvent(new w.Event('change', { bubbles: true }));
     check('admin: formato → pix.style.format', w.__axEditor.cfg().profile.pix.style.format === 'organic');
