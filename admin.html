@@ -5062,13 +5062,9 @@
       reflectPixStyleControls();
       $('avatarHintRow').style.display = cfg.profile.avatar ? 'block' : 'none';
     } else if (key === 'style') {
-      setRange('btnRadius', cfg.style.btnRadius);
-      setRange('btnShadow', cfg.style.btnShadow);
       reflectTypographyInputs();
       reflectGlassInputs();
       setRange('blockGap', cfg.style.blockGap);
-      const eBtnShadowStyle = $('btnShadowStyle');
-      if (eBtnShadowStyle) eBtnShadowStyle.value = cfg.style.btnShadowStyle || 'soft';
       $('layoutSpacing').value = cfg.style.layoutSpacing || 'comfy';
     }
   }
@@ -8106,19 +8102,9 @@
       (bgVar === 'solid' || bgVar === 'gradient' || bgVar === 'mesh' || bgVar === 'animated') ? '' : 'none';
 
     /* Glass agora vive em sub-grupos por elemento (botão/ícone/banner/texto),
-       cada um com estado próprio — não há mais seção global de vidro. */
-
-    /* Slider de raio só no modo Personalizado; intensidade só na sombra Suave
-       (controles globais de botão foram removidos — só há estilo individual por link) */
-    const eRadiusRow = $('btnRadiusRow');
-    if (eRadiusRow) eRadiusRow.style.display = (st.btnShape || 'rounded') === 'custom' ? '' : 'none';
-    const eShadowRow = $('btnShadowRow');
-    if (eShadowRow) eShadowRow.style.display = (st.btnShadowStyle || 'soft') === 'soft' ? '' : 'none';
-
-    const eGradientRow = $('btnGradientRow');
-    if (eGradientRow) eGradientRow.style.display = btnVar === 'gradient' ? '' : 'none';
-    const eGlowRow = $('glowColorRow');
-    if (eGlowRow) eGlowRow.style.display = btnVar === 'neon' ? '' : 'none';
+       cada um com estado próprio — não há mais seção global de vidro.
+       Controles globais de botão foram removidos — só há estilo individual por link
+       (no modal do link: perBtnVariant, perBtnShape, perBtnShadowStyle, etc.) */
 
     /* Re-render swatches dinâmicos */
     if (bgVar === 'mesh') {
@@ -8334,36 +8320,6 @@
       });
     });
 
-    /* btnVariant select */
-    safeOn('btnVariant', 'change', (e) => {
-      if (!cfg.style) cfg.style = {};
-      cfg.style.btnVariant = e.target.value;
-      updateStyleRowsVisibility();
-      applyThemeVars();
-      markDirty();
-    });
-
-    /* Botão gradiente */
-    ['btnGradientStart', 'btnGradientEnd'].forEach(id => {
-      safeOn(id, 'click', () => {
-        const current = (cfg.style && cfg.style[id]) || (id === 'btnGradientStart' ? '#6366f1' : '#ec4899');
-        openColorPicker($(id), current, (hex) => {
-          if (!cfg.style) cfg.style = {};
-          cfg.style[id] = hex;
-          setTriggerColor(id, hex);
-          applyThemeVars();
-          markDirty();
-        });
-      });
-    });
-    safeOn('btnGradientAngle', 'input', (e) => {
-      if (!cfg.style) cfg.style = {};
-      cfg.style.btnGradientAngle = Number(e.target.value);
-      $('btnGradientAngleVal').textContent = e.target.value + 'deg';
-      applyThemeVars();
-      markDirty();
-    });
-
     /* Imagem de fundo: File bruto → Storage → URL pública permanente */
     safeOn('btnBgImagePick', 'click', () => $('bgImageInput').click());
     safeOn('bgImageInput', 'change', async (e) => {
@@ -8468,42 +8424,6 @@
         markDirty();
       });
     });
-    /* Glow Neon + Forma + Animação dos botões */
-    safeOn('btnGlowColor', 'click', () => {
-      const current = (cfg.style && cfg.style.btnGlowColor) || '#22d3ee';
-      openColorPicker($('btnGlowColor'), current, (hex) => {
-        if (!cfg.style) cfg.style = {};
-        cfg.style.btnGlowColor = hex;
-        setTriggerColor('btnGlowColor', hex);
-        applyThemeVars();
-        markDirty();
-      });
-    });
-    safeOn('btnShape', 'change', (e) => {
-      if (!cfg.style) cfg.style = {};
-      cfg.style.btnShape = e.target.value;
-      updateStyleRowsVisibility();
-      applyThemeVars();
-      markDirty();
-    });
-    /* Estilo de sombra independente (none/soft/neumorph/glow) */
-    safeOn('btnShadowStyle', 'change', (e) => {
-      if (!cfg.style) cfg.style = {};
-      cfg.style.btnShadowStyle = e.target.value;
-      updateStyleRowsVisibility();
-      applyThemeVars();
-      markDirty();
-    });
-    safeOn('btnAnimation', 'change', (e) => {
-      if (!cfg.style) cfg.style = {};
-      cfg.style.btnAnimation = e.target.value;
-      applyThemeVars();
-      markDirty();
-    });
-
-    /* Controles originais */
-    bindRange('btnRadius', 'btnRadiusVal', (v) => v + 'px', (v) => { cfg.style.btnRadius = v; applyThemeVars(); });
-    bindRange('btnShadow', 'btnShadowVal', (v) => v + '%', (v) => { cfg.style.btnShadow = v; applyThemeVars(); });
     bindRange('blockGap', 'blockGapVal', (v) => v + 'px', (v) => { cfg.style.blockGap = v; renderPreview(); });
 
     /* Imagem do banner (cfg.banner) */
