@@ -5790,7 +5790,19 @@ glassEnabled: 'perButtonGlassToggle', glassBlur: 'perButtonGlassBlur', glassSatu
       btnLineHeight: (Number(l.linkLineHeight) >= 1 && Number(l.linkLineHeight) <= 2) ? Number(l.linkLineHeight) : 0,
       btnTextInk: l.linkTextColor || (l.style && l.style.textColor) || ''
     });
-    applyBtnTypo(a, flat, st, '.link-block-title, .link-block-txt');
+    /* Seletor unificado com o público (index.html): aplica inline no título
+       E na descrição (.featured__sub), não no container pai (.link-block-txt).
+       Isso evita que o subtitle herde tamanho do título e garante paridade
+       visual exata entre preview do admin e página pública.
+       Estrutura no admin:
+       - Links normais: .link-block-title (span) + .link-block-sub (span) dentro de .link-block-txt
+       - Highlight/Testimonial: strong (direto no <a>) + .featured__sub (div) */
+    const isHighlight = a.classList.contains('featured__card--highlight');
+    const isTestimonial = a.classList.contains('featured__card--testimonial');
+    const textSel = (isHighlight || isTestimonial)
+      ? 'strong, .featured__sub'
+      : '.link-block-title, .link-block-sub';
+    applyBtnTypo(a, flat, st, textSel);
     /* Largura/altura próprias do botão (0 = sem teto / automática) — o mesmo
        par de sliders que o PIX tem. */
     const bw = Number(flat.btnWidth) >= 160 ? Number(flat.btnWidth) : 0;
