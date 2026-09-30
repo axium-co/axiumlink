@@ -339,10 +339,9 @@
     color:var(--ink) !important; margin-bottom:0 !important;
   }
   .typo-inherit-row input[type="checkbox"] { margin:1px 0 0; accent-color:var(--brand); flex:0 0 auto; }
-  .typo-inherit-row small {
-    display:block; font-weight:400; font-size:11px; color:var(--muted);
-    margin-top:2px; line-height:1.45;
-  }
+  .typo-inherit-text { display:flex; flex-direction:column; gap:2px; line-height:1.4; }
+  .typo-inherit-text strong { font-weight:600; }
+  .typo-inherit-text small { font-weight:400; font-size:11px; color:var(--muted); line-height:1.45; }
   /* Sub-blocos independentes de tipografia */
   .typo-block {
     border:1.5px solid var(--border); border-radius:12px;
@@ -3267,7 +3266,10 @@
         <div class="ds-control">
           <label class="typo-inherit-row" for="blockTypoGlobal">
             <input type="checkbox" id="blockTypoGlobal" checked>
-            <span>Usar a tipografia do painel<small>Tamanho e peso vêm de “Tipografia dos Botões de Link”. Desmarque para personalizar só este botão.</small></span>
+            <div class="typo-inherit-text">
+              <strong>Usar a tipografia do painel</strong>
+              <small>Tamanho e peso vêm de “Tipografia dos Botões de Link”. Desmarque para personalizar só este botão.</small>
+            </div>
           </label>
         </div>
         <div class="ds-control">
