@@ -3443,7 +3443,8 @@
               <output class="ds-value" id="perBtnShadowVal">30%</output>
             </div>
           </div>
-          <div class="glass-block" id="perButtonGlassBlock" style="background:#fff; display:none;">
+          <!-- Efeito Vidro: header+toggle sempre visíveis; opções condicionais -->
+          <div class="glass-block" id="perButtonGlassBlock" style="background:#fff;">
             <div class="glass-block-head">💠 Efeito Vidro neste botão</div>
             <div class="toggle-row" style="padding:2px 0 6px;">
               <span class="toggle-label">Ativar efeito vidro</span>
@@ -3452,7 +3453,8 @@
                 <span class="slider"></span>
               </label>
             </div>
-            <div id="perButtonGlassOpts">
+          </div>
+          <div id="perButtonGlassOpts" style="display:none;">
             <div class="ds-control">
               <label>Desfoque (Blur)</label>
               <div class="ds-control-row">
@@ -3515,7 +3517,6 @@
                 <input type="checkbox" id="perButtonGlassNoise">
                 <span class="slider"></span>
               </label>
-            </div>
             </div>
           </div>
           <div class="field">
@@ -4161,7 +4162,7 @@ glassEnabled: 'perButtonGlassToggle', glassBlur: 'perButtonGlassBlur', glassSatu
        glassOpacity: 'perButtonGlassOpacity', glassColor: 'perButtonGlassColor',
        glassBorderGlow: 'perButtonGlassBorderGlow', glassShadowDepth: 'perButtonGlassShadowDepth',
        glassHighlight: 'perButtonGlassHighlight', glassNoise: 'perButtonGlassNoise',
-       glassBorderOpacity: 'perButtonGlassBorderOpacity', glassBlock: 'perButtonGlassBlock',
+       glassBorderOpacity: 'perButtonGlassBorderOpacity',
       bgColor: 'perBtnBgColor', boxTextColor: 'perBtnTextColor',
       displayStyle: 'perBtnDisplayStyle', cardStyle: 'blockCardStyle',
       font: 'blockTypoFont', typoGlobal: 'blockTypoGlobal', fontSize: 'blockTypoSize', fontWeight: 'blockTypoWeight',
@@ -4393,7 +4394,6 @@ glassEnabled: 'perButtonGlassToggle', glassBlur: 'perButtonGlassBlur', glassSatu
 /* As opções de vidro (blur, saturação, ...) só existem com vidro ligado:
         o bloco inteiro é escondido, o toggle fica visível. */
     if (r.glass) { const e = $(r.glass); if (e) e.style.display = m.glass.enabled ? 'block' : 'none'; }
-    if (r.glassBlock) { const e = $(r.glassBlock); if (e) e.style.display = m.glass.enabled ? 'block' : 'none'; }
   }
 
   /* Liga um painel INTEIRO ao modelo com um único código — é isto que
