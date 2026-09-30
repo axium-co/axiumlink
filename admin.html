@@ -9240,13 +9240,9 @@
     });
     const notApp = $('blockTypoNotApp');
     if (notApp) notApp.style.display = isImg ? 'block' : 'none';
-    /* Também desabilita visualmente o label do checkbox (typo-inherit-row) */
+    /* Esconde o label do checkbox (typo-inherit-row) quando botão é imagem */
     const inheritRow = document.querySelector('.typo-inherit-row');
-    if (inheritRow) {
-      inheritRow.classList.toggle('is-disabled', !!isImg);
-      inheritRow.style.opacity = isImg ? '0.45' : '';
-      inheritRow.style.pointerEvents = isImg ? 'none' : '';
-    }
+    if (inheritRow) inheritRow.style.display = isImg ? 'none' : '';
     /* A herança do painel manda no estado final dos sliders (marcar o botão
        como imagem não pode religar um override que está herdando). */
     updateBlockTypoInheritUI();
