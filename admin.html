@@ -8225,9 +8225,9 @@
       markDirty();
     });
 
-    /* Efeito vidro por elemento (sub-grupos independentes: botão/ícone/banner/texto) */
+    /* Efeito vidro por elemento (sub-grupos independentes: ícone/banner/texto).
+       Botão usa estilo individual por link (no modal: perButtonGlassBlock) — não há grupo global. */
     const GLASS_GROUPS = [
-      { key: 'buttonGlass', prefix: 'buttonGlass', blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: 25 },
       { key: 'nameGlass',   prefix: 'nameGlass',   blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: null },
       { key: 'bioGlass',   prefix: 'bioGlass',   blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: null },
       { key: 'addressGlass', prefix: 'addressGlass', blur: 20, saturate: 180, opacity: 16, color: '#ffffff', borderGlow: 40, shadowDepth: 18, highlight: true, noise: false, borderOpacity: null }
