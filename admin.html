@@ -8752,11 +8752,7 @@
     const st = cfg.style || {};
     renderBgTextureOptions();
     $('bgVariant').value = st.bgVariant || 'solid';
-    const eBtnVariant = $('btnVariant');
-    if (eBtnVariant) eBtnVariant.value = st.btnVariant || 'solid';
     renderGradientStops();
-    setTriggerColor('btnGradientStart', st.btnGradientStart || '#6366f1');
-    setTriggerColor('btnGradientEnd', st.btnGradientEnd || '#ec4899');
     setTriggerColor('cyberPrimary', st.cyberPrimary || '#00ffff');
     setTriggerColor('cyberSecondary', st.cyberSecondary || '#ff00ff');
     /* Cores individuais */
@@ -8764,23 +8760,12 @@
     $('bgTexture').value = st.bgTexture || 'none';
     $('fontFamily').value = st.font || 'Inter';
     $('layoutSpacing').value = st.layoutSpacing || 'comfy';
-    setTriggerColor('btnGlowColor', st.btnGlowColor || '#22d3ee');
-    const eBtnShape = $('btnShape');
-    if (eBtnShape) eBtnShape.value = st.btnShape || 'rounded';
-    const eBtnShadowStyle = $('btnShadowStyle');
-    if (eBtnShadowStyle) eBtnShadowStyle.value = st.btnShadowStyle || 'soft';
-    const eBtnAnimation = $('btnAnimation');
-    if (eBtnAnimation) eBtnAnimation.value = st.btnAnimation || 'none';
-
-    setRange('btnRadius', st.btnRadius);
-    setRange('btnShadow', st.btnShadow);
     reflectGlassInputs();
     reflectTypographyInputs();
     setRange('blockGap', st.blockGap);
     setRange('gradientAngle', st.gradientAngle ?? 135);
     setRange('animSpeed', st.animSpeed ?? 20);
     setRange('cyberGridIntensity', st.cyberGridIntensity ?? 30);
-    setRange('btnGradientAngle', st.btnGradientAngle ?? 135);
     setRange('bgTextureOpacity', st.bgTextureOpacity ?? 30);
 
     /* Personalização de Perfil/Banner (cfg.design) */
