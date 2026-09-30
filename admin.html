@@ -9321,10 +9321,10 @@
       _pendingBlockHeight = Number(hSlider.value);
       hVal.textContent = _pendingBlockHeight + 'px';
     }
-    /* Botão com imagem customizada não tem texto da plataforma: desabilita
-       os controles de tipografia do texto e mostra aviso (BUG 6). */
+/* Botão com imagem customizada não tem texto da plataforma: desabilita
+        os controles de tipografia do texto e mostra aviso (BUG 6). */
     const isImg = $('blockBtnDesign').value === 'imagem';
-    ['blockTypoFont', 'blockTypoSize', 'blockTypoWeight', 'blockTextColor'].forEach((id) => {
+    ['blockTypoFont', 'blockTypoSize', 'blockTypoWeight', 'blockTypoLs', 'blockTypoLh', 'blockTextColor', 'blockTypoGlobal'].forEach((id) => {
       const el = $(id);
       if (el) {
         const cs = el.classList;
@@ -9335,6 +9335,13 @@
     });
     const notApp = $('blockTypoNotApp');
     if (notApp) notApp.style.display = isImg ? 'block' : 'none';
+    /* Também desabilita visualmente o label do checkbox (typo-inherit-row) */
+    const inheritRow = document.querySelector('.typo-inherit-row');
+    if (inheritRow) {
+      inheritRow.classList.toggle('is-disabled', !!isImg);
+      inheritRow.style.opacity = isImg ? '0.45' : '';
+      inheritRow.style.pointerEvents = isImg ? 'none' : '';
+    }
     /* A herança do painel manda no estado final dos sliders (marcar o botão
        como imagem não pode religar um override que está herdando). */
     updateBlockTypoInheritUI();
