@@ -9248,7 +9248,7 @@ glassEnabled: 'perButtonGlassToggle', glassBlur: 'perButtonGlassBlur', glassSatu
     const notApp = $('blockTypoNotApp');
     if (notApp) notApp.style.display = isImg ? 'block' : 'none';
     /* Esconde o container do checkbox de herança quando botão é imagem */
-    const inheritRow = $('#blockTypoInheritRow');
+    const inheritRow = $('blockTypoInheritRow');
     if (inheritRow) inheritRow.style.display = isImg ? 'none' : '';
     /* A herança do painel manda no estado final dos sliders (marcar o botão
        como imagem não pode religar um override que está herdando). */
