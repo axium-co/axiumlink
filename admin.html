@@ -5788,6 +5788,8 @@
       btnFont: l.linkFont || (l.style && l.style.font) || '',
       btnFontSize: Number(l.linkFontSize) >= 13 ? Number(l.linkFontSize) : 0,
       btnFontWeight: Number(l.linkFontWeight) >= 300 ? Number(l.linkFontWeight) : 0,
+      btnLetterSpacing: (Number(l.linkLetterSpacing) >= -1 && Number(l.linkLetterSpacing) <= 5) ? Number(l.linkLetterSpacing) : 0,
+      btnLineHeight: (Number(l.linkLineHeight) >= 1 && Number(l.linkLineHeight) <= 2) ? Number(l.linkLineHeight) : 0,
       btnTextInk: l.linkTextColor || (l.style && l.style.textColor) || ''
     });
     applyBtnTypo(a, flat, st, '.link-block-title, .link-block-txt');
@@ -9179,6 +9181,8 @@
   let _pendingBlockFont = '';
   let _pendingBlockSize = null;
   let _pendingBlockWeight = null;
+  let _pendingBlockLs = null;
+  let _pendingBlockLh = null;
   let _pendingBlockStyle = null;
 
   function openBlockModal(index) {
@@ -9209,11 +9213,17 @@
     _pendingBlockFont = l.linkFont || (l.style && l.style.font) || '';
     _pendingBlockSize = (Number(l.linkFontSize) >= 13 && Number(l.linkFontSize) <= 34) ? Number(l.linkFontSize) : null;
     _pendingBlockWeight = (Number(l.linkFontWeight) >= 300 && Number(l.linkFontWeight) <= 900) ? Number(l.linkFontWeight) : null;
-    $('blockTypoGlobal').checked = !(Number(l.linkFontSize) >= 13 || Number(l.linkFontWeight) >= 300);
+    _pendingBlockLs = (Number(l.linkLetterSpacing) >= -1 && Number(l.linkLetterSpacing) <= 5) ? Number(l.linkLetterSpacing) : ((l.style && l.style.letterSpacing != null) ? Number(l.style.letterSpacing) : null);
+    _pendingBlockLh = (Number(l.linkLineHeight) >= 1 && Number(l.linkLineHeight) <= 2) ? Number(l.linkLineHeight) : ((l.style && l.style.lineHeight != null) ? Number(l.style.lineHeight) : null);
+    $('blockTypoGlobal').checked = !(Number(l.linkFontSize) >= 13 || Number(l.linkFontWeight) >= 300 || Number(l.linkLetterSpacing) >= -1 || Number(l.linkLineHeight) >= 1);
     $('blockTypoSize').value = (Number(l.linkFontSize) >= 13 && Number(l.linkFontSize) <= 34) ? Number(l.linkFontSize) : axGlobalBtnTypo().size;
     $('blockTypoSizeVal').textContent = $('blockTypoSize').value + 'px';
     $('blockTypoWeight').value = (Number(l.linkFontWeight) >= 300 && Number(l.linkFontWeight) <= 900) ? Number(l.linkFontWeight) : axGlobalBtnTypo().weight;
     $('blockTypoWeightVal').textContent = $('blockTypoWeight').value;
+    $('blockTypoLs').value = (_pendingBlockLs != null) ? _pendingBlockLs : axGlobalBtnTypo().ls;
+    $('blockTypoLsVal').textContent = $('blockTypoLs').value + 'px';
+    $('blockTypoLh').value = (_pendingBlockLh != null) ? _pendingBlockLh : axGlobalBtnTypo().lh;
+    $('blockTypoLhVal').textContent = $('blockTypoLh').value;
     const ltColor = l.linkTextColor || '';
     _pendingBlockTextColor = ltColor;
     setTriggerColor('blockTextColor', ltColor || '#ffffff');
@@ -9251,8 +9261,8 @@
     m.textColor = _pendingBlockTextColor || m.textColor;
     m.fontSize = $('blockTypoGlobal').checked ? null : (Number(_pendingBlockSize) || null);
     m.fontWeight = $('blockTypoGlobal').checked ? null : (Number(_pendingBlockWeight) || null);
-    m.letterSpacing = $('blockTypoGlobal').checked ? null : (ls.letterSpacing != null ? Number(ls.letterSpacing) : null);
-    m.lineHeight = $('blockTypoGlobal').checked ? null : (ls.lineHeight != null ? Number(ls.lineHeight) : null);
+    m.letterSpacing = $('blockTypoGlobal').checked ? null : (Number(_pendingBlockLs) || null);
+    m.lineHeight = $('blockTypoGlobal').checked ? null : (Number(_pendingBlockLh) || null);
     m.cardStyle = $('blockCardStyle').value || '';
     m.icon = $('blockType').value || '';
     m.iconImg = _pendingBlockIcon || '';
@@ -9727,6 +9737,8 @@ const publicUrl = await uploadFileToStorage(dataUrlToFile(dataUrl, 'perfil'), 'a
            fazia o "Tamanho da fonte" global deixar de funcionar. */
         linkFontSize: (!$('blockTypoGlobal')?.checked && Number($('blockTypoSize').value) >= 13) ? Number($('blockTypoSize').value) : null,
         linkFontWeight: (!$('blockTypoGlobal')?.checked && Number($('blockTypoWeight').value) >= 300) ? Number($('blockTypoWeight').value) : null,
+        linkLetterSpacing: (!$('blockTypoGlobal')?.checked && Number($('blockTypoLs').value) >= -1 && Number($('blockTypoLs').value) <= 5) ? Number($('blockTypoLs').value) : null,
+        linkLineHeight: (!$('blockTypoGlobal')?.checked && Number($('blockTypoLh').value) >= 1 && Number($('blockTypoLh').value) <= 2) ? Number($('blockTypoLh').value) : null,
         linkTextColor: _pendingBlockTextColor || '',
         spacing: (Number($('blockSpacing').value) > 0) ? Number($('blockSpacing').value) : undefined,
         style: perStyle

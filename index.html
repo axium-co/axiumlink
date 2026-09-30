@@ -3908,6 +3908,8 @@
           btnFont: link.linkFont || (link.style && link.style.font) || '',
           btnFontSize: Number(link.linkFontSize) >= 13 ? Number(link.linkFontSize) : 0,
           btnFontWeight: Number(link.linkFontWeight) >= 300 ? Number(link.linkFontWeight) : 0,
+          btnLetterSpacing: (Number(link.linkLetterSpacing) >= -1 && Number(link.linkLetterSpacing) <= 5) ? Number(link.linkLetterSpacing) : 0,
+          btnLineHeight: (Number(link.linkLineHeight) >= 1 && Number(link.linkLineHeight) <= 2) ? Number(link.linkLineHeight) : 0,
           btnTextInk: link.linkTextColor || (link.style && link.style.textColor) || ''
         });
         /* Piso de acessibilidade de 13px vem de axResolveBtnTypo — vale
