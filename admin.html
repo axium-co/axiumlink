@@ -3443,7 +3443,7 @@
               <output class="ds-value" id="perBtnShadowVal">30%</output>
             </div>
           </div>
-          <div class="glass-block" id="perButtonGlassBlock" style="background:#fff;">
+          <div class="glass-block" id="perButtonGlassBlock" style="background:#fff; display:none;">
             <div class="glass-block-head">💠 Efeito Vidro neste botão</div>
             <div class="toggle-row" style="padding:2px 0 6px;">
               <span class="toggle-label">Ativar efeito vidro</span>
@@ -4157,11 +4157,11 @@
       animation: 'perBtnAnimation', width: 'perBtnWidth', height: 'perBtnHeight',
       gradientStart: 'perBtnGradientStart', gradientEnd: 'perBtnGradientEnd', gradientAngle: 'perBtnGradientAngle',
       shadowType: 'perBtnShadowStyle', shadowIntensity: 'perBtnShadow',
-      glassEnabled: 'perButtonGlassToggle', glassBlur: 'perButtonGlassBlur', glassSaturate: 'perButtonGlassSaturate',
-      glassOpacity: 'perButtonGlassOpacity', glassColor: 'perButtonGlassColor',
-      glassBorderGlow: 'perButtonGlassBorderGlow', glassShadowDepth: 'perButtonGlassShadowDepth',
-      glassHighlight: 'perButtonGlassHighlight', glassNoise: 'perButtonGlassNoise',
-      glassBorderOpacity: 'perButtonGlassBorderOpacity',
+glassEnabled: 'perButtonGlassToggle', glassBlur: 'perButtonGlassBlur', glassSaturate: 'perButtonGlassSaturate',
+       glassOpacity: 'perButtonGlassOpacity', glassColor: 'perButtonGlassColor',
+       glassBorderGlow: 'perButtonGlassBorderGlow', glassShadowDepth: 'perButtonGlassShadowDepth',
+       glassHighlight: 'perButtonGlassHighlight', glassNoise: 'perButtonGlassNoise',
+       glassBorderOpacity: 'perButtonGlassBorderOpacity', glassBlock: 'perButtonGlassBlock',
       bgColor: 'perBtnBgColor', boxTextColor: 'perBtnTextColor',
       displayStyle: 'perBtnDisplayStyle', cardStyle: 'blockCardStyle',
       font: 'blockTypoFont', typoGlobal: 'blockTypoGlobal', fontSize: 'blockTypoSize', fontWeight: 'blockTypoWeight',
@@ -4390,9 +4390,10 @@
     if (r.glow) { const e = $(r.glow); if (e) e.style.display = (m.variant === 'neon') ? 'block' : 'none'; }
     if (r.radius) { const e = $(r.radius); if (e) e.style.display = (m.format === 'custom') ? 'block' : 'none'; }
     if (r.shadow) { const e = $(r.shadow); if (e) e.style.display = (m.shadow.type === 'soft') ? 'block' : 'none'; }
-    /* As opções de vidro (blur, saturação, ...) só existem com vidro ligado:
-       o bloco inteiro é escondido, o toggle fica visível. */
+/* As opções de vidro (blur, saturação, ...) só existem com vidro ligado:
+        o bloco inteiro é escondido, o toggle fica visível. */
     if (r.glass) { const e = $(r.glass); if (e) e.style.display = m.glass.enabled ? 'block' : 'none'; }
+    if (r.glassBlock) { const e = $(r.glassBlock); if (e) e.style.display = m.glass.enabled ? 'block' : 'none'; }
   }
 
   /* Liga um painel INTEIRO ao modelo com um único código — é isto que
