@@ -191,7 +191,7 @@
   }
   .field input:focus, .field textarea:focus, .field select:focus { border-color:var(--brand); }
   .field textarea { resize:vertical; min-height:74px; }
-  .hint { font-size:11.5px; color:var(--muted); margin-top:5px; line-height:1.4; }
+  .hint { font-size:11.5px; color:var(--muted); margin-top:5px; line-height:1.4; word-break:break-word; overflow-wrap:anywhere; max-width:100%; }
   .row-2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
 
   /* ===== TOGGLE SWITCH ===== */
@@ -335,13 +335,14 @@
   .typo-inherit-row {
     display:flex !important; align-items:flex-start; gap:9px; cursor:pointer;
     background:var(--bg); border:1.5px solid var(--border); border-radius:10px;
-    padding:10px 11px; font-size:12px !important; font-weight:600 !important;
+    padding:8px 10px; font-size:12px !important; font-weight:600 !important;
     color:var(--ink) !important; margin-bottom:0 !important;
+    min-height:0; /* evita altura forçada por alinhamento flex */
   }
   .typo-inherit-row input[type="checkbox"] { margin:1px 0 0; accent-color:var(--brand); flex:0 0 auto; }
-  .typo-inherit-text { display:flex; flex-direction:column; gap:2px; line-height:1.4; }
+  .typo-inherit-text { display:flex; flex-direction:column; gap:2px; line-height:1.35; min-width:0; }
   .typo-inherit-text strong { font-weight:600; }
-  .typo-inherit-text small { font-weight:400; font-size:11px; color:var(--muted); line-height:1.45; }
+  .typo-inherit-text small { font-weight:400; font-size:11px; color:var(--muted); line-height:1.35; word-break:break-word; overflow-wrap:anywhere; }
   /* Sub-blocos independentes de tipografia */
   .typo-block {
     border:1.5px solid var(--border); border-radius:12px;
@@ -9238,6 +9239,11 @@
         el.disabled = !!isImg;
         cs.toggle('disabled', !!isImg);
         cs.toggle('is-disabled', !!isImg);
+        /* Garante que o checkbox NUNCA fique disabled se não for imagem */
+        if (id === 'blockTypoGlobal' && !isImg) {
+          el.disabled = false;
+          cs.remove('disabled', 'is-disabled');
+        }
       }
     });
     const notApp = $('blockTypoNotApp');
