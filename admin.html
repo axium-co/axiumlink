@@ -337,9 +337,10 @@
     background:var(--bg); border:1.5px solid var(--border); border-radius:10px;
     padding:10px 12px; font-size:12px !important; font-weight:600 !important;
     color:var(--ink) !important; margin-bottom:0 !important;
+    width:100%; box-sizing:border-box;
   }
   .typo-inherit-row input[type="checkbox"] { margin-top:2px; accent-color:var(--brand); flex:0 0 auto; }
-  .typo-inherit-text { display:flex; flex-direction:column; gap:2px; line-height:1.35; }
+  .typo-inherit-text { display:flex; flex-direction:column; gap:2px; line-height:1.35; flex:1; min-width:0; width:100%; }
   .typo-inherit-text strong { font-weight:600; }
   .typo-inherit-text small { font-weight:400; font-size:11px; color:var(--muted); line-height:1.35; }
   /* Sub-blocos independentes de tipografia */
@@ -1782,10 +1783,13 @@
                     <option value="Space Grotesk">Space Grotesk (tech)</option>
                   </select>
                 </div>
-                <div class="ds-control">
+<div class="ds-control">
                   <label class="typo-inherit-row" for="pixStTypoGlobal">
                     <input type="checkbox" id="pixStTypoGlobal" checked>
-                    <span>Usar a tipografia do painel<small>Tamanho, peso, espaçamento e entrelinha vêm de “Tipografia dos Botões de Link”. Desmarque para personalizar só este botão.</small></span>
+                    <div class="typo-inherit-text">
+                      <strong>Usar a tipografia do painel</strong>
+                      <small>Tamanho, peso, espaçamento e entrelinha vêm de "Tipografia dos Botões de Link". Desmarque para personalizar só este botão.</small>
+                    </div>
                   </label>
                 </div>
                 <div class="ds-control">
