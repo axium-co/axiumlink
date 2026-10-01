@@ -2280,30 +2280,54 @@
       };
 
       function getSlug() {
-        /* 1. Prioriza pathname (URL limpa /:slug que o Vercel Rewrite preserva no browser) */
-        const pathSegments = window.location.pathname.split('/').filter(Boolean);
-        const staticFiles = ['.html', '.js', '.css', '.json', '.ico', '.png', '.svg', '.webmanifest', '.txt', '.xml', '.jpg', '.jpeg', '.gif', '.webp', '.avif', '.woff', '.woff2'];
-        const candidate = pathSegments[pathSegments.length - 1] || '';
-        if (candidate && !staticFiles.some(ext => candidate.endsWith(ext))) {
-          try { return decodeURIComponent(candidate).trim(); } catch (e) { return candidate.trim(); }
-        }
+        /* 1. Prioriza query params (?s= ou ?slug=) — injetado pelo vercel.json rewrite */
+        try {
+          const params = new URLSearchParams(window.location.search);
+          const fromQuery = (params.get('s') || params.get('slug') || '').trim();
+          if (fromQuery) {
+            try { return decodeURIComponent(fromQuery); } catch (e) { return fromQuery; }
+          }
+        } catch (_) {}
 
-        /* 2. Fallback: query params injetados pelo vercel.json (?s= ou ?slug=) */
-        const params = new URLSearchParams(window.location.search);
-        const fromQuery = (params.get('s') || params.get('slug') || '').trim();
-        if (fromQuery) {
-          try { return decodeURIComponent(fromQuery); } catch (e) { return fromQuery; }
-        }
+        /* 2. Pathname agressivo — remove barras, index.html, arquivos estáticos */
+        try {
+          let pathname = window.location.pathname || '';
+          pathname = pathname.replace(/^\/+|\/+$/g, '');
+          if (pathname) {
+            const segments = pathname.split('/').filter(Boolean);
+            const staticFiles = ['.html', '.js', '.css', '.json', '.ico', '.png', '.svg', '.webmanifest', '.txt', '.xml', '.jpg', '.jpeg', '.gif', '.webp', '.avif', '.woff', '.woff2', '.map'];
+            const candidate = segments[segments.length - 1] || '';
+            if (candidate && !staticFiles.some(ext => candidate.toLowerCase().endsWith(ext))) {
+              try { return decodeURIComponent(candidate).trim(); } catch (e) { return candidate.trim(); }
+            }
+          }
+        } catch (_) {}
+
+        /* 3. Fallback mobile: new URL() isola pathname de forma confiável */
+        try {
+          const u = new URL(window.location.href);
+          let pathname = u.pathname || '';
+          pathname = pathname.replace(/^\/+|\/+$/g, '');
+          if (pathname) {
+            const segments = pathname.split('/').filter(Boolean);
+            const staticFiles = ['.html', '.js', '.css', '.json', '.ico', '.png', '.svg', '.webmanifest', '.txt', '.xml', '.jpg', '.jpeg', '.gif', '.webp', '.avif', '.woff', '.woff2', '.map'];
+            const candidate = segments[segments.length - 1] || '';
+            if (candidate && !staticFiles.some(ext => candidate.toLowerCase().endsWith(ext))) {
+              try { return decodeURIComponent(candidate).trim(); } catch (e) { return candidate.trim(); }
+            }
+          }
+        } catch (_) {}
 
         return '';
       }
 
-      /* A página pública é 100% dinâmica: o perfil renderizado é SEMPRE o
-         cliente de public.clients cujo slug veio na URL. Não há fallback
-         para localStorage nem para o config.js estático — se o slug não
-         existir, mostramos "Perfil não encontrado". */
+/* A página pública é 100% dinâmica: o perfil renderizado é SEMPRE o
+          cliente de public.clients cujo slug veio na URL. Não há fallback
+          para localStorage nem para o config.js estático — se o slug não
+          existir, mostramos "Perfil não encontrado". */
       async function readConfig() {
         const slug = getSlug();
+        console.log('[Axiumlink][Diag] slug extraído:', slug, '| href:', window.location.href, '| pathname:', window.location.pathname, '| search:', window.location.search);
         if (!slug) {
           console.warn('[Axiumlink][Diag] Nenhum slug informado na URL.');
           return { ok: false, code: STATUS.NOSLUG };
@@ -2318,6 +2342,7 @@
         }
         let clientData = null;
         try {
+          console.log('[Axiumlink][Diag] Consultando Supabase: clients.slug =', JSON.stringify(slug));
           const { data, error } = await window.supabase
             .from('clients')
             .select('*')
