@@ -2280,16 +2280,21 @@
       };
 
       function getSlug() {
+        /* 1. Prioriza pathname (URL limpa /:slug que o Vercel Rewrite preserva no browser) */
+        const pathSegments = window.location.pathname.split('/').filter(Boolean);
+        const staticFiles = ['.html', '.js', '.css', '.json', '.ico', '.png', '.svg', '.webmanifest', '.txt', '.xml', '.jpg', '.jpeg', '.gif', '.webp', '.avif', '.woff', '.woff2'];
+        const candidate = pathSegments[pathSegments.length - 1] || '';
+        if (candidate && !staticFiles.some(ext => candidate.endsWith(ext))) {
+          try { return decodeURIComponent(candidate).trim(); } catch (e) { return candidate.trim(); }
+        }
+
+        /* 2. Fallback: query params injetados pelo vercel.json (?s= ou ?slug=) */
         const params = new URLSearchParams(window.location.search);
         const fromQuery = (params.get('s') || params.get('slug') || '').trim();
-        if (fromQuery) return fromQuery;
-        /* URLs limpas /<slug> (rewrite do Vercel entrega o index.html sem
-           alterar a barra de endereço) — deriva o slug do caminho. */
-        const segments = window.location.pathname.split('/').filter(Boolean);
-        const last = segments[segments.length - 1] || '';
-        if (last && !last.includes('.')) {
-          try { return decodeURIComponent(last); } catch (e) { return last; }
+        if (fromQuery) {
+          try { return decodeURIComponent(fromQuery); } catch (e) { return fromQuery; }
         }
+
         return '';
       }
 
