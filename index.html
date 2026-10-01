@@ -2285,7 +2285,7 @@
           const params = new URLSearchParams(window.location.search);
           const fromQuery = (params.get('s') || params.get('slug') || '').trim();
           if (fromQuery) {
-            try { return decodeURIComponent(fromQuery); } catch (e) { return fromQuery; }
+            try { return decodeURIComponent(fromQuery).toLowerCase(); } catch (e) { return fromQuery.toLowerCase(); }
           }
         } catch (_) {}
 
@@ -2298,7 +2298,7 @@
             const staticFiles = ['.html', '.js', '.css', '.json', '.ico', '.png', '.svg', '.webmanifest', '.txt', '.xml', '.jpg', '.jpeg', '.gif', '.webp', '.avif', '.woff', '.woff2', '.map'];
             const candidate = segments[segments.length - 1] || '';
             if (candidate && !staticFiles.some(ext => candidate.toLowerCase().endsWith(ext))) {
-              try { return decodeURIComponent(candidate).trim(); } catch (e) { return candidate.trim(); }
+              try { return decodeURIComponent(candidate).trim().toLowerCase(); } catch (e) { return candidate.trim().toLowerCase(); }
             }
           }
         } catch (_) {}
@@ -2313,7 +2313,7 @@
             const staticFiles = ['.html', '.js', '.css', '.json', '.ico', '.png', '.svg', '.webmanifest', '.txt', '.xml', '.jpg', '.jpeg', '.gif', '.webp', '.avif', '.woff', '.woff2', '.map'];
             const candidate = segments[segments.length - 1] || '';
             if (candidate && !staticFiles.some(ext => candidate.toLowerCase().endsWith(ext))) {
-              try { return decodeURIComponent(candidate).trim(); } catch (e) { return candidate.trim(); }
+              try { return decodeURIComponent(candidate).trim().toLowerCase(); } catch (e) { return candidate.trim().toLowerCase(); }
             }
           }
         } catch (_) {}
@@ -2346,7 +2346,7 @@
           const { data, error } = await window.supabase
             .from('clients')
             .select('*')
-            .eq('slug', slug)
+            .ilike('slug', slug)
             .maybeSingle();
           if (error) throw error;
           clientData = data || null;

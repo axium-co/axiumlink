@@ -1,4 +1,4 @@
-const SW_VERSION = 'axiumlink-v5.2.0';
+const SW_VERSION = 'axiumlink-v5.2.1';
 const PRECACHE_URLS = [
   './',
   './index.html',
@@ -39,17 +39,7 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(request.url);
 
   if (request.mode === 'navigate') {
-    event.respondWith(
-      safeRespondWith(
-        fetch(request)
-          .then((response) => {
-            const copy = response.clone();
-            caches.open(SW_VERSION).then((cache) => cache.put(request, copy));
-            return response;
-          })
-          .catch(() => caches.match(request).then((hit) => hit || caches.match('./index.html')))
-      )
-    );
+    event.respondWith(safeRespondWith(networkFirst(request)));
     return;
   }
 
