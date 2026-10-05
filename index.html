@@ -1298,27 +1298,6 @@
       border-top: 1px solid color-mix(in srgb, var(--text-body) 16%, transparent);
     }
 
-    .site-footer__pwa {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.8125rem;
-      font-weight: 600;
-      color: var(--text-title);
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 999px;
-      padding: 0.625rem 1.125rem;
-      box-shadow: var(--shadow-xs);
-      min-height: 44px;
-      touch-action: manipulation;
-      transition: box-shadow var(--transition), transform var(--transition), border-color var(--transition);
-    }
-
-    .site-footer__pwa:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
-    .site-footer__pwa:active { transform: scale(0.98); }
-    .site-footer__pwa svg { width: 16px; height: 16px; }
-
     /* Link discreto de acesso ao painel (engrenagem) */
     .site-footer__admin {
       display: inline-flex;
@@ -1671,13 +1650,7 @@
     }
 
     @media (max-width: 480px) {
-      .site-footer__pwa { width: 100%; justify-content: center; }
       .featured__card--half { width: 100%; }
-    }
-
-    @media (max-width: 360px) {
-      .site-footer__pwa { padding: 10px 14px; }
-      .site-footer__pwa strong { font-size: 0.85rem; }
     }
 
     @media (min-width: 980px) {
@@ -2000,15 +1973,6 @@
        FOOTER DA PLATAFORMA
        ================================================================ -->
   <footer class="site-footer">
-    <button class="site-footer__pwa" type="button" data-pwa>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-        <polyline points="7 10 12 15 17 10" />
-        <line x1="12" x2="12" y1="15" y2="3" />
-      </svg>
-      Adicionar à tela inicial
-    </button>
-
     <!-- Acesso ao painel — link discreto para o administrador -->
     <a class="site-footer__admin" href="/admin" title="Acessar painel de gerenciamento" aria-label="Acessar painel de gerenciamento">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -2150,26 +2114,18 @@
     }
 
     /* ================================================================
-       PWA — "ADICIONAR À TELA INICIAL" (instalação + iOS)
+       PWA — FOLHA DE INSTALAÇÃO (iOS e navegadores sem prompt)
+       ----------------------------------------------------------------
+       O botão "Adicionar à tela inicial" do rodapé foi removido.
+       Este bloco permanece apenas para a folha de instalação (#pwaSheet),
+       que ainda depende de 'beforeinstallprompt' através do botão
+       #pwa-install. Nada aqui exibe a folha sem uma ação explícita.
        ================================================================ */
     (function () {
-      const isStandalone = () =>
-        (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
-        window.navigator.standalone === true;
-
-      const isIOS =
-        /iphone|ipad|ipod/i.test(navigator.userAgent) ||
-        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-
-      const pwaBtn = document.querySelector('[data-pwa]');
       const sheet = document.getElementById('pwaSheet');
-      const sheetText = document.getElementById('pwa-sheet-text');
-      const iosSteps = document.getElementById('pwa-ios-steps');
       const installBtn = document.getElementById('pwa-install');
       let deferredPrompt = null;
-      let promptSupported = false;
 
-      const showSheet = () => { if (sheet) sheet.hidden = false; };
       const hideSheet = () => { if (sheet) sheet.hidden = true; };
 
       document.querySelectorAll('[data-pwa-close]').forEach((el) => el.addEventListener('click', hideSheet));
@@ -2181,40 +2137,12 @@
       window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e;
-        promptSupported = true;
       });
 
       window.addEventListener('appinstalled', () => {
         deferredPrompt = null;
-        if (pwaBtn) pwaBtn.style.display = 'none';
         hideSheet();
       });
-
-      if (isStandalone()) {
-        if (pwaBtn) pwaBtn.style.display = 'none';
-      } else if (pwaBtn) {
-        pwaBtn.style.display = 'inline-flex';
-        pwaBtn.addEventListener('click', async () => {
-          if (deferredPrompt) {
-            deferredPrompt.prompt();
-            await deferredPrompt.userChoice;
-            deferredPrompt = null;
-            if (pwaBtn) pwaBtn.style.display = 'none';
-          } else {
-            const hasPrompt = promptSupported;
-            if (iosSteps) iosSteps.hidden = !isIOS;
-            if (installBtn) installBtn.hidden = isIOS || !hasPrompt;
-            if (sheetText) {
-              sheetText.textContent = isIOS
-                ? 'No iPhone/iPad, use o Safari para instalar:'
-                : hasPrompt
-                  ? 'Instale o aplicativo para usá-lo a qualquer momento, mesmo offline.'
-                  : 'Para instalar, use o menu do seu navegador e escolha "Adicionar à tela inicial".';
-            }
-            showSheet();
-          }
-        });
-      }
 
       if (installBtn) {
         installBtn.addEventListener('click', async () => {
@@ -2223,7 +2151,6 @@
           await deferredPrompt.userChoice;
           deferredPrompt = null;
           hideSheet();
-          if (pwaBtn) pwaBtn.style.display = 'none';
         });
       }
 
