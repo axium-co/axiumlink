@@ -1476,113 +1476,6 @@
       padding-bottom: max(2rem, calc(env(safe-area-inset-bottom) + 1.25rem));
     }
 
-    /* ================================================================
-       PWA — FOLHA DE INSTALAÇÃO (bottom sheet / modal)
-       ================================================================ */
-    .pwa-sheet {
-      position: fixed;
-      inset: 0;
-      z-index: 200;
-      display: grid;
-      place-items: center;
-      background: rgba(0, 0, 0, 0.5);
-      backdrop-filter: blur(2px);
-      padding:
-        max(1.5rem, env(safe-area-inset-top))
-        max(1.5rem, env(safe-area-inset-right))
-        max(1.5rem, env(safe-area-inset-bottom))
-        max(1.5rem, env(safe-area-inset-left));
-    }
-
-    .pwa-sheet[hidden] { display: none; }
-
-    .pwa-sheet__panel {
-      position: relative;
-      width: min(100%, 340px);
-      background: var(--card-bg);
-      color: var(--text-title);
-      border: 1px solid var(--card-border);
-      border-radius: var(--radius-lg);
-      padding: 2rem 1.5rem 1.5rem;
-      box-shadow: var(--shadow-md);
-      text-align: center;
-    }
-
-    .pwa-sheet__close {
-      position: absolute;
-      top: 0.625rem;
-      right: 0.625rem;
-      width: 44px;
-      height: 44px;
-      border-radius: 999px;
-      background: color-mix(in srgb, var(--text-title) 8%, transparent);
-      display: grid;
-      place-items: center;
-      font-size: 1rem;
-      line-height: 1;
-    }
-
-    .pwa-sheet__icon {
-      width: 56px;
-      height: 56px;
-      margin: 0 auto 0.75rem;
-      border-radius: 14px;
-      background: var(--card-destaque-bg, var(--card-bg));
-      color: var(--card-destaque-text, var(--card-fg));
-      border: 1px solid var(--card-border);
-      display: grid;
-      place-items: center;
-    }
-
-    .pwa-sheet__icon svg { width: 26px; height: 26px; }
-
-    .pwa-sheet__title {
-      font-size: 1.125rem;
-      font-weight: 800;
-      letter-spacing: -0.01em;
-      margin-bottom: 0.375rem;
-    }
-
-    .pwa-sheet__text {
-      font-size: 0.8125rem;
-      color: var(--text-body);
-      line-height: 1.5;
-      margin-bottom: 1rem;
-    }
-
-    .pwa-sheet__btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      width: 100%;
-      min-height: 46px;
-      font-weight: 700;
-      background: var(--card-destaque-bg, var(--card-bg));
-      color: var(--card-destaque-text, var(--card-fg));
-      border-radius: var(--radius-md);
-      touch-action: manipulation;
-      transition: transform var(--transition), filter var(--transition);
-    }
-
-    .pwa-sheet__btn:hover { filter: brightness(1.06); transform: translateY(-1px); }
-    .pwa-sheet__btn svg { width: 16px; height: 16px; }
-    .pwa-sheet__btn[hidden] { display: none; }
-
-    .pwa-sheet__steps {
-      text-align: left;
-      margin: 0;
-      padding-left: 1.25rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      font-size: 0.8125rem;
-      color: var(--text-body);
-      line-height: 1.5;
-    }
-
-    .pwa-sheet__steps[hidden] { display: none; }
-
     /* ---- Aviso de offline ---- */
     .offline-pill {
       position: fixed;
@@ -1988,43 +1881,6 @@
     </p>
   </footer>
 
-  <!-- ================================================================
-       PWA — FOLHA DE INSTALAÇÃO (iOS e navegadores sem prompt)
-       ================================================================ -->
-  <div class="pwa-sheet" id="pwaSheet" hidden>
-    <div class="pwa-sheet__panel" role="dialog" aria-modal="true" aria-labelledby="pwa-sheet-title">
-
-      <button class="pwa-sheet__close" type="button" data-pwa-close aria-label="Fechar">&times;</button>
-
-      <div class="pwa-sheet__icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-          <polyline points="7 10 12 15 17 10" />
-          <line x1="12" x2="12" y1="15" y2="3" />
-        </svg>
-      </div>
-
-      <h2 class="pwa-sheet__title" id="pwa-sheet-title">Instalar aplicativo</h2>
-      <p class="pwa-sheet__text" id="pwa-sheet-text"></p>
-
-      <button class="pwa-sheet__btn" type="button" id="pwa-install" hidden>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-          <polyline points="7 10 12 15 17 10" />
-          <line x1="12" x2="12" y1="15" y2="3" />
-        </svg>
-        <span>Instalar agora</span>
-      </button>
-
-      <ol class="pwa-sheet__steps" id="pwa-ios-steps" hidden>
-        <li>Toque em <strong>Compartilhar</strong> na barra do Safari</li>
-        <li>Escolha <strong>Adicionar à Tela de Início</strong></li>
-        <li>Confirme em <strong>Adicionar</strong></li>
-      </ol>
-
-    </div>
-  </div>
-
   <!-- Aviso de conexão perdida -->
   <div class="offline-pill" id="offlinePill" hidden>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -2114,46 +1970,13 @@
     }
 
     /* ================================================================
-       PWA — FOLHA DE INSTALAÇÃO (iOS e navegadores sem prompt)
+       AVISO DE OFFLINE
        ----------------------------------------------------------------
-       O botão "Adicionar à tela inicial" do rodapé foi removido.
-       Este bloco permanece apenas para a folha de instalação (#pwaSheet),
-       que ainda depende de 'beforeinstallprompt' através do botão
-       #pwa-install. Nada aqui exibe a folha sem uma ação explícita.
+       A UI de instalação do PWA foi removida por completo (botão do
+       rodapé + folha #pwaSheet). O app continua instalável pelo menu
+       do próprio navegador, via manifest.webmanifest + sw.js.
        ================================================================ */
     (function () {
-      const sheet = document.getElementById('pwaSheet');
-      const installBtn = document.getElementById('pwa-install');
-      let deferredPrompt = null;
-
-      const hideSheet = () => { if (sheet) sheet.hidden = true; };
-
-      document.querySelectorAll('[data-pwa-close]').forEach((el) => el.addEventListener('click', hideSheet));
-      if (sheet) {
-        sheet.addEventListener('click', (e) => { if (e.target === sheet) hideSheet(); });
-        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') hideSheet(); });
-      }
-
-      window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-      });
-
-      window.addEventListener('appinstalled', () => {
-        deferredPrompt = null;
-        hideSheet();
-      });
-
-      if (installBtn) {
-        installBtn.addEventListener('click', async () => {
-          if (!deferredPrompt) return;
-          deferredPrompt.prompt();
-          await deferredPrompt.userChoice;
-          deferredPrompt = null;
-          hideSheet();
-        });
-      }
-
       const pill = document.getElementById('offlinePill');
       const updateStatus = () => { if (pill) pill.hidden = navigator.onLine; };
       window.addEventListener('online', updateStatus);
