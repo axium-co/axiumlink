@@ -993,6 +993,7 @@
   }
 
   .link-block.featured__card--highlight {
+    display:flex; flex-direction:column; align-items:center;
     text-align:center; justify-content:center; padding:1rem 1.25rem;
   }
   .link-block.featured__card--highlight strong { font-size:1.125rem; }
@@ -1000,7 +1001,7 @@
   .link-block.featured__card--highlight .link-block__head { padding-left:0; padding-right:0; justify-content:center; }
 
   .link-block.featured__card--testimonial {
-    flex-direction:column; align-items:flex-start; gap:6px;
+    display:flex; flex-direction:column; align-items:flex-start; gap:6px;
     font-style:italic; padding:1.25rem 1.5rem; position:relative;
   }
   .link-block.featured__card--testimonial::before {
@@ -1432,7 +1433,6 @@
   }
 
   .pix-modal__cta {
-    display: block;
     width: 100%;
     text-align: center;
     font-weight: 600;
@@ -2035,7 +2035,7 @@
                     </div>
                     <div class="field" style="margin:0;">
                       <label style="font-size:11px;">Texto</label>
-                      <div class="color-trigger" id="pixStTextColor" role="button" tabindex="0">
+                      <div class="color-trigger" id="pixStBoxTextColor" role="button" tabindex="0">
                         <div class="color-trigger-swatch" style="background:#ffffff;"></div>
                         <span class="color-trigger-hex">AUTO</span>
                       </div>
@@ -4185,7 +4185,7 @@ glassEnabled: 'perButtonGlassToggle', glassBlur: 'perButtonGlassBlur', glassSatu
       glassBorderGlow: 'pixStGlassBorderGlow', glassShadowDepth: 'pixStGlassShadowDepth',
       glassHighlight: 'pixStGlassHighlight', glassNoise: 'pixStGlassNoise',
       glassBorderOpacity: 'pixStGlassBorderOpacity',
-      bgColor: 'pixStBgColor', boxTextColor: 'pixStTextColor',
+      bgColor: 'pixStBgColor', boxTextColor: 'pixStBoxTextColor',
       displayStyle: 'pixStDisplayStyle', cardStyle: 'pixStCardStyle',
       font: 'pixStFont', typoGlobal: 'pixStTypoGlobal', fontSize: 'pixStFontSize', fontWeight: 'pixStFontWeight',
       letterSpacing: 'pixStLetterSpacing', lineHeight: 'pixStLineHeight', textInk: 'pixStTextColor', notApp: 'pixStTypoNotApp',
@@ -5054,9 +5054,9 @@ glassEnabled: 'perButtonGlassToggle', glassBlur: 'perButtonGlassBlur', glassSatu
         const label = $('pixStBgColor').querySelector('.color-trigger-hex');
         if (label) label.textContent = triggerLabel(pixS.btnBgColor || '#16a34a');
       }
-      if ($('pixStTextColor')) {
-        setTriggerColor('pixStTextColor', pixS.btnTextColor || '#ffffff');
-        const label = $('pixStTextColor').querySelector('.color-trigger-hex');
+      if ($('pixStBoxTextColor')) {
+        setTriggerColor('pixStBoxTextColor', pixS.btnTextColor || '#ffffff');
+        const label = $('pixStBoxTextColor').querySelector('.color-trigger-hex');
         if (label) label.textContent = triggerLabel(pixS.btnTextColor || '#ffffff');
       }
       $('pixQrHint').style.display = pixS.qr ? 'block' : 'none';
@@ -8852,9 +8852,9 @@ glassEnabled: 'perButtonGlassToggle', glassBlur: 'perButtonGlassBlur', glassSatu
       const label = $('pixStBgColor').querySelector('.color-trigger-hex');
       if (label) label.textContent = triggerLabel(pixC.btnBgColor || '#16a34a');
     }
-    if ($('pixStTextColor')) {
-      setTriggerColor('pixStTextColor', pixC.btnTextColor || '#ffffff');
-      const label = $('pixStTextColor').querySelector('.color-trigger-hex');
+    if ($('pixStBoxTextColor')) {
+      setTriggerColor('pixStBoxTextColor', pixC.btnTextColor || '#ffffff');
+      const label = $('pixStBoxTextColor').querySelector('.color-trigger-hex');
       if (label) label.textContent = triggerLabel(pixC.btnTextColor || '#ffffff');
     }
     reflectPixStyleControls();
@@ -9290,7 +9290,7 @@ glassEnabled: 'perButtonGlassToggle', glassBlur: 'perButtonGlassBlur', glassSatu
     const hSlider = $('pixStCustomHeight');
     const hVal = $('pixStCustomHeightVal');
     if (hSlider && hVal) hVal.textContent = hSlider.value + 'px';
-    ['pixStFont', 'pixStFontSize', 'pixStFontWeight', 'pixStLetterSpacing', 'pixStLineHeight', 'pixStTextColor'].forEach((id) => {
+    ['pixStFont', 'pixStFontSize', 'pixStFontWeight', 'pixStLetterSpacing', 'pixStLineHeight', 'pixStTextColor', 'pixStBoxTextColor'].forEach((id) => {
       const el = $(id);
       if (el) {
         const cs = el.classList;
